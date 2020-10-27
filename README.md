@@ -25,4 +25,6 @@ Each line consists of a key-value pair of the form 'KEY=VALUE'
 |EXPRESS_PORT|Server port|Can use whatever value you want, e.g. 9000|
 |SESSION_SECRET|Any string|Used to verify sessions. Best to avoid spaces|
 |STRIPE_SECRET_KEY|Starts with sk_...|Used by the server to verify with Stripe This should never be published to the repo. Keys starting with pk_... are public and can be published|
-|STRIPE_ENDPOINT_SECRET|Starts with whsec_...|Used by the server to verify Stripe webhook events|
+|JWT_SECRET|A string|Secret used to sign JWTs for transactions|
+|JWT_EXPIRY|A number in milliseconds|The time until a JWT expires|
+|WEB_ADDRESS|A URL without the ending slash|The web address of the server to redirect back to|
