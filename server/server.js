@@ -74,17 +74,19 @@ app.use("/api/auth", authRoute);
 app.use("/api/gym", isLoggedIn, gymRoute);
 app.use("/api/payments", paymentsRoute);
 
+/** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
+
 // Uncomment /* */ when deploying
 // These are for serving production code
 // The directory may need to change
-/* app.use(express.static(path.join(__dirname, "../frontend/build"))); */
+app.use(express.static(path.join(__dirname, "../frontend/build"))); */
 // Necessary since things like /gym do not actually exist they are routes
 // within the index.html file
-/*
+
 app.get('/*', function (req, res) {
   res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
 });
-*/
+
 
 // Listen for requests on the port specified in the .env file
 app.listen(process.env.EXPRESS_PORT, () => console.log(`Server started on ${process.env.EXPRESS_PORT}`));
