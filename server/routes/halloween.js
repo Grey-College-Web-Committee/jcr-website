@@ -35,9 +35,20 @@ router.get("/", async (req, res) => {
     let hasActiveTransaction = false;
     let booking;
 
-    halloweenUserTransactions.forEach((transaction, index) => {
+    halloweenUserTransactions.forEach(async (transaction, index) => {
       if(!transaction.dataValues.completed) {
-        hasActiveTransaction = true;
+        const createdAt = new Date(transaction.dataValues.createdAt);
+        const secondsSince = (Date.now() - createdAt.getTime()) / 1000;
+
+        if(secondsSince > 5 * 60) {
+          const tId = transaction.dataValues.id;
+          await Transaction.update({ completed: true, successful: false }, { where: {
+            id: tId
+          }});
+        } else {
+          hasActiveTransaction = true;
+        }
+
         return;
       }
 
