@@ -128,7 +128,12 @@ class App extends React.Component {
             <div className="content">
               <Switch>
                 <Route exact path="/" render={() => (
-                  <h1>Homepage</h1>
+                  <React.Fragment>
+                    <h1>Homepage</h1>
+                    <p>Welcome to the new Grey College JCR shop. This is currently a work in progress!</p>
+                    <p>If you would like to make a booking for the Halloween Film Event please login to the website. Use your Durham CIS username (such as abcd12) and the same password you use for this account.</p>
+                    <p>Once you have logged in you will 'Halloween' in the bar at the top. Click there to go to the booking page!</p>
+                  </React.Fragment>
                 )} />
                 <Route exact path="/payments/:result/:jwt" render={(props) => (
                   <PaymentFinishedPage {...props} />

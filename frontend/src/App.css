@@ -84,6 +84,11 @@ a {
   background-color: #e57373;
 }
 
+.table_center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 nav > ul > a > li, nav > ul > li {
   display: inline-block;
   padding-top: 15px;

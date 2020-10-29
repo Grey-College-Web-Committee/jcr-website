@@ -39,17 +39,25 @@ class LoginForm extends React.Component {
     return (
       <React.Fragment>
         <form onSubmit={this.onFormSubmission}>
-          <label>
-            Username:
-            <input type="text" name="username" value={this.state.username} onChange={this.onInputChange} />
-          </label>
-          <br></br>
-          <label>
-            Password:
-            <input type="password" name="password" value={this.state.password} onChange={this.onInputChange} />
-          </label>
-          <br></br>
-          <input type="submit" value="Login" disabled={this.props.disabled} />
+          <table className="table_center">
+            <tr>
+              <td>Username</td>
+              <td>
+                <input type="text" name="username" value={this.state.username} onChange={this.onInputChange} />
+              </td>
+            </tr>
+            <tr>
+              <td>Password</td>
+              <td>
+                <input type="password" name="password" value={this.state.password} onChange={this.onInputChange} />
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
+                <input type="submit" value="Login" disabled={this.props.disabled} />
+              </td>
+            </tr>
+          </table>
         </form>
       </React.Fragment>
     );

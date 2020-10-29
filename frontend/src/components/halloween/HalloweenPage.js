@@ -42,15 +42,6 @@ class HalloweenPage extends React.Component {
     this.setState({ loaded: true, existing: existing.data });
   }
 
-
-  /*
-
-    hasBooking: false,
-    inTransaction: false,
-    saturdayCount,
-    sundayCount
-  */
-
   render () {
     if(!this.state.loaded) {
       return (
@@ -70,7 +61,8 @@ class HalloweenPage extends React.Component {
           <h1>Halloween Bookings</h1>
           <p>You have successfully made a booking!</p>
           <p>Booked for {booking.type === 1 ? "Saturday (31/11/2020)" : "Sunday (01/11/2020)"}</p>
-          <p>This booking is for 6 people</p>
+          <p>This booking is for 6 people.</p>
+          <p>Enjoy!</p>
         </React.Fragment>
       );
     }
@@ -90,13 +82,14 @@ class HalloweenPage extends React.Component {
     return (
       <React.Fragment>
         <h1>Halloween Bookings</h1>
-        <p>£23.70, 6 people per booking. 1 person must pay the £23.70.</p>
+        <p>The cost of this event is £23.70 for a group of 6 people.</p>
+        <p>Only one person from the group needs to book!</p>
         <p>You have 5 minutes from clicking the purchase button to complete the transaction.</p>
         <div>
           <h2>Saturday Booking (31/10/2020)</h2>
-          <p>Remaining spaces: {6 - saturdayCount}</p>
+          <p>Remaining spaces: <strong>{6 - saturdayCount}</strong></p>
           {saturdayCount >= 6 ? (
-            <p>Fully booked!</p>
+            <p><strong>Fully booked!</strong> Check back to see if more are available later!</p>
           ) : (
             <button role="link" onClick={(e) => this.purchaseBooking(e, true)}>
               Book Saturday
@@ -105,9 +98,9 @@ class HalloweenPage extends React.Component {
         </div>
         <div>
           <h2>Sunday Booking (01/11/2020)</h2>
-          <p>Remaining spaces: {6 - sundayCount}</p>
+          <p>Remaining spaces: <strong>{6 - sundayCount}</strong></p>
           {sundayCount >= 6 ? (
-            <p>Fully booked!</p>
+            <p><strong>Fully booked!</strong> Check back to see if more are available later!</p>
           ) : (
             <button role="link" onClick={(e) => this.purchaseBooking(e, false)}>
               Book Sunday
