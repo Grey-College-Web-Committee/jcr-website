@@ -81,7 +81,7 @@ a {
 .main_navigation {
   text-align: center;
   width: 100%;
-  background-color: #e57373;
+  background-color: #BE2B2E;
 }
 
 .table_center {
@@ -101,7 +101,7 @@ nav > ul > a > li, nav > ul > li {
 }
 
 nav > ul > a > li:hover {
-  background-color: #ef9a9a;
+  background-color: #e57373;
   color: #212121;
 }
 
