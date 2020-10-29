@@ -96,6 +96,7 @@ class HalloweenPage extends React.Component {
         <p>The cost of this event is £23.70 for a group of 6 people.</p>
         <p>Only one person from the group needs to book!</p>
         <p>You have 5 minutes from clicking the purchase button to complete the transaction.</p>
+        <p>You will be purchasing a ticket valid for 6 people to attend. By purchasing this ticket, you are agreeing to ensure that the 6 attendees are all living in college and are all in the same household. If you turn up with more than 6 people or with people from different households you may be refused entry and may not be refunded your money.</p>
         <div>
           <h2>Saturday Booking (31/10/2020)</h2>
           <p>Remaining spaces: <strong>{6 - saturdayCount}</strong></p>
