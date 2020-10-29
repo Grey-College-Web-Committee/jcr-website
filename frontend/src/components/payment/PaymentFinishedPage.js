@@ -40,6 +40,10 @@ class PaymentFinishedPage extends React.Component {
     switch(type) {
       case 0:
         return "1 Year Gym Membership";
+      case 1:
+        return "Saturday Halloween Film Booking (6 Spaces)";
+      case 2:
+        return "Sunday Halloween Film Booking (6 Spaces)";
       case -1:
       default:
         return "Unknown";

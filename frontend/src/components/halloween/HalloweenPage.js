@@ -11,13 +11,13 @@ class HalloweenPage extends React.Component {
     super(props);
     this.state = {
       loaded: false,
-      hasBooking: false
+      existing: {}
     }
   }
 
-  purchaseBooking = async (e) => {
+  purchaseBooking = async (e, saturday) => {
     const stripe = await stripePromise;
-    const response = await api.post("/gym/create_stripe_checkout");
+    const response = await api.post("/halloween/create_stripe_checkout", { saturday });
     const session = await response.data;
 
     const result = await stripe.redirectToCheckout({
@@ -32,22 +32,24 @@ class HalloweenPage extends React.Component {
   componentDidMount = async () => {
     let existing;
 
-    return;
-
     try {
-      existing = await api.get("/gym");
+      existing = await api.get("/halloween");
     } catch (error) {
-      this.setState({ status: error.response.status, message: error.response.data.message, queried: true });
+      this.setState({ status: error.response.status, message: error.response.data.message, loaded: true });
       return;
     }
 
-    if(!existing.data.hasMembership) {
-      this.setState({ loaded: true, hasMembership: false });
-      return;
-    }
-
-    this.setState({ loaded: true, hasMembership: true, membership: existing.data.membership });
+    this.setState({ loaded: true, existing: existing.data });
   }
+
+
+  /*
+
+    hasBooking: false,
+    inTransaction: false,
+    saturdayCount,
+    sundayCount
+  */
 
   render () {
     if(!this.state.loaded) {
@@ -59,6 +61,32 @@ class HalloweenPage extends React.Component {
       );
     }
 
+    console.log(this.state.existing);
+
+    if(this.state.existing.hasBooking) {
+      const { booking } = this.state.existing;
+      return (
+        <React.Fragment>
+          <h1>Halloween Bookings</h1>
+          <p>You have successfully made a booking!</p>
+          <p>Booked for {booking.type === 1 ? "Saturday (31/11/2020)" : "Sunday (01/11/2020)"}</p>
+          <p>This booking is for 6 people</p>
+        </React.Fragment>
+      );
+    }
+
+    if(this.state.existing.inTransaction) {
+      return (
+        <React.Fragment>
+          <h1>Halloween Bookings</h1>
+          <p>You exited out of your transaction. You are not able to book for the next few minutes.</p>
+        </React.Fragment>
+      );
+    }
+
+    const saturdayCount = parseInt(this.state.existing.saturdayCount);
+    const sundayCount = parseInt(this.state.existing.sundayCount);
+
     return (
       <React.Fragment>
         <h1>Halloween Bookings</h1>
@@ -66,13 +94,25 @@ class HalloweenPage extends React.Component {
         <p>You have 5 minutes from clicking the purchase button to complete the transaction.</p>
         <div>
           <h2>Saturday Booking (31/10/2020)</h2>
-          <p>Available slots:</p>
-          <button>Book Now!</button>
+          <p>Remaining spaces: {6 - saturdayCount}</p>
+          {saturdayCount >= 6 ? (
+            <p>Fully booked!</p>
+          ) : (
+            <button role="link" onClick={(e) => this.purchaseBooking(e, true)}>
+              Book Saturday
+            </button>
+          )}
         </div>
         <div>
           <h2>Sunday Booking (01/11/2020)</h2>
-          <p>Available slots:</p>
-          <button>Book Now!</button>
+          <p>Remaining spaces: {6 - sundayCount}</p>
+          {sundayCount >= 6 ? (
+            <p>Fully booked!</p>
+          ) : (
+            <button role="link" onClick={(e) => this.purchaseBooking(e, false)}>
+              Book Sunday
+            </button>
+          )}
         </div>
       </React.Fragment>
     )
