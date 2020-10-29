@@ -36,3 +36,75 @@
     transform: rotate(360deg);
   }
 }
+
+@import url('https://fonts.googleapis.com/css?family=Roboto:300|Open+Sans');
+
+div, h1, h2, h3, h4, h5, h6, form, nav, ul {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+  background: transparent;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+	font-family: 'Open Sans', sans-serif;
+  background-color: #F8F8FF;
+  background: solid;
+  color: #212121;
+}
+
+h1 {
+  font-size: 40px;
+}
+
+h2 {
+  font-size: 30px;
+}
+
+h3 {
+  font-size: 20px;
+}
+
+a {
+  color: inherit;
+}
+
+.main_navigation {
+  text-align: center;
+  width: 100%;
+  background-color: #e57373;
+}
+
+.table_center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+nav > ul > a > li, nav > ul > li {
+  display: inline-block;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  padding-left: 50px;
+  padding-right: 50px;
+  transition: all 0.6s ease;
+  text-decoration: none;
+  color: #F8F8FF;
+}
+
+nav > ul > a > li:hover {
+  background-color: #ef9a9a;
+  color: #212121;
+}
+
+div.content {
+  padding: 3%;
+}

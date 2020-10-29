@@ -51,7 +51,8 @@ class LoginPage extends React.Component {
     return (
       <React.Fragment>
         <h1>Login Page</h1>
-        <p>Please sign in using your Durham CIS details</p>
+        <p>Please sign in using your Durham CIS details!</p>
+        <p>You must be a member of Grey College to login.</p>
         <LoginForm
           disabled={this.state.disabled}
           updateMessage={this.updateMessage}

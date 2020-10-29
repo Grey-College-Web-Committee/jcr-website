@@ -99,7 +99,9 @@ Transaction.init({
 
 const TransactionType = Object.freeze({
   unknown: -1,
-  gymMembership: 0
+  gymMembership: 0,
+  halloweenSaturday: 1,
+  halloweenSunday: 2
 });
 
 // Associations are necessary to allow joins between tables

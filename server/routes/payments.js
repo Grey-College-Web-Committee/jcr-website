@@ -123,6 +123,9 @@ router.post("/success", async (req, res) => {
       }
 
       break;
+    case TransactionType.halloweenSaturday:
+    case TransactionType.halloweenSunday:
+      break;
     case TransactionType.unknown:
     default:
       return res.status(500).json({ message: "Server error: Unknown transaction type" });

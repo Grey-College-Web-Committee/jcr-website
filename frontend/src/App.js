@@ -9,6 +9,7 @@ import LogoutPage from './components/accounts/LogoutPage';
 import GymPage from './components/gym/GymPage';
 import PaymentFinishedPage from './components/payment/PaymentFinishedPage';
 import ErrorPage from './components/errors/ErrorPage';
+import HalloweenPage from './components/halloween/HalloweenPage';
 
 import AdminGymPage from './components/gym/admin/AdminGymPage';
 
@@ -124,10 +125,15 @@ class App extends React.Component {
         <Router>
           <div className="App">
             <NavigationBar />
-            <div>
+            <div className="content">
               <Switch>
                 <Route exact path="/" render={() => (
-                  <h1>Homepage</h1>
+                  <React.Fragment>
+                    <h1>Grey College JCR Shop</h1>
+                    <p>Welcome to the new Grey College JCR shop. This is currently a work in progress!</p>
+                    <p>If you would like to make a booking for the Halloween Film Event please login to the website. Use your Durham CIS username (such as abcd12) and the same password you use for this account.</p>
+                    <p>Once you have logged in you will 'Halloween' in the bar at the top. Click there to go to the booking page!</p>
+                  </React.Fragment>
                 )} />
                 <Route exact path="/payments/:result/:jwt" render={(props) => (
                   <PaymentFinishedPage {...props} />
@@ -140,7 +146,10 @@ class App extends React.Component {
                 )} />
                 <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
                 <Route exact path="/gym" render={() => (
-                  this.isLoggedIn() ? ( <GymPage /> ) : ( <Redirect to="/accounts/login" /> )
+                  this.isLoggedIn() ? ( <Redirect to="/halloween" /> ) : ( <Redirect to="/accounts/login" /> )
+                )} />
+                <Route exact path="/halloween" render={() => (
+                  this.isLoggedIn() ? ( <HalloweenPage /> ) : ( <Redirect to="/accounts/login" /> )
                 )} />
                 <Route exact path="/errors/:code" render={(props) => (
                   <ErrorPage {...props} />
