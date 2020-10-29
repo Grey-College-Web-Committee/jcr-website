@@ -14,9 +14,10 @@ class NavigationBar extends React.Component {
           <nav>
             <ul>
               <NavigationBarItem title="Home" url="/" />
-              <NavigationBarItem title="Gym Membership" url="/gym" />
-              <NavigationBarItem title="Admin: Gym Memberships" url="/admin/gym" />
-              <NavigationBarItem title={user.username} url="/" />
+              <NavigationBarItem title="Gym Membership" url="/gym" alive={false} />
+              <NavigationBarItem title="Admin: Gym Memberships" url="/admin/gym" alive={false} />
+              <NavigationBarItem title="Halloween" url="/halloween" />
+              <NavigationBarItem title={user.username} url="/" alive={false} />
               <NavigationBarItem title="Logout" url="/accounts/logout" />
             </ul>
           </nav>
@@ -28,8 +29,8 @@ class NavigationBar extends React.Component {
         <nav>
           <ul>
             <NavigationBarItem title="Home" url="/" />
-            <NavigationBarItem title="Gym Membership" url="/gym" />
-            <NavigationBarItem title={user.username} url="/" />
+            <NavigationBarItem title="Halloween" url="/halloween" />
+            <NavigationBarItem title={user.username} url="/" alive={false} />
             <NavigationBarItem title="Logout" url="/accounts/logout" />
           </ul>
         </nav>

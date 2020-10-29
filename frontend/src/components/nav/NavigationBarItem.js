@@ -4,15 +4,22 @@ import { Link } from 'react-router-dom'
 
 class NavigationBarItem extends React.Component {
   render () {
+    if(!this.props.hasOwnProperty("alive")) {
+      return (
+        <Link to={this.props.url}><li>{this.props.title}</li></Link>
+      );
+    }
+
     return (
-      <Link to={this.props.url}><li>{this.props.title}</li></Link>
+      <li>{this.props.title}</li>
     );
   }
 }
 
 NavigationBarItem.propTypes = {
   title: PropTypes.string.isRequired,
-  url: PropTypes.string.isRequired
+  url: PropTypes.string.isRequired,
+  alive: PropTypes.bool
 }
 
 export default NavigationBarItem;

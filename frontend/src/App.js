@@ -9,6 +9,7 @@ import LogoutPage from './components/accounts/LogoutPage';
 import GymPage from './components/gym/GymPage';
 import PaymentFinishedPage from './components/payment/PaymentFinishedPage';
 import ErrorPage from './components/errors/ErrorPage';
+import HalloweenPage from './components/halloween/HalloweenPage';
 
 import AdminGymPage from './components/gym/admin/AdminGymPage';
 
@@ -140,7 +141,10 @@ class App extends React.Component {
                 )} />
                 <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
                 <Route exact path="/gym" render={() => (
-                  this.isLoggedIn() ? ( <GymPage /> ) : ( <Redirect to="/accounts/login" /> )
+                  this.isLoggedIn() ? ( <Redirect to="/halloween" /> ) : ( <Redirect to="/accounts/login" /> )
+                )} />
+                <Route exact path="/halloween" render={() => (
+                  this.isLoggedIn() ? ( <HalloweenPage /> ) : ( <Redirect to="/accounts/login" /> )
                 )} />
                 <Route exact path="/errors/:code" render={(props) => (
                   <ErrorPage {...props} />
