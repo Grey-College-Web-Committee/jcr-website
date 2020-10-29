@@ -125,7 +125,7 @@ class App extends React.Component {
         <Router>
           <div className="App">
             <NavigationBar />
-            <div>
+            <div className="content">
               <Switch>
                 <Route exact path="/" render={() => (
                   <h1>Homepage</h1>

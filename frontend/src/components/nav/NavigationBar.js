@@ -11,7 +11,7 @@ class NavigationBar extends React.Component {
       if(user.admin) {
         // User is an admin
         return (
-          <nav>
+          <nav className="main_navigation">
             <ul>
               <NavigationBarItem title="Home" url="/" />
               <NavigationBarItem title="Gym Membership" url="/gym" alive={false} />
@@ -26,7 +26,7 @@ class NavigationBar extends React.Component {
 
       // User is logged in
       return (
-        <nav>
+        <nav className="main_navigation">
           <ul>
             <NavigationBarItem title="Home" url="/" />
             <NavigationBarItem title="Halloween" url="/halloween" />
@@ -39,7 +39,7 @@ class NavigationBar extends React.Component {
 
     // User is logged out
     return (
-      <nav>
+      <nav className="main_navigation">
         <ul>
           <NavigationBarItem title="Home" url="/" />
           <NavigationBarItem title="Login" url="/accounts/login" />
