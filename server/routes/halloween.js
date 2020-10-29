@@ -130,13 +130,116 @@ router.get("/all", async (req, res) => {
 router.post("/create_stripe_checkout", async (req, res) => {
   const { user } = req.session;
 
+  // Get the user's transactions relating to the Halloween Bookings
+
+  let halloweenUserTransactions;
+
+  try {
+    halloweenUserTransactions = await Transaction.findAll({
+      where: {
+        type: {
+          [Op.or]: [TransactionType.halloweenSaturday, TransactionType.halloweenSunday]
+        },
+        userId: user.id
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error: Unable to query the database for user halloween transactions" });
+  }
+
+  // If they have any we need to check they aren't trying to double book
+
+  if(halloweenUserTransactions.length !== 0) {
+    let hasSuccessfulBooking = false;
+    let hasActiveTransaction = false;
+    let booking;
+
+    halloweenUserTransactions.forEach((transaction, index) => {
+      if(!transaction.dataValues.completed) {
+        hasActiveTransaction = true;
+        return;
+      }
+
+      if(transaction.dataValues.successful) {
+        hasSuccessfulBooking = true;
+        booking = transaction;
+        return;
+      }
+    });
+
+    if(hasSuccessfulBooking) {
+      return res.status(400).json({ message: "Already booked!" });
+    }
+
+    if(hasActiveTransaction) {
+      return res.status(400).json({ message: "Booking has failed previously" });
+    }
+  }
+
+  // Once we are happy that they don't have active bookings we need to check that tickets are available
+
+  let halloweenTransactions;
+
+  try {
+    halloweenTransactions = await Transaction.findAll({
+      where: {
+        type: {
+          [Op.or]: [TransactionType.halloweenSaturday, TransactionType.halloweenSunday]
+        }
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Server error: Unable to query the database for halloween transactions" });
+  }
+
+  // Could be 0 if they are the first to try
+
+  let saturdayCount = 0;
+  let sundayCount = 0;
+
+  if(halloweenTransactions.length !== 0) {
+    halloweenTransactions.forEach((transaction, index) => {
+      if(transaction.dataValues.type === TransactionType.halloweenSaturday) {
+        if(transaction.dataValues.completed) {
+          if(transaction.dataValues.successful) {
+            // Successful transaction => booked
+            saturdayCount++;
+          }
+        } else {
+          // Not completed => In progress
+          // Should probably add some check here to see about expiry time
+          saturdayCount++;
+        }
+      } else if (transaction.dataValues.type === TransactionType.halloweenSunday) {
+        if(transaction.dataValues.completed) {
+          if(transaction.dataValues.successful) {
+            // Successful transaction => booked
+            sundayCount++;
+          }
+        } else {
+          // Not completed => In progress
+          // Should probably add some check here to see about expiry time
+          sundayCount++;
+        }
+      }
+    });
+  }
+
   const saturday = req.body.saturday;
   let type;
 
   if(saturday) {
     type = TransactionType.halloweenSaturday;
+    if(saturdayCount >= 6) {
+      return res.status(400).json({ message: "Saturday is full" });
+    }
   } else {
     type = TransactionType.halloweenSunday;
+    if(sundayCount >= 6) {
+      return res.status(400).json({ message: "Sunday is full" });
+    }
   }
 
   // Create a new Transaction and get its UUID
