@@ -43,6 +43,17 @@ class HalloweenPage extends React.Component {
   }
 
   render () {
+    const dev = false;
+
+    if(Date.now() < new Date("2020-10-29T18:30:00") && dev) {
+      return (
+        <React.Fragment>
+          <h1>Halloween Bookings</h1>
+          <h2>Booking opens at 6:30pm on 29/10/2020!</h2>
+        </React.Fragment>
+      );
+    }
+
     if(!this.state.loaded) {
       return (
         <React.Fragment>
