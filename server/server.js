@@ -12,7 +12,6 @@ const { User, GymMembership, Transaction } = require("./database.models.js");
 const authRoute = require("./routes/auth");
 const gymRoute = require("./routes/gym");
 const paymentsRoute = require("./routes/payments");
-const halloweenRoute = require("./routes/halloween");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -74,7 +73,6 @@ const isLoggedIn = (req, res, next) => {
 app.use("/api/auth", authRoute);
 app.use("/api/gym", isLoggedIn, gymRoute);
 app.use("/api/payments", paymentsRoute);
-app.use("/api/halloween", isLoggedIn, halloweenRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

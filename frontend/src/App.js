@@ -130,9 +130,6 @@ class App extends React.Component {
                 <Route exact path="/" render={() => (
                   <React.Fragment>
                     <h1>Grey College JCR Shop</h1>
-                    <p>Welcome to the new Grey College JCR shop. This is currently a work in progress!</p>
-                    <p>If you would like to make a booking for the Halloween Film Event please login to the website. Use your Durham CIS username (such as abcd12) and the same password you use for this account.</p>
-                    <p>Once you have logged in you will see 'Halloween' in the bar at the top. Click there to go to the booking page!</p>
                   </React.Fragment>
                 )} />
                 <Route exact path="/payments/:result/:jwt" render={(props) => (
@@ -146,10 +143,7 @@ class App extends React.Component {
                 )} />
                 <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
                 <Route exact path="/gym" render={() => (
-                  this.isLoggedIn() ? ( <Redirect to="/halloween" /> ) : ( <Redirect to="/accounts/login" /> )
-                )} />
-                <Route exact path="/halloween" render={() => (
-                  this.isLoggedIn() ? ( <HalloweenPage /> ) : ( <Redirect to="/accounts/login" /> )
+                  this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <Redirect to="/accounts/login" /> )
                 )} />
                 <Route exact path="/errors/:code" render={(props) => (
                   <ErrorPage {...props} />
