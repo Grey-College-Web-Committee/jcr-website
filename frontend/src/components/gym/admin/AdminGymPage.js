@@ -6,7 +6,7 @@ class AdminGymPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      queried: false,
+      loaded: false,
       status: 0,
       message: "",
       memberships: []
@@ -19,17 +19,17 @@ class AdminGymPage extends React.Component {
     try {
       query = await api.get("/gym/all");
     } catch (error) {
-      this.setState({ status: error.response.status, message: error.response.data.message, queried: true });
+      this.setState({ status: error.response.status, message: error.response.data.message, loaded: true });
       return;
     }
 
     const memberships = query.data.memberships;
 
-    this.setState({ queried: true, status: query.status, memberships });
+    this.setState({ loaded: true, status: query.status, memberships });
   }
 
   render () {
-    if(!this.state.queried) {
+    if(!this.state.loaded) {
       return (
         <React.Fragment>
           <h1>Loading...</h1>

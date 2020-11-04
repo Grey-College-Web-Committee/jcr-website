@@ -16,7 +16,7 @@ class PaymentFinishedPage extends React.Component {
       },
       jwt,
       result: result.toLowerCase(),
-      queried: false,
+      loaded: false,
       status: 0,
       message: "",
       type: -1
@@ -29,11 +29,11 @@ class PaymentFinishedPage extends React.Component {
     try {
       query = await api.post(`/payments/${this.state.result}`, { transactionJWT: this.state.jwt });
     } catch (error) {
-      this.setState({ status: error.response.status, message: error.response.data.message, queried: true });
+      this.setState({ status: error.response.status, message: error.response.data.message, loaded: true });
       return;
     }
 
-    this.setState({ status: query.status, message: query.data.message, type: query.data.type, queried: true });
+    this.setState({ status: query.status, message: query.data.message, type: query.data.type, loaded: true });
   }
 
   lookupType = (type) => {
@@ -57,7 +57,7 @@ class PaymentFinishedPage extends React.Component {
       );
     }
 
-    if(!this.state.queried) {
+    if(!this.state.loaded) {
       return (
         <React.Fragment>
           <h1>Loading...</h1>

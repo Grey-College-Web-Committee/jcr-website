@@ -1,19 +1,21 @@
 # Grey Payments
 ## Setup
 1. Download and install Node.js (includes npm) https://nodejs.org/en/download/
-2. Fork this repository and download it locally
-3. Inside the server folder create a file named '.env' and fill it with the contents described in the 'Server .env' section in this document
-4. Navigate to the server folder in a terminal/CMD and run 'npm install'
-5. Run 'npm start' in the server folder (this will open the server and initialise your database and tables)
-6. Navigate to the server folder in a terminal/CMD and run 'npm install'
-7. In the frontend folder edit the package.json and change the line with 'proxy' on to match the port that you used for the express server
-8. Run 'npm start' in the frontend folder (this will take a little longer but will open the React app in your web browser)
+2. Download and install MySQL https://www.mysql.com/downloads/
+3. Download the repository locally
+4. Create a file called '.env' in the server folder. Fill it with the contents described in the Server .env section below.
+5. Create a new database in MySQL called 'grey-shop'. Change the DB_USERNAME and DB_PASSWORD in the .env file to match your account for MySQL.
+6. Inside the server folder, open new a terminal and run 'npm install'.
+7. Once it is complete, run 'npm start' in the server folder. This will start the server and create the necessary tables.
+8. Inside the frontend folder, open new a terminal and run 'npm install'.
+9. Once it is complete, run 'npm start' in the frontend folder. This will open the page in your default web browser.
 
-This should get the app up and running.
+This should get the site up and running locally.
 
-Leave the server and frontend running while developing. Both have hot-reloading so you can just develop without worrying about restarting either. Although if the server is reloaded sessions do not persist.
+Leave the server and frontend running while developing. Both have hot-reloading so you can just develop without worrying about restarting either. Although if the server is reloaded sessions do not persist so it will log you out.
 
 ## Server .env
+```
 DB_NAME=grey-shop
 DB_USERNAME=username
 DB_PASSWORD=password
@@ -25,3 +27,4 @@ STRIPE_SECRET_KEY=<Stripe Secret sk_...>
 JWT_SECRET=somesecretkeyhere
 JWT_EXPIRY=7200000
 WEB_ADDRESS=http://localhost:9000
+```

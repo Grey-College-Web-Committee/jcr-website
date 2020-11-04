@@ -11,7 +11,9 @@ class HalloweenPage extends React.Component {
     super(props);
     this.state = {
       loaded: false,
-      existing: {}
+      existing: {},
+      status: 0,
+      message: ""
     }
   }
 

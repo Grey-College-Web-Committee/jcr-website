@@ -11,6 +11,8 @@ import PaymentFinishedPage from './components/payment/PaymentFinishedPage';
 import ErrorPage from './components/errors/ErrorPage';
 import HalloweenPage from './components/halloween/HalloweenPage';
 
+// To add a new page import it like above
+
 import AdminGymPage from './components/gym/admin/AdminGymPage';
 
 import './App.css';
