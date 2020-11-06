@@ -6,6 +6,7 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const jwt = require("jsonwebtoken");
 
+// Check if the user has a membership. If they do then return it to the client.
 router.get("/", async (req, res) => {
   const { user } = req.session;
 
@@ -18,6 +19,7 @@ router.get("/", async (req, res) => {
   return res.status(200).json({ hasMembership: true, membership });
 });
 
+// Returns all of the memberships for the admin page
 router.get("/all", async (req, res) => {
   const { user } = req.session;
 
