@@ -6,10 +6,7 @@ import NavigationBar from './components/nav/NavigationBar';
 
 import LoginPage from './components/accounts/LoginPage';
 import LogoutPage from './components/accounts/LogoutPage';
-import GymPage from './components/gym/GymPage';
-import PaymentFinishedPage from './components/payment/PaymentFinishedPage';
 import ErrorPage from './components/errors/ErrorPage';
-import HalloweenPage from './components/halloween/HalloweenPage';
 
 // To add a new page import it like above
 
@@ -134,19 +131,10 @@ class App extends React.Component {
                     <h1>Grey College JCR Shop</h1>
                   </React.Fragment>
                 )} />
-                <Route exact path="/payments/:result/:jwt" render={(props) => (
-                  <PaymentFinishedPage {...props} />
-                )} />
-                <Route exact path="/admin/gym" render={() => (
-                  this.isAdmin() ? ( <AdminGymPage /> ) : ( <Redirect to="/errors/403" /> )
-                )} />
                 <Route exact path="/accounts/login" render={() => (
                   this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
                 )} />
                 <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
-                <Route exact path="/gym" render={() => (
-                  this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <Redirect to="/accounts/login" /> )
-                )} />
                 <Route exact path="/errors/:code" render={(props) => (
                   <ErrorPage {...props} />
                 )} />

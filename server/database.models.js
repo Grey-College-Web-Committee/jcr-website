@@ -14,7 +14,6 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 
 class User extends Model {}
 class GymMembership extends Model {}
-class Transaction extends Model {}
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -61,55 +60,9 @@ GymMembership.init({
   }
 }, { sequelize });
 
-/*
-To get around needing to use webhooks (at least temporarily) we will track transactions
-through this table providing the id in a similar use to email verification tokens allowing
-a single use that is safe (enough) to expose on the frontend
--- Ultimately want to move to webhooks eventually but this is practical given the time
-'type' here is an enum that we could do with moving away from
-*/
-// completed => Has reached either failure or success page
-// successful => Has reached the success page
-Transaction.init({
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true
-  },
-  userId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  type: {
-    type: DataTypes.INTEGER,
-    defaultValue: -1
-  },
-  completed: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  successful: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  }
-}, { sequelize });
-
-const TransactionType = Object.freeze({
-  unknown: -1,
-  gymMembership: 0,
-  halloweenSaturday: 1,
-  halloweenSunday: 2
-});
-
 // Associations are necessary to allow joins between tables
 
 User.hasMany(GymMembership, { foreignKey: 'userId' });
 GymMembership.belongsTo(User, { foreignKey: 'userId' });
 
-User.hasMany(Transaction, { foreignKey: 'userId' });
-Transaction.belongsTo(User, { foreignKey: 'userId' });
-
-module.exports = { User, GymMembership, Transaction, TransactionType };
+module.exports = { User, GymMembership };
