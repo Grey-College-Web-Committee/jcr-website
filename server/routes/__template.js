@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { User, GymMembership, Transaction, TransactionType } = require("../database.models.js");
+const { User, GymMembership } = require("../database.models.js");
 
 // Called when a GET request is to be served at /api/<route>
 router.get("/", async (req, res) => {

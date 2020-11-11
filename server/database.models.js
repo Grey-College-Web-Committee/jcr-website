@@ -14,6 +14,9 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 
 class User extends Model {}
 class GymMembership extends Model {}
+class ToastieStock extends Model {}
+class ToastieOrder extends Model {}
+class ToastieOrderContent extends Model {}
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -60,9 +63,56 @@ GymMembership.init({
   }
 }, { sequelize });
 
+ToastieStock.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  }
+}, { sequelize });
+
+ToastieOrder.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  }
+}, { sequelize });
+
+ToastieOrderContent.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieOrder,
+      key: 'id'
+    }
+  },
+  stockId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieStock,
+      key: 'id'
+    }
+  }
+}, { sequelize });
+
 // Associations are necessary to allow joins between tables
 
 User.hasMany(GymMembership, { foreignKey: 'userId' });
 GymMembership.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { User, GymMembership };
+User.hasMany(ToastieOrder, { foreignKey: 'userId' });
+ToastieOrder.belongsTo(User, { foreignKey: 'userId' });
+
+ToastieOrder.hasMany(ToastieOrderContent, { foreignKey: 'orderId' });
+ToastieOrderContent.belongsTo(ToastieOrder, { foreignKey: 'orderId' });
+
+ToastieStock.hasMany(ToastieOrderContent, { foreignKey: 'stockId' });
+ToastieOrderContent.belongsTo(ToastieStock, { foreignKey: 'stockId' });
+
+module.exports = { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent };
