@@ -72,9 +72,13 @@ ToastieStock.init({
     type: DataTypes.BOOLEAN,
     defaultValue: true
   },
-  type: {
+  type: { 
     type: DataTypes.STRING,
-    allowNull: false 
+    allowNull: false
+  },
+  price: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
   }
 }, { sequelize, freezeTableName: true });
 

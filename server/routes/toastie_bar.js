@@ -22,7 +22,7 @@ router.get("/stock", async (req, res) => {
 // Add a new item for the stock
 router.post("/stock", async (req, res) => {
   // Admin only
-  const { name, type, available } = req.body;
+  const { name, type, price, available } = req.body;
 
   if(name == null) {
     return res.status(400).json({ error: "Missing name" });
@@ -32,12 +32,16 @@ router.post("/stock", async (req, res) => {
     return res.status(400).json({ error: "Missing type" });
   }
 
+  if(price == null) {
+    return res.status(400).json({ error: "Missing price" });
+  }
+
   if(available == null) {
     return res.status(400).json({ error: "Missing available" });
   }
 
   try {
-    await ToastieStock.create({ name, type, available });
+    await ToastieStock.create({ name, type, price, available });
   } catch (error) {
     //handle
     return;

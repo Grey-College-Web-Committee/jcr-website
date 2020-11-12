@@ -7,6 +7,7 @@ import NavigationBar from './components/nav/NavigationBar';
 import LoginPage from './components/accounts/LoginPage';
 import LogoutPage from './components/accounts/LogoutPage';
 import ErrorPage from './components/errors/ErrorPage';
+import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 
 // To add a new page import it like above
 
@@ -138,6 +139,9 @@ class App extends React.Component {
                 <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
                 <Route exact path="/toasties/stock" render={() => (
                   this.isAdmin() ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                )} />OrderToastiePage
+                <Route exact path="/toasties/" render={() => (
+                  this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )
                 )} />
                 <Route exact path="/errors/:code" render={(props) => (
                   <ErrorPage {...props} />

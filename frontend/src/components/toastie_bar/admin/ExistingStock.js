@@ -20,6 +20,7 @@ class ExistingStock extends React.Component {
             <tr>
               <th>Name</th>
               <th>Type</th>
+              <th>Price (£)</th>
               <th>Available</th>
               <th>Last Updated</th>
               <th>Permanently Remove</th>
@@ -30,6 +31,7 @@ class ExistingStock extends React.Component {
               <tr key={index}>
                 <td>{item.name}</td>
                 <td>{item.type}</td>
+                <td>{item.price}</td>
                 <td>{item.available ? "Yes" : "No"}</td>
                 <td>{item.updatedAt}</td>
                 <td>Delete</td>

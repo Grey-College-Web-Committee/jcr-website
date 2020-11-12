@@ -8,6 +8,7 @@ class AddStock extends React.Component {
     this.state = {
       name: "",
       type: "filling",
+      price: 0,
       available: true,
       disabled: false
     }
@@ -21,7 +22,7 @@ class AddStock extends React.Component {
     e.preventDefault();
     this.setState({ disabled: true });
 
-    const { name, type, available } = this.state;
+    const { name, type, price, available } = this.state;
 
     if(name.length === 0) {
       alert("You must set a name for the new item.");
@@ -38,14 +39,14 @@ class AddStock extends React.Component {
     let query;
 
     try {
-      query = await api.post("/toastie_bar/stock", { name, type, available });
+      query = await api.post("/toastie_bar/stock", { name, type, price, available });
     } catch (error) {
       this.setState({ status: error.response.status, error: error.response.data.error, loaded: true });
       return;
     }
 
     this.props.updateStockListing();
-    this.setState({ name: "", type: "filling", available: true, disabled: false });
+    this.setState({ name: "", type: "filling", price: 0, available: true, disabled: false });
   }
 
   render () {
@@ -70,6 +71,17 @@ class AddStock extends React.Component {
             <option value="bread">Bread</option>
           </select>
           <br />
+            <label>Price (£)</label>
+            <input
+              type="number"
+              name="price"
+              onChange={this.onInputChange}
+              value={this.state.price}
+              min="0"
+              max="100"
+              step="0.01"
+            />
+            <br/>
           <label>Available</label>
           <input
             type="checkbox"
