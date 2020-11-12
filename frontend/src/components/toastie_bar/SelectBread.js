@@ -14,7 +14,7 @@ class SelectBread extends React.Component {
   }
 
   onInputChange = e => {
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, () => { this.props.passUp(this.state.choice) });
   }
 
   render () {

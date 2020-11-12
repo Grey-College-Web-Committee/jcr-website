@@ -17,9 +17,9 @@ class SelectFillings extends React.Component {
     if(!this.state.choices.includes(id)) {
       let { choices } = this.state;
       choices.push(id)
-      this.setState({ choices });
+      this.setState({ choices }, () => { this.props.passUp(this.state.choices) });
     } else {
-      this.setState({ choices: this.state.choices.filter(choice => choice !== id) });
+      this.setState({ choices: this.state.choices.filter(choice => choice !== id) }, () => { this.props.passUp(this.state.choices) });
     }
   }
 

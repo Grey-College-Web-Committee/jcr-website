@@ -11,7 +11,10 @@ class OrderToastiePage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      stock: []
+      stock: [],
+      choices: [],
+      bread: -1,
+      cost: 0
     };
   }
 
@@ -36,6 +39,30 @@ class OrderToastiePage extends React.Component {
     return true;
   }
 
+  passUpFillings = (choices) => {
+    this.setState({ choices }, this.calculateCost);
+  }
+
+  passUpBread = (bread) => {
+    this.setState({ bread: Number(bread) }, this.calculateCost);
+  }
+
+  calculateCost = () => {
+    let cost = 0;
+
+    if(this.state.bread !== -1) {
+      cost += Number(this.state.stock.find(item => item.id === this.state.bread).price);
+    }
+
+    const selectedFillings = this.state.stock.filter(item => this.state.choices.includes(item.id));
+
+    selectedFillings.forEach(item => {
+      cost += Number(item.price);
+    });
+
+    this.setState({ cost });
+  }
+
   render () {
     if(!this.state.loaded) {
       return (
@@ -58,10 +85,17 @@ class OrderToastiePage extends React.Component {
         <h1>Order Toastie</h1>
         <h2>Bread</h2>
         <p>Select one type of bread</p>
-        <SelectBread stock={this.state.stock} />
+        <SelectBread
+          stock={this.state.stock}
+          passUp={this.passUpBread}
+        />
         <h2>Fillings</h2>
-        <SelectFillings stock={this.state.stock} />
+        <SelectFillings
+          stock={this.state.stock}
+          passUp={this.passUpFillings}
+        />
         <h2>Checkout</h2>
+        <h3>Total £{this.state.cost}</h3>
       </React.Fragment>
     )
   }
