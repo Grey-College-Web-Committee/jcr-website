@@ -84,7 +84,7 @@ class OrderToastiePage extends React.Component {
       <React.Fragment>
         <h1>Order Toastie</h1>
         <h2>Bread</h2>
-        <p>Select one type of bread</p>
+        <p>Select one type of bread. Unselectable items are out of stock.</p>
         <SelectBread
           stock={this.state.stock}
           passUp={this.passUpBread}

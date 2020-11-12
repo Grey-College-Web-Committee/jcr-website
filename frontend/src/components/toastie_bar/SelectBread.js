@@ -29,6 +29,7 @@ class SelectBread extends React.Component {
           <option
             key={index}
             value={bread.id}
+            disabled={!bread.available}
           >{bread.name} (£{bread.price})</option>
         ))}
       </select>

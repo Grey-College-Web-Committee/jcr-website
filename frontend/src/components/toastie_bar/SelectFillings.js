@@ -43,6 +43,7 @@ class SelectFillings extends React.Component {
                   type="checkbox"
                   selected={this.state.choices.includes(item.id)}
                   onChange={() => { this.updateChoices(item.id) }}
+                  disabled={!item.available}
                 />
               </td>
             </tr>
