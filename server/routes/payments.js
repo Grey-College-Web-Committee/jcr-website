@@ -36,7 +36,7 @@ router.get("/create_checkout", async (req, res) => {
     return;
   }
 
-  return res.status(200).json({ message: "Success", data: {} });
+  return res.status(200).json({});
 });
 
 // Set the module export to router so it can be used in server.js

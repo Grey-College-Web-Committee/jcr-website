@@ -71,8 +71,12 @@ ToastieStock.init({
   available: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
+  },
+  type: {
+    type: DataTypes.STRING,
+    allowNull: false 
   }
-}, { sequelize });
+}, { sequelize, freezeTableName: true });
 
 ToastieOrder.init({
   userId: {

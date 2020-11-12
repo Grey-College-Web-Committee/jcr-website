@@ -10,6 +10,7 @@ import ErrorPage from './components/errors/ErrorPage';
 
 // To add a new page import it like above
 
+import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import AdminGymPage from './components/gym/admin/AdminGymPage';
 
 import './App.css';
@@ -135,6 +136,9 @@ class App extends React.Component {
                   this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
                 )} />
                 <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
+                <Route exact path="/toasties/stock" render={() => (
+                  this.isAdmin() ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                )} />
                 <Route exact path="/errors/:code" render={(props) => (
                   <ErrorPage {...props} />
                 )} />

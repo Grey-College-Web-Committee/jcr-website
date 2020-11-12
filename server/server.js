@@ -11,6 +11,7 @@ const cookieParser = require("cookie-parser");
 const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } = require("./database.models.js");
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
+const toastieBarRoute = require("./routes/toastie_bar");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -73,6 +74,7 @@ const isLoggedIn = (req, res, next) => {
 // These are api routes that act as the backend
 app.use("/api/auth", authRoute);
 app.use("/api/payments", paymentsRoute);
+app.use("/api/toastie_bar", toastieBarRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
