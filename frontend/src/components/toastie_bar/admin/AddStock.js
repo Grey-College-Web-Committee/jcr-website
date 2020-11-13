@@ -69,6 +69,7 @@ class AddStock extends React.Component {
           >
             <option value="filling">Filling</option>
             <option value="bread">Bread</option>
+            <option value="other">Other Item</option>
           </select>
           <br />
             <label>Price (£)</label>

@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import api from '../../utils/axiosConfig.js';
 import SelectBread from './SelectBread';
-import SelectFillings from './SelectFillings';
+import SelectMany from './SelectMany';
 
 class OrderToastiePage extends React.Component {
   constructor(props) {
@@ -13,8 +13,10 @@ class OrderToastiePage extends React.Component {
       error: "",
       stock: [],
       choices: [],
+      otherItems: [],
       bread: -1,
-      cost: 0
+      cost: 0,
+      purchaseDisabled: false
     };
   }
 
@@ -47,6 +49,10 @@ class OrderToastiePage extends React.Component {
     this.setState({ bread: Number(bread) }, this.calculateCost);
   }
 
+  passUpOtherItems = (otherItems) => {
+    this.setState({ otherItems }, this.calculateCost);
+  }
+
   calculateCost = () => {
     let cost = 0;
 
@@ -60,7 +66,34 @@ class OrderToastiePage extends React.Component {
       cost += Number(item.price);
     });
 
+    const selectedOtherItems = this.state.stock.filter(item => this.state.otherItems.includes(item.id));
+
+    selectedOtherItems.forEach(item => {
+      cost += Number(item.price);
+    });
+
+    cost = Math.round(cost * 100) / 100;
+
     this.setState({ cost });
+  }
+
+  placeOrder = () => {
+    this.setState({ purchaseDisabled: true });
+
+    // Ordering a toastie
+    if(this.state.bread !== -1) {
+      if(this.state.choices.length === 0) {
+        alert("You must select some fillings for your toastie.");
+        this.setState({ purchaseDisabled: false });
+        return;
+      }
+    } else {
+      if(this.state.otherItems.length === 0) {
+        alert("You must order something.");
+        this.setState({ purchaseDisabled: false });
+        return;
+      }
+    }
   }
 
   render () {
@@ -88,14 +121,28 @@ class OrderToastiePage extends React.Component {
         <SelectBread
           stock={this.state.stock}
           passUp={this.passUpBread}
+          disabled={this.state.purchaseDisabled}
         />
         <h2>Fillings</h2>
-        <SelectFillings
+        <SelectMany
           stock={this.state.stock}
           passUp={this.passUpFillings}
+          type="filling"
+          disabled={this.state.purchaseDisabled}
+        />
+        <h2>Other Items</h2>
+        <SelectMany
+          stock={this.state.stock}
+          passUp={this.passUpOtherItems}
+          type="other"
+          disabled={this.state.purchaseDisabled}
         />
         <h2>Checkout</h2>
-        <h3>Total £{this.state.cost}</h3>
+        <h3>Total £{this.state.cost.toFixed(2)}</h3>
+        <button
+          onClick={this.placeOrder}
+          disabled={this.state.purchaseDisabled}
+        >Place Order</button>
       </React.Fragment>
     )
   }
