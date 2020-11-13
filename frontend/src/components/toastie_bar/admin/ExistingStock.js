@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import StockRow from './StockRow';
 
 class ExistingStock extends React.Component {
   constructor(props) {
@@ -23,19 +24,14 @@ class ExistingStock extends React.Component {
               <th>Price (£)</th>
               <th>Available</th>
               <th>Last Updated</th>
-              <th>Permanently Remove</th>
             </tr>
           </thead>
           <tbody>
             {this.props.stock.map((item, index) => (
-              <tr key={index}>
-                <td>{item.name}</td>
-                <td>{item.type}</td>
-                <td>{item.price}</td>
-                <td>{item.available ? "Yes" : "No"}</td>
-                <td>{item.updatedAt}</td>
-                <td>Delete</td>
-              </tr>
+              <StockRow
+                key={index}
+                item={item}
+              />
             ))}
           </tbody>
         </table>

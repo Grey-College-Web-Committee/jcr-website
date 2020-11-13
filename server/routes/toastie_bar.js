@@ -92,8 +92,6 @@ router.post("/order", async (req, res) => {
     await ToastieOrderContent.create({ orderId: dbOrder.id, stockId: item.id });
   });
 
-  console.log("Order id", dbOrder.id);
-
   const paymentIntent = await stripe.paymentIntents.create({
     amount: Math.round(realCost * 100),
     currency: "gbp",
@@ -128,9 +126,28 @@ router.get("/stock", async (req, res) => {
   return res.status(200).json({ stock });
 });
 
+router.get("/stock/:id", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  // if(!user.admin) {
+  //  return res.status(403).json({ error: "You do not have permission to perform this action" });
+  // }
+
+  const id = req.params.id;
+  const stockItem = await ToastieStock.findOne({ where: { id } });
+  return res.status(200).json({ stockItem });
+});
+
 // Add a new item for the stock
 router.post("/stock", async (req, res) => {
   // Admin only
+  const { user } = req.session;
+
+  if(!user.admin) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
   const { name, type, price, available } = req.body;
 
   if(name == null) {
@@ -160,13 +177,54 @@ router.post("/stock", async (req, res) => {
 });
 
 // Update an item in the stock
-router.patch("/stock", async (req, res) => {
+router.put("/stock/:id", async (req, res) => {
   // Admin only
+  // const { user } = req.session;
+  //
+  // if(!user.admin) {
+  //   return res.status(403).json({ error: "You do not have permission to perform this action" });
+  // }
+
+  const stockId = req.params.id;
+
+  const stockItem = await ToastieStock.findOne({ where: { id: stockId }});
+
+  if(stockItem === null) {
+    return res.status(400).json({ error: "Unknown id submitted" });
+  }
+
+  let updatedRecord = {}
+
+  if(req.body.name !== undefined && req.body.name !== null) {
+    updatedRecord.name = req.body.name;
+  }
+
+  if(req.body.type !== undefined && req.body.type !== null) {
+    updatedRecord.type = req.body.type;
+  }
+
+  if(req.body.price !== undefined && req.body.price !== null) {
+    updatedRecord.price = req.body.price;
+  }
+
+  if(req.body.available !== undefined && req.body.available !== null) {
+    updatedRecord.available = req.body.available;
+  }
+
+  await stockItem.update(updatedRecord);
+  return res.status(204).end();
 });
 
 // Delete an item from the stock
-router.delete("/stock", async (req, res) => {
+router.delete("/stock/:id", async (req, res) => {
   // Admin only
+  const { user } = req.session;
+
+  if(!user.admin) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const stockId = req.params.id;
 });
 
 // Set the module export to router so it can be used in server.js
