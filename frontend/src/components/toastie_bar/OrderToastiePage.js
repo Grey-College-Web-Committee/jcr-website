@@ -157,6 +157,9 @@ class OrderToastiePage extends React.Component {
       return (
         <React.Fragment>
           <h1>Payment Success!</h1>
+          <p>Your order is now being processed. Please come and collect it in 15 minutes!</p>
+          <p>Display the order here</p>
+          <p>A receipt has been emailed to your Durham email probably print it here</p>
         </React.Fragment>
       )
     }

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { ElementsConsumer, CardElement } from '@stripe/react-stripe-js';
+import authContext from '../../utils/authContext.js';
 
 class CheckoutForm extends React.Component {
   constructor(props) {
@@ -57,6 +58,12 @@ class CheckoutForm extends React.Component {
           name="name"
           disabled={this.state.disabled}
         />
+        <label>Receipt Email</label>
+        <input
+          type="text"
+          disabled={true}
+          value={this.context.email}
+        />
         <CardElement />
         <button
           onClick={this.handleSubmit}
@@ -67,6 +74,8 @@ class CheckoutForm extends React.Component {
     );
   }
 }
+
+CheckoutForm.contextType = authContext;
 
 export default function InjectedCheckoutForm(props) {
   return (

@@ -4,12 +4,10 @@ const router = express.Router();
 // The database models
 const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 
 router.post("/order", async(req, res) => {
   //User only
-  //const { user } = req.session;
-
+  const { user } = req.session;
   const { bread, fillings, otherItems } = req.body;
 
   // Check the bread is actually a bread and is available
@@ -86,10 +84,17 @@ router.post("/order", async(req, res) => {
     });
   });
 
+  // Add receipt_email: user.email,
+
   const paymentIntent = await stripe.paymentIntents.create({
     amount: Math.round(realCost * 100),
     currency: "gbp",
-    metadata: { integration_check: "accept_a_payment" }
+    metadata: { integration_check: "accept_a_payment" },
+    description: "Toastie Bar Order",
+    metadata: {
+      type: "toastie_bar",
+      order: JSON.stringify(confirmedOrder)
+    }
   });
 
   return res.status(200).json({

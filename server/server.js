@@ -20,7 +20,13 @@ const path = require("path");
 const app = express();
 
 // Tells express to recognise incoming requests as JSON
-app.use(express.json());
+app.use((req, res, next) => {
+  if(req.originalUrl === "/api/payments/webhook") {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+})
 // Manages CORS headers to prevent errors
 app.use(cors());
 // Allows express to send and receive cookies
