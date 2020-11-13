@@ -5,7 +5,7 @@ const router = express.Router();
 const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-router.post("/order", async(req, res) => {
+router.post("/order", async (req, res) => {
   //User only
   const { user } = req.session;
   const { bread, fillings, otherItems } = req.body;
@@ -60,6 +60,8 @@ router.post("/order", async(req, res) => {
 
   realCost = +realCost.toFixed(2);
 
+  const dbOrder = await ToastieOrder.create({ userId: user.id });
+
   let confirmedOrder = [
     {
       name: breadEntry.name,
@@ -68,23 +70,29 @@ router.post("/order", async(req, res) => {
     }
   ];
 
-  fillingEntries.forEach(item => {
+  await ToastieOrderContent.create({ orderId: dbOrder.id, stockId: breadEntry.id });
+
+  fillingEntries.forEach(async (item) => {
     confirmedOrder.push({
       name: item.name,
       price: item.price,
       type: item.type
     });
+
+    await ToastieOrderContent.create({ orderId: dbOrder.id, stockId: item.id });
   });
 
-  otherEntries.forEach(item => {
+  otherEntries.forEach(async (item) => {
     confirmedOrder.push({
       name: item.name,
       price: item.price,
       type: item.type
     });
+
+    await ToastieOrderContent.create({ orderId: dbOrder.id, stockId: item.id });
   });
 
-  // Add receipt_email: user.email,
+  console.log("Order id", dbOrder.id);
 
   const paymentIntent = await stripe.paymentIntents.create({
     amount: Math.round(realCost * 100),
@@ -93,8 +101,9 @@ router.post("/order", async(req, res) => {
     description: "Toastie Bar Order",
     metadata: {
       type: "toastie_bar",
-      order: JSON.stringify(confirmedOrder)
-    }
+      orderId: dbOrder.id
+    },
+    receipt_email: user.email
   });
 
   return res.status(200).json({

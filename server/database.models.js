@@ -72,7 +72,7 @@ ToastieStock.init({
     type: DataTypes.BOOLEAN,
     defaultValue: true
   },
-  type: { 
+  type: {
     type: DataTypes.STRING,
     allowNull: false
   },
@@ -89,6 +89,10 @@ ToastieOrder.init({
       model: User,
       key: 'id'
     }
+  },
+  paid: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize });
 
@@ -96,7 +100,7 @@ ToastieOrderContent.init({
   orderId: {
     type: DataTypes.INTEGER,
     references: {
-      model: ToastieOrder,
+      model: ToastieOrder, 
       key: 'id'
     }
   },
@@ -107,7 +111,7 @@ ToastieOrderContent.init({
       key: 'id'
     }
   }
-}, { sequelize });
+}, { sequelize, timestamps: false });
 
 // Associations are necessary to allow joins between tables
 

@@ -80,7 +80,7 @@ const isLoggedIn = (req, res, next) => {
 // These are api routes that act as the backend
 app.use("/api/auth", authRoute);
 app.use("/api/payments", paymentsRoute);
-app.use("/api/toastie_bar", toastieBarRoute);
+app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
