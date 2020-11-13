@@ -72,17 +72,17 @@ class AddStock extends React.Component {
             <option value="other">Other Item</option>
           </select>
           <br />
-            <label>Price (£)</label>
-            <input
-              type="number"
-              name="price"
-              onChange={this.onInputChange}
-              value={this.state.price}
-              min="0"
-              max="100"
-              step="0.01"
-            />
-            <br/>
+          <label>Price (£)</label>
+          <input
+            type="number"
+            name="price"
+            onChange={this.onInputChange}
+            value={this.state.price}
+            min="0"
+            max="100"
+            step="0.01"
+          />
+          <br/>
           <label>Available</label>
           <input
             type="checkbox"

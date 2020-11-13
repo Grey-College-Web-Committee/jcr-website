@@ -3,6 +3,101 @@ const express = require("express");
 const router = express.Router();
 // The database models
 const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } = require("../database.models.js");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
+
+router.post("/order", async(req, res) => {
+  //User only
+  //const { user } = req.session;
+
+  const { bread, fillings, otherItems } = req.body;
+
+  // Check the bread is actually a bread and is available
+
+  const breadEntry = await ToastieStock.findOne({
+    where: {
+      id: bread,
+      type: "bread"
+    }
+  });
+
+  if(breadEntry === null) {
+    return res.status(400).json({ });
+  }
+
+  // breadEntry now has the database entry for this bread
+  // Now check the fillings are actually fillings
+
+  const fillingEntries = await ToastieStock.findAll({
+    where: {
+      id: fillings,
+      available: true,
+      type: "filling"
+    }
+  });
+
+  if(fillingEntries.length !== fillings.length) {
+    return res.status(400).json({ });
+  }
+
+  // fillingEntries now has the database entries for each of the fillings
+  // Now check the other items
+
+  const otherEntries = await ToastieStock.findAll({
+    where: {
+      id: otherItems,
+      available: true,
+      type: "other"
+    }
+  });
+
+  if(otherEntries.length !== otherItems.length) {
+    return res.status(400).json({ });
+  }
+
+  let realCost = Number(breadEntry.price);
+
+  fillingEntries.forEach(item => realCost += Number(item.price));
+  otherEntries.forEach(item => realCost += Number(item.price));
+
+  realCost = +realCost.toFixed(2);
+
+  let confirmedOrder = [
+    {
+      name: breadEntry.name,
+      price: breadEntry.price,
+      type: breadEntry.type
+    }
+  ];
+
+  fillingEntries.forEach(item => {
+    confirmedOrder.push({
+      name: item.name,
+      price: item.price,
+      type: item.type
+    });
+  });
+
+  otherEntries.forEach(item => {
+    confirmedOrder.push({
+      name: item.name,
+      price: item.price,
+      type: item.type
+    });
+  });
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: Math.round(realCost * 100),
+    currency: "gbp",
+    metadata: { integration_check: "accept_a_payment" }
+  });
+
+  return res.status(200).json({
+    confirmedOrder,
+    realCost,
+    clientSecret: paymentIntent.client_secret
+  });
+});
 
 // Get the stock available
 router.get("/stock", async (req, res) => {

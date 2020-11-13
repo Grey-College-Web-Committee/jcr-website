@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import api from '../../utils/axiosConfig.js';
 import SelectBread from './SelectBread';
 import SelectMany from './SelectMany';
+import CheckoutForm from './CheckoutForm';
 
 class OrderToastiePage extends React.Component {
   constructor(props) {
@@ -16,7 +17,12 @@ class OrderToastiePage extends React.Component {
       otherItems: [],
       bread: -1,
       cost: 0,
-      purchaseDisabled: false
+      purchaseDisabled: false,
+      confirmed: false,
+      confirmedOrder: {},
+      realCost: 0,
+      clientSecret: "",
+      paymentSuccessful: false
     };
   }
 
@@ -77,7 +83,7 @@ class OrderToastiePage extends React.Component {
     this.setState({ cost });
   }
 
-  placeOrder = () => {
+  placeOrder = async () => {
     this.setState({ purchaseDisabled: true });
 
     // Ordering a toastie
@@ -93,7 +99,41 @@ class OrderToastiePage extends React.Component {
         this.setState({ purchaseDisabled: false });
         return;
       }
+
+      if(this.state.choices.length !== 0) {
+        alert("You cannot just order fillings. Please select a bread type.");
+        this.setState({ purchaseDisabled: false });
+        return;
+      }
     }
+
+    const orderDetails = {
+      bread: this.state.bread,
+      fillings: this.state.choices,
+      otherItems: this.state.otherItems
+    };
+
+    console.log(JSON.stringify(orderDetails));
+    let query;
+
+    try {
+      query = await api.post("/toastie_bar/order", orderDetails);
+    } catch (error) {
+      console.log(error);
+      //handle this
+      return;
+    }
+
+    this.setState({
+      confirmed: true,
+      confirmedOrder: query.data.confirmedOrder,
+      realCost: query.data.realCost,
+      clientSecret: query.data.clientSecret
+    });
+  }
+
+  onPaymentSuccess = () => {
+    this.setState({ paymentSuccessful: true });
   }
 
   render () {
@@ -113,38 +153,63 @@ class OrderToastiePage extends React.Component {
       );
     }
 
-    return (
-      <React.Fragment>
-        <h1>Order Toastie</h1>
-        <h2>Bread</h2>
-        <p>Select one type of bread. Unselectable items are out of stock.</p>
-        <SelectBread
-          stock={this.state.stock}
-          passUp={this.passUpBread}
-          disabled={this.state.purchaseDisabled}
-        />
-        <h2>Fillings</h2>
-        <SelectMany
-          stock={this.state.stock}
-          passUp={this.passUpFillings}
-          type="filling"
-          disabled={this.state.purchaseDisabled}
-        />
-        <h2>Other Items</h2>
-        <SelectMany
-          stock={this.state.stock}
-          passUp={this.passUpOtherItems}
-          type="other"
-          disabled={this.state.purchaseDisabled}
-        />
-        <h2>Checkout</h2>
-        <h3>Total £{this.state.cost.toFixed(2)}</h3>
-        <button
-          onClick={this.placeOrder}
-          disabled={this.state.purchaseDisabled}
-        >Place Order</button>
-      </React.Fragment>
-    )
+    if(this.state.paymentSuccessful) {
+      return (
+        <React.Fragment>
+          <h1>Payment Success!</h1>
+        </React.Fragment>
+      )
+    }
+
+    if(!this.state.confirmed) {
+      return (
+        <React.Fragment>
+          <h1>Order Toastie</h1>
+          <h2>Bread</h2>
+          <p>Select one type of bread. Unselectable items are out of stock.</p>
+          <SelectBread
+            stock={this.state.stock}
+            passUp={this.passUpBread}
+            disabled={this.state.purchaseDisabled}
+          />
+          <h2>Fillings</h2>
+          <SelectMany
+            stock={this.state.stock}
+            passUp={this.passUpFillings}
+            type="filling"
+            disabled={this.state.purchaseDisabled}
+          />
+          <h2>Other Items</h2>
+          <SelectMany
+            stock={this.state.stock}
+            passUp={this.passUpOtherItems}
+            type="other"
+            disabled={this.state.purchaseDisabled}
+          />
+          <h2>Checkout</h2>
+          <h3>Total £{this.state.cost.toFixed(2)}</h3>
+          <button
+            onClick={this.placeOrder}
+            disabled={this.state.purchaseDisabled}
+          >Place Order</button>
+        </React.Fragment>
+      )
+    } else {
+      return (
+        <React.Fragment>
+          <h1>Purchase Toastie</h1>
+          <h2>Confirmed Order</h2>
+          <pre>
+            {JSON.stringify(this.state.confirmedOrder, null, 2)}
+          </pre>
+          <h2>Price: £{this.state.realCost.toFixed(2)}</h2>
+          <CheckoutForm
+            clientSecret={this.state.clientSecret}
+            onSuccess={this.onPaymentSuccess}
+          />
+        </React.Fragment>
+      )
+    }
   }
 }
 
