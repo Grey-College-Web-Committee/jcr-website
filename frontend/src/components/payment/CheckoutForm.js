@@ -9,7 +9,8 @@ class CheckoutForm extends React.Component {
 
     this.state = {
       name: "",
-      disabled: false
+      disabled: false,
+      error: ""
     };
   }
 
@@ -19,11 +20,16 @@ class CheckoutForm extends React.Component {
 
   handleSubmit = async (event) => {
     event.preventDefault();
-    this.setState({ disabled: true });
+    this.setState({ disabled: true, error: "" });
     const { stripe, elements } = this.props;
 
     if(!stripe || !elements) {
-      // Not loaded disable stuff
+      this.setState({ disabled: false, error: "Stripe is still loading. Please try again in a moment." });
+      return;
+    }
+
+    if(this.state.name.length === 0) {
+      this.setState({ disabled: false, error: "Please enter the cardholder name." });
       return;
     }
 
@@ -37,7 +43,7 @@ class CheckoutForm extends React.Component {
     });
 
     if(result.error) {
-      //handle error!!IMPORTANT
+      this.setState({ disabled: false, error: result.error.message });
       return;
     }
 
@@ -69,7 +75,9 @@ class CheckoutForm extends React.Component {
           onClick={this.handleSubmit}
           disabled={this.state.disabled}
         >Make Payment</button>
-        {this.state.disabled ? <p>Processing...</p> : null}
+      {this.state.disabled ? <p>Processing payment. Please do not refresh this page.</p> : null}
+        <br />
+        <p>{this.state.error}</p>
       </React.Fragment>
     );
   }

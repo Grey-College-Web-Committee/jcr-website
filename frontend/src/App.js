@@ -15,7 +15,6 @@ import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 // To add a new page import it like above
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
-import AdminGymPage from './components/gym/admin/AdminGymPage';
 
 import './App.css';
 

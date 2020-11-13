@@ -24,7 +24,12 @@ DB_DIALECT=mysql
 EXPRESS_PORT=9000
 SESSION_SECRET=randomstringshouldgohere
 STRIPE_SECRET_KEY=<Stripe Secret sk_...>
-JWT_SECRET=somesecretkeyhere
-JWT_EXPIRY=7200000
 WEB_ADDRESS=http://localhost:9000
+STRIPE_ENDPOINT_SECRET=string
+EMAIL_HOST=url
+EMAIL_PORT=465
+EMAIL_SECURE=true
+EMAIL_USERNAME=emailaddress
+EMAIL_PASSWORD=emailpassword
+EMAIL_SENDER=yourname
 ```

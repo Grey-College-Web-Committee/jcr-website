@@ -119,7 +119,7 @@ router.get("/stock", async (req, res) => {
   try {
     stock = await ToastieStock.findAll();
   } catch (error) {
-    //handle
+    res.status(500).json({ error: "Server error" });
     return;
   }
 
@@ -130,9 +130,9 @@ router.get("/stock/:id", async (req, res) => {
   // Admin only
   const { user } = req.session;
 
-  // if(!user.admin) {
-  //  return res.status(403).json({ error: "You do not have permission to perform this action" });
-  // }
+  if(!user.admin) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
 
   const id = req.params.id;
   const stockItem = await ToastieStock.findOne({ where: { id } });
@@ -169,8 +169,7 @@ router.post("/stock", async (req, res) => {
   try {
     await ToastieStock.create({ name, type, price, available });
   } catch (error) {
-    //handle
-    return;
+    return res.status(500).json({ error: "Server error creating new item" });
   }
 
   return res.status(200).json({});
@@ -179,11 +178,11 @@ router.post("/stock", async (req, res) => {
 // Update an item in the stock
 router.put("/stock/:id", async (req, res) => {
   // Admin only
-  // const { user } = req.session;
-  //
-  // if(!user.admin) {
-  //   return res.status(403).json({ error: "You do not have permission to perform this action" });
-  // }
+  const { user } = req.session;
+
+  if(!user.admin) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
 
   const stockId = req.params.id;
 
@@ -213,18 +212,6 @@ router.put("/stock/:id", async (req, res) => {
 
   await stockItem.update(updatedRecord);
   return res.status(204).end();
-});
-
-// Delete an item from the stock
-router.delete("/stock/:id", async (req, res) => {
-  // Admin only
-  const { user } = req.session;
-
-  if(!user.admin) {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
-  }
-
-  const stockId = req.params.id;
 });
 
 // Set the module export to router so it can be used in server.js

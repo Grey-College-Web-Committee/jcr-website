@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import api from '../../utils/axiosConfig.js';
 import SelectBread from './SelectBread';
 import SelectMany from './SelectMany';
-import CheckoutForm from './CheckoutForm';
+import CheckoutForm from '../payment/CheckoutForm';
 
 class OrderToastiePage extends React.Component {
   constructor(props) {
@@ -113,14 +113,12 @@ class OrderToastiePage extends React.Component {
       otherItems: this.state.otherItems
     };
 
-    console.log(JSON.stringify(orderDetails));
     let query;
 
     try {
       query = await api.post("/toastie_bar/order", orderDetails);
     } catch (error) {
-      console.log(error);
-      //handle this
+      alert("Your order has not been placed. Some items may have gone out of stock. Please refresh the page and try again.");
       return;
     }
 
