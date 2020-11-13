@@ -8,12 +8,15 @@ class ExistingStock extends React.Component {
   }
 
   render () {
+    // Should only be displayed once we have data anyway based
+    // on the render function in ToastieBarStockPage.js
     if(this.props.stock === undefined) {
       return (
         <p>Loading...</p>
       );
     }
 
+    // Just displays a table with the existing stock
     return (
       <React.Fragment>
         <table>

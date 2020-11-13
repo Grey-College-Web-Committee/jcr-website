@@ -5,6 +5,7 @@ class SelectMany extends React.Component {
   constructor(props) {
     super(props);
 
+    // Only want those that are of the correct type to be visible
     const items = props.stock.filter(item => item.type === props.type);
 
     this.state = {
@@ -13,6 +14,8 @@ class SelectMany extends React.Component {
     };
   }
 
+  // When they want to add/remove on this is called
+  // it also updates the state of the parent element
   updateChoices = id => {
     if(!this.state.choices.includes(id)) {
       let { choices } = this.state;

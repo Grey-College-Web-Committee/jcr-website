@@ -19,11 +19,13 @@ class AddStock extends React.Component {
   }
 
   createNewItem = async e => {
+    // Prevent refresh on button click and prevent resubmission
     e.preventDefault();
     this.setState({ disabled: true });
 
     const { name, type, price, available } = this.state;
 
+    // Validation checks
     if(name.length === 0) {
       alert("You must set a name for the new item.");
       this.setState({ disabled: false });
@@ -36,6 +38,7 @@ class AddStock extends React.Component {
       return;
     }
 
+    // Add it to the database
     let query;
 
     try {
@@ -45,6 +48,7 @@ class AddStock extends React.Component {
       return;
     }
 
+    // Update the data displayed once we do this
     this.props.updateStockListing();
     this.setState({ name: "", type: "filling", price: 0, available: true, disabled: false });
   }

@@ -14,11 +14,13 @@ class ToastieBarStockPage extends React.Component {
     };
   }
 
+  // Load the data once the element is ready
   componentDidMount = async () => {
     const loaded = await this.updateStockListing();
     this.setState({ loaded });
   }
 
+  // Just gets the data from the server
   updateStockListing = async () => {
     let query;
 

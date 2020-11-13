@@ -6,8 +6,9 @@ const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } =
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 router.post("/order", async (req, res) => {
-  //User only
+  // User only
   const { user } = req.session;
+  // Get the order from the data received
   const { bread, fillings, otherItems } = req.body;
 
   // Check the bread is actually a bread and is available
@@ -53,12 +54,18 @@ router.post("/order", async (req, res) => {
     return res.status(400).json({ });
   }
 
+  // Calculate the cost so we can give it to Stripe
+  // never trust the user's price calculation
+
   let realCost = Number(breadEntry.price);
 
   fillingEntries.forEach(item => realCost += Number(item.price));
   otherEntries.forEach(item => realCost += Number(item.price));
 
   realCost = +realCost.toFixed(2);
+
+  // Make a new order in the database and add each item in the order
+  // at the same time we construct the confirmed order to return to the client
 
   const dbOrder = await ToastieOrder.create({ userId: user.id });
 
@@ -92,6 +99,8 @@ router.post("/order", async (req, res) => {
     await ToastieOrderContent.create({ orderId: dbOrder.id, stockId: item.id });
   });
 
+  // Stripe uses this to take the payment
+
   const paymentIntent = await stripe.paymentIntents.create({
     amount: Math.round(realCost * 100),
     currency: "gbp",
@@ -103,6 +112,8 @@ router.post("/order", async (req, res) => {
     },
     receipt_email: user.email
   });
+
+  // Return the confirmed order, the server-agreed cost and the secret for the Stripe session
 
   return res.status(200).json({
     confirmedOrder,
@@ -116,6 +127,7 @@ router.get("/stock", async (req, res) => {
   // User only
   let stock;
 
+  // Just finds all the items and returns them
   try {
     stock = await ToastieStock.findAll();
   } catch (error) {
@@ -134,8 +146,14 @@ router.get("/stock/:id", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
+  // Gets a single item by its ID
   const id = req.params.id;
   const stockItem = await ToastieStock.findOne({ where: { id } });
+
+  if(stockItem === null) {
+    return res.status(400).json({ error: "Invalid ID" });
+  }
+
   return res.status(200).json({ stockItem });
 });
 
@@ -148,6 +166,7 @@ router.post("/stock", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
+  // Validate the details briefly
   const { name, type, price, available } = req.body;
 
   if(name == null) {
@@ -166,13 +185,14 @@ router.post("/stock", async (req, res) => {
     return res.status(400).json({ error: "Missing available" });
   }
 
+  // Create the new item
   try {
     await ToastieStock.create({ name, type, price, available });
   } catch (error) {
     return res.status(500).json({ error: "Server error creating new item" });
   }
 
-  return res.status(200).json({});
+  return res.status(204).end();
 });
 
 // Update an item in the stock
@@ -184,13 +204,16 @@ router.put("/stock/:id", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const stockId = req.params.id;
+  // Find the item they want to update
 
+  const stockId = req.params.id;
   const stockItem = await ToastieStock.findOne({ where: { id: stockId }});
 
   if(stockItem === null) {
     return res.status(400).json({ error: "Unknown id submitted" });
   }
+
+  // Construct the changes to the record
 
   let updatedRecord = {}
 
@@ -210,7 +233,14 @@ router.put("/stock/:id", async (req, res) => {
     updatedRecord.available = req.body.available;
   }
 
-  await stockItem.update(updatedRecord);
+  // Let sequelize update the record;
+
+  try {
+    await stockItem.update(updatedRecord);
+  } catch (error) {
+    return res.status(500).json({ error: "Server error: Unable to update the item" });
+  }
+  
   return res.status(204).end();
 });
 

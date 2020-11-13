@@ -27,6 +27,7 @@ class OrderToastiePage extends React.Component {
   }
 
   componentDidMount = async () => {
+    // Once the component is ready we can query the API
     const loaded = await this.updateStockListing();
     this.setState({ loaded });
   }
@@ -34,6 +35,7 @@ class OrderToastiePage extends React.Component {
   updateStockListing = async () => {
     let query;
 
+    // Standard way to just get the data from the API
     try {
       query = await api.get("/toastie_bar/stock");
     } catch (error) {
@@ -47,6 +49,7 @@ class OrderToastiePage extends React.Component {
     return true;
   }
 
+  // These 3 are used by the child components to share their choices with the parent
   passUpFillings = (choices) => {
     this.setState({ choices }, this.calculateCost);
   }
@@ -59,6 +62,8 @@ class OrderToastiePage extends React.Component {
     this.setState({ otherItems }, this.calculateCost);
   }
 
+  // Just runs through and calculates the cost
+  // converts strings to ints so we can get a sensible value
   calculateCost = () => {
     let cost = 0;
 
@@ -84,22 +89,26 @@ class OrderToastiePage extends React.Component {
   }
 
   placeOrder = async () => {
+    // Don't want them resubmitting while we are handling one already
     this.setState({ purchaseDisabled: true });
 
     // Ordering a toastie
     if(this.state.bread !== -1) {
+      // No fillings isn't allowed
       if(this.state.choices.length === 0) {
         alert("You must select some fillings for your toastie.");
         this.setState({ purchaseDisabled: false });
         return;
       }
     } else {
+      // They didn't order anything
       if(this.state.otherItems.length === 0) {
         alert("You must order something.");
         this.setState({ purchaseDisabled: false });
         return;
       }
 
+      // Only fillings and other items isn't allowed either
       if(this.state.choices.length !== 0) {
         alert("You cannot just order fillings. Please select a bread type.");
         this.setState({ purchaseDisabled: false });
@@ -115,6 +124,7 @@ class OrderToastiePage extends React.Component {
 
     let query;
 
+    // Get the server to check everything and give us the details for the Stripe checkout
     try {
       query = await api.post("/toastie_bar/order", orderDetails);
     } catch (error) {
@@ -122,6 +132,7 @@ class OrderToastiePage extends React.Component {
       return;
     }
 
+    // We can now show the payment area
     this.setState({
       confirmed: true,
       confirmedOrder: query.data.confirmedOrder,
@@ -130,11 +141,13 @@ class OrderToastiePage extends React.Component {
     });
   }
 
+  // Used by the CheckoutForm to make changes to the page's state
   onPaymentSuccess = () => {
     this.setState({ paymentSuccessful: true });
   }
 
   render () {
+    // Still waiting for data from the API
     if(!this.state.loaded) {
       return (
         <React.Fragment>
@@ -143,6 +156,7 @@ class OrderToastiePage extends React.Component {
       );
     }
 
+    // Error occurred should probably handle this better when I get the chance
     if(this.state.status !== 200) {
       return (
         <React.Fragment>
@@ -151,6 +165,7 @@ class OrderToastiePage extends React.Component {
       );
     }
 
+    // Once they have paid we can hide everything else
     if(this.state.paymentSuccessful) {
       return (
         <React.Fragment>
@@ -162,6 +177,7 @@ class OrderToastiePage extends React.Component {
       )
     }
 
+    // They are still constructing their order at this point
     if(!this.state.confirmed) {
       return (
         <React.Fragment>
@@ -196,6 +212,7 @@ class OrderToastiePage extends React.Component {
         </React.Fragment>
       )
     } else {
+      // They are ready to purchase the toastie
       return (
         <React.Fragment>
           <h1>Purchase Toastie</h1>

@@ -24,9 +24,11 @@ class StockRow extends React.Component {
   }
 
   saveChanges = async (e) => {
+    // Prevent resubmission
     e.preventDefault();
     this.setState({ disabled: true });
 
+    // Validate data
     const { name, type, price, available } = this.state;
 
     if(name === null || name.length === 0) {
@@ -53,6 +55,7 @@ class StockRow extends React.Component {
       return;
     }
 
+    // Update the item on the server
     let query;
 
     try {
@@ -62,11 +65,13 @@ class StockRow extends React.Component {
       return;
     }
 
+    // Update the row
     await this.updateSelf();
   }
 
   updateSelf = async () => {
     this.setState({ disabled: true });
+    // Just a standard GET for the data
     let query;
 
     try {

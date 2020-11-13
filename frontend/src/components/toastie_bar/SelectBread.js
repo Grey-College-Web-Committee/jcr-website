@@ -5,6 +5,7 @@ class SelectBread extends React.Component {
   constructor(props) {
     super(props);
 
+    // Only used for breads. Could be abstracted for any type though (like SelectMany)
     const breads = props.stock.filter(item => item.type === "bread");
 
     this.state = {
