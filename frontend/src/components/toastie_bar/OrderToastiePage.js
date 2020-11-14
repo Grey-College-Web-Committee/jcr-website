@@ -4,6 +4,7 @@ import api from '../../utils/axiosConfig.js';
 import SelectBread from './SelectBread';
 import SelectMany from './SelectMany';
 import CheckoutForm from '../payment/CheckoutForm';
+import authContext from '../../utils/authContext.js';
 
 class OrderToastiePage extends React.Component {
   constructor(props) {
@@ -146,6 +147,62 @@ class OrderToastiePage extends React.Component {
     this.setState({ paymentSuccessful: true });
   }
 
+  displayToastieOrder = () => {
+    const items = this.state.confirmedOrder.filter(item => item.type === "filling" || item.type === "bread");
+
+    if(items.length === 0) {
+      return (
+        <strong>None selected</strong>
+      );
+    }
+
+    return (
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th><th>Price (£)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, index) => (
+            <tr key={index}>
+              <td>{item.name}</td>
+              <td>{item.price}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
+  displayOtherItemsOrder = () => {
+    const otherItems = this.state.confirmedOrder.filter(item => item.type === "other");
+
+    if(otherItems.length === 0) {
+      return (
+        <strong>None selected</strong>
+      );
+    }
+
+    return (
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th><th>Price (£)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {otherItems.map((item, index) => (
+            <tr key={index}>
+              <td>{item.name}</td>
+              <td>{item.price}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
   render () {
     // Still waiting for data from the API
     if(!this.state.loaded) {
@@ -171,8 +228,11 @@ class OrderToastiePage extends React.Component {
         <React.Fragment>
           <h1>Payment Success!</h1>
           <p>Your order is now being processed. Please come and collect it in 15 minutes!</p>
-          <p>Display the order here</p>
-          <p>A receipt has been emailed to your Durham email probably print it here</p>
+          <h2>Toastie</h2>
+          {this.displayToastieOrder()}
+          <h2>Other Items</h2>
+          {this.displayOtherItemsOrder()}
+          <p>A receipt has been emailed to {this.context.email}</p>
         </React.Fragment>
       )
     }
@@ -217,9 +277,10 @@ class OrderToastiePage extends React.Component {
         <React.Fragment>
           <h1>Purchase Toastie</h1>
           <h2>Confirmed Order</h2>
-          <pre>
-            {JSON.stringify(this.state.confirmedOrder, null, 2)}
-          </pre>
+          <h3>Toastie</h3>
+          {this.displayToastieOrder()}
+          <h3>Other Items</h3>
+          {this.displayOtherItemsOrder()}
           <h2>Price: £{this.state.realCost.toFixed(2)}</h2>
           <CheckoutForm
             clientSecret={this.state.clientSecret}
@@ -230,5 +291,7 @@ class OrderToastiePage extends React.Component {
     }
   }
 }
+
+OrderToastiePage.contextType = authContext;
 
 export default OrderToastiePage;

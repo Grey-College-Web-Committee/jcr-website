@@ -105,7 +105,7 @@ router.post("/order", async (req, res) => {
     amount: Math.round(realCost * 100),
     currency: "gbp",
     metadata: { integration_check: "accept_a_payment" },
-    description: "Toastie Bar Order",
+    description: `Toastie Bar Order #${dbOrder.id}`,
     metadata: {
       type: "toastie_bar",
       orderId: dbOrder.id
@@ -240,7 +240,7 @@ router.put("/stock/:id", async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: "Server error: Unable to update the item" });
   }
-  
+
   return res.status(204).end();
 });
 
