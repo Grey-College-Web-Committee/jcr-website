@@ -19,7 +19,7 @@ class ExistingStock extends React.Component {
     // Just displays a table with the existing stock
     return (
       <React.Fragment>
-        <table>
+        <table className="stockTable">
           <thead>
             <tr>
               <th>Name</th>
@@ -27,6 +27,7 @@ class ExistingStock extends React.Component {
               <th>Price (£)</th>
               <th>Available</th>
               <th>Last Updated</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>

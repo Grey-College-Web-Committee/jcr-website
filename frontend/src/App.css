@@ -138,3 +138,34 @@ div.content {
 .StripeElement--webkit-autofill {
   background-color: #fefde5 !important;
 }
+
+table.stockTable {
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2%;
+  border-collapse: collapse;
+}
+table.stockTable > thead > tr {
+  background-color: #BE2B2E;
+  border: 1px solid #BE2B2E;
+}
+
+table.stockTable > thead > tr > th {
+  font-weight: normal !important;
+  color: #F8F8FF;
+}
+
+table.stockTable > thead > tr > th {
+  text-align: left;
+  padding: 1%;
+}
+
+table.stockTable > tbody > tr > td {
+  background-color: white;
+  padding: 0.5%;
+  border: 1px solid #e57373;
+}
+
+table.stockTable > tbody > tr > td > select, input:not([type=submit]) {
+  width: 90%;
+}

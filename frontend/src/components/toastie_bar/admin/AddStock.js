@@ -57,49 +57,69 @@ class AddStock extends React.Component {
     return (
       <React.Fragment>
         <form onSubmit={this.createNewItem}>
-          <label>Name</label>
-          <input
-            type="text"
-            name="name"
-            onChange={this.onInputChange}
-            value={this.state.name}
-          />
-          <br/>
-          <label>Type</label>
-          <select
-            name="type"
-            onChange={this.onInputChange}
-            value={this.state.type}
-          >
-            <option value="filling">Filling</option>
-            <option value="bread">Bread</option>
-            <option value="other">Other Item</option>
-          </select>
-          <br />
-          <label>Price (£)</label>
-          <input
-            type="number"
-            name="price"
-            onChange={this.onInputChange}
-            value={this.state.price}
-            min="0"
-            max="100"
-            step="0.01"
-          />
-          <br/>
-          <label>Available</label>
-          <input
-            type="checkbox"
-            name="available"
-            onChange={this.onInputChange}
-            checked={this.state.available}
-          />
-          <br />
-          <input
-            type="submit"
-            value="Create New Item"
-            disabled={this.state.disabled}
-          />
+          <table className="stockTable">
+            <tbody>
+              <tr>
+                <td>Name</td>
+                <td>
+                  <input
+                    type="text"
+                    name="name"
+                    onChange={this.onInputChange}
+                    value={this.state.name}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Type</td>
+                <td>
+                  <select
+                    name="type"
+                    onChange={this.onInputChange}
+                    value={this.state.type}
+                  >
+                    <option value="filling">Filling</option>
+                    <option value="bread">Bread</option>
+                    <option value="other">Other Item</option>
+                  </select>
+                </td>
+              </tr>
+              <tr>
+                <td>Price (£)</td>
+                <td>
+                  <input
+                    type="number"
+                    name="price"
+                    onChange={this.onInputChange}
+                    value={this.state.price}
+                    min="0"
+                    max="100"
+                    step="0.01"
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Available</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    name="available"
+                    onChange={this.onInputChange}
+                    checked={this.state.available}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <input
+                    type="submit"
+                    value="Create New Item"
+                    disabled={this.state.disabled}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </form>
       </React.Fragment>
     )
