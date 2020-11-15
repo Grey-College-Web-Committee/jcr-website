@@ -10,7 +10,9 @@ class CheckoutForm extends React.Component {
     this.state = {
       name: "",
       disabled: false,
-      error: ""
+      error: "",
+      ready: false,
+      express: false
     };
   }
 
@@ -49,8 +51,8 @@ class CheckoutForm extends React.Component {
         }
       });
     } catch (error) {
-      console.log(error);
       this.setState({ disabled: false, error: "An error occurred with Stripe. Please try again later." });
+      return;
     }
 
     if(result.error) {
@@ -65,48 +67,213 @@ class CheckoutForm extends React.Component {
     }
   }
 
+  injectApplePay = async () => {
+    const { stripe, elements } = this.props;
+
+    if(!stripe || !elements) {
+      console.log("NO SE");
+      return;
+    }
+
+    const paymentRequest = stripe.paymentRequest({
+      country: "GB",
+      currency: "gbp",
+      total: {
+        label: "Order Total",
+        amount: this.props.realCost
+      },
+      requestPayerName: true,
+      requestPayerEmail: true
+    });
+
+    const result = await paymentRequest.canMakePayment();
+    const prButton = elements.create("paymentRequestButton", {
+      paymentRequest
+    });
+
+    if(result) {
+      this.setState({ ready: true, express: true }, () => {
+        prButton.mount("#payment-request-button");
+      });
+    } else {
+      this.setState({ ready: true, express: false });
+    }
+
+    paymentRequest.on("paymentmethod", async (ev) => {
+      this.setState({ disabled: true });
+      const clientSecret = this.props.clientSecret;
+
+      const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
+        clientSecret,
+        {payment_method: ev.paymentMethod.id},
+        {handleActions: false}
+      );
+
+      if(confirmError) {
+        ev.complete("fail");
+      } else {
+        ev.complete("success");
+
+        if(paymentIntent.status === "requires_action") {
+          const { error } = await stripe.confirmCardPayment(this.props.clientSecret);
+
+          if(error) {
+            this.setState({ disabled: false, error: "The payment was unable to be completed. Please try an alternative method." });
+          } else {
+            this.props.onSuccess();
+          }
+        } else {
+          this.props.onSuccess();
+        }
+      }
+    });
+  }
+
+  componentDidMount = async () => {
+    this.injectApplePay();
+  }
+
   render () {
+    if(!this.state.ready) {
+      return (
+        <React.Fragment>
+          <table className="stockTable">
+            <tbody>
+              <tr>
+                <td>Cardholder Name</td>
+                <td>
+                  <input
+                    type="text"
+                    onChange={this.onInputChange}
+                    value={this.state.name}
+                    name="name"
+                    disabled={this.state.disabled}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Receipt Email</td>
+                <td>
+                  <input
+                    type="text"
+                    disabled={true}
+                    value={this.context.email}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div>
+            <p>Checkout is loading, please wait...</p>
+          </div>
+        </React.Fragment>
+      );
+    }
+
+    // Apple Pay or similar is available
+    if(this.state.express) {
+      return (
+        <React.Fragment>
+          <p>You are about to make a payment of <strong>£{Number(this.props.realCost / 100).toFixed(2)}</strong> to the Grey College JCR</p>
+          <div className="checkoutType">
+            <h2>Express Checkout</h2>
+            <p>Your device supports express checkout</p>
+            <div id="payment-request-button" className="paymentType"></div>
+          </div>
+          <div className="checkoutType">
+            <h2>Regular Checkout</h2>
+            <p>Please enter your card details.</p>
+            <table className="stockTable">
+              <tbody>
+                <tr>
+                  <td>Cardholder Name</td>
+                  <td>
+                    <input
+                      type="text"
+                      onChange={this.onInputChange}
+                      value={this.state.name}
+                      name="name"
+                      disabled={this.state.disabled}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>Receipt Email</td>
+                  <td>
+                    <input
+                      type="text"
+                      disabled={true}
+                      value={this.context.email}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <br />
+            <CardElement
+              disabled={this.state.disabled}
+              className="paymentType"
+            />
+            <br />
+            <button
+              onClick={this.handleSubmit}
+              disabled={this.state.disabled}
+              className="largeButton"
+            >Pay £{Number(this.props.realCost / 100).toFixed(2)}</button>
+            <br />
+            {this.state.disabled ? <p>Processing payment this may take a moment. Please do not refresh this page.</p> : null}
+            <p>{this.state.error}</p>
+          </div>
+        </React.Fragment>
+      );
+    }
+
     return (
       <React.Fragment>
-        <table className="stockTable">
-          <tbody>
-            <tr>
-              <td>Cardholder Name</td>
-              <td>
-                <input
-                  type="text"
-                  onChange={this.onInputChange}
-                  value={this.state.name}
-                  name="name"
-                  disabled={this.state.disabled}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>Receipt Email</td>
-              <td>
-                <input
-                  type="text"
-                  disabled={true}
-                  value={this.context.email}
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <p>Please enter your card number, expiry date, CVV and postcode.</p>
-        <CardElement
-          disabled={this.state.disabled}
-        />
-        <br />
-        <button
-          onClick={this.handleSubmit}
-          disabled={this.state.disabled}
-          className="largeButton"
-        >Make Payment</button>
-        <br />
-        {this.state.disabled ? <p>Processing payment this may take a moment. Please do not refresh this page.</p> : null}
-        <p>{this.state.error}</p>
+        <p>You are about to make a payment of <strong>£{Number(this.props.realCost / 100).toFixed(2)}</strong> to the Grey College JCR</p>
+        <div>
+          <h2>Checkout</h2>
+          <p>Please enter your card details.</p>
+          <table className="stockTable">
+            <tbody>
+              <tr>
+                <td>Cardholder Name</td>
+                <td>
+                  <input
+                    type="text"
+                    onChange={this.onInputChange}
+                    value={this.state.name}
+                    name="name"
+                    disabled={this.state.disabled}
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>Receipt Email</td>
+                <td>
+                  <input
+                    type="text"
+                    disabled={true}
+                    value={this.context.email}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <CardElement
+            disabled={this.state.disabled}
+            className="paymentType"
+          />
+          <br />
+          <button
+            onClick={this.handleSubmit}
+            disabled={this.state.disabled}
+            className="largeButton"
+          >Pay £{Number(this.props.realCost / 100).toFixed(2)}</button>
+          <br />
+          {this.state.disabled ? <p>Processing payment this may take a moment. Please do not refresh this page.</p> : null}
+          <p>{this.state.error}</p>
+        </div>
       </React.Fragment>
     );
   }
@@ -117,7 +284,8 @@ CheckoutForm.propTypes = {
   stripe: PropTypes.object.isRequired,
   elements: PropTypes.object.isRequired,
   clientSecret: PropTypes.string.isRequired,
-  onSuccess: PropTypes.func.isRequired
+  onSuccess: PropTypes.func.isRequired,
+  realCost: PropTypes.number.isRequired
 };
 
 export default function InjectedCheckoutForm(props) {
@@ -129,6 +297,7 @@ export default function InjectedCheckoutForm(props) {
           elements={elements}
           clientSecret={props.clientSecret}
           onSuccess={props.onSuccess}
+          realCost={props.realCost}
         />
       )}
     </ElementsConsumer>

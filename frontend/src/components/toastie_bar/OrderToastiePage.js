@@ -320,15 +320,14 @@ class OrderToastiePage extends React.Component {
           <h2>Confirmed Order</h2>
           <h3>Toastie</h3>
           {this.displayToastieOrder()}
-          <br/>
           <h3>Other Items</h3>
           {this.displayOtherItemsOrder()}
           <br/>
           <div className="paymentContainer">
-            <h2>Price: £{this.state.realCost.toFixed(2)}</h2>
             <CheckoutForm
               clientSecret={this.state.clientSecret}
               onSuccess={this.onPaymentSuccess}
+              realCost={Number(this.state.realCost) * 100}
             />
           </div>
         </React.Fragment>
