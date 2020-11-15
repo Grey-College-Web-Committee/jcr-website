@@ -6,6 +6,19 @@ const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } =
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 router.post("/order", async (req, res) => {
+  const currentDate = new Date();
+  const hours = currentDate.getHours();
+  const minutes = currentDate.getMinutes();
+
+  // Ignore the time condition if we are developing it
+  if(process.env.DEBUG.toLowerCase() === "false") {
+    if((hours === 21 && minutes > 32) || hours < 20 || hours > 22) {
+      // Outside 8pm to 9:32pm
+      // Past 9:32pm (instead of 9:30pm to avoid problems if users place orders just after 9:30pm)
+      return res.status(400).json({ error: "Orders can only be placed between 8pm and 9:30pm", timeIssue: true });
+    }
+  }
+
   // User only
   const { user } = req.session;
   // Get the order from the data received
@@ -82,8 +95,6 @@ router.post("/order", async (req, res) => {
       type: breadEntry.type
     });
   }
-
-
 
   if(breadEntry !== null) {
     await ToastieOrderContent.create({ orderId: dbOrder.id, stockId: breadEntry.id });

@@ -5,6 +5,7 @@ import SelectBread from './SelectBread';
 import SelectMany from './SelectMany';
 import CheckoutForm from '../payment/CheckoutForm';
 import authContext from '../../utils/authContext.js';
+import config from '../../config.json';
 
 class OrderToastiePage extends React.Component {
   constructor(props) {
@@ -23,7 +24,8 @@ class OrderToastiePage extends React.Component {
       confirmedOrder: {},
       realCost: 0,
       clientSecret: "",
-      paymentSuccessful: false
+      paymentSuccessful: false,
+      currentDate: new Date()
     };
   }
 
@@ -34,6 +36,7 @@ class OrderToastiePage extends React.Component {
   }
 
   updateStockListing = async () => {
+    this.setState({ error: "" });
     let query;
 
     // Standard way to just get the data from the API
@@ -91,28 +94,25 @@ class OrderToastiePage extends React.Component {
 
   placeOrder = async () => {
     // Don't want them resubmitting while we are handling one already
-    this.setState({ purchaseDisabled: true });
+    this.setState({ purchaseDisabled: true, error: "" });
 
     // Ordering a toastie
     if(this.state.bread !== -1) {
       // No fillings isn't allowed
       if(this.state.choices.length === 0) {
-        alert("You must select some fillings for your toastie.");
-        this.setState({ purchaseDisabled: false });
+        this.setState({ purchaseDisabled: false, error: "You must select some fillings for your toastie." });
         return;
       }
     } else {
       // They didn't order anything
       if(this.state.otherItems.length === 0) {
-        alert("You must order something.");
-        this.setState({ purchaseDisabled: false });
+        this.setState({ purchaseDisabled: false, error: "You must order something." });
         return;
       }
 
       // Only fillings and other items isn't allowed either
       if(this.state.choices.length !== 0) {
-        alert("You cannot just order fillings. Please select a bread type.");
-        this.setState({ purchaseDisabled: false });
+        this.setState({ purchaseDisabled: false, error: "You cannot just order fillings. Please select a bread type." });
         return;
       }
     }
@@ -129,7 +129,16 @@ class OrderToastiePage extends React.Component {
     try {
       query = await api.post("/toastie_bar/order", orderDetails);
     } catch (error) {
-      alert("Your order has not been placed. Some items may have gone out of stock. Please refresh the page and try again.");
+      const timeIssue = error.response.data.timeIssue;
+
+      if(timeIssue) {
+        // We don't undisable here as they need to refresh instead
+        this.setState({ error: "Unfortunately your order was not submitted in time. The Toastie Bar is now closed." });
+        return;
+      }
+
+      // We don't undisable here as they need to refresh instead
+      this.setState({ error: "An item you ordered has now gone of stock. Please refresh the page to see a list of available items." });
       return;
     }
 
@@ -204,6 +213,24 @@ class OrderToastiePage extends React.Component {
   }
 
   render () {
+    // The Toastie Bar is only open between 8pm and 9:30pm for orders
+    const hours = this.state.currentDate.getHours();
+    const minutes = this.state.currentDate.getMinutes();
+
+    if(!config.debug) {
+      // Outside 8:00pm to 9:30pm
+      if((hours === 21 && minutes >= 30) || hours < 20 || hours > 22) {
+        return (
+          <React.Fragment>
+            <h1>Toastie Bar Closed</h1>
+            <p>The Toastie Bar is currently not accepting anymore orders.</p>
+            <p>It is open daily from 8pm to 10pm.</p>
+            <p><strong>Orders cannot be placed after 9:30pm.</strong></p>
+          </React.Fragment>
+        )
+      }
+    }
+
     // Still waiting for data from the API
     if(!this.state.loaded) {
       return (
@@ -279,6 +306,10 @@ class OrderToastiePage extends React.Component {
             disabled={this.state.purchaseDisabled}
             className="largeButton"
           >Place Order</button>
+          <br/>
+          <br/>
+          {this.state.error.length !== 0 ? <h2>Error Occurred</h2> : null}
+          {this.state.error.length !== 0 ? <p>{this.state.error}</p> : null}
         </React.Fragment>
       )
     } else {
@@ -299,7 +330,7 @@ class OrderToastiePage extends React.Component {
               clientSecret={this.state.clientSecret}
               onSuccess={this.onPaymentSuccess}
             />
-        </div>
+          </div>
         </React.Fragment>
       )
     }
