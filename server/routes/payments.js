@@ -43,7 +43,7 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), (req, res)
       break;
   }
 
-  return res.status(200);
+  return res.status(204).end();
 });
 
 generateMessageForTBar = (orderId, firstName, lastName, user, bread, fillings, otherItems) => {
