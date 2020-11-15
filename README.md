@@ -25,11 +25,23 @@ EXPRESS_PORT=9000
 SESSION_SECRET=randomstringshouldgohere
 STRIPE_SECRET_KEY=<Stripe Secret sk_...>
 WEB_ADDRESS=http://localhost:9000
-STRIPE_ENDPOINT_SECRET=string
+STRIPE_ENDPOINT_SECRET=string provided by Stripe
 EMAIL_HOST=url
-EMAIL_PORT=465
-EMAIL_SECURE=true
+EMAIL_PORT=email port
+EMAIL_SECURE=(true if the port is 465, false otherwise)
 EMAIL_USERNAME=emailaddress
 EMAIL_PASSWORD=emailpassword
 EMAIL_SENDER=yourname
+TOASTIE_BAR_EMAIL_TO=Where to send the orders
+DEBUG=false
+```
+
+For setting the .env up for Durham email addresses, use the following: ([More information here](https://www.dur.ac.uk/cis/faqs/?faqno=2721))
+```
+EMAIL_HOST=smtp.office365.com
+EMAIL_PORT=587
+EMAIL_SECURE=false
+EMAIL_USERNAME=<cis username goes here>@durham.ac.uk
+EMAIL_PASSWORD=<cis password goes here>
+EMAIL_SENDER=<an alias or the cis username for the account>@durham.ac.uk
 ```
