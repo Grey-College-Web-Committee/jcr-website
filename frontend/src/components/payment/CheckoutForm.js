@@ -71,7 +71,6 @@ class CheckoutForm extends React.Component {
     const { stripe, elements } = this.props;
 
     if(!stripe || !elements) {
-      console.log("NO SE");
       return;
     }
 
@@ -98,6 +97,14 @@ class CheckoutForm extends React.Component {
     } else {
       this.setState({ ready: true, express: false });
     }
+
+    prButton.on("click", (ev) => {
+      if(this.state.disabled) {
+        ev.preventDefault();
+        this.setState({ error: "Payment already in progress" });
+        return;
+      }
+    });
 
     paymentRequest.on("paymentmethod", async (ev) => {
       this.setState({ disabled: true });
@@ -136,37 +143,9 @@ class CheckoutForm extends React.Component {
   render () {
     if(!this.state.ready) {
       return (
-        <React.Fragment>
-          <table className="stockTable">
-            <tbody>
-              <tr>
-                <td>Cardholder Name</td>
-                <td>
-                  <input
-                    type="text"
-                    onChange={this.onInputChange}
-                    value={this.state.name}
-                    name="name"
-                    disabled={this.state.disabled}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>Receipt Email</td>
-                <td>
-                  <input
-                    type="text"
-                    disabled={true}
-                    value={this.context.email}
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div>
-            <p>Checkout is loading, please wait...</p>
-          </div>
-        </React.Fragment>
+        <div>
+          <p>Checkout is loading, please wait...</p>
+        </div>
       );
     }
 

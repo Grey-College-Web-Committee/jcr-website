@@ -160,7 +160,7 @@ class OrderToastiePage extends React.Component {
 
     if(items.length === 0) {
       return (
-        <strong>None selected</strong>
+        <p><strong>None selected</strong></p>
       );
     }
 
@@ -188,7 +188,7 @@ class OrderToastiePage extends React.Component {
 
     if(otherItems.length === 0) {
       return (
-        <strong>None selected</strong>
+        <p><strong>None selected</strong></p>
       );
     }
 
@@ -260,7 +260,6 @@ class OrderToastiePage extends React.Component {
           <br/>
           <h2>Other Items</h2>
           {this.displayOtherItemsOrder()}
-          <br/>
           <p><strong>A receipt has been emailed to {this.context.email}</strong></p>
         </React.Fragment>
       )
@@ -322,7 +321,6 @@ class OrderToastiePage extends React.Component {
           {this.displayToastieOrder()}
           <h3>Other Items</h3>
           {this.displayOtherItemsOrder()}
-          <br/>
           <div className="paymentContainer">
             <CheckoutForm
               clientSecret={this.state.clientSecret}
