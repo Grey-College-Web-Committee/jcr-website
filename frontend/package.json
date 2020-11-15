@@ -17,7 +17,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && mkdir -p ./build/well_known && cp ../domain_verification/apple-developer-merchantid-domain-association ./build/well_known/",
+    "build": "react-scripts build && mkdir -p ./build/.well_known && cp ../domain_verification/apple-developer-merchantid-domain-association ./build/.well_known/",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

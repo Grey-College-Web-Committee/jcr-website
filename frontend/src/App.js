@@ -137,10 +137,7 @@ class App extends React.Component {
                   <Route exact path="/" render={() => (
                     <HomePage />
                   )} />
-                  <Route exact path="/.well_known/apple-developer-merchantid-domain-association" render={() => (
-                    <Redirect to={{
-                      pathname: "/well_known/apple-developer-merchantid-domain-association"
-                    }} />
+                  <Route exact path="/.well_known/apple-developer-merchantid-domain-association" onEnter={() => window.location.reload()}
                   )} />
                   <Route exact path="/accounts/login" render={() => (
                     this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
