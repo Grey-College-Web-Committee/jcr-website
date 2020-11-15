@@ -88,13 +88,8 @@ app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
 // These are for serving production code
 // The directory may need to change
 app.use(express.static(path.join(__dirname, "../frontend/build")));
-app.use(express.static(path.join(__dirname, "../domain_verification")));
 // Necessary since things like /gym do not actually exist they are routes
 // within the index.html file
-
-app.get('/.well_known/apple-developer-merchantid-domain-association', function (req, res) {
-  res.sendFile(path.join(__dirname, "../domain_verification", "apple-developer-merchantid-domain-association"));
-});
 
 app.get('/*', function (req, res) {
   res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
