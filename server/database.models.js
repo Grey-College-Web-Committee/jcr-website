@@ -14,7 +14,9 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 
 class User extends Model {}
 class GymMembership extends Model {}
-class Transaction extends Model {}
+class ToastieStock extends Model {}
+class ToastieOrder extends Model {}
+class ToastieOrderContent extends Model {}
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -61,21 +63,26 @@ GymMembership.init({
   }
 }, { sequelize });
 
-/*
-To get around needing to use webhooks (at least temporarily) we will track transactions
-through this table providing the id in a similar use to email verification tokens allowing
-a single use that is safe (enough) to expose on the frontend
--- Ultimately want to move to webhooks eventually but this is practical given the time
-'type' here is an enum that we could do with moving away from
-*/
-// completed => Has reached either failure or success page
-// successful => Has reached the success page
-Transaction.init({
-  id: {
-    type: DataTypes.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true
+ToastieStock.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
   },
+  available: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
+  type: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  price: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  }
+}, { sequelize, freezeTableName: true });
+
+ToastieOrder.init({
   userId: {
     type: DataTypes.INTEGER,
     references: {
@@ -83,33 +90,46 @@ Transaction.init({
       key: 'id'
     }
   },
-  type: {
-    type: DataTypes.INTEGER,
-    defaultValue: -1
-  },
-  completed: {
+  paid: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   },
-  successful: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
+  stripeId: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
   }
 }, { sequelize });
 
-const TransactionType = Object.freeze({
-  unknown: -1,
-  gymMembership: 0,
-  halloweenSaturday: 1,
-  halloweenSunday: 2
-});
+ToastieOrderContent.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieOrder,
+      key: 'id'
+    }
+  },
+  stockId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieStock,
+      key: 'id'
+    }
+  }
+}, { sequelize, timestamps: false });
 
 // Associations are necessary to allow joins between tables
 
 User.hasMany(GymMembership, { foreignKey: 'userId' });
 GymMembership.belongsTo(User, { foreignKey: 'userId' });
 
-User.hasMany(Transaction, { foreignKey: 'userId' });
-Transaction.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(ToastieOrder, { foreignKey: 'userId' });
+ToastieOrder.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { User, GymMembership, Transaction, TransactionType };
+ToastieOrder.hasMany(ToastieOrderContent, { foreignKey: 'orderId' });
+ToastieOrderContent.belongsTo(ToastieOrder, { foreignKey: 'orderId' });
+
+ToastieStock.hasMany(ToastieOrderContent, { foreignKey: 'stockId' });
+ToastieOrderContent.belongsTo(ToastieStock, { foreignKey: 'stockId' });
+
+module.exports = { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent };

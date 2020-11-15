@@ -1,21 +1,25 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
 import authContext from './utils/authContext.js';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import config from './config.json';
 
 import NavigationBar from './components/nav/NavigationBar';
 
 import LoginPage from './components/accounts/LoginPage';
 import LogoutPage from './components/accounts/LogoutPage';
-import GymPage from './components/gym/GymPage';
-import PaymentFinishedPage from './components/payment/PaymentFinishedPage';
 import ErrorPage from './components/errors/ErrorPage';
-import HalloweenPage from './components/halloween/HalloweenPage';
+import HomePage from './components/home/HomePage';
+import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 
 // To add a new page import it like above
 
-import AdminGymPage from './components/gym/admin/AdminGymPage';
+import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 
 import './App.css';
+
+const stripePromise = loadStripe(config.stripe.publicKey);
 
 class App extends React.Component {
   constructor(props) {
@@ -123,41 +127,38 @@ class App extends React.Component {
 
   render () {
     return (
-      <authContext.Provider value={this.state.user}>
-        <Router>
-          <div className="App">
-            <NavigationBar />
-            <div className="content">
-              <Switch>
-                <Route exact path="/" render={() => (
-                  <React.Fragment>
-                    <h1>Grey College JCR Shop</h1>
-                  </React.Fragment>
-                )} />
-                <Route exact path="/payments/:result/:jwt" render={(props) => (
-                  <PaymentFinishedPage {...props} />
-                )} />
-                <Route exact path="/admin/gym" render={() => (
-                  this.isAdmin() ? ( <AdminGymPage /> ) : ( <Redirect to="/errors/403" /> )
-                )} />
-                <Route exact path="/accounts/login" render={() => (
-                  this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
-                )} />
-                <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
-                <Route exact path="/gym" render={() => (
-                  this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <Redirect to="/accounts/login" /> )
-                )} />
-                <Route exact path="/errors/:code" render={(props) => (
-                  <ErrorPage {...props} />
-                )} />
-                <Route render={() => (
-                  <ErrorPage code="404" />
-                )} />
-              </Switch>
+      <Elements stripe={stripePromise}>
+        <authContext.Provider value={this.state.user}>
+          <Router>
+            <div className="App">
+              <NavigationBar />
+              <div className="content">
+                <Switch>
+                  <Route exact path="/" render={() => (
+                    <HomePage />
+                  )} />
+                  <Route exact path="/accounts/login" render={() => (
+                    this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
+                  )} />
+                  <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
+                  <Route exact path="/toasties/stock" render={() => (
+                    this.isAdmin() ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                  )} />
+                  <Route exact path="/toasties/" render={() => (
+                    this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/errors/:code" render={(props) => (
+                    <ErrorPage {...props} />
+                  )} />
+                  <Route render={() => (
+                    <ErrorPage code="404" />
+                  )} />
+                </Switch>
+              </div>
             </div>
-          </div>
-        </Router>
-      </authContext.Provider>
+          </Router>
+        </authContext.Provider>
+      </Elements>
     );
   }
 }

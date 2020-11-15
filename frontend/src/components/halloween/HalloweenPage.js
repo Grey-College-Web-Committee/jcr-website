@@ -4,7 +4,7 @@ import PropTypes from 'prop-types'
 import api from '../../utils/axiosConfig.js';
 import { loadStripe } from '@stripe/stripe-js';
 
-const stripePromise = loadStripe("pk_live_51HHsHPKDASE1Hc3SBwvmTIC1anmLIc0YCArbDAnZIehcCcEtzojC4V4GYHifQSWUfOmS3vqHLw7uDgs6BiuECfEV00lHoBcPPu");
+const stripePromise = loadStripe("pk_test_51HHsHPKDASE1Hc3S7z0DxdBmHEFhyCxUW0gItUyjdpngmvJlrApgVMw8bEBFRpz3KhbMzMMyPQTzNN8650IGIQo3003jB4idHf");
 
 class HalloweenPage extends React.Component {
   constructor(props) {

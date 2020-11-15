@@ -1,152 +1,181 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, GymMembership, Transaction, TransactionType } = require("../database.models.js");
+const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
-const jwt = require("jsonwebtoken");
+const bodyParser = require('body-parser');
+const mailer = require("../utils/mailer");
 
-// Called when a POST request is to be served at /api/payments/failure
-router.post("/failure", async (req, res) => {
-  const transactionJWT = req.body.transactionJWT;
+router.post("/webhook", bodyParser.raw({ type: "application/json" }), (req, res) => {
+  const sig = req.headers["stripe-signature"];
 
-  if(transactionJWT == null) {
-    return res.status(400).json({ message: "Missing transaction JWT" });
-  }
-
-  // Now decrypt the JWT
-
-  let token;
+  let event;
 
   try {
-    token = jwt.verify(transactionJWT, process.env.JWT_SECRET);
+    event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (error) {
-    // Invalid key
-    return res.status(400).json({ message: "Transaction JWT has been modified or has expired" });
+    return res.status(400).json({ "error": "Webhook signature verification failed "});
   }
 
-  const { success, transactionId } = token;
+  switch(event.type) {
+    case "payment_intent.succeeded":
+      const paymentIntent = event.data.object;
 
-  let transaction;
-
-  try {
-    transaction = await Transaction.findOne({ where: { id: transactionId } });
-  } catch (error) {
-    return res.status(500).json({ message: "Server error: Unable to query database" });
-  }
-
-  if(transaction == null) {
-    return res.status(400).json({ message: "Invalid transaction ID" });
-  }
-
-  if(transaction.completed) {
-    return res.status(400).json({ message: "Transaction already completed" });
-  }
-
-  transaction.completed = true;
-  transaction.successful = false;
-
-  try {
-    await transaction.save();
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Server error: Unable to update transaction" });
-  }
-
-  return res.status(200).json({ message: "Transaction completed" });
-});
-
-// Called when a POST request is to be served at /api/payments/success
-router.post("/success", async (req, res) => {
-  const transactionJWT = req.body.transactionJWT;
-
-  if(transactionJWT == null) {
-    return res.status(400).json({ message: "Missing transaction JWT" });
-  }
-
-  // Now decrypt the JWT
-
-  let token;
-
-  try {
-    token = jwt.verify(transactionJWT, process.env.JWT_SECRET);
-  } catch (error) {
-    // Invalid key
-    console.log(error);
-    return res.status(400).json({ message: "Transaction JWT has been modified or has expired" });
-  }
-
-  const { success, transactionId } = token;
-
-  if(!success) {
-    return res.status(400).json({ message: "Failure token provided to success endpoint" });
-  }
-
-  let transaction;
-
-  try {
-    transaction = await Transaction.findOne({ where: { id: transactionId } });
-  } catch (error) {
-    return res.status(500).json({ message: "Server error: Unable to query database" });
-  }
-
-  if(transaction == null) {
-    return res.status(400).json({ message: "Invalid transaction ID" });
-  }
-
-  if(transaction.completed) {
-    return res.status(400).json({ message: "Transaction already completed" });
-  }
-
-  switch(transaction.type) {
-    case TransactionType.gymMembership:
-      let existingMembership;
-
-      try {
-        existingMembership = await GymMembership.findAll({ where: { userId: transaction.userId }});
-      } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Server error: Unable to check for existing membership "});
+      if(!paymentIntent.metadata) {
+        break;
       }
 
-      if(existingMembership.length !== 0) {
-        return res.status(400).json({ message: "User already has a membership" });
+      if(!paymentIntent.metadata.type) {
+        break;
       }
 
-      let membership;
-
-      try {
-        membership = await createNewGymMembership(transaction.userId);
-      } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Server error: Error creating membership" });
+      switch(paymentIntent.metadata.type) {
+        case "toastie_bar":
+          processToastieBarOrder(paymentIntent);
+          break;
+        default:
+          break;
       }
 
       break;
-    case TransactionType.halloweenSaturday:
-    case TransactionType.halloweenSunday:
-      break;
-    case TransactionType.unknown:
     default:
-      return res.status(500).json({ message: "Server error: Unknown transaction type" });
+      break;
   }
 
-  transaction.completed = true;
-  transaction.successful = true;
-
-  try {
-    await transaction.save();
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Server error: Unable to update transaction" });
-  }
-
-  return res.status(200).json({ message: "Transaction completed", type: transaction.type });
+  return res.status(200);
 });
 
-createNewGymMembership = async (userId) => {
-  const membership = await GymMembership.create({ userId });
-  return membership;
+generateMessageForTBar = (orderId, firstName, lastName, user, bread, fillings, otherItems) => {
+  let message = [];
+
+  message.push(`<h1>Order Received (Order no. ${orderId})</h1>`);
+  message.push(`Payment received at ${new Date().toLocaleString()}<br>`);
+  message.push(`Ordered by: ${firstName} ${lastName} (${user.username})`);
+  message.push(`<h2>Order Details</h2>`);
+  message.push(`<h3>Toastie</h3>`);
+
+  if(bread.length !== 0) {
+    bread = bread[0];
+
+    message.push(`Bread: ${bread.ToastieStock.name}<br>`);
+    message.push(`Fillings:<br>`);
+    message.push(`<ul>`);
+
+    fillings.forEach(item => {
+      message.push(`<li>${item.ToastieStock.name}</li>`);
+    })
+
+    message.push(`</ul>`);
+  } else {
+    message.push(`<p><strong>No toastie ordered.</strong></p>`);
+  }
+
+  message.push(`<h3>Other Items</h3>`);
+
+  if(otherItems.length !== 0) {
+    message.push(`<ul>`);
+
+    otherItems.forEach(item => {
+      message.push(`<li>${item.ToastieStock.name}</li>`);
+    });
+
+    message.push(`</ul>`);
+  } else {
+    message.push(`<p><strong>No other items ordered.</strong></p>`);
+  }
+
+  return message.join("");
+}
+
+generateMessageForCustomer = (orderId, firstName, lastName, user, bread, fillings, otherItems) => {
+  let message = [];
+  let cost = 0;
+
+  message.push(`<h1>Order Received (Order no. ${orderId})</h1>`);
+  message.push(`<p>Hello ${firstName} ${lastName}</p>`);
+  message.push(`<p>Your ordered has been confirmed and sent to the Toastie Bar</p>`);
+  message.push(`<p>Please come and collect it in about 15 minutes</p>`);
+  message.push(`<h2>Order Details</h2>`);
+  message.push(`<h3>Toastie</h3>`);
+
+  if(bread.length !== 0) {
+    bread = bread[0];
+    cost += Number(bread.ToastieStock.price);
+
+    message.push(`Bread: ${bread.ToastieStock.name}<br>`);
+    message.push(`Fillings:<br>`);
+    message.push(`<ul>`);
+
+    fillings.forEach(item => {
+      cost += Number(item.ToastieStock.price);
+      message.push(`<li>${item.ToastieStock.name}</li>`);
+    })
+
+    message.push(`</ul>`);
+  } else {
+    message.push(`<p><strong>No toastie ordered.</strong></p>`);
+  }
+
+  message.push(`<h3>Other Items</h3>`);
+
+  if(otherItems.length !== 0) {
+    message.push(`<ul>`);
+
+    otherItems.forEach(item => {
+      cost += Number(item.ToastieStock.price);
+      message.push(`<li>${item.ToastieStock.name}</li>`);
+    });
+
+    message.push(`</ul>`);
+  } else {
+    message.push(`<p><strong>No other items ordered.</strong></p>`);
+  }
+
+  message.push(`<p>The total cost of this order was £${cost.toFixed(2)}`);
+  message.push(`<p>You should also receive a receipt from Stripe confirming your payment.</p>`)
+  message.push(`<p><strong>Thank you!</strong></p>`);
+
+  return message.join("");
+}
+
+processToastieBarOrder = async (paymentIntent) => {
+  const stripeId = paymentIntent.id;
+  const orderId = paymentIntent.metadata.orderId;
+  const order = await ToastieOrder.findOne({ where: { id: orderId } });
+
+  if(order === null) {
+    mailer.sendEmail("finlayboyle2001@gmail.com", `Null order #${orderId}`, "Null order received");
+    // Something weird has to happen to trigger this.
+    // Just email to myself for now. Should never happen though.
+    return;
+  }
+
+  order.stripeId = stripeId;
+  order.paid = true;
+  await order.save();
+
+  const user = await User.findOne({ where: { id: order.userId } });
+  const orderedItems = await ToastieOrderContent.findAll({
+    where: {
+      orderId
+    },
+    include: [ ToastieStock ]
+  });
+
+  let bread = orderedItems.filter(item => item.ToastieStock.type === "bread");
+  let fillings = orderedItems.filter(item => item.ToastieStock.type === "filling");
+  let otherItems = orderedItems.filter(item => item.ToastieStock.type === "other");
+
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+
+  const tbMessage = generateMessageForTBar(orderId, firstName, lastName, user, bread, fillings, otherItems);
+  mailer.sendEmail(process.env.TOASTIE_BAR_EMAIL_TO, `Toastie Bar Order Received #${orderId}`, tbMessage);
+
+  const customerMessage = generateMessageForCustomer(orderId, firstName, lastName, user, bread, fillings, otherItems);
+  mailer.sendEmail(user.email, `Toastie Bar Order Confirmation #${orderId}`, customerMessage);
 }
 
 // Set the module export to router so it can be used in server.js

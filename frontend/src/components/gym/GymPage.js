@@ -16,17 +16,7 @@ class GymPage extends React.Component {
   }
 
   purchaseMembership = async (e) => {
-    const stripe = await stripePromise;
-    const response = await api.post("/gym/create_stripe_checkout");
-    const session = await response.data;
 
-    const result = await stripe.redirectToCheckout({
-      sessionId: session.id
-    });
-
-    if(result.error) {
-      console.log("Handle this error!", result.error);
-    }
   }
 
   componentDidMount = async () => {
