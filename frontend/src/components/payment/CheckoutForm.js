@@ -79,7 +79,7 @@ class CheckoutForm extends React.Component {
       currency: "gbp",
       total: {
         label: "Order Total",
-        amount: this.props.realCost
+        amount: Math.round(this.props.realCost)
       },
       requestPayerName: true,
       requestPayerEmail: true
