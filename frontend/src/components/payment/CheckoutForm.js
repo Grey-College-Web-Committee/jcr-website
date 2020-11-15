@@ -86,7 +86,14 @@ class CheckoutForm extends React.Component {
     });
 
     const result = await paymentRequest.canMakePayment();
-    const prButton = elements.create("paymentRequestButton", {
+
+    let prButton = elements.getElement("paymentRequestButton");
+
+    if(prButton) {
+      prButton.destroy();
+    }
+
+    prButton = elements.create("paymentRequestButton", {
       paymentRequest
     });
 
