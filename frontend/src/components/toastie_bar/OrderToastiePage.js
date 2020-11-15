@@ -218,7 +218,7 @@ class OrderToastiePage extends React.Component {
 
     if(!config.debug) {
       // Outside 8:00pm to 9:30pm
-      if((hours === 21 && minutes >= 30) || hours < 20 || hours > 22) {
+      if((hours === 23 && minutes >= 30) || hours < 20 || hours > 23) {
         return (
           <React.Fragment>
             <h1>Toastie Bar Closed</h1>
