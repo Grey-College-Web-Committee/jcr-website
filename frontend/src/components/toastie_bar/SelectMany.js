@@ -57,4 +57,11 @@ class SelectMany extends React.Component {
   }
 }
 
+SelectMany.propTypes = {
+  stock: PropTypes.array.isRequired,
+  passUp: PropTypes.func.isRequired,
+  type: PropTypes.string.isRequired,
+  disabled: PropTypes.bool.isRequired
+}
+
 export default SelectMany;

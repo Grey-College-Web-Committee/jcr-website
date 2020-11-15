@@ -56,10 +56,9 @@ class StockRow extends React.Component {
     }
 
     // Update the item on the server
-    let query;
 
     try {
-      query = await api.put(`/toastie_bar/stock/${this.state.id}`, { name, type, price, available });
+      await api.put(`/toastie_bar/stock/${this.state.id}`, { name, type, price, available });
     } catch (error) {
       alert("An error occurred updating this value");
       return;
@@ -77,7 +76,6 @@ class StockRow extends React.Component {
     try {
       query = await api.get(`/toastie_bar/stock/${this.state.id}`);
     } catch (error) {
-      console.log(error);
       this.setState({ disabled: false });
       return;
     }
@@ -142,5 +140,10 @@ class StockRow extends React.Component {
     )
   }
 }
+
+StockRow.propTypes = {
+  item: PropTypes.object.isRequired,
+  key: PropTypes.number
+};
 
 export default StockRow;

@@ -39,10 +39,9 @@ class AddStock extends React.Component {
     }
 
     // Add it to the database
-    let query;
 
     try {
-      query = await api.post("/toastie_bar/stock", { name, type, price, available });
+      await api.post("/toastie_bar/stock", { name, type, price, available });
     } catch (error) {
       this.setState({ status: error.response.status, error: error.response.data.error, loaded: true });
       return;
@@ -125,5 +124,9 @@ class AddStock extends React.Component {
     )
   }
 }
+
+AddStock.propTypes = {
+  updateStockListing: PropTypes.func.isRequired
+};
 
 export default AddStock;

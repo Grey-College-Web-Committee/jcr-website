@@ -113,6 +113,12 @@ class CheckoutForm extends React.Component {
 }
 
 CheckoutForm.contextType = authContext;
+CheckoutForm.propTypes = {
+  stripe: PropTypes.object.isRequired,
+  elements: PropTypes.object.isRequired,
+  clientSecret: PropTypes.string.isRequired,
+  onSuccess: PropTypes.func.isRequired
+};
 
 export default function InjectedCheckoutForm(props) {
   return (

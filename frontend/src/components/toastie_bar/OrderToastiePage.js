@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import api from '../../utils/axiosConfig.js';
 import SelectBread from './SelectBread';
 import SelectMany from './SelectMany';
@@ -272,6 +271,7 @@ class OrderToastiePage extends React.Component {
       return (
         <React.Fragment>
           <h1>Order Toastie</h1>
+          {hours >= 21 && minutes >= 15 ? <p><strong>Please note that last orders are at 9:30pm. Any order submitted after this time may not be processed.</strong></p> : null}
           <p>Select one type of bread. Unselectable items are out of stock.</p>
           <h2>Toastie</h2>
           <br/>

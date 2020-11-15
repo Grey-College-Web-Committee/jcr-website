@@ -38,4 +38,10 @@ class SelectBread extends React.Component {
   }
 }
 
+SelectBread.propTypes = {
+  stock: PropTypes.array.isRequired,
+  passUp: PropTypes.func.isRequired,
+  disabled: PropTypes.bool.isRequired
+}
+
 export default SelectBread;

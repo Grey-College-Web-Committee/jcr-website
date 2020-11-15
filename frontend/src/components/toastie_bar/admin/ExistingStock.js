@@ -3,10 +3,6 @@ import PropTypes from 'prop-types';
 import StockRow from './StockRow';
 
 class ExistingStock extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render () {
     // Should only be displayed once we have data anyway based
     // on the render function in ToastieBarStockPage.js
@@ -43,5 +39,9 @@ class ExistingStock extends React.Component {
     )
   }
 }
+
+ExistingStock.propTypes = {
+  stock: PropTypes.array.isRequired
+};
 
 export default ExistingStock;
