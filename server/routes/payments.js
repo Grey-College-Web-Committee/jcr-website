@@ -93,9 +93,11 @@ generateMessageForCustomer = (orderId, firstName, lastName, user, bread, filling
   let cost = 0;
 
   message.push(`<h1>Order Received (Order no. ${orderId})</h1>`);
-  message.push(`<p>Hello ${firstName} ${lastName}</p>`);
-  message.push(`<p>Your ordered has been confirmed and sent to the Toastie Bar</p>`);
-  message.push(`<p>Please come and collect it in about 15 minutes</p>`);
+  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
+  message.push(`<p>Your order has been confirmed and sent to the Toastie Bar.</p>`);
+  message.push(`<p>Please collect your items from the collection area outside the JCR.</p>`);
+  message.push(`<p>There shouldn't be a need to enter the JCR.</p>`);
+  message.push(`<p>Please come and collect it in about 10-15 minutes.</p>`);
   message.push(`<h2>Order Details</h2>`);
   message.push(`<h3>Toastie</h3>`);
 
