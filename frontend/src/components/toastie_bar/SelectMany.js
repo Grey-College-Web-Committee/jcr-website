@@ -28,7 +28,7 @@ class SelectMany extends React.Component {
 
   render () {
     return (
-      <table>
+      <table className="fillingTable">
         <thead>
           <tr>
             <th>Name</th>
@@ -38,7 +38,7 @@ class SelectMany extends React.Component {
         </thead>
         <tbody>
           {this.state.items.map(item => (
-            <tr key={item.id}>
+            <tr key={item.id} data-available={item.available ? 1 : 0}>
               <td>{item.name}</td>
               <td>{item.price}</td>
               <td>

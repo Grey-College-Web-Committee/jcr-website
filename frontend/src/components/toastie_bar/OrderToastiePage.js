@@ -157,7 +157,7 @@ class OrderToastiePage extends React.Component {
     }
 
     return (
-      <table>
+      <table class="fillingTable">
         <thead>
           <tr>
             <th>Item</th><th>Price (£)</th>
@@ -185,7 +185,7 @@ class OrderToastiePage extends React.Component {
     }
 
     return (
-      <table>
+      <table class="fillingTable">
         <thead>
           <tr>
             <th>Item</th><th>Price (£)</th>

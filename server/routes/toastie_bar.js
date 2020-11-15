@@ -20,8 +20,8 @@ router.post("/order", async (req, res) => {
     }
   });
 
-  if(breadEntry === null) {
-    return res.status(400).json({ });
+  if(breadEntry === null && bread != -1) {
+    return res.status(400).json({ error: "ID mismatch: bread" });
   }
 
   // breadEntry now has the database entry for this bread
@@ -36,7 +36,7 @@ router.post("/order", async (req, res) => {
   });
 
   if(fillingEntries.length !== fillings.length) {
-    return res.status(400).json({ });
+    return res.status(400).json({ error: "Unable to verify fillings" });
   }
 
   // fillingEntries now has the database entries for each of the fillings
@@ -51,13 +51,17 @@ router.post("/order", async (req, res) => {
   });
 
   if(otherEntries.length !== otherItems.length) {
-    return res.status(400).json({ });
+    return res.status(400).json({ error: "Unable to verify other items" });
   }
 
   // Calculate the cost so we can give it to Stripe
   // never trust the user's price calculation
 
-  let realCost = Number(breadEntry.price);
+  let realCost = 0;
+
+  if(breadEntry !== null) {
+    realCost += Number(breadEntry.price);
+  }
 
   fillingEntries.forEach(item => realCost += Number(item.price));
   otherEntries.forEach(item => realCost += Number(item.price));
@@ -69,15 +73,21 @@ router.post("/order", async (req, res) => {
 
   const dbOrder = await ToastieOrder.create({ userId: user.id });
 
-  let confirmedOrder = [
-    {
+  let confirmedOrder = [];
+
+  if(breadEntry !== null) {
+    confirmedOrder.push({
       name: breadEntry.name,
       price: breadEntry.price,
       type: breadEntry.type
-    }
-  ];
+    });
+  }
 
-  await ToastieOrderContent.create({ orderId: dbOrder.id, stockId: breadEntry.id });
+
+
+  if(breadEntry !== null) {
+    await ToastieOrderContent.create({ orderId: dbOrder.id, stockId: breadEntry.id });
+  }
 
   fillingEntries.forEach(async (item) => {
     confirmedOrder.push({

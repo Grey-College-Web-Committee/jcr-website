@@ -131,7 +131,7 @@ class StockRow extends React.Component {
             disabled={this.state.disabled}
           />
         </td>
-        <td>{dateFormat(this.state.updatedAt, "dd/mm/yyyy hh:mm:ss")}</td>
+        <td>{dateFormat(this.state.updatedAt, "dd/mm/yyyy HH:MM:ss")}</td>
         <td>
           <button
             onClick={this.saveChanges}
