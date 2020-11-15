@@ -217,7 +217,8 @@ class OrderToastiePage extends React.Component {
     if(this.state.status !== 200) {
       return (
         <React.Fragment>
-          <h1>Non-200 Status {this.state.status}</h1>
+          <h1>Something went wrong</h1>
+          <p>An error occurred when trying to load this page. Please try again later.</p>
         </React.Fragment>
       );
     }
@@ -230,9 +231,11 @@ class OrderToastiePage extends React.Component {
           <p>Your order is now being processed. Please come and collect it in 15 minutes!</p>
           <h2>Toastie</h2>
           {this.displayToastieOrder()}
+          <br/>
           <h2>Other Items</h2>
           {this.displayOtherItemsOrder()}
-          <p>A receipt has been emailed to {this.context.email}</p>
+          <br/>
+          <p><strong>A receipt has been emailed to {this.context.email}</strong></p>
         </React.Fragment>
       )
     }
