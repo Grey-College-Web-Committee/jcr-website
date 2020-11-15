@@ -15,7 +15,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), (req, res)
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (error) {
-    console.log(error);
     return res.status(400).json({ "error": "Webhook signature verification failed "});
   }
 
@@ -141,14 +140,18 @@ generateMessageForCustomer = (orderId, firstName, lastName, user, bread, filling
 }
 
 processToastieBarOrder = async (paymentIntent) => {
+  const stripeId = paymentIntent.id;
   const orderId = paymentIntent.metadata.orderId;
   const order = await ToastieOrder.findOne({ where: { id: orderId } });
 
   if(order === null) {
-    //something weird has happened
+    mailer.sendEmail("finlayboyle2001@gmail.com", `Null order #${orderId}`, "Null order received");
+    // Something weird has to happen to trigger this.
+    // Just email to myself for now. Should never happen though.
     return;
   }
 
+  order.stripeId = stripeId;
   order.paid = true;
   await order.save();
 

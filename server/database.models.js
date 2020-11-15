@@ -93,6 +93,11 @@ ToastieOrder.init({
   paid: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  stripeId: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
   }
 }, { sequelize });
 
@@ -100,7 +105,7 @@ ToastieOrderContent.init({
   orderId: {
     type: DataTypes.INTEGER,
     references: {
-      model: ToastieOrder, 
+      model: ToastieOrder,
       key: 'id'
     }
   },

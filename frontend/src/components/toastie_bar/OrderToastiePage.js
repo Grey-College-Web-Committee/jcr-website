@@ -157,7 +157,7 @@ class OrderToastiePage extends React.Component {
     }
 
     return (
-      <table class="fillingTable">
+      <table className="fillingTable">
         <thead>
           <tr>
             <th>Item</th><th>Price (£)</th>
@@ -185,7 +185,7 @@ class OrderToastiePage extends React.Component {
     }
 
     return (
-      <table class="fillingTable">
+      <table className="fillingTable">
         <thead>
           <tr>
             <th>Item</th><th>Price (£)</th>
@@ -242,20 +242,24 @@ class OrderToastiePage extends React.Component {
       return (
         <React.Fragment>
           <h1>Order Toastie</h1>
-          <h2>Bread</h2>
           <p>Select one type of bread. Unselectable items are out of stock.</p>
+          <h2>Toastie</h2>
+          <br/>
+          <label><strong>Bread: </strong></label>
           <SelectBread
             stock={this.state.stock}
             passUp={this.passUpBread}
             disabled={this.state.purchaseDisabled}
           />
-          <h2>Fillings</h2>
+          <br/>
+          <br/>
           <SelectMany
             stock={this.state.stock}
             passUp={this.passUpFillings}
             type="filling"
             disabled={this.state.purchaseDisabled}
           />
+          <br/>
           <h2>Other Items</h2>
           <SelectMany
             stock={this.state.stock}
@@ -263,11 +267,14 @@ class OrderToastiePage extends React.Component {
             type="other"
             disabled={this.state.purchaseDisabled}
           />
+          <br/>
           <h2>Checkout</h2>
           <h3>Total £{this.state.cost.toFixed(2)}</h3>
+          <br/>
           <button
             onClick={this.placeOrder}
             disabled={this.state.purchaseDisabled}
+            className="largeButton"
           >Place Order</button>
         </React.Fragment>
       )
@@ -279,13 +286,17 @@ class OrderToastiePage extends React.Component {
           <h2>Confirmed Order</h2>
           <h3>Toastie</h3>
           {this.displayToastieOrder()}
+          <br/>
           <h3>Other Items</h3>
           {this.displayOtherItemsOrder()}
-          <h2>Price: £{this.state.realCost.toFixed(2)}</h2>
-          <CheckoutForm
-            clientSecret={this.state.clientSecret}
-            onSuccess={this.onPaymentSuccess}
-          />
+          <br/>
+          <div className="paymentContainer">
+            <h2>Price: £{this.state.realCost.toFixed(2)}</h2>
+            <CheckoutForm
+              clientSecret={this.state.clientSecret}
+              onSuccess={this.onPaymentSuccess}
+            />
+        </div>
         </React.Fragment>
       )
     }
