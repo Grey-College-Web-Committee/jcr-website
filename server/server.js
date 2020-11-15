@@ -91,12 +91,6 @@ app.use(express.static(path.join(__dirname, "../frontend/build")));
 // Necessary since things like /gym do not actually exist they are routes
 // within the index.html file
 
-app.use(express.static(path.join(__dirname, "../domain_verification")));
-
-app.get('/.well_known/apple-developer-merchantid-domain-association', function (req, res) {
-  res.sendFile(path.join(__dirname, "../domain_verification", "apple-developer-merchantid-domain-association"));
-});
-
 app.get('/*', function (req, res) {
   res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
 });
