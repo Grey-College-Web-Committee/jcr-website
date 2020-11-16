@@ -26,7 +26,7 @@ class ToastieBarStockPage extends React.Component {
       return;
     }
 
-    if(!adminCheck.data.admin) {
+    if(!adminCheck.data.user.admin) {
       this.setState({ status: 403, error: "You are not an admin" });
       return;
     }
