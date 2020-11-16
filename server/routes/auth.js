@@ -99,6 +99,7 @@ router.post("/logout", async (req, res) => {
 
 router.get("/verify", async (req, res) => {
   if(req.session.user && req.cookies.user_sid) {
+    const { user } = req.session;
     return res.status(200).json({ user: { username: user.username, admin: user.admin } });
   }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import ExistingStock from './ExistingStock';
 import AddStock from './AddStock';
@@ -16,6 +17,20 @@ class ToastieBarStockPage extends React.Component {
 
   // Load the data once the element is ready
   componentDidMount = async () => {
+    let adminCheck;
+
+    try {
+      adminCheck = await api.get("/auth/verify");
+    } catch (error) {
+      this.setState({ status: error.response.status, error: "Unable to verify admin status" });
+      return;
+    }
+
+    if(!adminCheck.data.admin) {
+      this.setState({ status: 403, error: "You are not an admin" });
+      return;
+    }
+
     const loaded = await this.updateStockListing();
     this.setState({ loaded });
   }
@@ -39,17 +54,15 @@ class ToastieBarStockPage extends React.Component {
 
   render () {
     if(!this.state.loaded) {
+      if(this.state.status !== 200 && this.state.status !== 0) {
+        return (
+          <Redirect to={`/errors/${this.state.status}`} />
+        );
+      }
+
       return (
         <React.Fragment>
           <h1>Loading...</h1>
-        </React.Fragment>
-      );
-    }
-
-    if(this.state.status !== 200) {
-      return (
-        <React.Fragment>
-          <h1>Non-200 Status {this.state.status}</h1>
         </React.Fragment>
       );
     }
