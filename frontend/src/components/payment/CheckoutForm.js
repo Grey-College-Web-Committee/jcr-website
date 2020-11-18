@@ -3,6 +3,9 @@ import PropTypes from 'prop-types';
 import { ElementsConsumer, CardElement } from '@stripe/react-stripe-js';
 import authContext from '../../utils/authContext.js';
 
+// Use this for any checkout
+// Requires the user to be signed in
+// Does not contact our server in any way and is completely encapsulated (hopefully)
 class CheckoutForm extends React.Component {
   constructor(props) {
     super(props);
@@ -20,8 +23,11 @@ class CheckoutForm extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
+  // This is used to complete a regular checkout
   handleSubmit = async (event) => {
+    // Prevent page refresh
     event.preventDefault();
+    // Disable the forms
     this.setState({ disabled: true, error: "" });
     const { stripe, elements } = this.props;
 
@@ -30,17 +36,23 @@ class CheckoutForm extends React.Component {
       return;
     }
 
+    // This is the element that gets card details
     const cardElement = elements.getElement(CardElement);
     cardElement.update({ disabled: true });
 
+    // Require the card holder's name to reduce transaction failures
     if(this.state.name.length === 0) {
       this.setState({ disabled: false, error: "Please enter the cardholder name." });
       cardElement.update({ disabled: false });
       return;
     }
 
+    // If we get a lot of failures we could get the email address too
+
     let result;
 
+    // Process the payment via Stripe
+    // This will also deal with things like 3D Secure
     try {
       result = await stripe.confirmCardPayment(this.props.clientSecret, {
         payment_method: {
@@ -55,25 +67,31 @@ class CheckoutForm extends React.Component {
       return;
     }
 
+    // If we have an error tell the user and allow them to change details
+    // Stripe provides readable error messages in their error responses
     if(result.error) {
       this.setState({ disabled: false, error: result.error.message });
       cardElement.update({ disabled: false });
       return;
     }
 
+    // Payment succeeded so let the parent know and let them handle it
+    // Don't re-enable the form so we can avoid duplicated payments
     if(result.paymentIntent.status === "succeeded") {
       this.props.onSuccess();
       return;
     }
   }
 
-  injectApplePay = async () => {
+  // Will inject the Express Checkout if it is available
+  injectExpressCheckout = async () => {
     const { stripe, elements } = this.props;
 
     if(!stripe || !elements) {
       return;
     }
 
+    // Payment Request API is used for this
     const paymentRequest = stripe.paymentRequest({
       country: "GB",
       currency: "gbp",
@@ -85,18 +103,27 @@ class CheckoutForm extends React.Component {
       requestPayerEmail: true
     });
 
+    // Let Stripe figure out if we can accept these payments
     const result = await paymentRequest.canMakePayment();
 
+    // This will be the button displayed to the user
     let prButton = elements.getElement("paymentRequestButton");
 
+    // This prevents an issue that arises if the user
+    // leaves the page and then navigates back
+    // as a result of single page routing Stripe will error
+    // as we have too many instances of the button so destroy it if it exists
     if(prButton) {
       prButton.destroy();
     }
 
+    // Create the actual button to display and bind it to the request object
     prButton = elements.create("paymentRequestButton", {
       paymentRequest
     });
 
+    // If we can accept these payments then update the state with this info
+    // we use a callback on the state update to then mount the button
     if(result) {
       this.setState({ ready: true, express: true }, () => {
         prButton.mount("#payment-request-button");
@@ -105,6 +132,9 @@ class CheckoutForm extends React.Component {
       this.setState({ ready: true, express: false });
     }
 
+    // This prevents the user submitting a Regular Checkout
+    // payment and then clicking the Express Checkout payment
+    // Stripe recommends this method instead of disabling the button
     prButton.on("click", (ev) => {
       if(this.state.disabled) {
         ev.preventDefault();
@@ -113,21 +143,29 @@ class CheckoutForm extends React.Component {
       }
     });
 
+    // This is called once they have verified their details by some means
+    // and agreed to pay the amount
     paymentRequest.on("paymentmethod", async (ev) => {
       this.setState({ disabled: true });
       const clientSecret = this.props.clientSecret;
 
+      // Confirm their payment with Stripe
+      // handleActions: false means it won't deal with 3D Secure but we
+      // handle this in a moment
       const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
         clientSecret,
         {payment_method: ev.paymentMethod.id},
         {handleActions: false}
       );
 
+      // If it fails let the Apple Pay/Google Pay etc know
+      // Once the payment succeeds we let the parent deal with it
       if(confirmError) {
         ev.complete("fail");
       } else {
         ev.complete("success");
 
+        // If we have additional actions such as 3D Secure let Stripe deal with that now
         if(paymentIntent.status === "requires_action") {
           const { error } = await stripe.confirmCardPayment(this.props.clientSecret);
 
@@ -143,8 +181,10 @@ class CheckoutForm extends React.Component {
     });
   }
 
+  // Once the component has mounted we try to put the Express Checkout in
+  // this is since we need to mount the button so require it to be loaded
   componentDidMount = async () => {
-    this.injectApplePay();
+    this.injectExpressCheckout();
   }
 
   render () {
@@ -274,6 +314,7 @@ CheckoutForm.propTypes = {
   realCost: PropTypes.number.isRequired
 };
 
+// Export a slightly different version so we can use Stripe correctly
 export default function InjectedCheckoutForm(props) {
   return (
     <ElementsConsumer>
