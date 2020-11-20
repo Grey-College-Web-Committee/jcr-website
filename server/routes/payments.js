@@ -167,7 +167,7 @@ processToastieBarOrder = async (paymentIntent) => {
 
   let bread = orderedItems.filter(item => item.ToastieStock.type === "bread");
   let fillings = orderedItems.filter(item => item.ToastieStock.type === "filling");
-  let otherItems = orderedItems.filter(item => item.ToastieStock.type === "other");
+  let otherItems = orderedItems.filter(item => item.ToastieStock.type === "crisps" || item.ToastieStock.type === "drinks" || item.ToastieStock.type === "chocolates");
 
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();

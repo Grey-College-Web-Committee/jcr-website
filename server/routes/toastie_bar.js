@@ -59,7 +59,7 @@ router.post("/order", async (req, res) => {
     where: {
       id: otherItems,
       available: true,
-      type: "other"
+      type: ["chocolates", "crisps", "drinks"]
     }
   });
 
@@ -71,13 +71,27 @@ router.post("/order", async (req, res) => {
   // never trust the user's price calculation
 
   let realCost = 0;
+  const orderedToastie = (breadEntry !== null);
 
-  if(breadEntry !== null) {
+  if(orderedToastie) {
     realCost += Number(breadEntry.price);
   }
 
+  let chocOrDrinkOrdered = false;
+
   fillingEntries.forEach(item => realCost += Number(item.price));
-  otherEntries.forEach(item => realCost += Number(item.price));
+  otherEntries.forEach(item => {
+    if(item.type === "chocolates" || item.type === "drinks") {
+      chocOrDrinkOrdered = true;
+    }
+
+    realCost += Number(item.price);
+  });
+
+  // Apply a slight discount if they purchase a toastie and (choc or drink)
+  if(orderedToastie && chocOrDrinkOrdered) {
+    realCost -= 0.2;
+  }
 
   realCost = +realCost.toFixed(2);
 
