@@ -111,7 +111,7 @@ class AddStock extends React.Component {
                 </td>
               </tr>
               <tr>
-                <td colspan="2">
+                <td colSpan="2">
                   <input
                     type="submit"
                     value="Create New Item"
