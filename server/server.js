@@ -8,7 +8,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } = require("./database.models.js");
+const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink } = require("./database.models.js");
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
 const toastieBarRoute = require("./routes/toastie_bar");
@@ -53,6 +53,8 @@ app.use(session({
   await ToastieOrder.sync();
   await ToastieStock.sync();
   await ToastieOrderContent.sync();
+  await Permission.sync();
+  await PermissionLink.sync();
 })();
 
 // This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.

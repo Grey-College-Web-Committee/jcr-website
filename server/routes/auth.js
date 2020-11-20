@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User } = require("../database.models.js");
+const { User, Permission, PermissionLink } = require("../database.models.js");
 const axios = require("axios");
 
 // Called when a POST request is to be served at /api/authentication/login
@@ -82,6 +82,27 @@ router.post("/login", async (req, res) => {
   // Credentials must have been accepted or axios would have errored
   // Now assign data for their session
   req.session.user = user.dataValues;
+
+  // Now we get their permissions, this will be session only rather than returned
+
+  let permissions;
+
+  permissions = await PermissionLink.findAll({
+    where: {
+      grantedToId: user.dataValues.id
+    },
+    include: [ Permission ]
+  });
+
+  let internalPermissionStrings = [];
+
+  if(permissions.length !== 0) {
+    permissions.forEach(permission => {
+      internalPermissionStrings.push(permission.Permission.internal);
+    });
+  }
+
+  req.session.permissions = internalPermissionStrings;
 
   const date = new Date();
   date.setTime(date.getTime() + (2 * 60 * 60 * 1000));
