@@ -28,10 +28,11 @@ class ExistingStock extends React.Component {
           </thead>
           <tbody>
             {this.props.stock.map((item, index) => (
-              <StockRow
-                key={index}
-                item={item}
-              />
+              <React.Fragment key={index}>
+                <StockRow
+                  item={item}
+                />
+              </React.Fragment>
             ))}
           </tbody>
         </table>

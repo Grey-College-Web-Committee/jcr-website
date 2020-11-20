@@ -79,7 +79,9 @@ class AddStock extends React.Component {
                   >
                     <option value="filling">Filling</option>
                     <option value="bread">Bread</option>
-                    <option value="other">Other Item</option>
+                    <option value="chocolates">Chocolate</option>
+                    <option value="crisps">Crisps</option>
+                    <option value="drinks">Drink</option>
                   </select>
                 </td>
               </tr>
@@ -109,7 +111,7 @@ class AddStock extends React.Component {
                 </td>
               </tr>
               <tr>
-                <td colspan="2">
+                <td colSpan="2">
                   <input
                     type="submit"
                     value="Create New Item"

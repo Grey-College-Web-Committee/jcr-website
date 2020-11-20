@@ -15,7 +15,9 @@ class OrderToastiePage extends React.Component {
       error: "",
       stock: [],
       choices: [],
-      otherItems: [],
+      crisps: [],
+      chocolates: [],
+      drinks: [],
       bread: -1,
       cost: 0,
       purchaseDisabled: false,
@@ -24,7 +26,8 @@ class OrderToastiePage extends React.Component {
       realCost: 0,
       clientSecret: "",
       paymentSuccessful: false,
-      currentDate: new Date()
+      currentDate: new Date(),
+      discountApplied: false
     };
   }
 
@@ -61,16 +64,18 @@ class OrderToastiePage extends React.Component {
     this.setState({ bread: Number(bread) }, this.calculateCost);
   }
 
-  passUpOtherItems = (otherItems) => {
-    this.setState({ otherItems }, this.calculateCost);
+  passUpItems = (name, items) => {
+    this.setState({ [name]: items }, this.calculateCost);
   }
 
   // Just runs through and calculates the cost
   // converts strings to ints so we can get a sensible value
   calculateCost = () => {
     let cost = 0;
+    let toastieOrdered = this.state.bread !== -1;
+    let chocOrDrinkOrdered = false;
 
-    if(this.state.bread !== -1) {
+    if(toastieOrdered) {
       cost += Number(this.state.stock.find(item => item.id === this.state.bread).price);
     }
 
@@ -80,20 +85,40 @@ class OrderToastiePage extends React.Component {
       cost += Number(item.price);
     });
 
-    const selectedOtherItems = this.state.stock.filter(item => this.state.otherItems.includes(item.id));
+    const selectedChocolates = this.state.stock.filter(item => this.state.chocolates.includes(item.id));
 
-    selectedOtherItems.forEach(item => {
+    selectedChocolates.forEach(item => {
+      cost += Number(item.price);
+      chocOrDrinkOrdered = true;
+    });
+
+    const selectedCrisps = this.state.stock.filter(item => this.state.crisps.includes(item.id));
+
+    selectedCrisps.forEach(item => {
       cost += Number(item.price);
     });
 
+    const selectedDrinks = this.state.stock.filter(item => this.state.drinks.includes(item.id));
+
+    selectedDrinks.forEach(item => {
+      cost += Number(item.price);
+      chocOrDrinkOrdered = true;
+    });
+
+    // Apply a slight discount if they purchase a toastie and (choc or drink)
+    if(chocOrDrinkOrdered && toastieOrdered) {
+      cost -= 0.2;
+    }
+
     cost = Math.round(cost * 100) / 100;
 
-    this.setState({ cost });
+    this.setState({ cost, discountApplied: toastieOrdered && chocOrDrinkOrdered });
   }
 
   placeOrder = async () => {
     // Don't want them resubmitting while we are handling one already
     this.setState({ purchaseDisabled: true, error: "" });
+    const otherItems = this.state.chocolates.concat(this.state.drinks).concat(this.state.crisps);
 
     // Ordering a toastie
     if(this.state.bread !== -1) {
@@ -104,7 +129,7 @@ class OrderToastiePage extends React.Component {
       }
     } else {
       // They didn't order anything
-      if(this.state.otherItems.length === 0) {
+      if(otherItems.length === 0) {
         this.setState({ purchaseDisabled: false, error: "You must order something." });
         return;
       }
@@ -119,7 +144,7 @@ class OrderToastiePage extends React.Component {
     const orderDetails = {
       bread: this.state.bread,
       fillings: this.state.choices,
-      otherItems: this.state.otherItems
+      otherItems
     };
 
     let query;
@@ -183,8 +208,8 @@ class OrderToastiePage extends React.Component {
     );
   }
 
-  displayOtherItemsOrder = () => {
-    const otherItems = this.state.confirmedOrder.filter(item => item.type === "other");
+  displayOtherItemsOrder = (type) => {
+    const otherItems = this.state.confirmedOrder.filter(item => item.type === type);
 
     if(otherItems.length === 0) {
       return (
@@ -257,9 +282,16 @@ class OrderToastiePage extends React.Component {
           <p>Your order is now being processed. Please come and collect it in 10-15 minutes!</p>
           <h2>Toastie</h2>
           {this.displayToastieOrder()}
-          <br/>
-          <h2>Other Items</h2>
-          {this.displayOtherItemsOrder()}
+          <br />
+          <h2>Crisps</h2>
+          {this.displayOtherItemsOrder("crisps")}
+          <br />
+          <h2>Chocolates</h2>
+          {this.displayOtherItemsOrder("chocolates")}
+          <br />
+          <h2>Drinks</h2>
+          {this.displayOtherItemsOrder("drinks")}
+          <br />
           <p><strong>A receipt has been emailed to {this.context.email}</strong></p>
         </React.Fragment>
       )
@@ -271,6 +303,7 @@ class OrderToastiePage extends React.Component {
         <React.Fragment>
           <h1>Order Toastie</h1>
           {hours >= 21 && minutes >= 15 ? <p><strong>Please note that last orders are at 9:30pm. Any order submitted after this time may not be processed.</strong></p> : null}
+          <p>If you order a toastie and some chocolate and/or a drink you will receive a £0.20 discount!</p>
           <p>Select one type of bread. Unselectable items are out of stock.</p>
           <h2>Toastie</h2>
           <br/>
@@ -289,15 +322,30 @@ class OrderToastiePage extends React.Component {
             disabled={this.state.purchaseDisabled}
           />
           <br/>
-          <h2>Other Items</h2>
+          <h2>Chocolate</h2>
           <SelectMany
             stock={this.state.stock}
-            passUp={this.passUpOtherItems}
-            type="other"
+            passUp={(items) => {this.passUpItems("chocolates", items)}}
+            type="chocolates"
+            disabled={this.state.purchaseDisabled}
+          />
+          <h2>Drinks</h2>
+          <SelectMany
+            stock={this.state.stock}
+            passUp={(items) => {this.passUpItems("drinks", items)}}
+            type="drinks"
+            disabled={this.state.purchaseDisabled}
+          />
+          <h2>Crisps</h2>
+          <SelectMany
+            stock={this.state.stock}
+            passUp={(items) => {this.passUpItems("crisps", items)}}
+            type="crisps"
             disabled={this.state.purchaseDisabled}
           />
           <br/>
           <h2>Checkout</h2>
+          {this.state.discountApplied ? <p>£0.20 discount applied</p> : null}
           <h3>Total £{this.state.cost.toFixed(2)}</h3>
           <br/>
           <button
@@ -319,8 +367,16 @@ class OrderToastiePage extends React.Component {
           <h2>Confirmed Order</h2>
           <h3>Toastie</h3>
           {this.displayToastieOrder()}
-          <h3>Other Items</h3>
-          {this.displayOtherItemsOrder()}
+          <br />
+          <h3>Crisps</h3>
+          {this.displayOtherItemsOrder("crisps")}
+          <br />
+          <h3>Chocolates</h3>
+          {this.displayOtherItemsOrder("chocolates")}
+          <br />
+          <h3>Drinks</h3>
+          {this.displayOtherItemsOrder("drinks")}
+          {this.state.discountApplied ? <p>£0.20 discount applied</p> : null}
           <div className="paymentContainer">
             <CheckoutForm
               clientSecret={this.state.clientSecret}
