@@ -286,6 +286,7 @@ class CheckoutForm extends React.Component {
               </tr>
             </tbody>
           </table>
+          <br />
           <CardElement
             disabled={this.state.disabled}
             className="paymentType"

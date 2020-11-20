@@ -303,6 +303,7 @@ class OrderToastiePage extends React.Component {
         <React.Fragment>
           <h1>Order Toastie</h1>
           {hours >= 21 && minutes >= 15 ? <p><strong>Please note that last orders are at 9:30pm. Any order submitted after this time may not be processed.</strong></p> : null}
+          <p>If you order a toastie and some chocolate and/or a drink you will receive a £0.20 discount!</p>
           <p>Select one type of bread. Unselectable items are out of stock.</p>
           <h2>Toastie</h2>
           <br/>
@@ -375,6 +376,7 @@ class OrderToastiePage extends React.Component {
           <br />
           <h3>Drinks</h3>
           {this.displayOtherItemsOrder("drinks")}
+          {this.state.discountApplied ? <p>£0.20 discount applied</p> : null}
           <div className="paymentContainer">
             <CheckoutForm
               clientSecret={this.state.clientSecret}

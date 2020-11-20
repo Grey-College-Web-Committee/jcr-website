@@ -46,7 +46,7 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), (req, res)
   return res.status(204).end();
 });
 
-generateMessageForTBar = (orderId, firstName, lastName, user, bread, fillings, otherItems) => {
+generateMessageForTBar = (orderId, firstName, lastName, user, bread, fillings, crisps, chocolates, drinks) => {
   let message = [];
 
   message.push(`<h1>Order Received (Order no. ${orderId})</h1>`);
@@ -71,24 +71,52 @@ generateMessageForTBar = (orderId, firstName, lastName, user, bread, fillings, o
     message.push(`<p><strong>No toastie ordered.</strong></p>`);
   }
 
-  message.push(`<h3>Other Items</h3>`);
+  message.push(`<h3>Crisps</h3>`);
 
-  if(otherItems.length !== 0) {
+  if(crisps.length !== 0) {
     message.push(`<ul>`);
 
-    otherItems.forEach(item => {
+    crisps.forEach(item => {
       message.push(`<li>${item.ToastieStock.name}</li>`);
     });
 
     message.push(`</ul>`);
   } else {
-    message.push(`<p><strong>No other items ordered.</strong></p>`);
+    message.push(`<p><strong>No crisps ordered.</strong></p>`);
+  }
+
+  message.push(`<h3>Chocolates</h3>`);
+
+  if(chocolates.length !== 0) {
+    message.push(`<ul>`);
+
+    chocolates.forEach(item => {
+      message.push(`<li>${item.ToastieStock.name}</li>`);
+    });
+
+    message.push(`</ul>`);
+  } else {
+    message.push(`<p><strong>No chocolates ordered.</strong></p>`);
+  }
+
+  message.push(`<h3>Drinks</h3>`);
+
+  if(drinks.length !== 0) {
+    message.push(`<ul>`);
+
+    drinks.forEach(item => {
+      message.push(`<li>${item.ToastieStock.name}</li>`);
+    });
+
+    message.push(`</ul>`);
+  } else {
+    message.push(`<p><strong>No drinks ordered.</strong></p>`);
   }
 
   return message.join("");
 }
 
-generateMessageForCustomer = (orderId, firstName, lastName, user, bread, fillings, otherItems) => {
+generateMessageForCustomer = (orderId, firstName, lastName, user, bread, fillings, crisps, chocolates, drinks) => {
   let message = [];
   let cost = 0;
 
@@ -101,7 +129,9 @@ generateMessageForCustomer = (orderId, firstName, lastName, user, bread, filling
   message.push(`<h2>Order Details</h2>`);
   message.push(`<h3>Toastie</h3>`);
 
-  if(bread.length !== 0) {
+  let toastieOrdered = bread.length !== 0;
+
+  if(toastieOrdered) {
     bread = bread[0];
     cost += Number(bread.ToastieStock.price);
 
@@ -116,22 +146,61 @@ generateMessageForCustomer = (orderId, firstName, lastName, user, bread, filling
 
     message.push(`</ul>`);
   } else {
-    message.push(`<p><strong>No toastie ordered.</strong></p>`);
+    message.push(`<p>No toastie ordered.</p>`);
   }
 
-  message.push(`<h3>Other Items</h3>`);
+  let chocOrDrinkOrdered = false;
 
-  if(otherItems.length !== 0) {
+  message.push(`<h3>Crisps</h3>`);
+
+  if(crisps.length !== 0) {
     message.push(`<ul>`);
 
-    otherItems.forEach(item => {
+    crisps.forEach(item => {
       cost += Number(item.ToastieStock.price);
       message.push(`<li>${item.ToastieStock.name}</li>`);
     });
 
     message.push(`</ul>`);
   } else {
-    message.push(`<p><strong>No other items ordered.</strong></p>`);
+    message.push(`<p>No crisps ordered.</p>`);
+  }
+
+  message.push(`<h3>Chocolates</h3>`);
+
+  if(chocolates.length !== 0) {
+    message.push(`<ul>`);
+
+    chocolates.forEach(item => {
+      chocOrDrinkOrdered = true;
+      cost += Number(item.ToastieStock.price);
+      message.push(`<li>${item.ToastieStock.name}</li>`);
+    });
+
+    message.push(`</ul>`);
+  } else {
+    message.push(`<p>No chocolates ordered.</p>`);
+  }
+
+  message.push(`<h3>Drinks</h3>`);
+
+  if(drinks.length !== 0) {
+    message.push(`<ul>`);
+
+    drinks.forEach(item => {
+      chocOrDrinkOrdered = true;
+      cost += Number(item.ToastieStock.price);
+      message.push(`<li>${item.ToastieStock.name}</li>`);
+    });
+
+    message.push(`</ul>`);
+  } else {
+    message.push(`<p>No drinks ordered.</p>`);
+  }
+
+  if(chocOrDrinkOrdered && toastieOrdered) {
+    cost -= 0.2;
+    message.push(`<p>A discount of £0.20 was applied to this ordered.</p>`);
   }
 
   message.push(`<p>The total cost of this order was £${cost.toFixed(2)}`);
@@ -169,14 +238,18 @@ processToastieBarOrder = async (paymentIntent) => {
   let fillings = orderedItems.filter(item => item.ToastieStock.type === "filling");
   let otherItems = orderedItems.filter(item => item.ToastieStock.type === "crisps" || item.ToastieStock.type === "drinks" || item.ToastieStock.type === "chocolates");
 
+  let crisps = orderedItems.filter(item => item.ToastieStock.type === "crisps");
+  let chocolates = orderedItems.filter(item => item.ToastieStock.type === "chocolates");
+  let drinks = orderedItems.filter(item => item.ToastieStock.type === "drinks");
+
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
 
-  const tbMessage = generateMessageForTBar(orderId, firstName, lastName, user, bread, fillings, otherItems);
+  const tbMessage = generateMessageForTBar(orderId, firstName, lastName, user, bread, fillings, crisps, chocolates, drinks);
   mailer.sendEmail(process.env.TOASTIE_BAR_EMAIL_TO, `Toastie Bar Order Received #${orderId}`, tbMessage);
 
-  const customerMessage = generateMessageForCustomer(orderId, firstName, lastName, user, bread, fillings, otherItems);
+  const customerMessage = generateMessageForCustomer(orderId, firstName, lastName, user, bread, fillings, crisps, chocolates, drinks);
   mailer.sendEmail(user.email, `Toastie Bar Order Confirmation #${orderId}`, customerMessage);
 }
 
