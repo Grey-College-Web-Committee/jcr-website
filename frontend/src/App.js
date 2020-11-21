@@ -99,16 +99,20 @@ class App extends React.Component {
     return true;
   }
 
-  isAdmin = () => {
+  hasPermission = (permission) => {
     if(!this.isLoggedIn()) {
       return false;
     }
 
-    if(!this.state.user.hasOwnProperty("admin")) {
+    if(!this.state.user.permissions) {
       return false;
     }
 
-    return this.state.user.admin;
+    if(this.state.user.permissions.length === 0) {
+      return false;
+    }
+
+    return this.state.user.permissions.includes(permission.toLowerCase());
   }
 
   loginUser = (user) => {
@@ -142,7 +146,7 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
                   <Route exact path="/toasties/stock" render={() => (
-                    this.isAdmin() ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                    this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
                   <Route exact path="/toasties/" render={() => (
                     this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )

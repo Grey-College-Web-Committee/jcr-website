@@ -175,9 +175,9 @@ router.get("/stock", async (req, res) => {
 
 router.get("/stock/:id", async (req, res) => {
   // Admin only
-  const { user } = req.session;
+  const { user, permissions } = req.session;
 
-  if(!user.admin) {
+  if(!permissions.hasPermission("toastie.stock.edit")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
@@ -195,9 +195,9 @@ router.get("/stock/:id", async (req, res) => {
 // Add a new item for the stock
 router.post("/stock", async (req, res) => {
   // Admin only
-  const { user } = req.session;
+  const { user, permissions } = req.session;
 
-  if(!user.admin) {
+  if(!permissions.hasPermission("toastie.stock.edit")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
@@ -233,9 +233,9 @@ router.post("/stock", async (req, res) => {
 // Update an item in the stock
 router.put("/stock/:id", async (req, res) => {
   // Admin only
-  const { user } = req.session;
+  const { user, permissions } = req.session;
 
-  if(!user.admin) {
+  if(!permissions.hasPermission("toastie.stock.edit")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 

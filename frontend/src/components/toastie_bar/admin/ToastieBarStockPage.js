@@ -26,7 +26,17 @@ class ToastieBarStockPage extends React.Component {
       return;
     }
 
-    if(!adminCheck.data.user.admin) {
+    if(adminCheck.data.user.permissions) {
+      if(adminCheck.data.user.permissions.length === 0) {
+        this.setState({ status: 403, error: "You are not an admin" });
+        return;
+      }
+
+      if(!adminCheck.data.user.permissions.includes("toastie.stock.edit")) {
+        this.setState({ status: 403, error: "You are not an admin" });
+        return;
+      }
+    } else {
       this.setState({ status: 403, error: "You are not an admin" });
       return;
     }
@@ -56,7 +66,7 @@ class ToastieBarStockPage extends React.Component {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
         return (
-          <Redirect to={`/errors/${this.state.status}`} />
+         <Redirect to={`/errors/${this.state.status}`} />
         );
       }
 
