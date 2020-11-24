@@ -16,6 +16,7 @@ import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 // To add a new page import it like above
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
+import EditPermissionsPage from './components/permissions/EditPermissionsPage';
 
 import './App.css';
 
@@ -147,6 +148,9 @@ class App extends React.Component {
                   <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
                   <Route exact path="/toasties/stock" render={() => (
                     this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                  )} />
+                <Route exact path="/permissions" render={() => (
+                    this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
                   <Route exact path="/toasties/" render={() => (
                     this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )

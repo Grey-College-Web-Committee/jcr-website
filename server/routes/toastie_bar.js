@@ -4,6 +4,7 @@ const router = express.Router();
 // The database models
 const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { hasPermission } = require("../utils/permissionUtils.js");
 
 router.post("/order", async (req, res) => {
   const currentDate = new Date();
@@ -175,9 +176,9 @@ router.get("/stock", async (req, res) => {
 
 router.get("/stock/:id", async (req, res) => {
   // Admin only
-  const { user, permissions } = req.session;
+  const { user } = req.session;
 
-  if(!permissions.hasPermission("toastie.stock.edit")) {
+  if(!hasPermission(req.session, "toastie.stock.edit")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
@@ -195,9 +196,9 @@ router.get("/stock/:id", async (req, res) => {
 // Add a new item for the stock
 router.post("/stock", async (req, res) => {
   // Admin only
-  const { user, permissions } = req.session;
+  const { user } = req.session;
 
-  if(!permissions.hasPermission("toastie.stock.edit")) {
+  if(!hasPermission(req.session, "toastie.stock.edit")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
@@ -233,9 +234,9 @@ router.post("/stock", async (req, res) => {
 // Update an item in the stock
 router.put("/stock/:id", async (req, res) => {
   // Admin only
-  const { user, permissions } = req.session;
+  const { user } = req.session;
 
-  if(!permissions.hasPermission("toastie.stock.edit")) {
+  if(!hasPermission(req.session, "toastie.stock.edit")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 

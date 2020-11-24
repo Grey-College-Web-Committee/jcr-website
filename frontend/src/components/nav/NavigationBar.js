@@ -14,6 +14,7 @@ class NavigationBar extends React.Component {
             <NavigationBarItem title="Home" url="/" />
             <NavigationBarItem title="Order Toastie" url="/toasties" />
             {user.permissions.includes("toastie.stock.edit") ? <NavigationBarItem title="Toastie Stock" url="/toasties/stock" /> : null}
+            {user.permissions.includes("permissions.edit") ? <NavigationBarItem title="Edit Permissions" url="/permissions" /> : null}
             <NavigationBarItem title={user.username} url="/" alive={false} />
             <NavigationBarItem title="Logout" url="/accounts/logout" />
           </ul>

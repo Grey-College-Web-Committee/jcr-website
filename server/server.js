@@ -12,6 +12,7 @@ const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent, Pe
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
 const toastieBarRoute = require("./routes/toastie_bar");
+const permissionsRoute = require("./routes/permissions");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -83,6 +84,7 @@ const isLoggedIn = (req, res, next) => {
 app.use("/api/auth", authRoute);
 app.use("/api/payments", paymentsRoute);
 app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
+app.use("/api/permissions", isLoggedIn, permissionsRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

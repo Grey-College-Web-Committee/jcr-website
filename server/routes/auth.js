@@ -102,16 +102,7 @@ router.post("/login", async (req, res) => {
     });
   }
 
-  req.session.permissions = {
-    internalPermissionStrings,
-    hasPermission: function (permission) {
-      if(permission === null) {
-        return false;
-      }
-
-      return this.internalPermissionStrings.includes(permission.toLowerCase());
-    }
-  }
+  req.session.permissions = internalPermissionStrings;
 
   const date = new Date();
   date.setTime(date.getTime() + (2 * 60 * 60 * 1000));
@@ -131,7 +122,7 @@ router.post("/logout", async (req, res) => {
 router.get("/verify", async (req, res) => {
   if(req.session.user && req.cookies.user_sid && req.session.permissions) {
     const { user, permissions } = req.session;
-    return res.status(200).json({ user: { username: user.username, permissions: permissions.internalPermissionStrings } });
+    return res.status(200).json({ user: { username: user.username, permissions: permissions } });
   }
 
   return res.status(401).end();

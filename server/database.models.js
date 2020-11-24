@@ -164,7 +164,7 @@ ToastieOrderContent.belongsTo(ToastieStock, { foreignKey: 'stockId' });
 Permission.hasMany(PermissionLink, { foreignKey: 'permissionId' });
 PermissionLink.belongsTo(Permission, { foreignKey: 'permissionId' });
 
-PermissionLink.belongsTo(User, { as: "grantedTo" });
-PermissionLink.belongsTo(User, { as: "grantedBy" });
+PermissionLink.belongsTo(User, { as: "grantedTo", foreignKey: "grantedToId" });
+PermissionLink.belongsTo(User, { as: "grantedBy", foreignKey: "grantedById" });
 
 module.exports = { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink };
