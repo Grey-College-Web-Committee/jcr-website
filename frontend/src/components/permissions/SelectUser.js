@@ -1,16 +1,36 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import api from '../../utils/axiosConfig.js';
+import { Redirect } from 'react-router-dom';
+
+import EditUserPermissions from './EditUserPermissions';
 
 class SelectUser extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      loaded: false,
+      status: 0,
+      allPermissions: [],
       searchTerm: "",
       results: [],
       loadedUser: null
     };
+  }
+
+  componentDidMount = async () => {
+    let found;
+
+    try {
+      found = await api.get("/permissions/list");
+    } catch (error) {
+      console.log(error);
+      this.setState({ loaded: true, status: error.response.status });
+      return;
+    }
+
+    this.setState({ loaded: true, status: 200, allPermissions: found.data.permissions });
   }
 
   searchForUser = async (event) => {
@@ -65,7 +85,9 @@ class SelectUser extends React.Component {
         <h1>Found</h1>
         <table>
           <thead>
-            <th>Username</th><th>Name</th><th>Select</th>
+            <tr>
+              <th>Username</th><th>Name</th><th>Select</th>
+            </tr>
           </thead>
           <tbody>
             {
@@ -98,11 +120,28 @@ class SelectUser extends React.Component {
         <pre>
           {JSON.stringify(this.state.loadedUser, null, 2)}
         </pre>
+        <EditUserPermissions
+          user={this.state.loadedUser.user}
+          grantedPermissions={this.state.loadedUser.permissions}
+          allPermissions={this.state.allPermissions}
+        />
       </React.Fragment>
     )
   }
 
   render () {
+    if(!this.state.loaded) {
+      return (
+        <h2>Loading...</h2>
+      )
+    }
+
+    if(this.state.loaded && this.state.status !== 200) {
+      return (
+       <Redirect to={`/errors/${this.state.status}`} />
+      );
+    }
+
     return (
       <React.Fragment>
         <form onSubmit={this.searchForUser}>

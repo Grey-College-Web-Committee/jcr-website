@@ -145,7 +145,7 @@ PermissionLink.init({
       key: 'id'
     }
   }
-}, { sequelize, timestamps: false });
+}, { sequelize, timestamps: true, updatedAt: false });
 
 // Associations are necessary to allow joins between tables
 

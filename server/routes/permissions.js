@@ -87,6 +87,19 @@ router.get("/search/:id", async (req, res) => {
   return res.status(200).json({ user: searchedUser, permissions });
 });
 
+router.get("/list", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "permissions.edit")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const permissions = await Permission.findAll();
+
+  return res.status(200).json({ permissions });
+});
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;
