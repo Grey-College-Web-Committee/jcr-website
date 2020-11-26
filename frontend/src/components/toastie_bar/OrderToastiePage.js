@@ -27,7 +27,8 @@ class OrderToastiePage extends React.Component {
       clientSecret: "",
       paymentSuccessful: false,
       currentDate: new Date(),
-      discountApplied: false
+      discountApplied: false,
+      termLocked: true
     };
   }
 
@@ -240,6 +241,15 @@ class OrderToastiePage extends React.Component {
     // The Toastie Bar is only open between 8pm and 9:30pm for orders
     const hours = this.state.currentDate.getHours();
     const minutes = this.state.currentDate.getMinutes();
+
+    if(!config.debug && this.state.termLocked) {
+      return (
+        <React.Fragment>
+          <h1>Toastie Bar Closed</h1>
+          <p>The Toastie Bar is currently closed until next term.</p>
+        </React.Fragment>
+      )
+    }
 
     if(!config.debug) {
       // Outside 8:00pm to 9:30pm

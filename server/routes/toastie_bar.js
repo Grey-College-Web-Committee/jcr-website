@@ -5,13 +5,20 @@ const router = express.Router();
 const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-router.post("/order", async (req, res) => {
+const termLocked = true;
+
+router.post("/order", async (req, res) => { 
   const currentDate = new Date();
   const hours = currentDate.getHours();
   const minutes = currentDate.getMinutes();
 
   // Ignore the time condition if we are developing it
   if(process.env.DEBUG.toLowerCase() === "false") {
+    if(termLocked) {
+      // Orders cannot be placed outside of term time
+      return res.status(400).json({ error: "Closed until next term", timeIssue: true });
+    }
+
     if((hours === 21 && minutes > 32) || hours < 20 || hours >= 22) {
       // Outside 8pm to 9:32pm
       // Past 9:32pm (instead of 9:30pm to avoid problems if users place orders just after 9:30pm)
