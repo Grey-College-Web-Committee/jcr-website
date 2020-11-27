@@ -3,6 +3,21 @@ import PropTypes from 'prop-types';
 import PermissionRow from './PermissionRow';
 
 class EditUserPermissions extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      stateUpdateId: this.props.stateUpdateId,
+      lastRandom: Math.random()
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.stateUpdateId !== this.state.stateUpdateId) {
+      this.setState({ lastRandom: Math.random(), stateUpdateId: this.props.stateUpdateId });
+    }
+  }
+
   renderPermissionRows = () => {
     this.props.allPermissions.sort((a, b) => {
       const firstId = a.id;
@@ -14,9 +29,12 @@ class EditUserPermissions extends React.Component {
       return 0;
     });
 
+    if(this.state.lastUserId != this.props.stateUpdateId) {
+    }
+
     const rows = this.props.allPermissions.map((item, i) => {
       return (
-        <React.Fragment key={i}>
+        <React.Fragment key={this.state.lastRandom + i}>
           <PermissionRow
             user={this.props.user}
             permissionInformation={item}

@@ -10,7 +10,7 @@ class PermissionRow extends React.Component {
     this.state = {
       hasPermission: false,
       grantedDetails: null,
-      disabled: false,
+      disabled: true,
     };
   }
 

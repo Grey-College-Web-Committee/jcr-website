@@ -120,6 +120,7 @@ class SelectUser extends React.Component {
         <EditUserPermissions
           user={this.state.loadedUser.user}
           allPermissions={this.state.allPermissions}
+          stateUpdateId={this.state.loadedUser.user.id}
         />
       </React.Fragment>
     )
