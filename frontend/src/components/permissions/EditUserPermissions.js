@@ -1,34 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import dateFormat from 'dateformat';
+import PermissionRow from './PermissionRow';
 
 class EditUserPermissions extends React.Component {
-  constructor(props) {
-    super(props);
-
-    const { grantedPermissions, allPermissions } = this.props;
-
-    this.state = { grantedPermissions, allPermissions };
-  }
-
-  revokePermission = (permissionId) => {
-
-  }
-
-  grantPermission = (permissionId) => {
-
-  }
-
   renderPermissionRows = () => {
-    let grantedPermissions = [];
-
-    console.log(this.props);
-
-    this.state.grantedPermissions.forEach((item, i) => {
-      grantedPermissions.push(item.permissionId);
-    });
-
-    this.state.allPermissions.sort((a, b) => {
+    this.props.allPermissions.sort((a, b) => {
       const firstId = a.id;
       const secondId = b.id;
 
@@ -38,31 +14,20 @@ class EditUserPermissions extends React.Component {
       return 0;
     });
 
-    const rows = this.state.allPermissions.map((item, i) => {
-      let perm = grantedPermissions.includes(item.id) ? this.state.grantedPermissions.filter(p => p.Permission.id === item.id)[0] : null;
-
-      console.log(perm);
-
+    const rows = this.props.allPermissions.map((item, i) => {
       return (
-        <tr key={i}>
-          <td>{item.name}</td>
-          <td>{item.description}</td>
-          <td>{perm ? "Yes" : "No"}</td>
-          <td>{perm ? perm.grantedBy.username : "N/A"}</td>
-          <td>{perm ? dateFormat(perm.createdAt, "dd/mm/yyyy HH:MM:ss") : "N/A"}</td>
-          <td>
-            {perm ?
-              <button onClick={() => this.revokePermission(item.id)}>Revoke</button> :
-              <button onClick={() => this.grantPermission(item.id)}>Grant</button>
-            }
-          </td>
-        </tr>
-      )
+        <React.Fragment key={i}>
+          <PermissionRow
+            user={this.props.user}
+            permissionInformation={item}
+          />
+        </React.Fragment>
+      );
     });
 
     return (
       <tbody>
-      {rows}
+        {rows}
       </tbody>
     )
   }

@@ -116,13 +116,9 @@ class SelectUser extends React.Component {
 
     return (
       <React.Fragment>
-        <h2>Editing Permissions for </h2>
-        <pre>
-          {JSON.stringify(this.state.loadedUser, null, 2)}
-        </pre>
+        <h2>Editing Permissions for {this.state.loadedUser.user.username}</h2>
         <EditUserPermissions
           user={this.state.loadedUser.user}
-          grantedPermissions={this.state.loadedUser.permissions}
           allPermissions={this.state.allPermissions}
         />
       </React.Fragment>
@@ -157,6 +153,7 @@ class SelectUser extends React.Component {
             value="Search"
           />
         </form>
+        <p>This is limited to 10 results. If you can't find a user please try entering their username instead.</p>
         { this.renderUserSelect() }
         { this.renderUserEdit() }
       </React.Fragment>
