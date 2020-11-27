@@ -12,9 +12,12 @@ class EditUserPermissions extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.stateUpdateId !== this.state.stateUpdateId) {
-      this.setState({ lastRandom: Math.random(), stateUpdateId: this.props.stateUpdateId });
+  static getDerivedStateFromProps = (props, currentState) => {
+    if (props.stateUpdateId !== currentState.stateUpdateId) {
+      return {
+        lastRandom: Math.random(),
+        stateUpdateId: props.stateUpdateId
+      };
     }
   }
 
@@ -28,9 +31,6 @@ class EditUserPermissions extends React.Component {
 
       return 0;
     });
-
-    if(this.state.lastUserId != this.props.stateUpdateId) {
-    }
 
     const rows = this.props.allPermissions.map((item, i) => {
       return (
