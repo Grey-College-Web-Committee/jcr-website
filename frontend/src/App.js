@@ -64,6 +64,16 @@ class App extends React.Component {
 
       localStorage.setItem("user", JSON.stringify(this.state.user));
     }
+
+    if(isLoggedIn() === 1) {
+      this.logoutUser();
+    }
+  }
+
+  componentDidMount = () => {
+    if(isLoggedIn() === 1) {
+      this.logoutUser();
+    }
   }
 
   hasLoginExpired = () => {
@@ -82,30 +92,30 @@ class App extends React.Component {
     // Check if the user is logged in
     // Perform basic checks on the user if it is clearly modified
     if(this.state.user === null) {
-      return false;
+      return 0;
     }
 
     if(!this.state.user.hasOwnProperty("permissions")) {
-      return false;
+      return 1;
     }
 
     if(!this.state.user.hasOwnProperty("email")) {
-      return false;
+      return 1;
     }
 
     if(!this.state.user.hasOwnProperty("expires")) {
-      return false;
+      return 1;
     }
 
     if(!this.state.user.hasOwnProperty("username")) {
-      return false;
+      return 1;
     }
 
     if(this.hasLoginExpired()) {
-      return false;
+      return 1;
     }
 
-    return true;
+    return 2;
   }
 
   hasPermission = (permission) => {
