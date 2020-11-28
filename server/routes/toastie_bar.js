@@ -4,6 +4,7 @@ const router = express.Router();
 // The database models
 const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { hasPermission } = require("../utils/permissionUtils.js");
 
 const termLocked = true;
 
@@ -184,7 +185,7 @@ router.get("/stock/:id", async (req, res) => {
   // Admin only
   const { user } = req.session;
 
-  if(!user.admin) {
+  if(!hasPermission(req.session, "toastie.stock.edit")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
@@ -204,7 +205,7 @@ router.post("/stock", async (req, res) => {
   // Admin only
   const { user } = req.session;
 
-  if(!user.admin) {
+  if(!hasPermission(req.session, "toastie.stock.edit")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
@@ -242,7 +243,7 @@ router.put("/stock/:id", async (req, res) => {
   // Admin only
   const { user } = req.session;
 
-  if(!user.admin) {
+  if(!hasPermission(req.session, "toastie.stock.edit")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
