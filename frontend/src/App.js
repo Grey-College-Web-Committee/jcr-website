@@ -85,6 +85,14 @@ class App extends React.Component {
       return false;
     }
 
+    if(!this.state.user.hasOwnProperty("permissions")) {
+      return false;
+    }
+
+    if(!this.state.user.hasOwnProperty("email")) {
+      return false;
+    }
+
     if(!this.state.user.hasOwnProperty("expires")) {
       return false;
     }
