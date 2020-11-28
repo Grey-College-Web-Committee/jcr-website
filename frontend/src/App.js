@@ -80,14 +80,14 @@ class App extends React.Component {
     }
   }
 
-  hasLoginExpired = () => {
+  hasLoginExpired = (user) => {
     // Check if the login session has expired
-    if(this.state.user === null) {
+    if(user === null) {
       return false;
     }
 
     const currentDate = new Date().getTime();
-    const expires = new Date(this.state.user.expires).getTime();
+    const expires = new Date(user.expires).getTime();
 
     return currentDate > expires;
   }
@@ -113,7 +113,7 @@ class App extends React.Component {
       return false;
     }
 
-    if(this.hasLoginExpired()) {
+    if(this.hasLoginExpired(user)) {
       return false;
     }
 
