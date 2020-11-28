@@ -38,6 +38,10 @@ class App extends React.Component {
       }
     }
 
+    if(!this.validateLocalSession(user)) {
+      user = null;
+    }
+
     this.state = {
       user
     };
@@ -88,6 +92,34 @@ class App extends React.Component {
     return currentDate > expires;
   }
 
+  validateLocalSession = (user) => {
+    if(user === null) {
+      return false;
+    }
+
+    if(!user.hasOwnProperty("permissions")) {
+      return false;
+    }
+
+    if(!user.hasOwnProperty("email")) {
+      return false;
+    }
+
+    if(!user.hasOwnProperty("expires")) {
+      return false;
+    }
+
+    if(!user.hasOwnProperty("username")) {
+      return false;
+    }
+
+    if(this.hasLoginExpired()) {
+      return false;
+    }
+
+    return true;
+  }
+
   isLoggedIn = () => {
     // Check if the user is logged in
     // Perform basic checks on the user if it is clearly modified
@@ -95,23 +127,7 @@ class App extends React.Component {
       return 0;
     }
 
-    if(!this.state.user.hasOwnProperty("permissions")) {
-      return 1;
-    }
-
-    if(!this.state.user.hasOwnProperty("email")) {
-      return 1;
-    }
-
-    if(!this.state.user.hasOwnProperty("expires")) {
-      return 1;
-    }
-
-    if(!this.state.user.hasOwnProperty("username")) {
-      return 1;
-    }
-
-    if(this.hasLoginExpired()) {
+    if(!this.validateLocalSession(this.state.user)) {
       return 1;
     }
 
