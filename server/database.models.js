@@ -13,10 +13,14 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 // User => users
 
 class User extends Model {}
+
 class GymMembership extends Model {}
 class ToastieStock extends Model {}
 class ToastieOrder extends Model {}
 class ToastieOrderContent extends Model {}
+
+class Permission extends Model {}
+class PermissionLink extends Model {}
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -114,6 +118,31 @@ ToastieOrderContent.init({
   }
 }, { sequelize, timestamps: false });
 
+Permission.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  internal: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, { sequelize, timestamps: false });
+
+PermissionLink.init({
+  permissionId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: Permission,
+      key: 'id'
+    }
+  }
+}, { sequelize, timestamps: true, updatedAt: false });
+
 // Associations are necessary to allow joins between tables
 
 User.hasMany(GymMembership, { foreignKey: 'userId' });
@@ -128,4 +157,10 @@ ToastieOrderContent.belongsTo(ToastieOrder, { foreignKey: 'orderId' });
 ToastieStock.hasMany(ToastieOrderContent, { foreignKey: 'stockId' });
 ToastieOrderContent.belongsTo(ToastieStock, { foreignKey: 'stockId' });
 
-module.exports = { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent };
+Permission.hasMany(PermissionLink, { foreignKey: 'permissionId' });
+PermissionLink.belongsTo(Permission, { foreignKey: 'permissionId' });
+
+PermissionLink.belongsTo(User, { as: "grantedTo", foreignKey: "grantedToId" });
+PermissionLink.belongsTo(User, { as: "grantedBy", foreignKey: "grantedById" });
+
+module.exports = { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink };
