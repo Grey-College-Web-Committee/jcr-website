@@ -75,6 +75,14 @@ class SelectUser extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) });
   }
 
+  displayName = (firstNames, surname) => {
+    let firstName = firstNames.split(",")[0];
+    firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+    const lastName = surname.charAt(0).toUpperCase() + surname.substr(1).toLowerCase();
+
+    return `${firstName} ${lastName}`;
+  }
+
   renderUserSelect = () => {
     if(this.state.results.length === 0) {
       return null;
@@ -82,8 +90,8 @@ class SelectUser extends React.Component {
 
     return (
       <React.Fragment>
-        <h1>Found</h1>
-        <table>
+        <h1>Found Users</h1>
+        <table className="stockTable">
           <thead>
             <tr>
               <th>Username</th><th>Name</th><th>Select</th>
@@ -94,7 +102,7 @@ class SelectUser extends React.Component {
               this.state.results.map((item, index) => (
                 <tr key={index}>
                   <td>{item.username}</td>
-                  <td>{`${item.firstNames} ${item.surname}`}</td>
+                  <td>{this.displayName(item.firstNames, item.surname)}</td>
                   <td>
                     <button
                       onClick={() => this.loadUser(item.id)}

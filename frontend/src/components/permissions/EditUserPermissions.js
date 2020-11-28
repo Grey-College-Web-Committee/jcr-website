@@ -52,7 +52,7 @@ class EditUserPermissions extends React.Component {
 
   render () {
     return (
-      <table>
+      <table className="stockTable">
         <thead>
           <tr>
             <th>Permission</th>

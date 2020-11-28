@@ -47,6 +47,19 @@ app.use(session({
   }
 }));
 
+const requiredPermissions = [
+  {
+    name: "Edit Permissions",
+    description: "Allows a user to assign permissions to other users",
+    internal: "permissions.edit"
+  },
+  {
+    name: "Edit Toastie Stock",
+    description: "Enables editing of the Toastie Bar stock",
+    internal: "toastie.stock.edit"
+  }
+];
+
 // Initialise the tables
 (async() => {
   await User.sync();
@@ -56,6 +69,19 @@ app.use(session({
   await ToastieOrderContent.sync();
   await Permission.sync();
   await PermissionLink.sync();
+
+  requiredPermissions.forEach(async (item, i) => {
+    await Permission.findOrCreate({
+      where: {
+        internal: item.internal
+      },
+      defaults: {
+        name: item.name,
+        description: item.description, 
+        internal: item.internal
+      }
+    });
+  });
 })();
 
 // This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.
