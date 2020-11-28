@@ -65,13 +65,13 @@ class App extends React.Component {
       localStorage.setItem("user", JSON.stringify(this.state.user));
     }
 
-    if(isLoggedIn() === 1) {
+    if(this.isLoggedIn() === 1) {
       this.logoutUser();
     }
   }
 
   componentDidMount = () => {
-    if(isLoggedIn() === 1) {
+    if(this.isLoggedIn() === 1) {
       this.logoutUser();
     }
   }
