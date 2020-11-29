@@ -14,10 +14,12 @@ class PermissionRow extends React.Component {
     };
   }
 
+  // Load the data for the row individually
   componentDidMount = async () => {
     await this.updateSelf();
   }
 
+  // This is used if the user has the permission granted to them
   renderWithPermission() {
     return (
       <tr>
@@ -36,6 +38,7 @@ class PermissionRow extends React.Component {
     );
   }
 
+  // This is used if the user does not have the permission granted to them
   renderWithoutPermission() {
     return (
       <tr>
@@ -54,6 +57,7 @@ class PermissionRow extends React.Component {
     );
   }
 
+  // Grants the permission to the set user
   grantPermission = async (e) => {
     e.preventDefault();
     this.setState({ disabled: true });
@@ -65,9 +69,11 @@ class PermissionRow extends React.Component {
       return;
     }
 
+    // Get the latest change made to the permission
     await this.updateSelf();
   }
 
+  // Revoke the permission from the set user
   revokePermission = async (e) => {
     e.preventDefault();
     this.setState({ disabled: true });
@@ -79,9 +85,11 @@ class PermissionRow extends React.Component {
       return;
     }
 
+    // Get the latest change made to the permission
     await this.updateSelf();
   }
 
+  // Get the latest data about the permission
   updateSelf = async () => {
     this.setState({ disabled: true });
 
@@ -109,5 +117,10 @@ class PermissionRow extends React.Component {
     }
   }
 }
+
+PermissionRow.propTypes = {
+  user: PropTypes.object.isRequired,
+  permissionInformation: PropTypes.object.isRequired
+};
 
 export default PermissionRow;

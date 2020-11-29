@@ -27,6 +27,7 @@ class EditPermissionsPage extends React.Component {
       return;
     }
 
+    // Ensure they are an admin
     if(adminCheck.data.user.permissions) {
       if(adminCheck.data.user.permissions.length === 0) {
         this.setState({ status: 403, error: "You are not an admin" });

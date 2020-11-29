@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import api from '../../utils/axiosConfig.js';
 import { Redirect } from 'react-router-dom';
 
@@ -19,6 +18,7 @@ class SelectUser extends React.Component {
     };
   }
 
+  // Loads all of the possible permissions into the state
   componentDidMount = async () => {
     let found;
 
@@ -33,6 +33,7 @@ class SelectUser extends React.Component {
     this.setState({ loaded: true, status: 200, allPermissions: found.data.permissions });
   }
 
+  // Find a user based on their username, first name or last name
   searchForUser = async (event) => {
     event.preventDefault();
 
@@ -56,6 +57,7 @@ class SelectUser extends React.Component {
     this.setState({ results: found.data.matching });
   }
 
+  // Loads the data about a specific user
   loadUser = async (id) => {
     this.setState({ searchTerm: "", results: [] });
 
@@ -75,6 +77,7 @@ class SelectUser extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) });
   }
 
+  // Tidies up their name for displaying
   displayName = (firstNames, surname) => {
     let firstName = firstNames.split(",")[0];
     firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();

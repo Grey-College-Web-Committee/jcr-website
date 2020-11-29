@@ -12,6 +12,7 @@ class EditUserPermissions extends React.Component {
     }
   }
 
+  // Used to force a re-render on deep object change
   static getDerivedStateFromProps = (props, currentState) => {
     if (props.stateUpdateId !== currentState.stateUpdateId) {
       return {
@@ -19,9 +20,12 @@ class EditUserPermissions extends React.Component {
         stateUpdateId: props.stateUpdateId
       };
     }
+
+    return null;
   }
 
   renderPermissionRows = () => {
+    // Sort them by their IDs so it is consistent each time
     this.props.allPermissions.sort((a, b) => {
       const firstId = a.id;
       const secondId = b.id;
@@ -32,6 +36,7 @@ class EditUserPermissions extends React.Component {
       return 0;
     });
 
+    // React Fragment is used to here to handle the key property
     const rows = this.props.allPermissions.map((item, i) => {
       return (
         <React.Fragment key={this.state.lastRandom + i}>
@@ -68,5 +73,11 @@ class EditUserPermissions extends React.Component {
     )
   }
 }
+
+EditUserPermissions.propTypes = {
+  user: PropTypes.object.isRequired,
+  allPermissions: PropTypes.array.isRequired,
+  stateUpdateId: PropTypes.number.isRequired
+};
 
 export default EditUserPermissions;
