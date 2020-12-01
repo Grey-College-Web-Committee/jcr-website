@@ -56,7 +56,7 @@ class AddStock extends React.Component {
     return (
       <React.Fragment>
         <form onSubmit={this.createNewItem}>
-          <table className="stockTable">
+          <table>
             <tbody>
               <tr>
                 <td>Name</td>

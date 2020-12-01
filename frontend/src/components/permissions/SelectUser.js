@@ -94,7 +94,7 @@ class SelectUser extends React.Component {
     return (
       <React.Fragment>
         <h1>Found Users</h1>
-        <table className="stockTable">
+        <table>
           <thead>
             <tr>
               <th>Username</th><th>Name</th><th>Select</th>

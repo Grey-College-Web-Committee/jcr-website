@@ -201,15 +201,15 @@ class CheckoutForm extends React.Component {
       return (
         <React.Fragment>
           <p>You are about to make a payment of <strong>£{Number(this.props.realCost / 100).toFixed(2)}</strong> to the Grey College JCR</p>
-          <div className="checkoutType">
+          <div>
             <h2>Express Checkout</h2>
             <p>Your device supports express checkout</p>
-            <div id="payment-request-button" className="paymentType"></div>
+            <div id="payment-request-button"></div>
           </div>
-          <div className="checkoutType">
+          <div>
             <h2>Regular Checkout</h2>
             <p>Please enter your card details.</p>
-            <table className="stockTable">
+            <table>
               <tbody>
                 <tr>
                   <td>Cardholder Name</td>
@@ -238,13 +238,11 @@ class CheckoutForm extends React.Component {
             <br />
             <CardElement
               disabled={this.state.disabled}
-              className="paymentType"
             />
             <br />
             <button
               onClick={this.handleSubmit}
               disabled={this.state.disabled}
-              className="largeButton"
             >Pay £{Number(this.props.realCost / 100).toFixed(2)}</button>
             <br />
             {this.state.disabled ? <p>Processing payment this may take a moment. Please do not refresh this page.</p> : null}
@@ -260,7 +258,7 @@ class CheckoutForm extends React.Component {
         <div>
           <h2>Checkout</h2>
           <p>Please enter your card details.</p>
-          <table className="stockTable">
+          <table>
             <tbody>
               <tr>
                 <td>Cardholder Name</td>
@@ -289,13 +287,11 @@ class CheckoutForm extends React.Component {
           <br />
           <CardElement
             disabled={this.state.disabled}
-            className="paymentType"
           />
           <br />
           <button
             onClick={this.handleSubmit}
             disabled={this.state.disabled}
-            className="largeButton"
           >Pay £{Number(this.props.realCost / 100).toFixed(2)}</button>
           <br />
           {this.state.disabled ? <p>Processing payment this may take a moment. Please do not refresh this page.</p> : null}

@@ -18,8 +18,6 @@ import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
 
-import './App.css';
-
 const stripePromise = loadStripe(config.stripe.publicKey);
 
 class App extends React.Component {

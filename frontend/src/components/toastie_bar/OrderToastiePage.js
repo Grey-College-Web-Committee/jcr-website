@@ -191,7 +191,7 @@ class OrderToastiePage extends React.Component {
     }
 
     return (
-      <table className="fillingTable">
+      <table>
         <thead>
           <tr>
             <th>Item</th><th>Price (£)</th>
@@ -219,7 +219,7 @@ class OrderToastiePage extends React.Component {
     }
 
     return (
-      <table className="fillingTable">
+      <table>
         <thead>
           <tr>
             <th>Item</th><th>Price (£)</th>
@@ -361,7 +361,6 @@ class OrderToastiePage extends React.Component {
           <button
             onClick={this.placeOrder}
             disabled={this.state.purchaseDisabled}
-            className="largeButton"
           >Place Order</button>
           <br/>
           <br/>
@@ -387,7 +386,7 @@ class OrderToastiePage extends React.Component {
           <h3>Drinks</h3>
           {this.displayOtherItemsOrder("drinks")}
           {this.state.discountApplied ? <p>£0.20 discount applied</p> : null}
-          <div className="paymentContainer">
+          <div>
             <CheckoutForm
               clientSecret={this.state.clientSecret}
               onSuccess={this.onPaymentSuccess}

@@ -9,7 +9,7 @@ class NavigationBar extends React.Component {
 
     if(user) {
       return (
-        <nav className="main_navigation">
+        <nav>
           <ul>
             <NavigationBarItem title="Home" url="/" />
             <NavigationBarItem title="Order Toastie" url="/toasties" />
@@ -24,7 +24,7 @@ class NavigationBar extends React.Component {
 
     // User is logged out
     return (
-      <nav className="main_navigation">
+      <nav>
         <ul>
           <NavigationBarItem title="Home" url="/" />
           <NavigationBarItem title="Login" url="/accounts/login" />

@@ -39,7 +39,7 @@ class LoginForm extends React.Component {
     return (
       <React.Fragment>
         <form onSubmit={this.onFormSubmission}>
-          <table className="table_center">
+          <table>
             <tbody>
               <tr>
                 <td>Username</td>
