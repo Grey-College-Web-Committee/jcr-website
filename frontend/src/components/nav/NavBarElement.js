@@ -17,7 +17,11 @@ class NavBarElement extends React.Component {
     const classes = this.getClasses();
 
     if(requiredPermission !== null) {
-      if(user === null) {
+      if(user === undefined) {
+        return null;
+      }
+
+      if(!user.hasOwnProperty("permissions")) {
         return null;
       }
 
@@ -81,6 +85,33 @@ class NavBarElement extends React.Component {
         }
       }
     } else {
+      // No point displaying if they don't have a single option available
+      const internalPermissions = dropdown.map(item => item.requiredPermission);
+      const nullPermissions = internalPermissions.filter(permission => permission === null);
+
+      console.log(internalPermissions.length);
+      console.log(nullPermissions.length)
+
+      if(internalPermissions.length !== 0 && nullPermissions.length === 0) {
+        if(user === undefined) {
+          return null;
+        }
+
+        if(!user.hasOwnProperty("permissions")) {
+          return null;
+        }
+
+        if(user.permissions === null) {
+          return null;
+        }
+
+        const validPermissions = internalPermissions.filter(permission => user.permissions.includes(permission));
+
+        if(validPermissions.length === 0) {
+          return null;
+        }
+      }
+
       return (
         <li
           className={classes}

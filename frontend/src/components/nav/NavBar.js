@@ -36,7 +36,7 @@ class NavBar extends React.Component {
       }
     ];
 
-    if(user === null) {
+    if(user === undefined || user === null) {
       const loggedOutOptions = [
         {
           displayName: "Login",
@@ -88,7 +88,7 @@ class NavBar extends React.Component {
         {
           displayName: "Test Dropdown",
           url: null,
-          requiredPermission: null,
+          requiredPermission: "ignore",
           staticImage: null,
           dropdown: [
             {
@@ -117,12 +117,12 @@ class NavBar extends React.Component {
             {
               displayName: "#1",
               url: "/test/1",
-              requiredPermission: null
+              requiredPermission: "some.random"
             },
             {
               displayName: "#2",
               url: "/test/2",
-              requiredPermission: null
+              requiredPermission: "aaa"
             },
             {
               displayName: "#3",
