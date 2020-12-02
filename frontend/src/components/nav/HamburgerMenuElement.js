@@ -1,17 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import DropdownMenu from './DropdownMenu';
+import HamburgerSubMenu from './HamburgerSubMenu';
 
-class NavBarElement extends React.Component {
+class HamburgerMenuElement extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      parentActive: true,
+      dropdownActive: false
+    };
+  }
   getClasses = () => {
-    return "h-full p-3 font-medium hover:underline";
+    return "h-full font-medium hover:underline border-b border-gray-200 pt-4 pb-4";
   }
 
   render () {
-    const { displayName, url, requiredPermission, staticImage, dropdown, alwaysDisplayed, user } = this.props;
-    const screenSizeClasses = alwaysDisplayed ? "" : "hidden sm:block";
-    const classes = `${this.getClasses()} ${screenSizeClasses}`;
+    const { displayName, url, requiredPermission, staticImage, dropdown, alwaysDisplayed, id, user } = this.props;
+    const classes = `${this.getClasses()}`;
 
     if(requiredPermission !== null) {
       if(user === undefined) {
@@ -31,13 +38,12 @@ class NavBarElement extends React.Component {
       }
     }
 
-    if(dropdown === null) {
+    if(dropdown === undefined || dropdown === null) {
       if(url === null) {
-        if(staticImage === null) {
+        if(staticImage === undefined || staticImage === null) {
           return (
             <li
               className={classes}
-              onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
             >
               {displayName}
             </li>
@@ -46,7 +52,6 @@ class NavBarElement extends React.Component {
           return (
             <li
               className={classes}
-              onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
             >
               <img
                 {...staticImage}
@@ -55,12 +60,11 @@ class NavBarElement extends React.Component {
           )
         }
       } else {
-        if(staticImage === null) {
+        if(staticImage === undefined || staticImage === null) {
           return (
-            <Link to={url}>
+            <Link to={url} onClick={this.props.hideWholeMenu}>
               <li
                 className={classes}
-                onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
               >
                   {displayName}
               </li>
@@ -68,10 +72,9 @@ class NavBarElement extends React.Component {
           );
         } else {
           return (
-            <Link to={url}>
+            <Link to={url} onClick={this.props.hideWholeMenu}>
               <li
                 className={classes}
-                onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
               >
                   <img
                     {...staticImage}
@@ -109,12 +112,20 @@ class NavBarElement extends React.Component {
       return (
         <li
           className={classes}
-          onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
+          onClick={() => {
+            if(this.state.parentActive) {
+              this.setState({ dropdownActive: true, parentActive: false });
+            }
+          }}
         >
           {displayName}▾
-          <DropdownMenu
-            items={dropdown}
-            active={this.props.activeDropdownKey === this.props.id}
+          <HamburgerSubMenu
+            contents={dropdown}
+            active={this.state.dropdownActive}
+            hideSelf={() => {
+              this.setState({ dropdownActive: false, parentActive: true });
+            }}
+            hideWholeMenu={this.props.hideWholeMenu}
             user={user}
           />
         </li>
@@ -125,4 +136,4 @@ class NavBarElement extends React.Component {
   }
 }
 
-export default NavBarElement;
+export default HamburgerMenuElement;

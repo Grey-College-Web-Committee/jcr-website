@@ -2,6 +2,7 @@ import React from 'react';
 import authContext from '../../utils/authContext.js';
 import { withRouter } from 'react-router-dom';
 import NavBarElement from './NavBarElement';
+import HamburgerSelector from './HamburgerSelector';
 
 // Basic navigation bar for all pages
 class NavBar extends React.Component {
@@ -19,20 +20,22 @@ class NavBar extends React.Component {
         url: "/",
         requiredPermission: null,
         staticImage: {
-          src: "/images/header-crest-45.png",
+          src: "/images/header-crest-232.png",
           alt: "Grey College Logo",
           style: {
-            width: "45px"
+            width: "48px"
           }
         },
-        dropdown: null
+        dropdown: null,
+        alwaysDisplayed: true
       },
       {
         displayName: "Home",
         url: "/",
         requiredPermission: null,
         staticImage: null,
-        dropdown: null
+        dropdown: null,
+        alwaysDisplayed: false
       }
     ];
 
@@ -43,7 +46,8 @@ class NavBar extends React.Component {
           url: "/accounts/login",
           requiredPermission: null,
           staticImage: null,
-          dropdown: null
+          dropdown: null,
+          alwaysDisplayed: false
         }
       ];
 
@@ -55,7 +59,8 @@ class NavBar extends React.Component {
           url: "/toasties",
           requiredPermission: null,
           staticImage: null,
-          dropdown: null
+          dropdown: null,
+          alwaysDisplayed: false
         },
         {
           displayName: `${user.username}`,
@@ -68,7 +73,8 @@ class NavBar extends React.Component {
               url: "/accounts/logout",
               requiredPermission: null
             }
-          ]
+          ],
+          alwaysDisplayed: false
         },
         {
           displayName: "Admin Options",
@@ -86,7 +92,8 @@ class NavBar extends React.Component {
               url: "/toasties/stock",
               requiredPermission: "toastie.stock.edit"
             }
-          ]
+          ],
+          alwaysDisplayed: false
         }
       ];
 
@@ -103,12 +110,13 @@ class NavBar extends React.Component {
   render () {
     const user = this.context;
     const location = this.props.location.pathname;
+    const menuOptions = this.getMenuOptions(user);
 
     return (
       <nav onMouseLeave={() => {this.setActiveDropdown(-1)}}>
         <ul className="flex flex-row bg-red-900 text-gray-200 items-center">
           {
-            this.getMenuOptions(user).map((item, i) => (
+            menuOptions.map((item, i) => (
               <NavBarElement
                 key={i}
                 id={i}
@@ -120,6 +128,10 @@ class NavBar extends React.Component {
               />
             ))
           }
+          <HamburgerSelector
+            menuOptions={menuOptions}
+            user={user}
+          />
         </ul>
       </nav>
     );
