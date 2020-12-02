@@ -37,11 +37,11 @@ class DropdownElement extends React.Component {
       )
     } else {
       return (
-        <li className={classes} >
-          <Link to={url}>
-            {displayName}
-          </Link>
-        </li>
+        <Link to={url}>
+          <li className={classes} >
+              {displayName}
+          </li>
+        </Link>
       );
     }
   }

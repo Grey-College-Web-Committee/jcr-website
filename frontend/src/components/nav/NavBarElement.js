@@ -60,27 +60,27 @@ class NavBarElement extends React.Component {
       } else {
         if(staticImage === null) {
           return (
-            <li
-              className={classes}
-              onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
-            >
-              <Link to={url}>
-                {displayName}
-              </Link>
-            </li>
+            <Link to={url}>
+              <li
+                className={classes}
+                onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
+              >
+                  {displayName}
+              </li>
+            </Link>
           );
         } else {
           return (
-            <li
-              className={classes}
-              onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
-            >
-              <Link to={url}>
-                <img
-                  {...staticImage}
-                />
-              </Link>
-            </li>
+            <Link to={url}>
+              <li
+                className={classes}
+                onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
+              >
+                  <img
+                    {...staticImage}
+                  />
+              </li>
+            </Link>
           )
         }
       }
@@ -88,9 +88,6 @@ class NavBarElement extends React.Component {
       // No point displaying if they don't have a single option available
       const internalPermissions = dropdown.map(item => item.requiredPermission);
       const nullPermissions = internalPermissions.filter(permission => permission === null);
-
-      console.log(internalPermissions.length);
-      console.log(nullPermissions.length)
 
       if(internalPermissions.length !== 0 && nullPermissions.length === 0) {
         if(user === undefined) {
@@ -121,6 +118,7 @@ class NavBarElement extends React.Component {
           <DropdownMenu
             items={dropdown}
             active={this.props.activeDropdownKey === this.props.id}
+            user={user}
           />
         </li>
       );

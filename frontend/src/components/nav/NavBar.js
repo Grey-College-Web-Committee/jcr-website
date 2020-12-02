@@ -51,30 +51,9 @@ class NavBar extends React.Component {
     } else {
       const loggedInOptions = [
         {
-          displayName: "Logout",
-          url: "/accounts/logout",
-          requiredPermission: null,
-          staticImage: null,
-          dropdown: null
-        },
-        {
           displayName: "Order Toastie",
           url: "/toasties",
           requiredPermission: null,
-          staticImage: null,
-          dropdown: null
-        },
-        {
-          displayName: "Toastie Stock",
-          url: "/toasties/stock",
-          requiredPermission: "toastie.stock.edit",
-          staticImage: null,
-          dropdown: null
-        },
-        {
-          displayName: "Edit Permissions",
-          url: "/permissions",
-          requiredPermission: "permissions.edit",
           staticImage: null,
           dropdown: null
         },
@@ -83,51 +62,29 @@ class NavBar extends React.Component {
           url: null,
           requiredPermission: null,
           staticImage: null,
-          dropdown: null
-        },
-        {
-          displayName: "Test Dropdown",
-          url: null,
-          requiredPermission: "ignore",
-          staticImage: null,
           dropdown: [
             {
-              displayName: "Dropdown #1",
-              url: "/test/1",
-              requiredPermission: null
-            },
-            {
-              displayName: "Dropdown #2",
-              url: "/test/2",
-              requiredPermission: null
-            },
-            {
-              displayName: "Dropdown #3",
-              url: "/test/3",
+              displayName: "Logout",
+              url: "/accounts/logout",
               requiredPermission: null
             }
           ]
         },
         {
-          displayName: "Test Dropdown",
+          displayName: "Admin Options",
           url: null,
           requiredPermission: null,
           staticImage: null,
           dropdown: [
             {
-              displayName: "#1",
-              url: "/test/1",
-              requiredPermission: "some.random"
+              displayName: "Edit Permissions",
+              url: "/permissions",
+              requiredPermission: "permissions.edit"
             },
             {
-              displayName: "#2",
-              url: "/test/2",
-              requiredPermission: "aaa"
-            },
-            {
-              displayName: "#3",
-              url: "/test/3",
-              requiredPermission: null
+              displayName: "Edit Toastie Stock",
+              url: "/toasties/stock",
+              requiredPermission: "toastie.stock.edit"
             }
           ]
         }
