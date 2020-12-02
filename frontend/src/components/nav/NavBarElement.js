@@ -1,10 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import DropdownMenu from './DropdownMenu';
 
 class NavBarElement extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
   getClasses = () => {
-    return "p-3 font-medium hover:underline";
+    return "h-full p-3 font-medium hover:underline";
   }
 
   render () {
@@ -25,17 +30,23 @@ class NavBarElement extends React.Component {
       }
     }
 
-    console.log(this.props);
-
     if(dropdown === null) {
       if(url === null) {
         if(staticImage === null) {
           return (
-            <li className={classes}>{displayName}</li>
+            <li
+              className={classes}
+              onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
+            >
+              {displayName}
+            </li>
           );
         } else {
           return (
-            <li className={classes}>
+            <li
+              className={classes}
+              onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
+            >
               <img
                 {...staticImage}
               />
@@ -45,28 +56,43 @@ class NavBarElement extends React.Component {
       } else {
         if(staticImage === null) {
           return (
-            <Link to={url}>
-              <li className={classes}>{displayName}</li>
-            </Link>
+            <li
+              className={classes}
+              onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
+            >
+              <Link to={url}>
+                {displayName}
+              </Link>
+            </li>
           );
         } else {
           return (
-            <Link to={url}>
-              <li className={classes}>
+            <li
+              className={classes}
+              onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
+            >
+              <Link to={url}>
                 <img
                   {...staticImage}
                 />
-              </li>
-            </Link>
+              </Link>
+            </li>
           )
         }
       }
     } else {
-      if(url === null) {
-
-      } else {
-
-      }
+      return (
+        <li
+          className={classes}
+          onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
+        >
+          {displayName}▾
+          <DropdownMenu
+            items={dropdown}
+            active={this.props.activeDropdownKey === this.props.id}
+          />
+        </li>
+      );
     }
 
     return null;

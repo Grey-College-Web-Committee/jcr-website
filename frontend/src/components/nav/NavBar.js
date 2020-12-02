@@ -5,6 +5,13 @@ import NavBarElement from './NavBarElement';
 
 // Basic navigation bar for all pages
 class NavBar extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      activeDropdownKey: -1
+    };
+  }
   getMenuOptions = (user) => {
     let baseOptions = [
       {
@@ -100,6 +107,29 @@ class NavBar extends React.Component {
               requiredPermission: null
             }
           ]
+        },
+        {
+          displayName: "Test Dropdown",
+          url: null,
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: [
+            {
+              displayName: "#1",
+              url: "/test/1",
+              requiredPermission: null
+            },
+            {
+              displayName: "#2",
+              url: "/test/2",
+              requiredPermission: null
+            },
+            {
+              displayName: "#3",
+              url: "/test/3",
+              requiredPermission: null
+            }
+          ]
         }
       ];
 
@@ -109,20 +139,27 @@ class NavBar extends React.Component {
     return baseOptions;
   }
 
+  setActiveDropdown = (id) => {
+    this.setState({ activeDropdownKey: id });
+  }
+
   render () {
     const user = this.context;
     const location = this.props.location.pathname;
 
     return (
-      <nav>
+      <nav onMouseLeave={() => {this.setActiveDropdown(-1)}}>
         <ul className="flex flex-row bg-red-900 text-gray-200 items-center">
           {
             this.getMenuOptions(user).map((item, i) => (
               <NavBarElement
                 key={i}
+                id={i}
                 {...item}
                 user={user}
                 location={location}
+                activeDropdownKey={this.state.activeDropdownKey}
+                changeActiveDropdownKey={this.setActiveDropdown}
               />
             ))
           }
