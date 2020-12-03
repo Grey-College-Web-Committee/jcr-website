@@ -26,10 +26,10 @@ class PermissionRow extends React.Component {
     return (
       <tr className={colour}>
         <td className="w-40 p-2 font-semibold border-r border-gray-400">{this.props.permissionInformation.name}</td>
-        <td className="w-64 p-2 border-l border-r border-gray-400">{this.props.permissionInformation.description}</td>
+        <td className="hidden sm:table-cell w-64 p-2 border-l border-r border-gray-400">{this.props.permissionInformation.description}</td>
         <td className="w-20 p-2 border-l border-r border-gray-400 text-center">Yes</td>
         <td className="w-32 p-2 border-l border-r border-gray-400 text-center">{this.state.grantedDetails.grantedBy.username}</td>
-        <td className="w-64 p-2 border-l border-r border-gray-400 text-center">{dateFormat(this.state.grantedDetails.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
+        <td className="hidden sm:table-cell w-64 p-2 border-l border-r border-gray-400 text-center">{dateFormat(this.state.grantedDetails.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
         <td className="w-40 p-2 border-l border-gray-400">
           <button
             onClick={this.revokePermission}
@@ -48,10 +48,10 @@ class PermissionRow extends React.Component {
     return (
       <tr className={colour}>
         <td className="w-40 p-2 font-semibold border-r border-gray-400">{this.props.permissionInformation.name}</td>
-        <td className="w-64 p-2 border-l border-r border-gray-400">{this.props.permissionInformation.description}</td>
+        <td className="hidden sm:table-cell w-64 p-2 border-l border-r border-gray-400">{this.props.permissionInformation.description}</td>
         <td className="w-20 p-2 border-l border-r border-gray-400 text-center">No</td>
         <td className="w-32 p-2 border-l border-r border-gray-400 text-center">N/A</td>
-        <td className="w-64 p-2 border-l border-r border-gray-400 text-center">N/A</td>
+        <td className="hidden sm:table-cell w-64 p-2 border-l border-r border-gray-400 text-center">N/A</td>
         <td className="w-40 p-2 border-l border-gray-400">
           <button
             onClick={this.grantPermission}

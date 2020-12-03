@@ -53,7 +53,7 @@ class LoginForm extends React.Component {
               name="username"
               value={this.state.username}
               onChange={this.onInputChange}
-              className={`shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 ${usernameBorder}`}
+              className={`shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 ${usernameBorder}`}
               placeholder="Please enter your username..."
             />
           </div>
@@ -64,7 +64,7 @@ class LoginForm extends React.Component {
               name="password"
               value={this.state.password}
               onChange={this.onInputChange}
-              className={`shadow w-64 rounded border p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 ${passwordBorder}`}
+              className={`shadow w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 ${passwordBorder}`}
               placeholder="Please enter your password..."
             />
           </div>

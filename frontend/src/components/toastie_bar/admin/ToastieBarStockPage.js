@@ -78,13 +78,20 @@ class ToastieBarStockPage extends React.Component {
     }
 
     return (
-      <React.Fragment>
-        <h1>Toastie Bar Stock</h1>
-        <h2>Manage Existing Items</h2>
-        <ExistingStock stock={this.state.stock} />
-        <h2>Add New Items</h2>
-        <AddStock updateStockListing={this.updateStockListing} />
-      </React.Fragment>
+      <div className="flex flex-col justify-start">
+        <div className="container mx-auto text-center p-4">
+          <h1 className="font-semibold text-5xl pb-4">Toastie Bar Stock</h1>
+          <div className="border-b-2 border-t-2 py-4">
+            <h2 className="font-semibold text-3xl pb-4">Manage Existing Items</h2>
+            <span className="block sm:hidden pb-4">Your screen is too small to display all columns</span>
+            <ExistingStock stock={this.state.stock} />
+          </div>
+          <div className="border-b-2 py-4">
+            <h2 className="font-semibold text-3xl pb-4">Add New Items</h2>
+            <AddStock updateStockListing={this.updateStockListing} />
+          </div>
+        </div>
+      </div>
     )
   }
 }

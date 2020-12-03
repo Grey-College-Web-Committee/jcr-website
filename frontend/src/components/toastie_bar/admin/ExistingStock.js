@@ -14,29 +14,29 @@ class ExistingStock extends React.Component {
 
     // Just displays a table with the existing stock
     return (
-      <React.Fragment>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>Price (£)</th>
-              <th>Available</th>
-              <th>Last Updated</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.props.stock.map((item, index) => (
-              <React.Fragment key={index}>
-                <StockRow
-                  item={item}
-                />
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-      </React.Fragment>
+      <table
+        className="mx-auto border-2 text-left border-red-900"
+      >
+        <thead className="bg-red-900 text-white">
+          <tr>
+            <th className="p-2 font-semibold">Name</th>
+            <th className="p-2 font-semibold hidden sm:table-cell">Type</th>
+            <th className="p-2 font-semibold hidden sm:table-cell">Price (£)</th>
+            <th className="p-2 font-semibold">Available</th>
+            <th className="p-2 font-semibold hidden sm:table-cell">Last Updated</th>
+            <th className="p-2 font-semibold">Save</th>
+          </tr>
+        </thead>
+        <tbody>
+          {this.props.stock.map((item, index) => (
+            <StockRow
+              key={index}
+              item={item}
+              rowId={index}
+            />
+          ))}
+        </tbody>
+      </table>
     )
   }
 }

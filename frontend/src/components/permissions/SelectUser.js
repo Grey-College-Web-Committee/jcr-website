@@ -173,7 +173,8 @@ class SelectUser extends React.Component {
 
     return (
       <React.Fragment>
-        <div className="border-b-2 p-4">
+        <div className="border-b-2 border-t-2 p-4">
+          <h2 className="font-semibold text-3xl pb-4">Find User</h2>
           <form onSubmit={this.searchForUser}>
             <fieldset>
               <div className="mx-auto w-max pb-4 border-b-2">
