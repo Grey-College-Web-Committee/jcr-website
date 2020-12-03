@@ -48,18 +48,23 @@ class LoginPage extends React.Component {
   }
 
   render () {
+    const showErrors = this.state.message.length === 0 ? "hidden" : "block";
+
     return (
-      <React.Fragment>
-        <h1>Login Page</h1>
-        <p>Please sign in using your Durham CIS details!</p>
-        <p>You must be a member of Grey College to login.</p>
-        <LoginForm
-          disabled={this.state.disabled}
-          updateMessage={this.updateMessage}
-          attemptLogin={this.attemptLogin}
-        />
-        <p>{this.state.message}</p>
-      </React.Fragment>
+      <div className="flex flex-col justify-center">
+        <div className="container mx-auto text-center p-4">
+          <h1 className="font-semibold text-5xl pb-4">Login</h1>
+          <p className="pb-4">You must be a member of Grey College to login</p>
+          <LoginForm
+            disabled={this.state.disabled}
+            updateMessage={this.updateMessage}
+            attemptLogin={this.attemptLogin}
+          />
+          <div className={`mx-auto w-64 pb-4 pt-2 border-t-2 ${showErrors}`}>
+            <span>{this.state.message}</span>
+          </div>
+        </div>
+      </div>
     );
   }
 }

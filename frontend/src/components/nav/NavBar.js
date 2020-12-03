@@ -114,7 +114,7 @@ class NavBar extends React.Component {
 
     return (
       <nav onMouseLeave={() => {this.setActiveDropdown(-1)}}>
-        <ul className="flex flex-row bg-red-900 text-gray-200 items-center">
+        <ul className="flex flex-row bg-red-900 text-white items-center">
           {
             menuOptions.map((item, i) => (
               <NavBarElement
