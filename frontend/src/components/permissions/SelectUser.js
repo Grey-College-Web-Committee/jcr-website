@@ -14,7 +14,8 @@ class SelectUser extends React.Component {
       allPermissions: [],
       searchTerm: "",
       results: [],
-      loadedUser: null
+      loadedUser: null,
+      message: ""
     };
   }
 
@@ -38,10 +39,12 @@ class SelectUser extends React.Component {
     event.preventDefault();
 
     if(this.state.searchTerm === null) {
+      this.setState({ message: "You must enter a search term." });
       return;
     }
 
     if(this.state.searchTerm.length === 0) {
+      this.setState({ message: "You must enter a search term." });
       return;
     }
 
@@ -54,7 +57,12 @@ class SelectUser extends React.Component {
       return;
     }
 
-    this.setState({ results: found.data.matching });
+    if(found.data.matching.length === 0) {
+      this.setState({ message: "No results found." });
+      return;
+    }
+
+    this.setState({ results: found.data.matching, message: "" });
   }
 
   // Loads the data about a specific user
@@ -91,24 +99,35 @@ class SelectUser extends React.Component {
       return null;
     }
 
+    const oddRowClass = "bg-white";
+    const evenRowClass = "bg-red-100";
+
     return (
-      <React.Fragment>
-        <h1>Found Users</h1>
-        <table>
-          <thead>
+      <div className="border-b-2 py-4">
+        <h2 className="font-semibold text-3xl pb-4">Select User</h2>
+        <table
+          className="mx-auto border-2 text-left border-red-900"
+        >
+          <thead className="bg-red-900 text-white">
             <tr>
-              <th>Username</th><th>Name</th><th>Select</th>
+              <th className="p-2 font-semibold">Username</th>
+              <th className="p-2 font-semibold">Name</th>
+              <th className="p-2 font-semibold">Select</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="">
             {
               this.state.results.map((item, index) => (
-                <tr key={index}>
-                  <td>{item.username}</td>
-                  <td>{this.displayName(item.firstNames, item.surname)}</td>
-                  <td>
+                <tr
+                  key={index}
+                  className={`${index % 2 === 0 ? evenRowClass : oddRowClass}`}
+                >
+                  <td className="w-40 p-2 font-semibold border-r border-gray-400">{item.username}</td>
+                  <td className="w-48 p-2 border-l border-r border-gray-400">{this.displayName(item.firstNames, item.surname)}</td>
+                  <td className="w-40 p-2 border-l border-gray-400">
                     <button
                       onClick={() => this.loadUser(item.id)}
+                      className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
                     >Select</button>
                   </td>
                 </tr>
@@ -116,7 +135,7 @@ class SelectUser extends React.Component {
             }
           </tbody>
         </table>
-      </React.Fragment>
+      </div>
     );
   }
 
@@ -126,14 +145,14 @@ class SelectUser extends React.Component {
     }
 
     return (
-      <React.Fragment>
-        <h2>Editing Permissions for {this.state.loadedUser.user.username}</h2>
+      <div className="border-b-2 py-4">
+        <h2 className="font-semibold text-3xl pb-4">Editing Permissions for {this.state.loadedUser.user.username}</h2>
         <EditUserPermissions
           user={this.state.loadedUser.user}
           allPermissions={this.state.allPermissions}
           stateUpdateId={this.state.loadedUser.user.id}
         />
-      </React.Fragment>
+    </div>
     )
   }
 
@@ -150,22 +169,39 @@ class SelectUser extends React.Component {
       );
     }
 
+    const showErrors = this.state.message.length === 0 ? "hidden" : "block";
+
     return (
       <React.Fragment>
-        <form onSubmit={this.searchForUser}>
-          <label>Enter Username or Name: </label>
-          <input
-            type="text"
-            value={this.state.searchTerm}
-            onChange={this.onInputChange}
-            name="searchTerm"
-          />
-          <input
-            type="submit"
-            value="Search"
-          />
-        </form>
-        <p>This is limited to 10 results. If you can't find a user please try entering their username instead.</p>
+        <div className="border-b-2 p-4">
+          <form onSubmit={this.searchForUser}>
+            <fieldset>
+              <div className="mx-auto w-max pb-4 border-b-2">
+                <label
+                  htmlFor="searchTerm"
+                  className="flex flex-row justify-start pb-2 text-lg font-semibold"
+                >Enter Username</label>
+                <input
+                  type="text"
+                  value={this.state.searchTerm}
+                  onChange={this.onInputChange}
+                  name="searchTerm"
+                  className="shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                />
+              </div>
+              <div className="mx-auto w-64 pt-4">
+                <input
+                  type="submit"
+                  value="Search"
+                  className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
+                />
+              </div>
+            </fieldset>
+            <div className={`mx-auto w-64 pt-4 pt-2 border-t-2 ${showErrors}`}>
+              <span>{this.state.message}</span>
+            </div>
+          </form>
+        </div>
         { this.renderUserSelect() }
         { this.renderUserEdit() }
       </React.Fragment>

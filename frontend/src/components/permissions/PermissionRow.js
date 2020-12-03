@@ -21,17 +21,20 @@ class PermissionRow extends React.Component {
 
   // This is used if the user has the permission granted to them
   renderWithPermission() {
+    const colour = this.props.rowId % 2 === 0 ? "bg-red-100" : "bg-white";
+
     return (
-      <tr>
-        <td>{this.props.permissionInformation.name}</td>
-        <td>{this.props.permissionInformation.description}</td>
-        <td>Yes</td>
-        <td>{this.state.grantedDetails.grantedBy.username}</td>
-        <td>{dateFormat(this.state.grantedDetails.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
-        <td>
+      <tr className={colour}>
+        <td className="w-40 p-2 font-semibold border-r border-gray-400">{this.props.permissionInformation.name}</td>
+        <td className="w-64 p-2 border-l border-r border-gray-400">{this.props.permissionInformation.description}</td>
+        <td className="w-20 p-2 border-l border-r border-gray-400 text-center">Yes</td>
+        <td className="w-32 p-2 border-l border-r border-gray-400 text-center">{this.state.grantedDetails.grantedBy.username}</td>
+        <td className="w-64 p-2 border-l border-r border-gray-400 text-center">{dateFormat(this.state.grantedDetails.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
+        <td className="w-40 p-2 border-l border-gray-400">
           <button
             onClick={this.revokePermission}
             disabled={this.state.disabled}
+            className="px-4 py-1 rounded bg-red-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
           >Revoke</button>
         </td>
       </tr>
@@ -40,17 +43,20 @@ class PermissionRow extends React.Component {
 
   // This is used if the user does not have the permission granted to them
   renderWithoutPermission() {
+    const colour = this.props.rowId % 2 === 0 ? "bg-red-100" : "bg-white";
+
     return (
-      <tr>
-        <td>{this.props.permissionInformation.name}</td>
-        <td>{this.props.permissionInformation.description}</td>
-        <td>No</td>
-        <td>N/A</td>
-        <td>N/A</td>
-        <td>
+      <tr className={colour}>
+        <td className="w-40 p-2 font-semibold border-r border-gray-400">{this.props.permissionInformation.name}</td>
+        <td className="w-64 p-2 border-l border-r border-gray-400">{this.props.permissionInformation.description}</td>
+        <td className="w-20 p-2 border-l border-r border-gray-400 text-center">No</td>
+        <td className="w-32 p-2 border-l border-r border-gray-400 text-center">N/A</td>
+        <td className="w-64 p-2 border-l border-r border-gray-400 text-center">N/A</td>
+        <td className="w-40 p-2 border-l border-gray-400">
           <button
             onClick={this.grantPermission}
             disabled={this.state.disabled}
+            className="px-4 py-1 rounded bg-green-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
           >Grant</button>
         </td>
       </tr>

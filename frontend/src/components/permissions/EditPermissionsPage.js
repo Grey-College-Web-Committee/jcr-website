@@ -64,10 +64,12 @@ class EditPermissionsPage extends React.Component {
     }
 
     return (
-      <React.Fragment>
-        <h1>Edit User Permissions</h1>
-        <SelectUser />
-      </React.Fragment>
+      <div className="flex flex-col justify-start">
+        <div className="container mx-auto text-center p-4">
+          <h1 className="font-semibold text-5xl pb-4">Edit User Permissions</h1>
+          <SelectUser />
+        </div>
+      </div>
     )
   }
 }
