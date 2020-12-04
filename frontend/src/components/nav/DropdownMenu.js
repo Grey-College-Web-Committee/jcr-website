@@ -8,7 +8,7 @@ class DropdownMenu extends React.Component {
 
     return (
       <div className={`absolute z-10 mt-4 ${visibility}`}>
-        <ul className="flex flex-col bg-red-900 text-gray-200">
+        <ul className="flex flex-col bg-red-900 text-white">
           {this.props.items.map((item, i) => (
             <DropdownElement
               key={i}

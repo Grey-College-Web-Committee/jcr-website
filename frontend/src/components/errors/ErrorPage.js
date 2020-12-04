@@ -19,62 +19,92 @@ class ErrorPage extends React.Component {
     };
   }
 
-  render () {
-    switch(this.state.code) {
-    case "400":
-    case 400:
-      return (
-        <React.Fragment>
-          <h1>Error: Bad Request</h1>
-          <p>There was an issue with the action you were trying to perform. Please try again.</p>
-          <Link to="/">Click here to return to the homepage</Link>
-        </React.Fragment>
-      );
-    case "401":
-    case 401:
-      return (
-        <React.Fragment>
-          <h1>Error: Not Logged In</h1>
-          <p>Your session may have expired or you are not logged in.</p>
-          <Link to="/accounts/login">Click here to login</Link>
-        </React.Fragment>
-      );
-    case "403":
-    case 403:
-      return (
-        <React.Fragment>
-          <h1>Error: Unauthorised Access</h1>
-          <p>You were prevented from accessing a restricted page.</p>
-          <Link to="/">Click here to return to the homepage</Link>
-        </React.Fragment>
-      );
-    case "404":
-    case 404:
-      return (
-        <React.Fragment>
-          <h1>Error: Page Not Found</h1>
-          <p>The page you were trying to access does not exist.</p>
-          <Link to="/">Click here to return to the homepage</Link>
-        </React.Fragment>
-      );
-    case "500":
-    case 500:
-      return (
-        <React.Fragment>
-          <h1>Error: Server Issue</h1>
-          <p>There was an issue with the server processing your request. Please try again later.</p>
-          <Link to="/">Click here to return to the homepage</Link>
-        </React.Fragment>
-      );
-    default:
-      return (
-        <React.Fragment>
-          <h1>Error: Unexpected</h1>
-          <p>An unexpected error has occurred. Please try again later.</p>
-          <Link to="/">Click here to return to the homepage</Link>
-        </React.Fragment>
-      );
+  getErrorContent = (code) => {
+    if(code === undefined || code === null) {
+      code = "404";
     }
+
+    let intCode = parseInt(code);
+
+    if(isNaN(intCode)) {
+      intCode = 404;
+    }
+
+    const errors = [
+      {
+        codes: [ 400 ],
+        title: "Bad Request",
+        description: "There was an issue with the action you were trying to perform. Please try again later.",
+        redirect: {
+          url: "/",
+          text: "Click here to return home"
+        }
+      },
+      {
+        codes: [ 401 ],
+        title: "Not Logged In",
+        description: "You must be logged in to perform this action.",
+        redirect: {
+          url: "/accounts/login",
+          text: "Click here to login"
+        }
+      },
+      {
+        codes: [ 403 ],
+        title: "Unauthorised Access",
+        description: "You do not have permission to perform this action.",
+        redirect: {
+          url: "/",
+          text: "Click here to return home"
+        }
+      },
+      {
+        codes: [ 404 ],
+        title: "Page Not Found",
+        description: "The page you tried to reach doesn't exist.",
+        redirect: {
+          url: "/",
+          text: "Click here to return home"
+        }
+      },
+      {
+        codes: [ 500 ],
+        title: "Server Error",
+        description: "Something went wrong. Please try again later.",
+        redirect: {
+          url: "/",
+          text: "Click here to return home"
+        }
+      }
+    ];
+
+    let filtered = errors.filter(error => error.codes.includes(intCode));
+
+    if(filtered.length === 0) {
+      filtered = errors.filter(error => error.codes.includes(404));
+    }
+
+    return filtered[0];
+  }
+
+  render () {
+    const error = this.getErrorContent(this.state.code);
+
+    return (
+      <div className="flex justify-center items-center">
+        <div className="container mx-auto text-center p-4">
+          <h1 className="font-semibold text-5xl pb-4">{error.title}</h1>
+          <p>{error.description}</p>
+          <Link to={error.redirect.url}>
+            <button
+              className="px-4 py-1 mt-4 rounded bg-red-900 text-white w-64 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+            >
+              {error.redirect.text}
+            </button>
+          </Link>
+        </div>
+      </div>
+    );
   }
 }
 
