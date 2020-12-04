@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import ExistingStock from './ExistingStock';
 import AddStock from './AddStock';
+import LoadingHolder from '../../common/LoadingHolder';
 
 class ToastieBarStockPage extends React.Component {
   constructor(props) {
@@ -71,9 +72,7 @@ class ToastieBarStockPage extends React.Component {
       }
 
       return (
-        <React.Fragment>
-          <h1>Loading...</h1>
-        </React.Fragment>
+        <LoadingHolder />
       );
     }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { ElementsConsumer, CardElement } from '@stripe/react-stripe-js';
 import authContext from '../../utils/authContext.js';
+import LoadingHolder from '../common/LoadingHolder';
 
 // Use this for any checkout
 // Requires the user to be signed in
@@ -190,9 +191,7 @@ class CheckoutForm extends React.Component {
   render () {
     if(!this.state.ready) {
       return (
-        <div>
-          <p>Checkout is loading, please wait...</p>
-        </div>
+        <LoadingHolder />
       );
     }
 

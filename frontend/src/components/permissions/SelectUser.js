@@ -2,6 +2,7 @@ import React from 'react';
 import api from '../../utils/axiosConfig.js';
 import { Redirect } from 'react-router-dom';
 
+import LoadingHolder from '../common/LoadingHolder';
 import EditUserPermissions from './EditUserPermissions';
 
 class SelectUser extends React.Component {
@@ -159,7 +160,7 @@ class SelectUser extends React.Component {
   render () {
     if(!this.state.loaded) {
       return (
-        <h2>Loading...</h2>
+        <LoadingHolder />
       )
     }
 

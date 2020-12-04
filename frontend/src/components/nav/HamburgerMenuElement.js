@@ -12,13 +12,16 @@ class HamburgerMenuElement extends React.Component {
       dropdownActive: false
     };
   }
-  getClasses = () => {
-    return "h-full font-medium hover:underline border-b border-gray-200 pt-4 pb-4";
+
+  getClasses = (url) => {
+    // optionally can make selected items stand out more here
+    const selected = url === this.props.location ? "" : "";
+    return `h-full font-medium hover:underline border-b border-gray-200 pt-4 pb-4 ${selected}`;
   }
 
   render () {
     const { displayName, url, requiredPermission, staticImage, dropdown, alwaysDisplayed, id, user } = this.props;
-    const classes = `${this.getClasses()}`;
+    const classes = `${this.getClasses(url)}`;
 
     if(requiredPermission !== null) {
       if(user === undefined) {
@@ -127,6 +130,7 @@ class HamburgerMenuElement extends React.Component {
             }}
             hideWholeMenu={this.props.hideWholeMenu}
             user={user}
+            location={this.props.location}
           />
         </li>
       );

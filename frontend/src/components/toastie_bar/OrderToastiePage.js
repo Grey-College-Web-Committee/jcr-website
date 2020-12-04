@@ -5,6 +5,7 @@ import SelectMany from './SelectMany';
 import CheckoutForm from '../payment/CheckoutForm';
 import authContext from '../../utils/authContext.js';
 import config from '../../config.json';
+import LoadingHolder from '../common/LoadingHolder';
 
 class OrderToastiePage extends React.Component {
   constructor(props) {
@@ -268,9 +269,7 @@ class OrderToastiePage extends React.Component {
     // Still waiting for data from the API
     if(!this.state.loaded) {
       return (
-        <React.Fragment>
-          <h1>Loading...</h1>
-        </React.Fragment>
+        <LoadingHolder />
       );
     }
 

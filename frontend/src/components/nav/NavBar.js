@@ -131,6 +131,7 @@ class NavBar extends React.Component {
           <HamburgerSelector
             menuOptions={menuOptions}
             user={user}
+            location={location}
           />
         </ul>
       </nav>

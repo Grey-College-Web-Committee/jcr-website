@@ -36,7 +36,6 @@ class EditUserPermissions extends React.Component {
       return 0;
     });
 
-    // React Fragment is used to here to handle the key property
     const rows = this.props.allPermissions.map((item, i) => {
       return (
         <PermissionRow

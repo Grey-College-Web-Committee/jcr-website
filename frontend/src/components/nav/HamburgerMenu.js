@@ -9,7 +9,7 @@ class HamburgerMenu extends React.Component {
     }
 
     return (
-      <div className="w-screen h-screen top-0 left-0 absolute bg-red-900 white block">
+      <div className="w-screen h-screen top-0 left-0 absolute bg-red-900 white block z-10">
         <ul className="flex flex-col text-center justify-center">
           <li className="flex justify-center border-b border-gray-200 pt-4 pb-4">
             <img
@@ -32,6 +32,7 @@ class HamburgerMenu extends React.Component {
               id={i}
               key={i}
               hideWholeMenu={this.props.hideSelf}
+              location={this.props.location}
             /> : null)
           ))}
         </ul>

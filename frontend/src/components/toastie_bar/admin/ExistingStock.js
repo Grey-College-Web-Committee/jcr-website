@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import StockRow from './StockRow';
+import LoadingHolder from '../../common/LoadingHolder';
 
 class ExistingStock extends React.Component {
   render () {
@@ -8,7 +9,7 @@ class ExistingStock extends React.Component {
     // on the render function in ToastieBarStockPage.js
     if(this.props.stock === undefined) {
       return (
-        <p>Loading...</p>
+        <LoadingHolder />
       );
     }
 

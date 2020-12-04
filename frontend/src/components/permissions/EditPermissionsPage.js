@@ -1,6 +1,7 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig';
+import LoadingHolder from '../common/LoadingHolder';
 
 import SelectUser from './SelectUser';
 
@@ -57,9 +58,7 @@ class EditPermissionsPage extends React.Component {
       }
 
       return (
-        <React.Fragment>
-          <h1>Loading...</h1>
-        </React.Fragment>
+        <LoadingHolder />
       );
     }
 

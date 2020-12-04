@@ -39,6 +39,7 @@ class HamburgerSelector extends React.Component {
           hideSelf={() => { this.setShowMenu(false) }}
           items={[...menuOptions]}
           user={this.props.user}
+          location={this.props.location}
         />
       </li>
     )
