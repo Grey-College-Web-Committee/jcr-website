@@ -64,7 +64,8 @@ class AddStock extends React.Component {
                 name="name"
                 onChange={this.onInputChange}
                 value={this.state.name}
-                className="shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className="shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                disabled={this.state.disabled}
               />
             </div>
             <div className="mx-auto w-max pb-4 border-b-2">
@@ -73,7 +74,8 @@ class AddStock extends React.Component {
                 name="type"
                 onChange={this.onInputChange}
                 value={this.state.type}
-                className="shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className="shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                disabled={this.state.disabled}
               >
                 <option value="filling">Filling</option>
                 <option value="bread">Bread</option>
@@ -92,7 +94,8 @@ class AddStock extends React.Component {
                 min="0"
                 max="100"
                 step="0.01"
-                className="shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className="shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                disabled={this.state.disabled}
               />
             </div>
             <div className="mx-auto w-64 pt-4">
@@ -100,7 +103,7 @@ class AddStock extends React.Component {
                 type="submit"
                 value="Create New Item"
                 disabled={this.state.disabled}
-                className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
+                className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               />
             </div>
             <div className="mx-auto pt-4">

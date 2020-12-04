@@ -34,7 +34,7 @@ class PermissionRow extends React.Component {
           <button
             onClick={this.revokePermission}
             disabled={this.state.disabled}
-            className="px-4 py-1 rounded bg-red-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="px-4 py-1 rounded bg-red-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           >Revoke</button>
         </td>
       </tr>
@@ -56,7 +56,7 @@ class PermissionRow extends React.Component {
           <button
             onClick={this.grantPermission}
             disabled={this.state.disabled}
-            className="px-4 py-1 rounded bg-green-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="px-4 py-1 rounded bg-green-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           >Grant</button>
         </td>
       </tr>

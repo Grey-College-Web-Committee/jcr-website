@@ -53,8 +53,9 @@ class LoginForm extends React.Component {
               name="username"
               value={this.state.username}
               onChange={this.onInputChange}
-              className={`shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 ${usernameBorder}`}
+              className={`shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400 ${usernameBorder}`}
               placeholder="Please enter your username..."
+              disabled={this.props.disabled}
             />
           </div>
           <div className="mx-auto w-max pb-4 pt-2 border-b-2">
@@ -64,15 +65,17 @@ class LoginForm extends React.Component {
               name="password"
               value={this.state.password}
               onChange={this.onInputChange}
-              className={`shadow w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 ${passwordBorder}`}
+              className={`shadow w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 ${passwordBorder}`}
               placeholder="Please enter your password..."
+              disabled={this.props.disabled}
             />
           </div>
           <div className="mx-auto w-64 pb-4 pt-4">
             <input
               type="submit"
               value="Login"
-              className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
+              className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              disabled={this.props.disabled}
             />
           </div>
         </fieldset>

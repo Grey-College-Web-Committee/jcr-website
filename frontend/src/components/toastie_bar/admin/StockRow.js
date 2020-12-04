@@ -96,7 +96,7 @@ class StockRow extends React.Component {
             onChange={this.onInputChange}
             disabled={this.state.disabled}
             name="name"
-            className="w-full border border-gray-400 px-2"
+            className="w-full border border-gray-400 px-2 disabled:opacity-50"
           />
         </td>
         <td className="hidden sm:table-cell w-40 p-2 border-r border-gray-400">
@@ -105,7 +105,7 @@ class StockRow extends React.Component {
             onChange={this.onInputChange}
             value={this.state.type}
             disabled={this.state.disabled}
-            className="w-full border shadow border-gray-400"
+            className="w-full border shadow border-gray-400 disabled:opacity-50"
           >
             <option value="filling">Filling</option>
             <option value="bread">Bread</option>
@@ -134,7 +134,7 @@ class StockRow extends React.Component {
             onChange={this.onInputChange}
             checked={this.state.available}
             disabled={this.state.disabled}
-            className="w-full border border-gray-400 px-2 text-center mx-auto"
+            className="w-full border border-gray-400 px-2 text-center mx-auto disabled:opacity-50"
           />
         </td>
         <td className="hidden sm:table-cell w-48 p-2 border-r border-gray-400 text-center">
@@ -144,7 +144,7 @@ class StockRow extends React.Component {
           <button
             onClick={this.saveChanges}
             disabled={this.state.disabled || !this.state.allowSave}
-            className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400  disabled:opacity-25"
+            className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           >Save</button>
         </td>
       </tr>
