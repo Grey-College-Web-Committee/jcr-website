@@ -85,23 +85,27 @@ class StockRow extends React.Component {
   }
 
   render () {
+    const colour = this.props.rowId % 2 === 0 ? "bg-red-100" : "bg-white";
+
     return (
-      <tr>
-        <td>
+      <tr className={`${colour}`}>
+        <td className="w-64 p-2 border-r border-gray-400">
           <input
             type="text"
             value={this.state.name}
             onChange={this.onInputChange}
             disabled={this.state.disabled}
             name="name"
+            className="w-full border border-gray-400 px-2 disabled:opacity-50"
           />
         </td>
-        <td>
+        <td className="hidden sm:table-cell w-40 p-2 border-r border-gray-400">
           <select
             name="type"
             onChange={this.onInputChange}
             value={this.state.type}
             disabled={this.state.disabled}
+            className="w-full border shadow border-gray-400 disabled:opacity-50"
           >
             <option value="filling">Filling</option>
             <option value="bread">Bread</option>
@@ -110,7 +114,7 @@ class StockRow extends React.Component {
             <option value="drinks">Drink</option>
           </select>
         </td>
-        <td>
+        <td className="hidden sm:table-cell w-40 p-2 border-r border-gray-400">
           <input
             type="number"
             name="price"
@@ -120,23 +124,28 @@ class StockRow extends React.Component {
             min="0"
             max="100"
             step="0.01"
+            className="w-full border border-gray-400 pl-2"
           />
         </td>
-        <td>
+        <td className="w-auto sm:w-40 p-2 border-r border-gray-400">
           <input
             type="checkbox"
             name="available"
             onChange={this.onInputChange}
             checked={this.state.available}
             disabled={this.state.disabled}
+            className="w-full border border-gray-400 px-2 text-center mx-auto disabled:opacity-50"
           />
         </td>
-        <td>{dateFormat(this.state.updatedAt, "dd/mm/yyyy HH:MM:ss")}</td>
-        <td>
+        <td className="hidden sm:table-cell w-48 p-2 border-r border-gray-400 text-center">
+          {dateFormat(this.state.updatedAt, "dd/mm/yyyy HH:MM:ss")}
+        </td>
+        <td className="w-auto sm:w-40 p-2 font-semibold border-r border-gray-400">
           <button
             onClick={this.saveChanges}
             disabled={this.state.disabled || !this.state.allowSave}
-          >Save Changes</button>
+            className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+          >Save</button>
         </td>
       </tr>
     )
@@ -144,8 +153,7 @@ class StockRow extends React.Component {
 }
 
 StockRow.propTypes = {
-  item: PropTypes.object.isRequired,
-  key: PropTypes.number
+  item: PropTypes.object.isRequired
 };
 
 export default StockRow;

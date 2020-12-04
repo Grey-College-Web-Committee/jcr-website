@@ -5,7 +5,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import config from './config.json';
 
-import NavigationBar from './components/nav/NavigationBar';
+import NavBar from './components/nav/NavBar';
 
 import LoginPage from './components/accounts/LoginPage';
 import LogoutPage from './components/accounts/LogoutPage';
@@ -17,8 +17,6 @@ import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
-
-import './App.css';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -169,9 +167,9 @@ class App extends React.Component {
       <Elements stripe={stripePromise}>
         <authContext.Provider value={this.state.user}>
           <Router>
-            <div className="App">
-              <NavigationBar />
-              <div className="content">
+            <div>
+              <NavBar />
+              <div>
                 <Switch>
                   <Route exact path="/" render={() => (
                     <HomePage />
@@ -183,7 +181,7 @@ class App extends React.Component {
                   <Route exact path="/toasties/stock" render={() => (
                     this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
-                <Route exact path="/permissions" render={() => (
+                  <Route exact path="/permissions" render={() => (
                     this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
                   <Route exact path="/toasties/" render={() => (

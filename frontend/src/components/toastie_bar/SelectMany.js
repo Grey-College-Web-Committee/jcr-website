@@ -28,7 +28,7 @@ class SelectMany extends React.Component {
 
   render () {
     return (
-      <table className="fillingTable">
+      <table>
         <thead>
           <tr>
             <th>Name</th>

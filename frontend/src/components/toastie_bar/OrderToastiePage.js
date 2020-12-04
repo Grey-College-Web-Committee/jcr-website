@@ -5,6 +5,7 @@ import SelectMany from './SelectMany';
 import CheckoutForm from '../payment/CheckoutForm';
 import authContext from '../../utils/authContext.js';
 import config from '../../config.json';
+import LoadingHolder from '../common/LoadingHolder';
 
 class OrderToastiePage extends React.Component {
   constructor(props) {
@@ -191,7 +192,7 @@ class OrderToastiePage extends React.Component {
     }
 
     return (
-      <table className="fillingTable">
+      <table>
         <thead>
           <tr>
             <th>Item</th><th>Price (£)</th>
@@ -219,7 +220,7 @@ class OrderToastiePage extends React.Component {
     }
 
     return (
-      <table className="fillingTable">
+      <table>
         <thead>
           <tr>
             <th>Item</th><th>Price (£)</th>
@@ -268,9 +269,7 @@ class OrderToastiePage extends React.Component {
     // Still waiting for data from the API
     if(!this.state.loaded) {
       return (
-        <React.Fragment>
-          <h1>Loading...</h1>
-        </React.Fragment>
+        <LoadingHolder />
       );
     }
 
@@ -361,7 +360,6 @@ class OrderToastiePage extends React.Component {
           <button
             onClick={this.placeOrder}
             disabled={this.state.purchaseDisabled}
-            className="largeButton"
           >Place Order</button>
           <br/>
           <br/>
@@ -387,7 +385,7 @@ class OrderToastiePage extends React.Component {
           <h3>Drinks</h3>
           {this.displayOtherItemsOrder("drinks")}
           {this.state.discountApplied ? <p>£0.20 discount applied</p> : null}
-          <div className="paymentContainer">
+          <div>
             <CheckoutForm
               clientSecret={this.state.clientSecret}
               onSuccess={this.onPaymentSuccess}

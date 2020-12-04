@@ -36,15 +36,14 @@ class EditUserPermissions extends React.Component {
       return 0;
     });
 
-    // React Fragment is used to here to handle the key property
     const rows = this.props.allPermissions.map((item, i) => {
       return (
-        <React.Fragment key={this.state.lastRandom + i}>
-          <PermissionRow
-            user={this.props.user}
-            permissionInformation={item}
-          />
-        </React.Fragment>
+        <PermissionRow
+          key={this.state.lastRandom + i}
+          rowId={i}
+          user={this.props.user}
+          permissionInformation={item}
+        />
       );
     });
 
@@ -57,15 +56,15 @@ class EditUserPermissions extends React.Component {
 
   render () {
     return (
-      <table className="stockTable">
-        <thead>
+      <table className="mx-auto border-2 text-left border-red-900">
+        <thead className="bg-red-900 text-white">
           <tr>
-            <th>Permission</th>
-            <th>Description</th>
-            <th>Granted</th>
-            <th>Granted By</th>
-            <th>Granted At</th>
-            <th>Grant/Revoke</th>
+            <th className="p-2 font-semibold">Permission</th>
+            <th className="p-2 font-semibold hidden sm:table-cell">Description</th>
+            <th className="p-2 font-semibold">Granted</th>
+            <th className="p-2 font-semibold">Granted By</th>
+            <th className="p-2 font-semibold hidden sm:table-cell">Granted At</th>
+            <th className="p-2 font-semibold">Grant/Revoke</th>
           </tr>
         </thead>
         { this.renderPermissionRows() }
