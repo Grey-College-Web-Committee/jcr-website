@@ -47,4 +47,12 @@ class DropdownElement extends React.Component {
   }
 }
 
+DropdownElement.propTypes = {
+  user: PropTypes.object,
+  alwaysDisplayed: PropTypes.bool,
+  displayName: PropTypes.string,
+  requiredPermission: PropTypes.string,
+  url: PropTypes.string
+}
+
 export default DropdownElement;

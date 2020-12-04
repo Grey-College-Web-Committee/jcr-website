@@ -22,4 +22,10 @@ class DropdownMenu extends React.Component {
   }
 }
 
+DropdownMenu.propTypes = {
+  items: PropTypes.array.isRequired,
+  active: PropTypes.bool.isRequired,
+  user: PropTypes.object
+}
+
 export default DropdownMenu;

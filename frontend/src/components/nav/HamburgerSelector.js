@@ -46,4 +46,10 @@ class HamburgerSelector extends React.Component {
   }
 }
 
+HamburgerSelector.propTypes = {
+  menuOptions: PropTypes.array.isRequired,
+  user: PropTypes.object,
+  location: PropTypes.string.isRequired
+}
+
 export default HamburgerSelector;

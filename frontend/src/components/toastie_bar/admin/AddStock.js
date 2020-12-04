@@ -58,7 +58,7 @@ class AddStock extends React.Component {
         <form onSubmit={this.createNewItem}>
           <fieldset>
             <div className="mx-auto w-max pb-4 border-b-2">
-              <label for="name" className="flex flex-row justify-start pb-2 text-lg font-semibold">Name</label>
+              <label htmlFor="name" className="flex flex-row justify-start pb-2 text-lg font-semibold">Name</label>
               <input
                 type="text"
                 name="name"
@@ -69,7 +69,7 @@ class AddStock extends React.Component {
               />
             </div>
             <div className="mx-auto w-max pb-4 border-b-2">
-              <label for="type" className="flex flex-row justify-start pb-2 text-lg font-semibold">Type</label>
+              <label htmlFor="type" className="flex flex-row justify-start pb-2 text-lg font-semibold">Type</label>
               <select
                 name="type"
                 onChange={this.onInputChange}
@@ -85,7 +85,7 @@ class AddStock extends React.Component {
               </select>
             </div>
             <div className="mx-auto w-max pb-4 border-b-2">
-              <label for="price" className="flex flex-row justify-start pb-2 text-lg font-semibold">Price (£)</label>
+              <label htmlFor="price" className="flex flex-row justify-start pb-2 text-lg font-semibold">Price (£)</label>
               <input
                 type="number"
                 name="price"

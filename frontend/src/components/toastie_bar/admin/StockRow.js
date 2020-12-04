@@ -153,8 +153,7 @@ class StockRow extends React.Component {
 }
 
 StockRow.propTypes = {
-  item: PropTypes.object.isRequired,
-  key: PropTypes.number
+  item: PropTypes.object.isRequired
 };
 
 export default StockRow;

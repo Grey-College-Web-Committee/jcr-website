@@ -41,4 +41,12 @@ class HamburgerMenu extends React.Component {
   }
 }
 
+HamburgerMenu.propTypes = {
+  active: PropTypes.bool.isRequired,
+  hideSelf: PropTypes.func.isRequired,
+  items: PropTypes.array.isRequired,
+  user: PropTypes.object,
+  location: PropTypes.string.isRequired
+}
+
 export default HamburgerMenu;

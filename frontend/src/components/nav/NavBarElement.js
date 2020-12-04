@@ -49,6 +49,7 @@ class NavBarElement extends React.Component {
               onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
             >
               <img
+                alt="Placeholder Alt Text"
                 {...staticImage}
               />
             </li>
@@ -74,6 +75,7 @@ class NavBarElement extends React.Component {
                 onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
               >
                   <img
+                    alt="Placeholder Alt Text"
                     {...staticImage}
                   />
               </li>
@@ -120,9 +122,21 @@ class NavBarElement extends React.Component {
         </li>
       );
     }
-
-    return null;
   }
+}
+
+NavBarElement.propTypes = {
+  id: PropTypes.number.isRequired,
+  user: PropTypes.object,
+  location: PropTypes.string.isRequired,
+  activeDropdownKey: PropTypes.number.isRequired,
+  changeActiveDropdownKey: PropTypes.func.isRequired,
+  alwaysDisplayed: PropTypes.bool,
+  displayName: PropTypes.string,
+  dropdown: PropTypes.array,
+  requiredPermission: PropTypes.string,
+  staticImage: PropTypes.object,
+  url: PropTypes.string
 }
 
 export default NavBarElement;

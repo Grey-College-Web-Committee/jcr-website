@@ -20,7 +20,7 @@ class HamburgerMenuElement extends React.Component {
   }
 
   render () {
-    const { displayName, url, requiredPermission, staticImage, dropdown, alwaysDisplayed, id, user } = this.props;
+    const { displayName, url, requiredPermission, staticImage, dropdown, user } = this.props;
     const classes = `${this.getClasses(url)}`;
 
     if(requiredPermission !== null) {
@@ -57,6 +57,7 @@ class HamburgerMenuElement extends React.Component {
               className={classes}
             >
               <img
+                alt="Placeholder Alt Text"
                 {...staticImage}
               />
             </li>
@@ -80,6 +81,7 @@ class HamburgerMenuElement extends React.Component {
                 className={classes}
               >
                   <img
+                    alt="Placeholder Alt Text"
                     {...staticImage}
                   />
               </li>
@@ -135,9 +137,20 @@ class HamburgerMenuElement extends React.Component {
         </li>
       );
     }
-
-    return null;
   }
+}
+
+HamburgerMenuElement.propTypes = {
+  user: PropTypes.object,
+  id: PropTypes.number.isRequired,
+  hideWholeMenu: PropTypes.func.isRequired,
+  location: PropTypes.string.isRequired,
+  alwaysDisplayed: PropTypes.bool,
+  displayName: PropTypes.string,
+  dropdown: PropTypes.array,
+  requiredPermission: PropTypes.string,
+  staticImage: PropTypes.object,
+  url: PropTypes.string
 }
 
 export default HamburgerMenuElement;

@@ -47,7 +47,7 @@ class LoginForm extends React.Component {
       <form onSubmit={this.onFormSubmission}>
         <fieldset>
           <div className="mx-auto w-max pb-4 border-b-2">
-            <label for="username" className="flex flex-row justify-start pb-2 text-lg font-semibold">Durham Username</label>
+            <label htmlFor="username" className="flex flex-row justify-start pb-2 text-lg font-semibold">Durham Username</label>
             <input
               type="text"
               name="username"
@@ -56,10 +56,11 @@ class LoginForm extends React.Component {
               className={`shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400 ${usernameBorder}`}
               placeholder="Please enter your username..."
               disabled={this.props.disabled}
+              autoComplete="username"
             />
           </div>
           <div className="mx-auto w-max pb-4 pt-2 border-b-2">
-            <label for="password" className="flex flex-row justify-start pb-2 text-lg font-semibold">Durham Password</label>
+            <label htmlFor="password" className="flex flex-row justify-start pb-2 text-lg font-semibold">Durham Password</label>
             <input
               type="password"
               name="password"
@@ -68,6 +69,7 @@ class LoginForm extends React.Component {
               className={`shadow w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 ${passwordBorder}`}
               placeholder="Please enter your password..."
               disabled={this.props.disabled}
+              autoComplete="current-password"
             />
           </div>
           <div className="mx-auto w-64 pb-4 pt-4">

@@ -13,6 +13,7 @@ class NavBar extends React.Component {
       activeDropdownKey: -1
     };
   }
+  
   getMenuOptions = (user) => {
     let baseOptions = [
       {
