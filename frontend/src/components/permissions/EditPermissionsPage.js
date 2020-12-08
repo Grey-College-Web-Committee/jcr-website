@@ -69,7 +69,7 @@ class EditPermissionsPage extends React.Component {
           <SelectUser />
         </div>
       </div>
-    )
+    );
   }
 }
 
