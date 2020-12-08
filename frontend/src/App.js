@@ -11,11 +11,14 @@ import LoginPage from './components/accounts/LoginPage';
 import LogoutPage from './components/accounts/LogoutPage';
 import ErrorPage from './components/errors/ErrorPage';
 import HomePage from './components/home/HomePage';
+import OrderStashPage from './components/stash/OrderStashPage';
 import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 
 // To add a new page import it like above
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
+import StashStockPage from './components/stash/admin/StashStockPage';
+import StashImagesPage from './components/stash/admin/ImagesPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
@@ -181,11 +184,20 @@ class App extends React.Component {
                   <Route exact path="/toasties/stock" render={() => (
                     this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
+                  <Route exact path="/stash/stock" render={() => (
+                    this.hasPermission("stash.stock.edit") ? ( <StashStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                  )} />
+                  <Route exact path="/stash/images" render={() => (
+                    this.hasPermission("stash.stock.edit") ? ( <StashImagesPage /> ) : ( <Redirect to="/errors/403" /> )
+                  )} />
                   <Route exact path="/permissions" render={() => (
                     this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
                   <Route exact path="/toasties/" render={() => (
                     this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/stash/" render={() => (
+                    this.isLoggedIn() ? ( <OrderStashPage /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/errors/:code" render={(props) => (
                     <ErrorPage {...props} />

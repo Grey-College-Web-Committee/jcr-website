@@ -64,6 +64,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Order Stash",
+          url: "/stash",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false
+        },
+        {
           displayName: `${user.username}`,
           url: null,
           requiredPermission: null,
@@ -92,6 +100,11 @@ class NavBar extends React.Component {
               displayName: "Edit Toastie Stock",
               url: "/toasties/stock",
               requiredPermission: "toastie.stock.edit"
+            },
+            {
+              displayName: "Edit Available Stash",
+              url: "/stash/stock",
+              requiredPermission: "stash.stock.edit"
             }
           ],
           alwaysDisplayed: false
