@@ -82,30 +82,7 @@ class StashImagesPage extends React.Component {
       );
     }
 
-    return (/*
-      <div className="flex flex-col justify-start">
-        <h1>Stash Images - Admin</h1>
-        <h2>Manage Existing Item Images</h2>
-        <table className="stockTable">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Current Image</th>
-              <th></th>
-              <th>Last Updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            {this.state.stock.map((item, index) => (
-              <React.Fragment key={index}>
-                <ImageRow
-                  item={item}
-                />
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>*/
+    return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Stash Images - Admin</h1>

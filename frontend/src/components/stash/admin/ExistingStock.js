@@ -26,11 +26,11 @@ class ExistingStock extends React.Component {
     { 
       return (
         <React.Fragment>
-          <th className="p-2 font-semibold hidden sm:table-cell">Customisation Description</th>
-          <th className="p-2 font-semibold hidden sm:table-cell">Customisation Cost</th>
+          <th className="p-2 font-semibold hidden lg:table-cell">Customisation Description</th>
+          <th className="p-2 font-semibold hidden lg:table-cell">Customisation Cost</th>
           <th className="p-2 font-semibold hidden sm:table-cell">Sizes Available</th>
           <th className="p-2 font-semibold hidden sm:table-cell">Colours</th>
-          <th className="p-2 font-semibold hidden sm:table-cell">Last Updated</th>
+          <th className="p-2 font-semibold hidden lg:table-cell">Last Updated</th>
         </React.Fragment>
       ) 
     }
@@ -55,22 +55,29 @@ class ExistingStock extends React.Component {
             onClick={this.onInputChange}
           >Switch to {this.buttonText()}
         </button>
-        <table className="mx-auto border-2 text-left border-red-900">
+        <table className="mx-auto border-2 content-evenly text-left border-red-900">
           <thead className="bg-red-900 text-white">
             <tr>
               <th className="p-2 font-semibold">Name</th>
               <th className="p-2 font-semibold">Price (£)</th>
               <th className="p-2 font-semibold hidden sm:table-cell">Type</th>
-              <th className="p-2 font-semibold hidden sm:table-cell">Customisable?</th>
               {this.getFields()}
               <th className="p-2 font-semibold">Available</th>
               <th className="p-2 font-semibold">Save</th>
+              <th className="p-2 font-semibold hidden lg:table-cell">Delete</th>
             </tr>
           </thead>
           <tbody>
             {this.props.stock.map((item, index) => (
               <StockRow
-                key={index} item={item} simpleView={this.state.simpleView} colours={this.props.colours} selectedColours={this.props.selectedColours} updateItemColours={this.props.updateItemColours} sizesAvailable={this.props.sizes[item.sizeChartId-1]}
+                 item={item} 
+                simpleView={this.state.simpleView} 
+                colours={this.props.colours} 
+                selectedColours={this.props.selectedColours} 
+                updateItemColours={this.props.updateItemColours} 
+                updateAll={this.props.updateAll}
+                sizesAvailable={this.props.sizes[item.sizeChartId-1]}
+                key={index}
               />
             ))}
           </tbody>
@@ -85,6 +92,7 @@ ExistingStock.propTypes = {
   selectedColours: PropTypes.object.isRequired,
   colours: PropTypes.array.isRequired,
   updateItemColours: PropTypes.func.isRequired,
+  updateAll: PropTypes.func.isRequired,
   sizes: PropTypes.array.isRequired
 };
 

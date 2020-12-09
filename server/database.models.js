@@ -18,6 +18,7 @@ class GymMembership extends Model {}
 class StashColours extends Model {}
 class StashSizeChart extends Model {}
 class StashStock extends Model {}
+class StashCustomisations extends Model {}
 class StashItemColours extends Model {}
 class StashStockImages extends Model {}
 class StashOrder extends Model {}
@@ -125,9 +126,17 @@ StashSizeChart.init({
 }, { sequelize });
 
 StashStock.init({
+  manufacturerCode: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
   name: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: true
   },
   available: {
     type: DataTypes.BOOLEAN,
@@ -137,19 +146,10 @@ StashStock.init({
     type: DataTypes.STRING,
     allowNull: false
   },
-  customisationAvailable: {
-    type: DataTypes.BOOLEAN,
+  customisationsAvailable: {
+    type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: false
-  },
-  cusotmisationDescription: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  addedPriceForCusotmisation: {
-    type: DataTypes.DECIMAL(6, 2),
-    allowNull: true,
-    defaultValue: 0.00
   },
   price: {
     type: DataTypes.DECIMAL(6, 2),
@@ -164,6 +164,30 @@ StashStock.init({
     }
   }
 }, { sequelize, freezeTableName: true });
+
+StashCustomisations.init({
+  name:{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  productId:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: StashStock,
+      key: 'id'
+    }
+  },
+  customisationDescription: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  addedPriceForCustomisation: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: true,
+    defaultValue: 0.00
+  }
+}, { sequelize });
 
 StashItemColours.init({
   productId:{
@@ -352,6 +376,9 @@ StashItemColours.belongsTo(StashColours, { foreignKey: 'colourId' });
 StashStock.hasMany(StashItemColours, { foreignKey: 'productId' });
 StashItemColours.belongsTo(StashStock, { foreignKey: 'productId' });
 
+StashStock.hasMany(StashCustomisations, { foreignKey: 'productId' });
+StashCustomisations.belongsTo(StashStock, { foreignKey: 'productId' });
+
 StashStock.hasMany(StashStockImages, { foreignKey: 'productId' });
 StashStockImages.belongsTo(StashStock, { foreignKey: 'productId' });
 
@@ -370,4 +397,4 @@ PermissionLink.belongsTo(Permission, { foreignKey: 'permissionId' });
 PermissionLink.belongsTo(User, { as: "grantedTo", foreignKey: "grantedToId" });
 PermissionLink.belongsTo(User, { as: "grantedBy", foreignKey: "grantedById" });
 
-module.exports = { User, GymMembership, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashOrder, StashStock, StashOrderContent, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink };
+module.exports = { User, GymMembership, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashOrder, StashStock, StashOrderContent, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink };

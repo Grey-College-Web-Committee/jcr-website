@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const fileUpload = require('express-fileupload');
 // The database models
-const { User, GymMembership, StashOrder, StashStock, StashOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages } = require("../database.models.js");
+const { User, GymMembership, StashOrder, StashStock, StashOrderContent, StashColours, StashSizeChart, StashItemColours, StashCustomisations, StashStockImages } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
 
@@ -283,7 +283,7 @@ router.get("/image/:name/:itemId", async (req, res) => {
 
 router.get("/allImageNames/:itemId", async (req, res) => {
 
-  // Gets the single image stored for each stash item
+  // Gets all images stored for each stash item
   const id = req.params.itemId;
 
   if(id === null) {
@@ -295,6 +295,22 @@ router.get("/allImageNames/:itemId", async (req, res) => {
     return res.status(200).json({ message: "No images were found for specified ID", images: [] })
   }
   return res.status(200).json({ message: "Ok", images:images });
+});
+
+router.get("/allCustomisations/:itemId", async (req, res) => {
+
+  // Gets all customisations stored for each stash item
+  const id = req.params.itemId;
+
+  if(id === null) {
+    return res.status(400).json({ error: "Invalid ID" });
+  }
+
+  const customisations = await StashCustomisations.findAll({ where: { productId:id } });
+  if (customisations.length===0){
+    return res.status(200).json({ message: "No images were found for specified ID", customisations: [] })
+  }
+  return res.status(200).json({ message: "Ok", customisations:customisations });
 });
 
 router.get("/stockColours/:id", async (req, res) => {
@@ -314,6 +330,20 @@ router.get("/stockColours/:id", async (req, res) => {
   }
 
   return res.status(200).json({ colourItem });
+});
+
+router.get("/customisations/:id/:des", async (req, res) => {
+
+  // Gets a single customisation by its related productId and its description
+  const id = req.params.id;
+  const des = req.params.des;
+  const customisation = await StashCustomisations.findOne({ where: { productId: id, customisationDescription: des } });
+
+  if(customisation === null) {
+    return res.status(400).json({ error: "Could not find customisation option" });
+  }
+
+  return res.status(200).json({ customisation });
 });
 
 router.get("/idOfStockItem/:name/:type/:price", async (req, res) => {
@@ -337,6 +367,41 @@ router.get("/idOfStockItem/:name/:type/:price", async (req, res) => {
   }
   const idOfItem = newlyCreatedItem.id.toString();
   return res.status(200).json({ idOfItem: idOfItem });
+});
+
+// Add a new customisation option for a stash item
+router.post("/customisation/:id", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.stock.edit")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Validate the details briefly
+  const {customisationDescription, addedPriceForCustomisation } = req.body;
+  const productId = req.params.id;
+
+  if(productId == null) {
+    return res.status(400).json({ error: "Missing productId" });
+  }
+
+  if(customisationDescription == null) {
+    return res.status(400).json({ error: "Missing description of customisation option" });
+  }
+
+  if(addedPriceForCustomisation == null) {
+    return res.status(400).json({ error: "Missing added price" });
+  }
+
+  // Create the new colour
+  try {
+    await StashCustomisations.create({ name: "new", productId, customisationDescription, addedPriceForCustomisation });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error creating new colour"+error.toString() });
+  }
+
+  return res.status(204).end();
 });
 
 // Add a new colour name for stash
@@ -383,7 +448,7 @@ router.post("/stock", async (req, res) => {
   }
 
   // Validate the details briefly
-  const { name, available, type, customisationAvailable, cusotmisationDescription, addedPriceForCusotmisation, price, XS, S, M, L, XL, XXL } = req.body;
+  const { name, manufacturerCode, description, available, type, customisationsAvailable, price, XS, S, M, L, XL, XXL } = req.body;
 
   if(name == null) {
     return res.status(400).json({ error: "Missing name" });
@@ -420,11 +485,11 @@ router.post("/stock", async (req, res) => {
 
   // Create the new item
   try {
-    await StashStock.create({ name, available, type, customisationAvailable, cusotmisationDescription, addedPriceForCusotmisation, price, sizeChartId });
+    await StashStock.create({ manufacturerCode, name, description, available, type, customisationsAvailable, price, sizeChartId });
   } catch (error) {
     return res.status(500).json({ error: "Server error creating new item" });
   }
-  const newItem = await StashStock.findOne({ where: { name, available, type, customisationAvailable, cusotmisationDescription, addedPriceForCusotmisation, price, sizeChartId } });
+  const newItem = await StashStock.findOne({ where: { manufacturerCode, name, description, available, type, customisationsAvailable, price, sizeChartId } });
   return res.status(200).json({ productId: newItem.id }).end();
 });
 
@@ -508,6 +573,48 @@ router.post("/upload/:id", async (req, res) => {
   catch (err) {
     return res.status(500).json({error: err});
   }
+});
+
+// Update a customisation option for an item in the stock
+router.put("/customisation/:productId/:id", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.stock.edit")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Find the item they want to update
+
+  const productId = req.params.productId;
+  const customisationId = req.params.id;
+  const stockItem = await StashCustomisations.findOne({ where: { productId: productId, id:customisationId }});
+
+  if(stockItem === null) {
+    return res.status(400).json({ error: "No matching customisation found" });
+  }
+
+  // Construct the changes to the record
+
+  let updatedRecord = { id: customisationId, productId: productId };
+
+  if(req.body.customisationDescription !== undefined && req.body.customisationDescription !== null) {
+    updatedRecord.customisationDescription = req.body.customisationDescription;
+  }
+
+  if(req.body.addedPriceForCustomisation !== undefined && req.body.addedPriceForCustomisation !== null) {
+    updatedRecord.addedPriceForCustomisation = req.body.addedPriceForCustomisation;
+  }
+
+  // Let sequelize update the record;
+
+  try {
+    await StashCustomisations.update(updatedRecord, {where: {id: req.params.id}});
+  } catch (error) {
+    return res.status(500).json({ error: "Server error: Unable to update the item" });
+  }
+
+  return res.status(204).end();
 });
 
 // Update an available colour
@@ -597,16 +704,16 @@ router.put("/stock/:id", async (req, res) => {
     updatedRecord.available = req.body.available;
   }
 
-  if(req.body.customisationAvailable !== undefined && req.body.customisationAvailable !== null) {
-    updatedRecord.customisationAvailable = req.body.customisationAvailable;
+  if(req.body.customisationsAvailable !== undefined && req.body.customisationsAvailable !== null) {
+    updatedRecord.customisationsAvailable = req.body.customisationsAvailable;
   }
 
-  if(req.body.cusotmisationDescription !== undefined && req.body.cusotmisationDescription !== null) {
-    updatedRecord.cusotmisationDescription = req.body.cusotmisationDescription;
+  if(req.body.description !== undefined && req.body.description !== null) {
+    updatedRecord.description = req.body.description;
   }
 
-  if(req.body.addedPriceForCusotmisation !== undefined && req.body.addedPriceForCusotmisation !== null) {
-    updatedRecord.addedPriceForCusotmisation = req.body.addedPriceForCusotmisation;
+  if(req.body.manufacturerCode !== undefined && req.body.manufacturerCode !== null) {
+    updatedRecord.manufacturerCode = req.body.manufacturerCode;
   }
   const { XS, S, M, L, XL, XXL } = req.body;
   if (!(XS==null)&&!(S==null)&&!(M==null)&&!(L==null)&&!(XL==null)&&!(XXL==null)){ // If we've been provided values for size
@@ -668,6 +775,39 @@ router.delete("/image/:imageName/:productId", async (req, res) => {
   return res.status(204).end(); 
 });
 
+// Delete a customisation option. 
+router.delete("/customisation/:custdesc/:productId", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.stock.edit")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Validate the details briefly
+  const customisationDescription = req.params.custdesc;
+  const productId = req.params.productId;
+
+  if(customisationDescription == null) {
+    return res.status(400).json({ error: "Missing customisation description", receivedRequest:req });
+  }
+  if(productId == null) {
+    return res.status(400).json({ error: "Missing productId", receivedRequest:req });
+  }
+
+  const customisationRecord = await StashCustomisations.findOne({ where: { customisationDescription:customisationDescription, productId:productId } });
+
+  if(customisationRecord === null) {
+    return res.status(500).json({ error: "Entry not in table" });
+  }
+  try {
+    await StashCustomisations.destroy({ where: { id:customisationRecord.id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error deleting customisation", messg:error.toString() });
+  }
+
+  return res.status(204).end(); 
+});
 
 // Delete a colour option for a particular item. 
 router.delete("/itemColour/:productId:colourId", async (req, res) => {
@@ -699,6 +839,37 @@ router.delete("/itemColour/:productId:colourId", async (req, res) => {
     await StashItemColours.destroy({ where: { id:id } });
   } catch (error) {
     return res.status(500).json({ error: "Server error creating new colour option for item", messg:error.toString() });
+  }
+
+  return res.status(204).end(); 
+});
+
+// Delete an item. 
+router.delete("/stock/:productId", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.stock.edit")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Validate the details briefly
+  const productId = req.params.productId;
+
+  if(productId == null) {
+    return res.status(400).json({ error: "Missing productId", receivedRequest:req });
+  }
+
+  const item = await StashStock.findOne({ where: { id:productId } });
+
+  if(item === null) {
+    return res.status(200).json({ error: "Entry not in table" });
+  }
+  const id = item.id;
+  try {
+    await StashStock.destroy({ where: { id:id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error deleting item", messg:error.toString() });
   }
 
   return res.status(204).end(); 

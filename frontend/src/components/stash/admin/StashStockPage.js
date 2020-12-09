@@ -188,13 +188,16 @@ class StashStockPage extends React.Component {
           <h1 className="font-semibold text-5xl pb-4">Available Stash - Admin</h1>
           <div className="border-b-2 border-t-2 py-4">
             <h2 className="font-semibold text-3xl pb-4">Manage Existing Items</h2>
-            <span className="block sm:hidden pb-4">Your screen is too small to display all columns</span>
-            <ExistingStock selectedColours={this.state.selectedColours} colours={this.state.colours} updateItemColours={this.getItemColours} stock={this.state.stock} sizes={this.state.sizes} />
-            <p>You can view and change the uploaded images for each item on the <Link to="/stash/images">Images Page</Link>.</p>
+            <span className="block lg:hidden pb-4">Your screen is too small to display all columns</span>
+            <ExistingStock selectedColours={this.state.selectedColours} colours={this.state.colours} updateItemColours={this.getItemColours} updateAll={this.updateAll} stock={this.state.stock} sizes={this.state.sizes} />
+            <p>You can view and change the uploaded images for each item on the <Link className="font-semibold text-red-900" to="/stash/images">Images Page</Link>.</p>
           </div>
           <div className="border-b-2 py-4">
-            <h2 className="font-semibold text-3xl pb-4">Add New Items</h2>
-            <AddStock updateStockListing={this.updateStockListing} colours={this.state.colours} selectedColours={this.state.selectedColours} />
+            <h2 className="font-semibold text-3xl pb-4">Add New Item</h2>
+            <AddStock 
+              updateStockListing={this.updateStockListing} 
+              colours={this.state.colours} 
+              selectedColours={this.state.selectedColours} />
           </div>
           <div className="border-b-2 py-4">
             <h2 className="font-semibold text-3xl pb-4">Manage Available Colours</h2>
