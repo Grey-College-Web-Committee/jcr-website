@@ -127,13 +127,13 @@ class AddColourRow extends React.Component {
         <td className="p-2 border-r border-gray-400">
           {this.twoToneTrue()}
         </td>
-        <td colSpan="2" className="w-auto p-2 font-semibold border-r border-gray-400">
+        <td colSpan="2" className="w-20 p-2 font-semibold border-r border-gray-400">
           <input
             type="submit"
             onClick={this.createNewItem}
             value="Create New"
             disabled={this.state.disabled}
-            className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+            className="px-1 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           />
         </td>
       </tr>

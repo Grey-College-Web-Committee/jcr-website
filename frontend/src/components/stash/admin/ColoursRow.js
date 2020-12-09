@@ -168,7 +168,7 @@ class ColoursRow extends React.Component {
           <button
             onClick={this.saveChanges}
             disabled={this.state.disabled || !this.state.allowSave}
-            className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+            className="px-1 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           >Save Changes</button>
         </td>
       </tr>

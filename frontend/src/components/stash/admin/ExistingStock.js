@@ -28,9 +28,8 @@ class ExistingStock extends React.Component {
         <React.Fragment>
           <th className="p-2 font-semibold hidden lg:table-cell">Customisation Description</th>
           <th className="p-2 font-semibold hidden lg:table-cell">Customisation Cost</th>
-          <th className="p-2 font-semibold hidden sm:table-cell">Sizes Available</th>
-          <th className="p-2 font-semibold hidden sm:table-cell">Colours</th>
-          <th className="p-2 font-semibold hidden lg:table-cell">Last Updated</th>
+          <th className="p-2 font-semibold hidden sm:table-cell">Options Available</th>
+          <th className="hidden sm:table-cell p-2 font-semibold hidden lg:table-cell">Last Updated</th>
         </React.Fragment>
       ) 
     }
@@ -59,12 +58,12 @@ class ExistingStock extends React.Component {
           <thead className="bg-red-900 text-white">
             <tr>
               <th className="p-2 font-semibold">Name</th>
+              <th className="p-2 font-semibold hidden md:table-cell">Description</th>
               <th className="p-2 font-semibold">Price (£)</th>
               <th className="p-2 font-semibold hidden sm:table-cell">Type</th>
               {this.getFields()}
               <th className="p-2 font-semibold">Available</th>
-              <th className="p-2 font-semibold">Save</th>
-              <th className="p-2 font-semibold hidden lg:table-cell">Delete</th>
+              <th className="p-2 font-semibold">Save Changes / Delete</th>
             </tr>
           </thead>
           <tbody>

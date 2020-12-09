@@ -343,7 +343,7 @@ class StockRow extends React.Component {
           <td className="hidden w-36 lg:table-cell p-1 border-r border-gray-400">
             {this.showCustomisation("addedPriceForCustomisation")}
           </td>
-          <td className="hidden sm:table-cell p-2 border-r border-gray-400">
+          <td className="hidden sm:table-cell p-1 border-r border-gray-400">
             <table className="text-center focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50">
               <thead><tr><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th></tr></thead>
               <tbody>
@@ -357,35 +357,50 @@ class StockRow extends React.Component {
                 </tr>
               </tbody>
             </table>
-          </td>
-          <td className="hidden sm:table-cell w-32 p-2 border-r border-gray-400">
             <button
               onClick={this.editColours}
               disabled={this.state.disabled}
               className="px-1 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             >{this.selectColourstext()}</button>
           </td>
-          <td className="hidden lg:table-cell w-48 p-2 border-r border-gray-400 text-center">{dateFormat(this.state.updatedAt, "dd/mm/yyyy HH:MM:ss")}</td>
+          <td className="hidden lg:table-cell w-20 p-1 border-r border-gray-400 text-center">{dateFormat(this.state.updatedAt, "dd/mm/yyyy HH:MM:ss")}</td>
         </React.Fragment>
       )
     }
   }
 
   render () {
-    const colour = this.props.rowId % 2 === 0 ? "bg-red-100" : "bg-white";
     return (
-      <tr className={`${colour}`}>
-        <td className="w-64 p-2 border-r border-gray-400">
+      <tr className="border-b border-red-900">
+        <td className="w-auto p-1 border-r border-gray-400">
           <input
             type="text"
             value={this.state.name}
             onChange={this.onInputChange}
             disabled={this.state.disabled}
             name="name"
-            className="w-full border border-gray-400 px-2 disabled:opacity-50"
+            className="w-full border border-gray-400 px-1 my-1 disabled:opacity-50"
+          />
+          <input
+            type="text"
+            value={this.state.manufacturerCode}
+            onChange={this.onInputChange}
+            disabled={this.state.disabled}
+            name="manufacturerCode"
+            className="w-20 border border-gray-400 px-1 my-1 disabled:opacity-50"
           />
         </td>
-        <td className="w-64 p-2 border-r border-gray-400">
+        <td className="hidden md:table-cell w-auto p-1 border-r border-gray-400">
+          <input
+            type="text"
+            value={this.state.description}
+            onChange={this.onInputChange}
+            disabled={this.state.disabled}
+            name="description"
+            className="w-full h-16 border border-gray-400 px-1 my-1 disabled:opacity-50"
+          />
+        </td>
+        <td className="w-20 p-1 border-r border-gray-400">
           <input
             type="number"
             name="price"
@@ -395,10 +410,10 @@ class StockRow extends React.Component {
             min="0"
             max="100"
             step="0.01"
-            className="w-full border border-gray-400 pl-2"
+            className="w-full border border-gray-400 pl-1"
           />
         </td>
-        <td className="hidden sm:table-cell w-40 p-2 border-r border-gray-400">
+        <td className="hidden sm:table-cell w-auto p-1 border-r border-gray-400">
           <select
             name="type"
             onChange={this.onInputChange}
@@ -416,7 +431,7 @@ class StockRow extends React.Component {
           </select>
         </td>
         {this.getAllFields()}
-        <td className="p-2 border-r border-gray-400">
+        <td className="p-1 border-r border-gray-400">
           <input
             type="checkbox"
             name="available"
@@ -426,18 +441,16 @@ class StockRow extends React.Component {
             className="w-full border border-gray-400 px-2 text-center mx-auto disabled:opacity-50"
           />
         </td>
-        <td className="p-2 border-r border-gray-400">
+        <td className="p-1 border-r border-gray-400">
           <button
             onClick={this.saveChanges}
             disabled={this.state.disabled || !this.state.allowSave}
             className="px-1 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           >Save Changes</button>
-        </td>
-        <td className="hidden lg:table-cell p-2 border-r border-gray-400">
           <button
             onClick={this.deleteItem}
             disabled={this.state.disabled}
-            className="px-1 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+            className="my-1 px-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           >Delete Item</button>
         </td>
       </tr>
