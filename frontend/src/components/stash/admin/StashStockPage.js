@@ -1,5 +1,4 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import ExistingStock from './ExistingStock';
@@ -133,9 +132,9 @@ class StashStockPage extends React.Component {
     for (var i=0; i<itemColours.length; i++){
       colourIdArray.push(itemColours[i].colourId);
     };
-    let newObject = new Object();
+    let newObject = {};
     let length = this.state.colours.length;
-    for (var i=0; i<length; i++){
+    for (i=0; i<length; i++){
       const colourId = this.state.colours[i].id;
       const index = colourIdArray.indexOf(colourId);
       if (index > -1) { newObject[colourId]= true; }
@@ -147,7 +146,7 @@ class StashStockPage extends React.Component {
   };
 
   createItemColoursSelection = async() =>{
-    let newObject = new Object();
+    let newObject = {};
     let length = this.state.colours.length;
     for (var i=0; i<length; i++){
       const colourId = this.state.colours[i].id;
@@ -157,7 +156,7 @@ class StashStockPage extends React.Component {
   }
 
   itemColourChanged(colourId){
-    let newObject = new Object();
+    let newObject = {};
     newObject = this.state.selectedColours;
 
     if (this.state.selectedColours[colourId]){

@@ -71,7 +71,7 @@ class ImageRow extends React.Component {
 	  <td className="w-auto p-1">
         <button
 		  value={i}
-          onClick={this.onRemove}
+          onClick={(e) => (window.confirm('Are you sure you wish to delete this item?')) ? this.onRemove(e) : console.log("cancel")}
           disabled={this.state.disabled}
           className="px-2 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
         >Remove</button>
@@ -171,9 +171,8 @@ class ImageRow extends React.Component {
   }
 
   render () {
-	const colour = this.props.item.id % 2 === 0 ? "bg-red-100" : "bg-white";
 	return (
-	  <tr className={`${colour}`}>
+	  <tr>
 		<td className="sm:w-40 p-2 border-r text-center border-gray-400">
 		  <span disabled={this.state.disabled} className="w-full px-2 text-center font-semibold disabled:opacity-50">{this.state.name}</span>
 		</td>
@@ -183,10 +182,10 @@ class ImageRow extends React.Component {
 		  </table>
 		  
 		</td>
-		<td className="shadow w-40 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">
+		<td className="shadow w-40 border roundedp-1 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">
 		
 		  <ImageUploader
-			fileContainerStyle={{padding: 0+"px", margin: 0+"px", maxWidth: "440px"}}
+			fileContainerStyle={{padding: 0+"px", margin: 1+"px", maxWidth: "440px"}}
 			buttonStyles={{border: "1px solid #BE2B2E", color:"black", background: "transparent", margin: 3+"px "+0}}
 			withIcon={false}
 			withLabel={false}

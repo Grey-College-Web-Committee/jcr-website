@@ -86,7 +86,7 @@ class StockRow extends React.Component {
       alert("An error occurred deleting this item");
       return;
     }
-    this.props.updateAll();
+    await this.props.updateAll();
     this.resetAll();
   }
 
@@ -332,6 +332,10 @@ class StockRow extends React.Component {
     this.setState({ customisationsAvailable: customisations, allowSave: true });
   }
 
+  onCancel(){
+    console.log("Cancel")
+  }
+
   getAllFields(){
     if(!this.props.simpleView)
     {
@@ -391,13 +395,12 @@ class StockRow extends React.Component {
           />
         </td>
         <td className="hidden md:table-cell w-auto p-1 border-r border-gray-400">
-          <input
-            type="text"
+          <textarea
             value={this.state.description}
             onChange={this.onInputChange}
             disabled={this.state.disabled}
             name="description"
-            className="w-full h-16 border border-gray-400 px-1 my-1 disabled:opacity-50"
+            className="w-full border border-gray-400 px-1 my-1 disabled:opacity-50"
           />
         </td>
         <td className="w-20 p-1 border-r border-gray-400">
@@ -448,7 +451,7 @@ class StockRow extends React.Component {
             className="px-1 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           >Save Changes</button>
           <button
-            onClick={this.deleteItem}
+            onClick={(e) => (window.confirm('Are you sure you wish to delete this item?')) ? this.deleteItem(e) : this.onCancel("cancel")}
             disabled={this.state.disabled}
             className="my-1 px-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           >Delete Item</button>

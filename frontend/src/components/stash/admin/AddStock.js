@@ -308,8 +308,7 @@ class AddStock extends React.Component {
 			</div>
 			<div className="mx-auto w-max pb-4 border-b-2 border-red-900">
 			  <label htmlFor="description" className="flex flex-row justify-start pb-2 text-lg font-semibold">Description of Item</label>
-			  <input
-			    type="text"
+			  <textarea
 				name="description"
 				onChange={this.onInputChange}
 				value={this.state.description}
