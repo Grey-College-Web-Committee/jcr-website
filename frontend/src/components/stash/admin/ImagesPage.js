@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import ImageRow from './ImageRow';
@@ -106,6 +107,7 @@ class StashImagesPage extends React.Component {
                 ))}
               </tbody>
             </table>
+            <p>Return to the <Link className="font-semibold text-red-900" to="/stash/stock">Stash Admin Page</Link>.</p>
           </div>
         </div>
       </div>

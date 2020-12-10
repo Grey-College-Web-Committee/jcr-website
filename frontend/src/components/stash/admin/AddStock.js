@@ -203,25 +203,24 @@ class AddStock extends React.Component {
 
   showCustomisations(){
 	if (this.state.customisationsAvailable.length > 0){
-	let codeSnippet = [<tr className="bg-red-900 text-white">
-	  <td className="justify-start pb-2 text-lg font-semibold">Description of Customisation </td>
-	  <td className="justify-start pb-2 text-lg font-semibold">Additional Cost of Customisation (£)</td>
+	let codeSnippet = [<tr>
+	  <td className="justify-start p-2 text-lg font-semibold border-2 border-red-900">Description of Customisation </td>
+	  <td className="justify-start p-2 text-lg font-semibold border-2 border-red-900">Additional Cost of Customisation (£)</td>
 	</tr>];
 	const length = this.state.customisationsAvailable.length;
 	for (var i = 0; i<length; i++){
 	  codeSnippet.push(
 	  	<tr>
-          <td className="w-48 p-2 border-r border-gray-400">
-		    <input
-		      type="text"
+          <td className="w-auto p-2 border-2 border-red-900">
+		    <textarea
 		      name={[i,"description"]}
 		      onChange={this.changeCustValues}
 		      value={this.state.customisationsAvailable[i].description}
-		      className="shadow w-48 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
+		      className="shadow w-auto border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
 		      disabled={this.state.disabled}
 		    />
 	      </td>
-		  <td className="w-40 p-2 border-r border-gray-400">
+		  <td className="w-auto p-2 text-center border-2 border-red-900">
               <input
                 type={"number"}
                 name={[i,"addedPrice"]}
@@ -230,7 +229,7 @@ class AddStock extends React.Component {
                 min="0"
                 max="100"
                 step="0.01"
-                className="shadow w-40 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
+                className="shadow w-32 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
                 disabled={this.state.disabled}
               />
           </td>
@@ -284,139 +283,155 @@ class AddStock extends React.Component {
 	  <React.Fragment>
 		<form onSubmit={this.createNewItem}>
 		  <fieldset>
-			<div className="mx-auto w-max pb-4 border-b-2 border-red-900">
-			  <label htmlFor="name" className="flex flex-row justify-start pb-2 text-lg font-semibold">Name</label>
-			  <input
-				type="text"
-				name="name"
-				onChange={this.onInputChange}
-				value={this.state.name}
-				className="shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
-				disabled={this.state.disabled}
-			  />
-			</div>
-			<div className="mx-auto w-max pb-4 border-b-2 border-red-900">
-			  <label htmlFor="manufacturerCode" className="flex flex-row justify-start pb-2 text-lg font-semibold">Manufacturer Code</label>
-			  <input
-			    type="text"
-				name="manufacturerCode"
-				onChange={this.onInputChange}
-				value={this.state.manufacturerCode}
-				className="shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
-				disabled={this.state.disabled}
-			  />
-			</div>
-			<div className="mx-auto w-max pb-4 border-b-2 border-red-900">
-			  <label htmlFor="description" className="flex flex-row justify-start pb-2 text-lg font-semibold">Description of Item</label>
-			  <textarea
-				name="description"
-				onChange={this.onInputChange}
-				value={this.state.description}
-				className="shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
-				disabled={this.state.disabled}
-			  />
-			</div>
-			  <div className="mx-auto w-max pb-4 border-b-2 border-red-900">
-			  	<label htmlFor="type" className="flex flex-row justify-start pb-2 text-lg font-semibold">Category</label>
-				<select
-				  name="type"
-				  onChange={this.onInputChange}
-				  value={this.state.type}
-				  className="shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
-				  disabled={this.state.disabled}
-				>
-				  <option value="hoodiesAndSweatshirts">Hoodies and Sweatshirts</option>
-				  <option value="jacketsAndZips">Jackets and Zips</option>
-				  <option value="shirts">Shirts</option>
-				  <option value="sports">Joggers and Sports</option>
-				  <option value="outdoors">The Greyt Outdoors</option>
-				  <option value="accessories">Accessories</option>
-				  <option value="other">Other</option>
-				</select>
-			  </div>
-			  
-			  <div className="mx-auto w-max pb-4 border-b-2 border-red-900">
-			    <label htmlFor="price" className="flex flex-row justify-start pb-2 text-lg font-semibold">Base Price (£)</label>
+			<table className="mx-auto border-2 content-evenly text-left border-red-900"><tbody>
+			  <tr className="content-evenly w-max pt-4">
+				<td className="content-center mx-auto w-auto">
+				<div className="mx-4 py-2  border-b-2 border-red-900">
+				<label htmlFor="name" className="flex flex-row justify-start pb-2 text-lg font-semibold">Name</label>
 				<input
-				  type="number"
- 				  name="price"
-				  onChange={this.onInputChange}
-			  	  value={this.state.price}
-				  min="0"
-				  max="100"
-				  step="0.01"
-				  className="shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
-				  disabled={this.state.disabled}
-				/>
-			  </div>
-			  <div className="mx-auto w-max pb-4 border-b-2 border-red-900">
-				<label htmlFor="addNewCustomisation" className="flex flex-row justify-start pb-2 text-lg font-semibold">Available Customisations</label>
-				<table className="mx-auto border-2 text-left border-red-900">
-				  <tbody>
-				  	{this.showCustomisations()}
-				  </tbody>
-			  	</table>
-				<input
-				  type="button"
-				  value="addNewCustomisation"
-				  disabled={this.state.disabled}
-				  onClick={() => this.addCustomisationOption()}
-				  className="my-1 px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-				  ></input>
-				{ this.state.customisationsAvailable.length > 0 ? this.getRemovalButtonCode():<></> }
-			  </div>
-
-			  <div className="mx-auto w-max pb-4 border-b-2 border-red-900">
-				<label htmlFor="sizes" className="flex flex-row justify-start pb-2 text-lg font-semibold">Available Sizes</label>
-				<div name="sizes">
-				  <table className="shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50">
-					<thead><tr><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th></tr></thead>
-					<tbody><tr>
-					  <td><input type="checkbox" name="XS" onChange={this.onInputChange} checked={this.state.XS} disabled={this.state.disabled}/></td>
-					  <td><input type="checkbox" name="S" onChange={this.onInputChange} checked={this.state.S} disabled={this.state.disabled}/></td>
-					  <td><input type="checkbox" name="M" onChange={this.onInputChange} checked={this.state.M} disabled={this.state.disabled}/></td>
-					  <td><input type="checkbox" name="L" onChange={this.onInputChange} checked={this.state.L} disabled={this.state.disabled}/></td>
-					  <td><input type="checkbox" name="XL" onChange={this.onInputChange} checked={this.state.XL} disabled={this.state.disabled}/></td>
-					  <td><input type="checkbox" name="XXL" onChange={this.onInputChange} checked={this.state.XXL} disabled={this.state.disabled}/></td>
-					</tr></tbody>
-				  </table>
-				</div>
-			  </div>
-			  <div className="mx-auto w-max pb-4 border-b-2 border-red-900">
-				  <div className="shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">
-					<ImageUploader
-					  fileContainerStyle={{padding: 0+"px", margin: 0+"px"}}
-					  buttonStyles={{border: "1px solid #BE2B2E", color:"black", background: "transparent", margin: 3+"px "+0}}
-					  withIcon={false}
-					  withLabel={false}
-					  withPreview={false}
-					  buttonText={this.imageSelectedButtonText()}
-					  onChange={this.onDrop}
-					  imgExtension={['.jpg', '.gif', '.png']}
-					  maxFileSize={2097152}
-					  fileSizeError=" is larger than filesize limit (2MB)"
-					  fileTypeError=" is not a supported file type: .jpg, .gif or .png"
-					  singleImage={true /* not allowed to upload multiple, for now... */}
-					/>
-					{this.readyToUploadMessage()}
-					<div className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50" style={{ width: this.state.progress, height: "2rem", padding: "2px" }}>
-					   {this.state.progress}
-					</div>
-				  </div>
-			  </div>
-			  <div className="mx-auto w-64 pt-4 border-red-900">
-				  Select Available Colours Below
-				  <p></p>
-				  <input
-					type="submit"
-					value="Create New Item"
+					type="text"
+					name="name"
+					onChange={this.onInputChange}
+					value={this.state.name}
+					className="shadow w-max border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
 					disabled={this.state.disabled}
-					className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-				  />
-			  </div>
-			<div className="mx-auto pt-4 border-red-900">
-			  <span className="w-full">New items are automatically marked available</span>
-			</div>
+				/>
+				</div>
+				</td>
+				<td className="text-right">
+				<div className="mx-4 w-auto text-right p-2 border-b-2 border-red-900">
+				<label htmlFor="manufacturerCode" className="flex flex-row justify-end pb-2 text-lg font-semibold">Manufacturer Code</label>
+				<input
+					type="text"
+					name="manufacturerCode"
+					onChange={this.onInputChange}
+					value={this.state.manufacturerCode}
+					className="shadow w-40 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
+					disabled={this.state.disabled}
+				/>
+				</div>
+				</td> </tr><tr> <td colSpan={2}>
+				<div className="mx-4 w-auto pb-2 pt-6 border-b-2 border-red-900">
+				<label htmlFor="description" className="flex flex-row justify-start pb-2 text-lg font-semibold">Description of Item</label>
+				<textarea
+					name="description"
+					onChange={this.onInputChange}
+					value={this.state.description}
+					className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
+					disabled={this.state.disabled}
+				/>
+				</div>
+				</td> </tr>
+				<tr> <td>
+				<div className="mx-4 w-max pb-2 pt-6 border-b-2 border-red-900">
+					<label htmlFor="type" className="flex flex-row justify-start pb-2 text-lg font-semibold">Category</label>
+					<select
+					name="type"
+					onChange={this.onInputChange}
+					value={this.state.type}
+					className="shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
+					disabled={this.state.disabled}
+					>
+					<option value="hoodiesAndSweatshirts">Hoodies and Sweatshirts</option>
+					<option value="jacketsAndZips">Jackets and Zips</option>
+					<option value="shirts">Shirts</option>
+					<option value="sports">Joggers and Sports</option>
+					<option value="outdoors">The Greyt Outdoors</option>
+					<option value="accessories">Accessories</option>
+					<option value="other">Other</option>
+					</select>
+				</div>
+				</td><td className="text-right">
+				
+				<div className="mx-4 w-auto pb-2 pt-6 border-b-2 border-red-900">
+					<label htmlFor="price" className="flex flex-row justify-end pb-2 text-lg font-semibold">Base Price (£)</label>
+					<input
+					type="number"
+					name="price"
+					onChange={this.onInputChange}
+					value={this.state.price}
+					min="0"
+					max="100"
+					step="0.01"
+					className="shadow w-32 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
+					disabled={this.state.disabled}
+					/>
+				</div>
+				</td></tr>
+				<tr><td colSpan={2}>
+				<div className="mx-4 w-auto pb-2 pt-6 border-b-2 border-red-900">
+					<label htmlFor="addNewCustomisation" className="flex flex-row justify-start pb-2 text-lg font-semibold">Available Customisations</label>
+					<table className="mx-auto text-left">
+					<tbody>
+						{this.showCustomisations()}
+					</tbody>
+					</table>
+					<input
+					type="button"
+					value="addNewCustomisation"
+					disabled={this.state.disabled}
+					onClick={() => this.addCustomisationOption()}
+					className="my-1 px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+					></input>
+					{ this.state.customisationsAvailable.length > 0 ? this.getRemovalButtonCode():<></> }
+				</div>
+				</td></tr>
+				<tr className="content-evenly w-max">
+				<td className="content-center mx-auto w-max">
+				<div className="mx-4 w-40 pb-2 pt-6 border-b-2 border-red-900">
+					<label htmlFor="sizes" className="flex flex-row justify-start pb-2 text-lg font-semibold">Available Sizes</label>
+					<div name="sizes" className="content-center">
+					<table className="w-40 p-1 focus:outline-none disabled:opacity-50">
+						<thead><tr><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th></tr></thead>
+						<tbody><tr>
+						<td><input type="checkbox" name="XS" onChange={this.onInputChange} checked={this.state.XS} disabled={this.state.disabled}/></td>
+						<td><input type="checkbox" name="S" onChange={this.onInputChange} checked={this.state.S} disabled={this.state.disabled}/></td>
+						<td><input type="checkbox" name="M" onChange={this.onInputChange} checked={this.state.M} disabled={this.state.disabled}/></td>
+						<td><input type="checkbox" name="L" onChange={this.onInputChange} checked={this.state.L} disabled={this.state.disabled}/></td>
+						<td><input type="checkbox" name="XL" onChange={this.onInputChange} checked={this.state.XL} disabled={this.state.disabled}/></td>
+						<td><input type="checkbox" name="XXL" onChange={this.onInputChange} checked={this.state.XXL} disabled={this.state.disabled}/></td>
+						</tr></tbody>
+					</table>
+					</div>
+				</div>
+				</td><td>
+				<div className="mx-4 w-max pb-2 pt-6 border-b-2 border-red-900">
+					<div className="shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">
+						<ImageUploader
+						fileContainerStyle={{padding: 0+"px", margin: 0+"px"}}
+						buttonStyles={{border: "1px solid #BE2B2E", color:"black", background: "transparent", margin: 3+"px "+0}}
+						withIcon={false}
+						withLabel={false}
+						withPreview={false}
+						buttonText={this.imageSelectedButtonText()}
+						onChange={this.onDrop}
+						imgExtension={['.jpg', '.gif', '.png']}
+						maxFileSize={2097152}
+						fileSizeError=" is larger than filesize limit (2MB)"
+						fileTypeError=" is not a supported file type: .jpg, .gif or .png"
+						singleImage={true /* not allowed to upload multiple, for now... */}
+						/>
+						{this.readyToUploadMessage()}
+						<div className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50" style={{ width: this.state.progress, height: "2rem", padding: "2px" }}>
+						{this.state.progress}
+						</div>
+					</div>
+				</div>
+				</td></tr><tr><td colSpan={2}>
+				<div className="rounded-lg content-center text-center m-4 w-auto py-4 pt-6 border-4 border-red-900">
+					Select Available Colours Below
+					<p></p>
+					<input
+						type="submit"
+						value="Create New Item"
+						disabled={this.state.disabled}
+						className="px-4 py-1 m-4 rounded bg-red-900 text-white w-40 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+					/>
+					<p></p>
+				<span className="text-center w-auto">New items are automatically marked available</span>
+				</div>
+			  </td> </tr>
+			</tbody></table>
 		  </fieldset>
 		</form>
 	  </React.Fragment>
