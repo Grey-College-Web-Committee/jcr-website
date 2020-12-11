@@ -6,11 +6,11 @@ const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent } =
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
 
-router.get("/", async (req, res) => {
+router.get("/<path>", async (req, res) => {
   return res.status(200).json({ success: true });
 });
 
-router.post("/", async (req, res) => {
+router.post("/<path>", async (req, res) => {
   return res.status(204).end();
 });
 
