@@ -6,6 +6,7 @@ import CheckoutForm from '../payment/CheckoutForm';
 import authContext from '../../utils/authContext.js';
 import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
+import ViewCart from '../cart/ViewCart.js';
 
 class OrderToastiePage extends React.Component {
   constructor(props) {
@@ -239,6 +240,10 @@ class OrderToastiePage extends React.Component {
   }
 
   render () {
+    return (
+      <ViewCart />
+    );
+
     // The Toastie Bar is only open between 8pm and 9:30pm for orders
     const hours = this.state.currentDate.getHours();
     const minutes = this.state.currentDate.getMinutes();
