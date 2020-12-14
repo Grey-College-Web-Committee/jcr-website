@@ -12,6 +12,7 @@ import LogoutPage from './components/accounts/LogoutPage';
 import ErrorPage from './components/errors/ErrorPage';
 import HomePage from './components/home/HomePage';
 import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
+import CheckoutPage from './components/cart/CheckoutPage';
 
 // To add a new page import it like above
 
@@ -186,6 +187,9 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/toasties/" render={() => (
                     this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/checkout/" render={() => (
+                    this.isLoggedIn() ? ( <CheckoutPage /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/errors/:code" render={(props) => (
                     <ErrorPage {...props} />

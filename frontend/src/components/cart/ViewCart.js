@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Cart from './Cart';
 import CartItem from './CartItem';
+import { Link } from 'react-router-dom';
 
 class ViewCart extends React.Component {
   constructor(props) {
@@ -46,12 +47,12 @@ class ViewCart extends React.Component {
 
     return (
       <div
-        className={`w-1/6 absolute z-10 mt-4 right-0 mr-2 text-black border-2 border-red-700 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
+        className={`w-1/6 absolute z-10 mt-4 right-0 mr-2 text-black border-2 bg-white border-red-700 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
       >
         <div className="w-full border-b-4 border-red-900 p-2 text-white bg-red-900 font-bold text-lg">
           Your Bag
         </div>
-        <div className="">
+        <div>
           <div>
             <ul>
               {items.map((item, i) => (
@@ -68,7 +69,9 @@ class ViewCart extends React.Component {
             <span className="font-semibold">£{subtotal.toFixed(2)}</span>
           </div>
           <div className="w-full p-2">
-            <button className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">Checkout</button>
+            <Link to="/checkout">
+              <button className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">Checkout</button>
+            </Link>
           </div>
         </div>
       </div>
