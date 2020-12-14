@@ -19,7 +19,7 @@ class Cart {
       }
     }
 
-    const requiredProperties = ["cart", "savedAt"];
+    const requiredProperties = ["cart", "savedAt", "locked"];
     let rewrite = localSave === null;
 
     if(localSave !== null) {
@@ -40,20 +40,25 @@ class Cart {
           items: [],
           discountCodes: []
         },
-        savedAt: null
+        savedAt: new Date(),
+        locked: false
       };
     }
 
+    Cart.locked = localSave.locked;
+
     return {
       cart: localSave.cart,
-      savedAt: localSave.savedAt
+      savedAt: localSave.savedAt,
+      locked: localSave.locked
     };
   }
 
   saveToLocalStorage = () => {
     const localSave = {
       cart: this.cart,
-      savedAt: new Date()
+      savedAt: new Date(),
+      locked: Cart.locked
     }
 
     localStorage.setItem("localCartSave", JSON.stringify(localSave));
@@ -64,12 +69,20 @@ class Cart {
   }
 
   addToCart = (shop, name, basePrice, quantity, submissionInformation, components, duplicateHash) => {
+    if(Cart.locked) {
+      return false;
+    }
+
     return this.addToCartRaw({
       shop, name, basePrice, quantity, submissionInformation, components, duplicateHash
     });
   }
 
   addToCartRaw = (item) => {
+    if(Cart.locked) {
+      return false;
+    }
+
     const requiredProperties = ["shop", "name", "basePrice", "quantity",
      "submissionInformation", "components", "duplicateHash"];
 
@@ -101,6 +114,10 @@ class Cart {
   }
 
   applyDiscountCode = (code) => {
+    if(Cart.locked) {
+      return false;
+    }
+
     if(code in this.cart.discountCodes) {
       return false;
     }
@@ -111,6 +128,10 @@ class Cart {
   }
 
   removeFromCart = (index) => {
+    if(Cart.locked) {
+      return false;
+    }
+
     if(index <= -1 || index >= this.cart.length) {
       return false;
     }
@@ -121,6 +142,10 @@ class Cart {
   }
 
   clearCart = () => {
+    if(Cart.locked) {
+      return false;
+    }
+
     this.cart.items = [];
     this.saveToLocalStorage();
     return true;
@@ -158,6 +183,10 @@ class Cart {
   }
 
   adjustQuantity = (hash, amount) => {
+    if(Cart.locked) {
+      return false;
+    }
+
     // Refresh the cart in case it is out of sync
     this.get();
     const duplicateIndex = this.getDuplicateIndex(hash);
@@ -192,8 +221,15 @@ class Cart {
     Cart.registeredCallbacks.push(callback);
     return true;
   }
+
+  setLocked = (locked) => {
+    Cart.locked = locked;
+    this.saveToLocalStorage();
+    return true;
+  }
 }
 
 Cart.registeredCallbacks = [];
+Cart.locked = false;
 
 export default Cart;

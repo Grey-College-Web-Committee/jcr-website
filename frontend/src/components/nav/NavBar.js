@@ -114,8 +114,6 @@ class NavBar extends React.Component {
     const location = this.props.location.pathname;
     const menuOptions = this.getMenuOptions(user);
 
-    console.log(menuOptions.length)
-
     return (
       <nav
         onMouseLeave={() => {

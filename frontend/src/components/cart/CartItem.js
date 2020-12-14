@@ -58,11 +58,13 @@ class CartItem extends React.Component {
             <button
               className="w-4"
               onClick={() => this.adjustQuantity(-1)}
+              disabled={this.props.disabled}
             >-</button>
             <span className="flex-grow text-center">Qty: {quantity}</span>
             <button
               className="w-4"
               onClick={() => this.adjustQuantity(1)}
+              disabled={this.props.disabled}
             >+</button>
           </div>
         </div>

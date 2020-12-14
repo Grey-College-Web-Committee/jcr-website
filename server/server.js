@@ -8,11 +8,12 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink } = require("./database.models.js");
+const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder } = require("./database.models.js");
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
 const toastieBarRoute = require("./routes/toastie_bar");
 const permissionsRoute = require("./routes/permissions");
+const cartRoute = require("./routes/cart");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -69,6 +70,7 @@ const requiredPermissions = [
   await ToastieOrderContent.sync();
   await Permission.sync();
   await PermissionLink.sync();
+  await ShopOrder.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
@@ -77,7 +79,7 @@ const requiredPermissions = [
       },
       defaults: {
         name: item.name,
-        description: item.description, 
+        description: item.description,
         internal: item.internal
       }
     });
@@ -111,6 +113,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/payments", paymentsRoute);
 app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
 app.use("/api/permissions", isLoggedIn, permissionsRoute);
+app.use("/api/cart", isLoggedIn, cartRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

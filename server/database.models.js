@@ -14,6 +14,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 
 class User extends Model {}
 
+class ShopOrder extends Model {}
 class GymMembership extends Model {}
 class ToastieStock extends Model {}
 class ToastieOrder extends Model {}
@@ -60,6 +61,25 @@ GymMembership.init({
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false
+  }
+}, { sequelize });
+
+ShopOrder.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  paid: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  stripeId: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
   }
 }, { sequelize });
 
@@ -151,6 +171,9 @@ GymMembership.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(ToastieOrder, { foreignKey: 'userId' });
 ToastieOrder.belongsTo(User, { foreignKey: 'userId' });
 
+User.hasMany(ShopOrder, { foreignKey: 'userId' });
+ShopOrder.belongsTo(User, { foreignKey: 'userId' });
+
 ToastieOrder.hasMany(ToastieOrderContent, { foreignKey: 'orderId' });
 ToastieOrderContent.belongsTo(ToastieOrder, { foreignKey: 'orderId' });
 
@@ -163,4 +186,4 @@ PermissionLink.belongsTo(Permission, { foreignKey: 'permissionId' });
 PermissionLink.belongsTo(User, { as: "grantedTo", foreignKey: "grantedToId" });
 PermissionLink.belongsTo(User, { as: "grantedBy", foreignKey: "grantedById" });
 
-module.exports = { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink };
+module.exports = { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder };
