@@ -31,10 +31,11 @@ class AddToCartButton extends React.Component {
       <button
         onClick={this.addItemToCart}
         className={
-          this.props.overrideClasses ? this.props.overrideClasses : "w-32"
+          this.props.overrideClasses ? this.props.overrideClasses :
+          "px-4 py-1 rounded bg-red-900 text-white w-32 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
         }
       >
-        {this.props.text ? this.props.text : "Add To Cart"}
+        {this.props.text ? this.props.text : "Add To Bag"}
       </button>
     );
   }

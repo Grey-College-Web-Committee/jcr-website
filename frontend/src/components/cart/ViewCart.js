@@ -45,8 +45,13 @@ class ViewCart extends React.Component {
     const visibility = this.props.active ? "visible" : "invisible";
 
     return (
-      <div className={`w-1/6 absolute z-10 mt-4 right-0 pr-2 ${visibility}`} onMouseLeave={this.props.onMouseLeave}>
-        <div className="text-black">
+      <div
+        className={`w-1/6 absolute z-10 mt-4 right-0 mr-2 text-black border-2 border-red-700 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
+      >
+        <div className="w-full border-b-4 border-red-900 p-2 text-white bg-red-900 font-bold text-lg">
+          Your Bag
+        </div>
+        <div className="">
           <div>
             <ul>
               {items.map((item, i) => (
@@ -58,11 +63,11 @@ class ViewCart extends React.Component {
               ))}
             </ul>
           </div>
-          <div className="w-full border-b-2 border-black p-2 flex flex-row flex-grow justify-between">
+          <div className="w-full border-b-2 border-red-700 p-2 flex flex-row flex-grow justify-between">
             <span className="font-semibold">Subtotal</span>
             <span className="font-semibold">£{subtotal.toFixed(2)}</span>
           </div>
-          <div className="w-full border-b-2 border-black p-2">
+          <div className="w-full p-2">
             <button className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">Checkout</button>
           </div>
         </div>

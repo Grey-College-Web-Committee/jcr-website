@@ -1,7 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Cart from './Cart';
 
 class CartItem extends React.Component {
+  constructor(props) {
+    super(props);
+    this.cart = new Cart();
+  }
+
+  adjustQuantity = (amount) => {
+    const duplicateHash = this.props.item.duplicateHash;
+    this.cart.adjustQuantity(duplicateHash, amount);
+  }
+
   render () {
     if(this.props.item === null) {
       return null;
@@ -36,19 +47,30 @@ class CartItem extends React.Component {
     )
 
     return (
-      <div className="flex flex-row p-2 border-black border-solid border-b-2 w-full">
-        <div className="pr-4 align-middle">
+      <div className="flex flex-row p-2 border-red-700 border-solid border-b-2 w-full">
+        <div className="pr-4 align-middle flex flex-col justify-between">
           <img
             src="/images/cart/placeholder.png"
             alt="Cart Placeholder Image"
             className="w-24 h-24"
           />
+          <div className="flex flex-row pt-2">
+            <button
+              className="w-4"
+              onClick={() => this.adjustQuantity(-1)}
+            >-</button>
+            <span className="flex-grow text-center">Qty: {quantity}</span>
+            <button
+              className="w-4"
+              onClick={() => this.adjustQuantity(1)}
+            >+</button>
+          </div>
         </div>
         <div className="flex flex-col flex-grow">
           <span className="font-semibold">{name}</span>
           <div className="flex flex-row justify-between">
-            <span>1 x £{totalPrice.toFixed(2)}</span>
-            <span> (Qty: {quantity})</span>
+            <span>{quantity} x £{totalPrice.toFixed(2)}</span>
+            <span>(£{(totalPrice * quantity).toFixed(2)})</span>
           </div>
           <span>Customisation:</span>
           {componentList}

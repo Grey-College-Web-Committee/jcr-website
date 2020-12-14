@@ -242,15 +242,9 @@ class OrderToastiePage extends React.Component {
 
   render () {
     return (
-      <React.Fragment>
-        <ViewCart />
-      </React.Fragment>
-    );
-
-    return (
       <AddToCartButton
         shop="toastie"
-        name="Test Object"
+        name="Toastie"
         basePrice={0.7}
         quantity={1}
         submissionInformation={{
@@ -259,8 +253,9 @@ class OrderToastiePage extends React.Component {
         }}
         components={[
           {
-            "name": "Ab",
-            "part": true
+            name: "Ham",
+            price: 0.7,
+            quantity: 1
           }
         ]}
         callback={(success) => {

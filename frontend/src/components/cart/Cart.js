@@ -157,6 +157,27 @@ class Cart {
     return this.cart.items.indexOf(duplicate);
   }
 
+  adjustQuantity = (hash, amount) => {
+    // Refresh the cart in case it is out of sync
+    this.get();
+    const duplicateIndex = this.getDuplicateIndex(hash);
+
+    if(duplicateIndex === -1) {
+      return false;
+    }
+
+    const currentAmount = this.cart.items[duplicateIndex].quantity;
+
+    if(currentAmount + amount <= 0) {
+      this.removeFromCart(duplicateIndex);
+    } else {
+      this.cart.items[duplicateIndex].quantity += amount;
+    }
+
+    this.saveToLocalStorage();
+    return true;
+  }
+
   get = () => {
     const { cart } = this.initialiseCart();
     this.cart = cart;
