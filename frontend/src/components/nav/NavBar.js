@@ -3,6 +3,7 @@ import authContext from '../../utils/authContext.js';
 import { withRouter } from 'react-router-dom';
 import NavBarElement from './NavBarElement';
 import HamburgerSelector from './HamburgerSelector';
+import CartNavBarElement from '../cart/CartNavBarElement';
 
 // Basic navigation bar for all pages
 class NavBar extends React.Component {
@@ -13,7 +14,7 @@ class NavBar extends React.Component {
       activeDropdownKey: -1
     };
   }
-  
+
   getMenuOptions = (user) => {
     let baseOptions = [
       {
@@ -113,9 +114,18 @@ class NavBar extends React.Component {
     const location = this.props.location.pathname;
     const menuOptions = this.getMenuOptions(user);
 
+    console.log(menuOptions.length)
+
     return (
-      <nav onMouseLeave={() => {this.setActiveDropdown(-1)}}>
-        <ul className="flex flex-row bg-red-900 text-white items-center">
+      <nav
+        onMouseLeave={() => {
+          if(this.state.activeDropdownKey !== menuOptions.length) {
+            this.setActiveDropdown(-1);
+          }
+        }}
+        className="flex flex-row justify-between bg-red-900 text-white items-center"
+      >
+        <ul className="flex flex-row items-center">
           {
             menuOptions.map((item, i) => (
               <NavBarElement
@@ -129,6 +139,13 @@ class NavBar extends React.Component {
               />
             ))
           }
+        </ul>
+        <ul className="flex flex-row items-center">
+          <CartNavBarElement
+            id={menuOptions.length}
+            activeDropdownKey={this.state.activeDropdownKey}
+            changeActiveDropdownKey={this.setActiveDropdown}
+          />
           <HamburgerSelector
             menuOptions={menuOptions}
             user={user}

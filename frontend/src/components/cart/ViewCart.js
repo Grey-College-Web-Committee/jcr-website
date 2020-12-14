@@ -42,25 +42,29 @@ class ViewCart extends React.Component {
       subtotal += (basePrice + additionalPrice) * quantity;
     });
 
+    const visibility = this.props.active ? "visible" : "invisible";
+
     return (
-      <div className="w-1/6">
-        <div>
-          <ul>
-            {items.map((item, i) => (
-              <li key={i}>
-                <CartItem
-                  item={item}
-                />
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="w-full border-b-2 border-black p-2 flex flex-row flex-grow justify-between">
-          <span className="font-semibold">Subtotal</span>
-          <span className="font-semibold">£{subtotal.toFixed(2)}</span>
-        </div>
-        <div className="w-full border-b-2 border-black p-2">
-          <button className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">Checkout</button>
+      <div className={`w-1/6 absolute z-10 mt-4 right-0 pr-2 ${visibility}`} onMouseLeave={this.props.onMouseLeave}>
+        <div className="text-black">
+          <div>
+            <ul>
+              {items.map((item, i) => (
+                <li key={i}>
+                  <CartItem
+                    item={item}
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="w-full border-b-2 border-black p-2 flex flex-row flex-grow justify-between">
+            <span className="font-semibold">Subtotal</span>
+            <span className="font-semibold">£{subtotal.toFixed(2)}</span>
+          </div>
+          <div className="w-full border-b-2 border-black p-2">
+            <button className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">Checkout</button>
+          </div>
         </div>
       </div>
     );
