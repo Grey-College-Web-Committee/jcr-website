@@ -5,9 +5,15 @@ import Cart from './Cart';
 class ViewCart extends React.Component {
   constructor(props) {
     super(props);
+  }
+
+  updateCart = () => {
+    console.log("Outputs on change");
+  }
+
+  componentDidMount = () => {
     this.cart = new Cart();
-    this.cart.clearCart();
-    this.cart.addToCart("toastie", "test", 0.7, 1, {}, []);
+    this.cart.registerCallbackOnSave(this.updateCart);
   }
 
   render () {
