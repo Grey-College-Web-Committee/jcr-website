@@ -244,27 +244,30 @@ class OrderToastiePage extends React.Component {
     return (
       <React.Fragment>
         <ViewCart />
-        <AddToCartButton
-          shop="toastie"
-          name="Test Object"
-          basePrice={0.7}
-          quantity={1}
-          submissionInformation={{
-            test: "abc",
-            field: true
-          }}
-          components={[
-            {
-              "name": "Ab",
-              "part": true
-            }
-          ]}
-          callback={(success) => {
-            console.log("Added Item", success);
-          }}
-        />
       </React.Fragment>
     );
+
+    return (
+      <AddToCartButton
+        shop="toastie"
+        name="Test Object"
+        basePrice={0.7}
+        quantity={1}
+        submissionInformation={{
+          test: "abc",
+          field: true
+        }}
+        components={[
+          {
+            "name": "Ab",
+            "part": true
+          }
+        ]}
+        callback={(success) => {
+          console.log("Added Item", success);
+        }}
+      />
+    )
 
     // The Toastie Bar is only open between 8pm and 9:30pm for orders
     const hours = this.state.currentDate.getHours();

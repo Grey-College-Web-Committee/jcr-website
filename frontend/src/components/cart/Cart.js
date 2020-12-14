@@ -158,6 +158,8 @@ class Cart {
   }
 
   get = () => {
+    const { cart } = this.initialiseCart();
+    this.cart = cart;
     return this.cart;
   }
 
