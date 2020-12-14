@@ -34,7 +34,7 @@ class ViewCart extends React.Component {
     items.forEach((item, i) => {
       const { basePrice, quantity, components } = item;
       const hasComponents = components !== undefined && components !== null && components.length !== 0;
-      let additionalPrice;
+      let additionalPrice = 0;
 
       if(hasComponents) {
         additionalPrice = components.map(component => component.price * component.quantity).reduce((sum, price) => sum + price);

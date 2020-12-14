@@ -20,7 +20,7 @@ class CheckoutCartItem extends React.Component {
 
     const { name, basePrice, quantity, components } = this.props.item;
     const hasComponents = components !== undefined && components !== null && components.length !== 0;
-    let additionalPrice;
+    let additionalPrice = 0;
 
     if(hasComponents) {
       additionalPrice = components.map(component => component.price * component.quantity).reduce((sum, price) => sum + price);

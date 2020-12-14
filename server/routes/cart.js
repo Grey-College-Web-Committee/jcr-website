@@ -8,12 +8,17 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 
-const processToastieShop = () => {
+const toastieProcessor = (orderId, quantity, globalSubmissionInfo, componentSubmissionInfo) => {
 
 };
 
+const stashProcessor = (orderId, quantity, globalSubmissionInfo, componentSubmissionInfo) => {
+
+}
+
 const shopProcessors = {
-  "toastie": processToastieShop
+  "toastie": toastieProcessor,
+  "stash": stashProcessor
 }
 
 // Called at the base path of your route with HTTP method POST
@@ -45,7 +50,9 @@ router.post("/process", async (req, res) => {
   const validShops = Object.keys(shopProcessors);
 
   //Validate each first then we'll process all at once
-  submittedCart.items.forEach((item, i) => {
+  for(let i = 0; i < submittedCart.items.length; i++) {
+    item = submittedCart.items[i];
+
     if(item === null) {
       return res.status(400).json({ error: `${i} is null`});
     }
@@ -66,7 +73,7 @@ router.post("/process", async (req, res) => {
       return res.status(400).json({ error: `${i} missing shop (non-string)`});
     }
 
-    if(!(item.shop in validShops)) {
+    if(!validShops.includes(item.shop)) {
       return res.status(400).json({ error: `${i} missing shop (invalid type)`});
     }
 
@@ -117,7 +124,7 @@ router.post("/process", async (req, res) => {
     if(!Array.isArray(item.componentSubmissionInfo)) {
       return res.status(400).json({ error: `${i} missing componentSubmissionInfo (non-array)` });
     }
-  });
+  }
 
   let validatedPrices = [];
   let dbOrderRecord;
@@ -130,9 +137,10 @@ router.post("/process", async (req, res) => {
 
   const orderId = dbOrderRecord.id;
 
-  submittedCart.forEach((item, i) => {
+  for(let i = 0; i < submittedCart.items.length; i++) {
+    item = submittedCart.items[i];
     const { shop, quantity, globalSubmissionInfo, componentSubmissionInfo } = item;
-    const result = shopProcessors[shop](quantity, globalSubmissionInfo, componentSubmissionInfo);
+    const result = shopProcessors[shop](orderId, quantity, globalSubmissionInfo, componentSubmissionInfo);
 
     // Errors from the processors must be of the form
     /*
@@ -148,7 +156,7 @@ router.post("/process", async (req, res) => {
 
     // Valid results from the processors must return a positive number which is the total price of all of the products just processed
     validatedPrices.push(result);
-  });
+  }
 
   const totalAmount = validatedPrices.reduce((sum, price) => sum + price);
   const totalAmountInPence = Math.round(totalAmount * 100);

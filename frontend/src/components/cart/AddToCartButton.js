@@ -6,9 +6,16 @@ class AddToCartButton extends React.Component {
   constructor(props) {
     super(props);
     this.cart = new Cart();
+
+    this.state = {
+      defaultText: this.props.text ? this.props.text : "Add To Bag",
+      currentText: this.props.text ? this.props.text : "Add To Bag",
+      disabled: false
+    }
   }
 
   addItemToCart = () => {
+    this.setState({ disabled: true });
     const duplicateHash = this.props.duplicateHash ? this.props.duplicateHash : null;
 
     const success = this.cart.addToCart(
@@ -20,6 +27,12 @@ class AddToCartButton extends React.Component {
       this.props.components,
       duplicateHash
     );
+
+    if(success) {
+      this.setState({ currentText: "Added!", disabled: false }, () => setTimeout(() => {
+        this.setState({ currentText: this.state.defaultText })
+      }, 1500));
+    }
 
     if(this.props.callback) {
       this.props.callback(success);
@@ -34,8 +47,9 @@ class AddToCartButton extends React.Component {
           this.props.overrideClasses ? this.props.overrideClasses :
           "px-4 py-1 rounded bg-red-900 text-white w-32 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
         }
+        disabled={this.state.disabled}
       >
-        {this.props.text ? this.props.text : "Add To Bag"}
+        {this.state.currentText}
       </button>
     );
   }

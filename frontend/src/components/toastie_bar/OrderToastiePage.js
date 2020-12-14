@@ -1,425 +1,423 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
-import SelectBread from './SelectBread';
-import SelectMany from './SelectMany';
-import CheckoutForm from '../payment/CheckoutForm';
 import authContext from '../../utils/authContext.js';
 import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
-import ViewCart from '../cart/ViewCart.js';
-import AddToCartButton from '../cart/AddToCartButton.js';
+import GroupDropdown from './GroupDropdown';
+import Cart from '../cart/Cart';
 
 class OrderToastiePage extends React.Component {
   constructor(props) {
     super(props);
+
+    this.cart = new Cart();
     this.state = {
       loaded: false,
       status: 0,
       error: "",
       stock: [],
-      choices: [],
-      crisps: [],
-      chocolates: [],
+      idMatchedStock: {},
+      toastie: {
+        bread: -1,
+        fillings: []
+      },
+      confectionary: [],
       drinks: [],
-      bread: -1,
-      cost: 0,
-      purchaseDisabled: false,
-      confirmed: false,
-      confirmedOrder: {},
-      realCost: 0,
-      clientSecret: "",
-      paymentSuccessful: false,
-      currentDate: new Date(),
-      discountApplied: false,
-      termLocked: true
+      refreshId: Math.random(),
+      showAddedInfo: false
     };
   }
 
+  // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
     // Once the component is ready we can query the API
-    const loaded = await this.updateStockListing();
-    this.setState({ loaded });
-  }
+    let content;
 
-  updateStockListing = async () => {
-    this.setState({ error: "" });
-    let query;
-
-    // Standard way to just get the data from the API
     try {
-      query = await api.get("/toastie_bar/stock");
+      content = await api.get("/toastie_bar/stock");
     } catch (error) {
-      this.setState({ status: error.response.status, error: error.response.data.error });
-      return false;
-    }
-
-    const stock = query.data.stock;
-
-    this.setState({ status: query.status, stock });
-    return true;
-  }
-
-  // These 3 are used by the child components to share their choices with the parent
-  passUpFillings = (choices) => {
-    this.setState({ choices }, this.calculateCost);
-  }
-
-  passUpBread = (bread) => {
-    this.setState({ bread: Number(bread) }, this.calculateCost);
-  }
-
-  passUpItems = (name, items) => {
-    this.setState({ [name]: items }, this.calculateCost);
-  }
-
-  // Just runs through and calculates the cost
-  // converts strings to ints so we can get a sensible value
-  calculateCost = () => {
-    let cost = 0;
-    let toastieOrdered = this.state.bread !== -1;
-    let chocOrDrinkOrdered = false;
-
-    if(toastieOrdered) {
-      cost += Number(this.state.stock.find(item => item.id === this.state.bread).price);
-    }
-
-    const selectedFillings = this.state.stock.filter(item => this.state.choices.includes(item.id));
-
-    selectedFillings.forEach(item => {
-      cost += Number(item.price);
-    });
-
-    const selectedChocolates = this.state.stock.filter(item => this.state.chocolates.includes(item.id));
-
-    selectedChocolates.forEach(item => {
-      cost += Number(item.price);
-      chocOrDrinkOrdered = true;
-    });
-
-    const selectedCrisps = this.state.stock.filter(item => this.state.crisps.includes(item.id));
-
-    selectedCrisps.forEach(item => {
-      cost += Number(item.price);
-    });
-
-    const selectedDrinks = this.state.stock.filter(item => this.state.drinks.includes(item.id));
-
-    selectedDrinks.forEach(item => {
-      cost += Number(item.price);
-      chocOrDrinkOrdered = true;
-    });
-
-    // Apply a slight discount if they purchase a toastie and (choc or drink)
-    if(chocOrDrinkOrdered && toastieOrdered) {
-      cost -= 0.2;
-    }
-
-    cost = Math.round(cost * 100) / 100;
-
-    this.setState({ cost, discountApplied: toastieOrdered && chocOrDrinkOrdered });
-  }
-
-  placeOrder = async () => {
-    // Don't want them resubmitting while we are handling one already
-    this.setState({ purchaseDisabled: true, error: "" });
-    const otherItems = this.state.chocolates.concat(this.state.drinks).concat(this.state.crisps);
-
-    // Ordering a toastie
-    if(this.state.bread !== -1) {
-      // No fillings isn't allowed
-      if(this.state.choices.length === 0) {
-        this.setState({ purchaseDisabled: false, error: "You must select some fillings for your toastie." });
-        return;
-      }
-    } else {
-      // They didn't order anything
-      if(otherItems.length === 0) {
-        this.setState({ purchaseDisabled: false, error: "You must order something." });
-        return;
-      }
-
-      // Only fillings and other items isn't allowed either
-      if(this.state.choices.length !== 0) {
-        this.setState({ purchaseDisabled: false, error: "You cannot just order fillings. Please select a bread type." });
-        return;
-      }
-    }
-
-    const orderDetails = {
-      bread: this.state.bread,
-      fillings: this.state.choices,
-      otherItems
-    };
-
-    let query;
-
-    // Get the server to check everything and give us the details for the Stripe checkout
-    try {
-      query = await api.post("/toastie_bar/order", orderDetails);
-    } catch (error) {
-      const timeIssue = error.response.data.timeIssue;
-
-      if(timeIssue) {
-        // We don't undisable here as they need to refresh instead
-        this.setState({ error: "Unfortunately your order was not submitted in time. The Toastie Bar is now closed." });
-        return;
-      }
-
-      // We don't undisable here as they need to refresh instead
-      this.setState({ error: "An item you ordered has now gone of stock. Please refresh the page to see a list of available items." });
+      this.setState({ loaded: false, status: error.response.status });
       return;
     }
 
-    // We can now show the payment area
-    this.setState({
-      confirmed: true,
-      confirmedOrder: query.data.confirmedOrder,
-      realCost: query.data.realCost,
-      clientSecret: query.data.clientSecret
-    });
+    content = content.data.stock;
+
+    const idMatchedStock = content.reduce((map, obj) => {
+      map[obj.id] = obj;
+      return map;
+    }, {});
+
+    this.setState({ loaded: true, status: 200, stock: content, idMatchedStock });
   }
 
-  // Used by the CheckoutForm to make changes to the page's state
-  onPaymentSuccess = () => {
-    this.setState({ paymentSuccessful: true });
-  }
+  updateBread = (bread) => {
+    let { toastie } = this.state;
 
-  displayToastieOrder = () => {
-    const items = this.state.confirmedOrder.filter(item => item.type === "filling" || item.type === "bread");
-
-    if(items.length === 0) {
-      return (
-        <p><strong>None selected</strong></p>
-      );
+    if(bread.length === 0) {
+      toastie.bread = -1;
+    } else {
+      toastie.bread = bread[0];
     }
 
-    return (
-      <table>
-        <thead>
-          <tr>
-            <th>Item</th><th>Price (£)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item, index) => (
-            <tr key={index}>
-              <td>{item.name}</td>
-              <td>{item.price}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
+    this.setState({ toastie })
   }
 
-  displayOtherItemsOrder = (type) => {
-    const otherItems = this.state.confirmedOrder.filter(item => item.type === type);
+  updateFillings = (fillings) => {
+    let { toastie } = this.state;
+    toastie.fillings = fillings;
+    this.setState({ toastie });
+  }
 
-    if(otherItems.length === 0) {
-      return (
-        <p><strong>None selected</strong></p>
-      );
+  updateConfectionary = (confectionary) => {
+    this.setState({ confectionary });
+  }
+
+  updateDrinks = (drinks) => {
+    this.setState({ drinks });
+  }
+
+  checkToastie = (toastie) => {
+    if(toastie.bread == -1) {
+      return "No bread selected";
     }
 
-    return (
-      <table>
-        <thead>
-          <tr>
-            <th>Item</th><th>Price (£)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {otherItems.map((item, index) => (
-            <tr key={index}>
-              <td>{item.name}</td>
-              <td>{item.price}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    );
+    if(toastie.fillings.length === 0) {
+      return "No fillings selected";
+    }
+
+    return true;
   }
 
-  render () {
-    return (
-      <AddToCartButton
-        shop="toastie"
-        name="Toastie"
-        basePrice={0.7}
-        quantity={1}
-        submissionInformation={{
-          test: "abc",
-          field: true
-        }}
-        components={[
-          {
-            name: "Ham",
-            price: 0.7,
-            quantity: 1
+  addToBag = () => {
+    // refresh in case it's out of sync
+    this.cart.get();
+
+    const { toastie, drinks, confectionary } = this.state;
+    const valid = this.checkToastie(toastie);
+
+    let cartableObjects = [];
+
+    const toastieOrdered = valid === true;
+    const drinksOrdered = drinks.length !== 0;
+    const confectionaryOrdered = confectionary.length !== 0;
+    const potentialDiscount = drinksOrdered || confectionaryOrdered;
+
+    if(toastieOrdered) {
+      const basePrice = potentialDiscount ? -0.2 : 0;
+      let components = [];
+
+      //bread here
+      const bread = this.state.idMatchedStock[toastie.bread];
+      components.push({
+        name: bread.name,
+        price: Number(bread.price),
+        quantity: 1,
+        submissionInformation: {
+          id: bread.id
+        }
+      });
+
+      toastie.fillings.forEach((fillingId, i) => {
+        const filling = this.state.idMatchedStock[fillingId];
+        components.push({
+          name: filling.name,
+          price: Number(filling.price),
+          quantity: 1,
+          submissionInformation: {
+            id: filling.id
           }
-        ]}
-        callback={(success) => {
-          console.log("Added Item", success);
-        }}
-      />
-    )
+        });
+      });
 
-    // The Toastie Bar is only open between 8pm and 9:30pm for orders
-    const hours = this.state.currentDate.getHours();
-    const minutes = this.state.currentDate.getMinutes();
+      cartableObjects.push({
+        shop: "toastie",
+        name: "Toastie",
+        basePrice,
+        quantity: 1,
+        submissionInformation: {},
+        components,
+        duplicateHash: null
+      });
+    }
 
-    if(!config.debug && this.state.termLocked) {
+    if(drinksOrdered) {
+      drinks.forEach((drinkId, i) => {
+        const drink = this.state.idMatchedStock[drinkId];
+        cartableObjects.push({
+          shop: "toastie",
+          name: drink.name,
+          basePrice: Number(drink.price),
+          quantity: 1,
+          submissionInformation: {
+            id: drink.id
+          },
+          components: [],
+          duplicateHash: null
+        })
+      });
+    }
+
+    if(confectionaryOrdered) {
+      confectionary.forEach((confectionaryId, i) => {
+        const confectionaryItem = this.state.idMatchedStock[confectionaryId];
+        cartableObjects.push({
+          shop: "toastie",
+          name: confectionaryItem.name,
+          basePrice: Number(confectionaryItem.price),
+          quantity: 1,
+          submissionInformation: {
+            id: confectionaryItem.id
+          },
+          components: [],
+          duplicateHash: null
+        })
+      });
+    }
+
+    if(cartableObjects.length !== 0) {
+      cartableObjects.forEach((item, i) => {
+        this.cart.addToCartRaw(item);
+      });
+
+      // Now clear the current order
+      this.setState({ toastie: {
+        bread: -1,
+        fillings: []
+      }, drinks: [], confectionary: [], refreshId: Math.random(), showAddedInfo: true });
+
+      setTimeout(() => {
+        this.setState({ showAddedInfo: false });
+      }, 5000);
+    }
+  }
+
+  displaySelectedToastie = () => {
+    const { toastie } = this.state;
+    const valid = this.checkToastie(toastie);
+
+    if(valid !== true) {
       return (
-        <React.Fragment>
-          <h1>Toastie Bar Closed</h1>
-          <p>The Toastie Bar is currently closed until next term.</p>
-        </React.Fragment>
+        <p>{valid}</p>
       )
     }
 
-    if(!config.debug) {
-      // Outside 8:00pm to 9:30pm
-      if((hours === 21 && minutes >= 30) || hours < 20 || hours >= 22) {
-        return (
-          <React.Fragment>
-            <h1>Toastie Bar Closed</h1>
-            <p>The Toastie Bar is currently not accepting anymore orders.</p>
-            <p>It is open daily from 8pm to 10pm.</p>
-            <p><strong>Orders cannot be placed after 9:30pm.</strong></p>
-          </React.Fragment>
-        )
-      }
+    return (
+      <div>
+        <div className="flex flex-row justify-between">
+          <span>Bread: {this.state.idMatchedStock[toastie.bread].price}</span>
+          <span>£{this.state.idMatchedStock[toastie.bread].price}</span>
+        </div>
+        <p>Fillings:</p>
+        <ul>
+          {
+            toastie.fillings.map((stockId, i) => (
+              <li key={i}>
+                <div className="flex flex-row justify-between">
+                  <span>- {this.state.idMatchedStock[stockId].name}</span>
+                  <span>£{this.state.idMatchedStock[stockId].price}</span>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    );
+  }
+
+  displaySelected = (key) => {
+    const items = this.state[key];
+
+    if(items.length === 0) {
+      return (
+        <p>None Selected</p>
+      )
     }
 
-    // Still waiting for data from the API
+    return (
+      <ul>
+        {
+          items.map((stockId, i) => (
+            <li key={i}>
+              <div className="flex flex-row justify-between">
+                <span>- {this.state.idMatchedStock[stockId].name}</span>
+                <span>£{this.state.idMatchedStock[stockId].price}</span>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    );
+  }
+
+  displaySummary = () => {
+    const { toastie, drinks, confectionary } = this.state;
+
+    let toastieTotal = -1;
+    let drinksTotal = -1;
+    let confectionaryTotal = -1;
+
+    const valid = this.checkToastie(toastie);
+    const toastieOrdered = valid === true;
+    const drinksOrdered = drinks.length !== 0;
+    const confectionaryOrdered = confectionary.length !== 0;
+
+    if(toastieOrdered) {
+      toastieTotal = Number(this.state.idMatchedStock[toastie.bread].price);
+      toastieTotal += toastie.fillings.reduce((sum, stockId) => sum + Number(this.state.idMatchedStock[stockId].price), 0);
+    }
+
+    if(drinksOrdered) {
+      drinksTotal = drinks.reduce((sum, stockId) => sum + Number(this.state.idMatchedStock[stockId].price), 0);
+    }
+
+    if(confectionaryOrdered) {
+      confectionaryTotal = confectionary.reduce((sum, stockId) => sum + Number(this.state.idMatchedStock[stockId].price), 0);
+    }
+
+    let subtotal = (toastieOrdered ? toastieTotal : 0) + (drinksOrdered ? drinksTotal : 0) + (confectionaryOrdered ? confectionaryTotal : 0);
+
+    const hasEarnedDiscount = toastieOrdered && (drinksOrdered || confectionaryOrdered);
+    const wasValidOrder = toastieOrdered || drinksOrdered || confectionaryOrdered;
+
+    let total = subtotal - (hasEarnedDiscount ? 0.2 : 0);
+
+    return (
+      <ul>
+        { toastieTotal !== -1 ? (
+          <li>
+            <div className="flex flex-row justify-between">
+              <span>Toastie</span>
+              <span>£{toastieTotal.toFixed(2)}</span>
+            </div>
+          </li>
+        ) : null}
+        { drinksTotal !== -1 ? (
+          <li>
+            <div className="flex flex-row justify-between">
+              <span>Drinks</span>
+              <span>£{drinksTotal.toFixed(2)}</span>
+            </div>
+          </li>
+        ) : null}
+        { confectionaryTotal !== -1 ? (
+          <li>
+            <div className="flex flex-row justify-between">
+              <span>Confectionary</span>
+              <span>£{confectionaryTotal.toFixed(2)}</span>
+            </div>
+          </li>
+        ) : null}
+        <li className="pt-2">
+          <div className="flex flex-row justify-between font-semibold">
+            <span>{hasEarnedDiscount ? "Subtotal" : "Total"}</span>
+            <span>£{hasEarnedDiscount ? subtotal.toFixed(2) : total.toFixed(2)}</span>
+          </div>
+        </li>
+        { hasEarnedDiscount ? (
+          <li>
+            <div className="flex flex-row justify-between">
+              <span>Discount</span>
+              <span>-£0.20</span>
+            </div>
+          </li>
+        ) : null}
+        { hasEarnedDiscount ? (
+          <li>
+            <div className="flex flex-row justify-between font-semibold">
+              <span>Total</span>
+              <span>£{total.toFixed(2)}</span>
+            </div>
+          </li>
+        ) : null}
+        { wasValidOrder ? (
+          <li className="pt-2">
+            <button
+              className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              onClick={this.addToBag}
+            >Add To Bag</button>
+          </li>
+        ) : null}
+      </ul>
+    )
+  }
+
+  render () {
     if(!this.state.loaded) {
+      if(this.state.status !== 200 && this.state.status !== 0) {
+        return (
+         <Redirect to={`/errors/${this.state.status}`} />
+        );
+      }
+
       return (
         <LoadingHolder />
       );
     }
 
-    // Error occurred should probably handle this better when I get the chance
-    if(this.state.status !== 200) {
-      return (
-        <React.Fragment>
-          <h1>Something went wrong</h1>
-          <p>An error occurred when trying to load this page. Please try again later.</p>
-        </React.Fragment>
-      );
-    }
-
-    // Once they have paid we can hide everything else
-    if(this.state.paymentSuccessful) {
-      return (
-        <React.Fragment>
-          <h1>Payment Success!</h1>
-          <p>Your order is now being processed. Please come and collect it in 10-15 minutes!</p>
-          <h2>Toastie</h2>
-          {this.displayToastieOrder()}
-          <br />
-          <h2>Crisps</h2>
-          {this.displayOtherItemsOrder("crisps")}
-          <br />
-          <h2>Chocolates</h2>
-          {this.displayOtherItemsOrder("chocolates")}
-          <br />
-          <h2>Drinks</h2>
-          {this.displayOtherItemsOrder("drinks")}
-          <br />
-          <p><strong>A receipt has been emailed to {this.context.email}</strong></p>
-        </React.Fragment>
-      )
-    }
-
-    // They are still constructing their order at this point
-    if(!this.state.confirmed) {
-      return (
-        <React.Fragment>
-          <h1>Order Toastie</h1>
-          {hours >= 21 && minutes >= 15 ? <p><strong>Please note that last orders are at 9:30pm. Any order submitted after this time may not be processed.</strong></p> : null}
-          <p>If you order a toastie and some chocolate and/or a drink you will receive a £0.20 discount!</p>
-          <p>Select one type of bread. Unselectable items are out of stock.</p>
-          <h2>Toastie</h2>
-          <br/>
-          <label><strong>Bread: </strong></label>
-          <SelectBread
-            stock={this.state.stock}
-            passUp={this.passUpBread}
-            disabled={this.state.purchaseDisabled}
-          />
-          <br/>
-          <br/>
-          <SelectMany
-            stock={this.state.stock}
-            passUp={this.passUpFillings}
-            type="filling"
-            disabled={this.state.purchaseDisabled}
-          />
-          <br/>
-          <h2>Chocolate</h2>
-          <SelectMany
-            stock={this.state.stock}
-            passUp={(items) => {this.passUpItems("chocolates", items)}}
-            type="chocolates"
-            disabled={this.state.purchaseDisabled}
-          />
-          <h2>Drinks</h2>
-          <SelectMany
-            stock={this.state.stock}
-            passUp={(items) => {this.passUpItems("drinks", items)}}
-            type="drinks"
-            disabled={this.state.purchaseDisabled}
-          />
-          <h2>Crisps</h2>
-          <SelectMany
-            stock={this.state.stock}
-            passUp={(items) => {this.passUpItems("crisps", items)}}
-            type="crisps"
-            disabled={this.state.purchaseDisabled}
-          />
-          <br/>
-          <h2>Checkout</h2>
-          {this.state.discountApplied ? <p>£0.20 discount applied</p> : null}
-          <h3>Total £{this.state.cost.toFixed(2)}</h3>
-          <br/>
-          <button
-            onClick={this.placeOrder}
-            disabled={this.state.purchaseDisabled}
-          >Place Order</button>
-          <br/>
-          <br/>
-          {this.state.error.length !== 0 ? <h2>Error Occurred</h2> : null}
-          {this.state.error.length !== 0 ? <p>{this.state.error}</p> : null}
-        </React.Fragment>
-      )
-    } else {
-      // They are ready to purchase the toastie
-      return (
-        <React.Fragment>
-          <h1>Purchase Toastie</h1>
-          <h2>Confirmed Order</h2>
-          <h3>Toastie</h3>
-          {this.displayToastieOrder()}
-          <br />
-          <h3>Crisps</h3>
-          {this.displayOtherItemsOrder("crisps")}
-          <br />
-          <h3>Chocolates</h3>
-          {this.displayOtherItemsOrder("chocolates")}
-          <br />
-          <h3>Drinks</h3>
-          {this.displayOtherItemsOrder("drinks")}
-          {this.state.discountApplied ? <p>£0.20 discount applied</p> : null}
-          <div>
-            <CheckoutForm
-              clientSecret={this.state.clientSecret}
-              onSuccess={this.onPaymentSuccess}
-              realCost={Number(this.state.realCost) * 100}
-            />
+    return (
+      <div className="flex flex-col justify-start">
+        <div className="container mx-auto text-center p-4">
+          <h1 className="font-semibold text-5xl pb-4">Create Toastie</h1>
+          <div className="flex flex-row w-full text-left">
+            <div className="w-3/4 p-2 pt-0 mx-2">
+              <GroupDropdown
+                title="Toastie: Bread"
+                groupItems={this.state.stock.filter(item => item.type === "bread")}
+                exclusive={true}
+                updateParent={this.updateBread}
+                refreshId={this.state.refreshId}
+              />
+              <GroupDropdown
+                title="Toastie: Fillings"
+                groupItems={this.state.stock.filter(item => item.type === "filling")}
+                exclusive={false}
+                updateParent={this.updateFillings}
+                refreshId={this.state.refreshId}
+              />
+              <GroupDropdown
+                title="Confectionary"
+                groupItems={this.state.stock.filter(item => ["chocolates", "crisps"].includes(item.type))}
+                exclusive={false}
+                updateParent={this.updateConfectionary}
+                refreshId={this.state.refreshId}
+              />
+              <GroupDropdown
+                title="Drinks"
+                groupItems={this.state.stock.filter(item => item.type === "drinks")}
+                exclusive={false}
+                updateParent={this.updateDrinks}
+                refreshId={this.state.refreshId}
+              />
+            </div>
+            <div className="w-1/4 text-base">
+              <div className="border-2 p-2 border-black">
+                <h2 className="text-3xl font-bold">Your Order</h2>
+                <div className="pt-2">
+                  <h3 className="text-xl font-semibold">Toastie</h3>
+                  {this.displaySelectedToastie()}
+                </div>
+                <div className="pt-2">
+                  <h3 className="text-xl font-semibold">Confectionary</h3>
+                  {this.displaySelected("confectionary")}
+                </div>
+                <div className="pt-2">
+                  <h3 className="text-xl font-semibold">Drinks</h3>
+                  {this.displaySelected("drinks")}
+                </div>
+                <div className="pt-2">
+                  <h3 className="text-xl font-semibold">Summary</h3>
+                  {this.displaySummary()}
+                </div>
+                <div className="pt-2">
+                  {this.state.showAddedInfo ? <p>Your order has been added to your basket!</p> : null}
+                </div>
+              </div>
+            </div>
           </div>
-        </React.Fragment>
-      )
-    }
+        </div>
+      </div>
+    );
   }
 }
 
