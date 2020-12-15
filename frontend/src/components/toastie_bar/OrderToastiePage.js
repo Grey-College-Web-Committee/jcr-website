@@ -205,7 +205,7 @@ class OrderToastiePage extends React.Component {
     return (
       <div>
         <div className="flex flex-row justify-between">
-          <span>Bread: {this.state.idMatchedStock[toastie.bread].price}</span>
+          <span>Bread: {this.state.idMatchedStock[toastie.bread].name}</span>
           <span>£{this.state.idMatchedStock[toastie.bread].price}</span>
         </div>
         <p>Fillings:</p>

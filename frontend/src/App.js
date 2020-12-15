@@ -4,6 +4,7 @@ import authContext from './utils/authContext.js';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import config from './config.json';
+import Cart from './components/cart/Cart'
 
 import NavBar from './components/nav/NavBar';
 
@@ -40,6 +41,8 @@ class App extends React.Component {
     if(!this.validateLocalSession(user)) {
       user = null;
     }
+
+    this.cart = new Cart();
 
     this.state = {
       user
@@ -154,6 +157,8 @@ class App extends React.Component {
   }
 
   logoutUser = () => {
+    this.cart.get();
+    this.cart.clearCart();
     this.setState({ user: null });
   }
 

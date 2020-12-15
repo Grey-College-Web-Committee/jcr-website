@@ -40,11 +40,7 @@ class CartItem extends React.Component {
           ))}
         </ul>
       </div>
-    ) : (
-      <div>
-        <span>None Selected</span>
-      </div>
-    )
+    ) : null;
 
     return (
       <div className="flex flex-row p-2 border-red-700 border-solid border-b-2 w-full">
@@ -74,7 +70,7 @@ class CartItem extends React.Component {
             <span>{quantity} x £{totalPrice.toFixed(2)}</span>
             <span>(£{(totalPrice * quantity).toFixed(2)})</span>
           </div>
-          <span>Customisation:</span>
+          {hasComponents ? <span>Customisation:</span> : null}
           {componentList}
         </div>
       </div>

@@ -40,11 +40,7 @@ class CheckoutCartItem extends React.Component {
           ))}
         </ul>
       </div>
-    ) : (
-      <div>
-        <span>None Selected</span>
-      </div>
-    )
+    ) : null;
 
     return (
       <div className="flex flex-row p-2 border-red-700 border-solid border-b-2 w-auto text-xl">
@@ -52,7 +48,7 @@ class CheckoutCartItem extends React.Component {
           <img
             src="/images/cart/placeholder.png"
             alt="Cart Placeholder Image"
-            className="w-48 h-48"
+            className="w-32 h-32"
           />
           <div className="flex flex-row pt-2">
             <button
@@ -72,7 +68,7 @@ class CheckoutCartItem extends React.Component {
             <span>{quantity} x £{totalPrice.toFixed(2)}</span>
             <span>(£{(totalPrice * quantity).toFixed(2)})</span>
           </div>
-          <span>Customisation:</span>
+          {hasComponents ? <span>Customisation:</span> : null}
           {componentList}
         </div>
       </div>

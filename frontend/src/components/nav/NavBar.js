@@ -114,6 +114,8 @@ class NavBar extends React.Component {
     const location = this.props.location.pathname;
     const menuOptions = this.getMenuOptions(user);
 
+    const loggedIn = !(user === undefined || user === null);
+
     return (
       <nav
         onMouseLeave={() => {
@@ -139,11 +141,11 @@ class NavBar extends React.Component {
           }
         </ul>
         <ul className="flex flex-row items-center">
-          <CartNavBarElement
+          {loggedIn ? (<CartNavBarElement
             id={menuOptions.length}
             activeDropdownKey={this.state.activeDropdownKey}
             changeActiveDropdownKey={this.setActiveDropdown}
-          />
+          />) : null}
           <HamburgerSelector
             menuOptions={menuOptions}
             user={user}
