@@ -70,6 +70,8 @@ class CheckoutPage extends React.Component {
       this.setState({ pageState: -1, errorStatus: status });
       return;
     }
+
+    console.log(JSON.stringify(submissionCart));
   }
 
   updateCart = () => {

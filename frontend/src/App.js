@@ -158,6 +158,7 @@ class App extends React.Component {
 
   logoutUser = () => {
     this.cart.get();
+    this.cart.setLocked(false);
     this.cart.clearCart();
     this.setState({ user: null });
   }

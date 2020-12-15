@@ -8,7 +8,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder } = require("./database.models.js");
+const { User, GymMembership, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent } = require("./database.models.js");
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
 const toastieBarRoute = require("./routes/toastie_bar");
@@ -65,12 +65,12 @@ const requiredPermissions = [
 (async() => {
   await User.sync();
   await GymMembership.sync();
-  await ToastieOrder.sync();
   await ToastieStock.sync();
   await ToastieOrderContent.sync();
   await Permission.sync();
   await PermissionLink.sync();
   await ShopOrder.sync();
+  await ShopOrderContent.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({

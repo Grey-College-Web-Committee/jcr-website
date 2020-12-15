@@ -15,9 +15,10 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 class User extends Model {}
 
 class ShopOrder extends Model {}
+class ShopOrderContent extends Model {}
+
 class GymMembership extends Model {}
 class ToastieStock extends Model {}
-class ToastieOrder extends Model {}
 class ToastieOrderContent extends Model {}
 
 class Permission extends Model {}
@@ -83,6 +84,16 @@ ShopOrder.init({
   }
 }, { sequelize });
 
+ShopOrderContent.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ShopOrder,
+      key: 'id'
+    }
+  }
+}, { sequelize });
+
 ToastieStock.init({
   name: {
     type: DataTypes.STRING,
@@ -102,30 +113,11 @@ ToastieStock.init({
   }
 }, { sequelize, freezeTableName: true });
 
-ToastieOrder.init({
-  userId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  paid: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  stripeId: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-    defaultValue: null
-  }
-}, { sequelize });
-
 ToastieOrderContent.init({
   orderId: {
     type: DataTypes.INTEGER,
     references: {
-      model: ToastieOrder,
+      model: ShopOrderContent,
       key: 'id'
     }
   },
@@ -168,14 +160,17 @@ PermissionLink.init({
 User.hasMany(GymMembership, { foreignKey: 'userId' });
 GymMembership.belongsTo(User, { foreignKey: 'userId' });
 
-User.hasMany(ToastieOrder, { foreignKey: 'userId' });
-ToastieOrder.belongsTo(User, { foreignKey: 'userId' });
+User.hasMany(ShopOrder, { foreignKey: 'userId' });
+ShopOrder.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasMany(ShopOrder, { foreignKey: 'userId' });
 ShopOrder.belongsTo(User, { foreignKey: 'userId' });
 
-ToastieOrder.hasMany(ToastieOrderContent, { foreignKey: 'orderId' });
-ToastieOrderContent.belongsTo(ToastieOrder, { foreignKey: 'orderId' });
+ShopOrder.hasMany(ShopOrderContent, { foreignKey: 'orderId' });
+ShopOrderContent.belongsTo(ShopOrder, { foreignKey: 'orderId' });
+
+ShopOrderContent.hasMany(ToastieOrderContent, { foreignKey: 'orderId' });
+ToastieOrderContent.belongsTo(ShopOrderContent, { foreignKey: 'orderId' });
 
 ToastieStock.hasMany(ToastieOrderContent, { foreignKey: 'stockId' });
 ToastieOrderContent.belongsTo(ToastieStock, { foreignKey: 'stockId' });
@@ -186,4 +181,4 @@ PermissionLink.belongsTo(Permission, { foreignKey: 'permissionId' });
 PermissionLink.belongsTo(User, { as: "grantedTo", foreignKey: "grantedToId" });
 PermissionLink.belongsTo(User, { as: "grantedBy", foreignKey: "grantedById" });
 
-module.exports = { User, GymMembership, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder };
+module.exports = { User, GymMembership, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent };
