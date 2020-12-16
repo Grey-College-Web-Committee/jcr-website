@@ -48,7 +48,7 @@ class ViewCart extends React.Component {
     if(Cart.locked) {
       return (
         <div
-          className={`w-1/6 absolute z-10 mt-4 right-0 mr-2 text-black border-2 bg-white border-red-700 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
+          className={`w-1/6 absolute z-10 mt-4 right-0 mr-2 text-black border-2 bg-white border-red-900 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
         >
           <div className="w-full border-b-4 border-red-900 p-2 text-white bg-red-900 font-bold text-lg">
             Your Bag
@@ -68,7 +68,7 @@ class ViewCart extends React.Component {
                 ))}
               </ul>
             </div>
-            <div className="w-full border-b-2 border-red-700 p-2 flex flex-row flex-grow justify-between opacity-50">
+            <div className="w-full border-b-2 border-red-900 p-2 flex flex-row flex-grow justify-between opacity-50">
               <span className="font-semibold">Subtotal</span>
               <span className="font-semibold">£{subtotal.toFixed(2)}</span>
             </div>
@@ -82,7 +82,7 @@ class ViewCart extends React.Component {
 
     return (
       <div
-        className={`w-1/6 absolute z-10 mt-4 right-0 mr-2 text-black border-2 bg-white border-red-700 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
+        className={`w-1/6 absolute z-10 mt-4 right-0 mr-2 text-black border-2 bg-white border-red-900 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
       >
         <div className="w-full border-b-4 border-red-900 p-2 text-white bg-red-900 font-bold text-lg">
           Your Bag
@@ -100,7 +100,7 @@ class ViewCart extends React.Component {
               ))}
             </ul>
           </div>
-          <div className="w-full border-b-2 border-red-700 p-2 flex flex-row flex-grow justify-between">
+          <div className="w-full border-b-2 border-red-900 p-2 flex flex-row flex-grow justify-between">
             <span className="font-semibold">Subtotal</span>
             <span className="font-semibold">£{subtotal.toFixed(2)}</span>
           </div>

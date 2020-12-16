@@ -3,7 +3,8 @@ import authContext from '../../utils/authContext.js';
 import { withRouter } from 'react-router-dom';
 import NavBarElement from './NavBarElement';
 import HamburgerSelector from './HamburgerSelector';
-import CartNavBarElement from '../cart/CartNavBarElement';
+import CartDesktopNavBarElement from '../cart/CartDesktopNavBarElement';
+import CartMobileNavBarElement from '../cart/CartMobileNavBarElement';
 
 // Basic navigation bar for all pages
 class NavBar extends React.Component {
@@ -141,8 +142,13 @@ class NavBar extends React.Component {
           }
         </ul>
         <ul className="flex flex-row items-center">
-          {loggedIn ? (<CartNavBarElement
+          {loggedIn ? (<CartDesktopNavBarElement
             id={menuOptions.length}
+            activeDropdownKey={this.state.activeDropdownKey}
+            changeActiveDropdownKey={this.setActiveDropdown}
+          />) : null}
+          {loggedIn ? (<CartMobileNavBarElement
+            id={menuOptions.length + 1}
             activeDropdownKey={this.state.activeDropdownKey}
             changeActiveDropdownKey={this.setActiveDropdown}
           />) : null}

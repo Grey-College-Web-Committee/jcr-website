@@ -37,7 +37,7 @@ class HamburgerMenu extends React.Component {
           ))}
         </ul>
       </div>
-    )
+    );
   }
 }
 

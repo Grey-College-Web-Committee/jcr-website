@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Prompt } from 'react-router-dom';
 import LoadingHolder from '../common/LoadingHolder';
 import Cart from '../cart/Cart';
 import CheckoutCartItem from './CheckoutCartItem';
@@ -30,6 +31,7 @@ class CheckoutPage extends React.Component {
   onPaymentSuccess = () => {
     this.cart.setLocked(false);
     this.cart.clearCart();
+    window.removeEventListener("beforeunload", this.unlockHandler);
     this.setState({ pageState: 3 });
   }
 
@@ -95,9 +97,39 @@ class CheckoutPage extends React.Component {
     this.cart = new Cart();
     this.cart.registerCallbackOnSave(this.updateCart);
     this.updateCart();
+
+    window.addEventListener("beforeunload", this.unlockHandler);
+  }
+
+  unlockHandler = (ev) => {
+    if(this.cart) {
+      this.cart.setLocked(false);
+    }
+  }
+
+  componentWillUnmount = () => {
+    this.cart.setLocked(false);
   }
 
   displayCart = (items, locked) => {
+    if(items.length === 0) {
+      return (
+        <div className="flex flex-row justify-center">
+          <div className="text-3xl flex flex-col justify-center align-middle w-max">
+            <div>
+              <img
+                src="/images/cart/basket.png"
+                className="w-64 h-64"
+              />
+            </div>
+            <div>
+              <p className="flex">Your bag is empty!</p>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <ul>
         {items.map((item, i) => (
@@ -112,6 +144,15 @@ class CheckoutPage extends React.Component {
     );
   }
 
+  injectPrompt = () => {
+    return (
+      <Prompt
+        when={this.state.pageState === 1 || this.state.pageState === 2}
+        message="Are you sure you want to cancel payment?"
+      />
+    )
+  }
+
   render () {
     if(!this.cart) {
       return (
@@ -119,14 +160,13 @@ class CheckoutPage extends React.Component {
       );
     }
 
-    console.log(this.state.pageState, this.state.lockedClientSideCart);
-
     const { items, discountCodes } = this.state.pageState <= 0 ? this.cart.get() : this.state.lockedClientSideCart ;
 
     switch(this.state.pageState) {
       // Confirm the order
       case 0:
         let subtotal = 0;
+        const bagEmpty = items.length === 0;
 
         items.forEach((item, i) => {
           const { basePrice, quantity, components } = item;
@@ -142,21 +182,22 @@ class CheckoutPage extends React.Component {
 
         return (
           <div className="flex flex-col justify-start">
+            {this.injectPrompt()}
             <div className="container mx-auto p-4 w-full">
               <h1 className="font-semibold text-5xl pb-4 text-center">Your Bag</h1>
               <div className="flex flex-col-reverse sm:flex-row sm:justify-between">
                 <div className="sm:w-1/2 sm:mx-auto w-full">
                   {this.displayCart(items, false)}
                 </div>
-                <div className="w-full sm:w-1/3 mx-auto block sm:flex sm:flex-col text-base pt-4 align-middle">
-                  <div className="flex flex-row justify-between text-3xl pb-2">
-                    <span>Total:</span>
+                <div className="w-full sm:w-1/3 mx-auto block sm:flex sm:flex-col text-base py-4 align-middle">
+                  <div className="flex flex-row justify-between font-semibold text-3xl mb-4">
+                    <span>Total</span>
                     <span>£{subtotal.toFixed(2)}</span>
                   </div>
                   <button
                     className="px-2 py-2 rounded bg-red-900 text-white text-2xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                     onClick={this.startCheckout}
-                    disabled={this.state.disabled}
+                    disabled={this.state.disabled || bagEmpty}
                   >Pay Now</button>
                   <br />
                   <button
@@ -172,19 +213,23 @@ class CheckoutPage extends React.Component {
       // Load the checkout form and confirm with the server
       case 1:
         return (
-          <LoadingHolder />
+          <div>
+            {this.injectPrompt()}
+            <LoadingHolder />
+          </div>
         );
 
       case 2:
         return (
           <div className="flex flex-col justify-start">
+            {this.injectPrompt()}
             <div className="container mx-auto p-4 w-full">
               <h1 className="font-semibold text-5xl pb-4 text-center">Your Confirmed Order</h1>
               <div className="flex flex-col-reverse sm:flex-row sm:justify-between">
                 <div className="sm:w-1/2 sm:mx-auto w-full">
                   {this.displayCart(items, true)}
                 </div>
-                <div className="w-full sm:w-1/3 mx-auto block sm:flex sm:flex-col text-base pt-4 align-middle">
+                <div className="w-full sm:w-1/3 mx-auto block sm:flex sm:flex-col text-base py-4 align-middle">
                   <CheckoutForm
                     clientSecret={this.state.clientSecret}
                     onSuccess={this.onPaymentSuccess}
@@ -211,8 +256,6 @@ class CheckoutPage extends React.Component {
                     <p>The payment has been confirmed and the order has been placed.</p>
                   </div>
                   {this.displayCart(items, true)}
-                </div>
-                <div className="w-full sm:w-1/3 mx-auto block sm:flex sm:flex-col text-base pt-4 align-middle">
                 </div>
               </div>
             </div>

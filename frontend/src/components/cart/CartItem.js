@@ -29,10 +29,10 @@ class CartItem extends React.Component {
     const totalPrice = basePrice + additionalPrice;
 
     const componentList = hasComponents ? (
-      <div className="text-sm">
+      <div className="text-sm break-all">
         <ul>
           {components.map((component, i) => (
-            <li key={i}>
+            <li key={i} className="text-left">
               <span>- {component.name}</span>
               {component.hasOwnProperty("additionalDisplay") ? <br /> : null}
               {component.hasOwnProperty("additionalDisplay") ? <span>>> {component.additionalDisplay} </span> : null}
@@ -43,7 +43,7 @@ class CartItem extends React.Component {
     ) : null;
 
     return (
-      <div className="flex flex-row p-2 border-red-700 border-solid border-b-2 w-full">
+      <div className="flex flex-row p-2 border-red-900 border-solid border-b-2 w-full">
         <div className="pr-4 align-middle flex flex-col justify-between">
           <img
             src="/images/cart/placeholder.png"
@@ -65,12 +65,12 @@ class CartItem extends React.Component {
           </div>
         </div>
         <div className="flex flex-col flex-grow">
-          <span className="font-semibold">{name}</span>
+          <span className="font-semibold text-left">{name}</span>
           <div className="flex flex-row justify-between">
             <span>{quantity} x £{totalPrice.toFixed(2)}</span>
             <span>(£{(totalPrice * quantity).toFixed(2)})</span>
           </div>
-          {hasComponents ? <span>Customisation:</span> : null}
+          {hasComponents ? <span className="text-left">Customisation:</span> : null}
           {componentList}
         </div>
       </div>

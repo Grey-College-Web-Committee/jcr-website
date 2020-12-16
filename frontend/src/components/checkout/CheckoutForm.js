@@ -200,7 +200,7 @@ class CheckoutForm extends React.Component {
     const expressDiv = (
       <div className="mx-auto w-auto pt-2">
         <div id="payment-request-button"></div>
-        <div className="w-full text-center">-- or --</div>
+        <div className="w-full text-center"><p className="lined-header"><span>or</span></p></div>
       </div>
     );
     const errorDiv = (
@@ -237,7 +237,7 @@ class CheckoutForm extends React.Component {
               className="border-2 border-gray-200 p-4"
             />
           </div>
-          <div className="mx-auto w-auto pb-4 pt-4">
+          <div className="mx-auto w-auto pb-4 pt-4 border-b-2 border-gray-200">
             <button
               onClick={this.handleSubmit}
               disabled={this.state.disabled}

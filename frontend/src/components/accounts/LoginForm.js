@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Cart from '../cart/Cart';
 
 class LoginForm extends React.Component {
   constructor(props) {
@@ -16,6 +17,12 @@ class LoginForm extends React.Component {
   // Basic function to change the state for any text-based input
   onInputChange = e => {
     this.setState({ [e.target.name]: e.target.value, usernameError: false, passwordError: false });
+  }
+
+  componentDidMount = () => {
+    const cart = new Cart();
+    cart.clearCart();
+    cart.setLocked(false);
   }
 
   // When the user submits the form we validate the details

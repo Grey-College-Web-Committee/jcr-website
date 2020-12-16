@@ -338,7 +338,7 @@ class OrderToastiePage extends React.Component {
         { wasValidOrder ? (
           <li className="pt-2">
             <button
-              className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              className="px-4 py-2 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               onClick={this.addToBag}
             >Add To Bag</button>
           </li>
@@ -364,8 +364,8 @@ class OrderToastiePage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Create Toastie</h1>
-          <div className="flex flex-row w-full text-left">
-            <div className="w-3/4 p-2 pt-0 mx-2">
+          <div className="flex flex-col sm:flex-row w-full text-left">
+            <div className="w-full sm:w-3/4 sm:px-2 sm:mx-2">
               <GroupDropdown
                 title="Toastie: Bread"
                 groupItems={this.state.stock.filter(item => item.type === "bread")}
@@ -395,7 +395,7 @@ class OrderToastiePage extends React.Component {
                 refreshId={this.state.refreshId}
               />
             </div>
-            <div className="w-1/4 text-base">
+            <div className="w-full sm:w-1/4 text-base">
               <div className="border-2 p-2 border-black">
                 <h2 className="text-3xl font-bold">Your Order</h2>
                 <div className="pt-2">

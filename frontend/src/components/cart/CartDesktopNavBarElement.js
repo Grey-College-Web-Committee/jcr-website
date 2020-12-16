@@ -2,16 +2,16 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import ViewCart from './ViewCart';
 
-class CartNavBarElement extends React.Component {
+class CartDesktopNavBarElement extends React.Component {
   render () {
     return (
       <li
-        className="h-full p-3"
+        className="h-full p-3 hidden sm:inline-block"
         onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
       >
         <img
-          src="/images/cart/placeholder.png"
-          alt="Shopping Cart Icon"
+          src="/images/cart/basket.png"
+          alt="Shopping Basket"
           style={{width: 48}}
         />
         <ViewCart
@@ -25,4 +25,4 @@ class CartNavBarElement extends React.Component {
   }
 }
 
-export default CartNavBarElement;
+export default CartDesktopNavBarElement;
