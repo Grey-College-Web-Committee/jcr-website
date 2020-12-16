@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Cart from './Cart';
+import Cart from '../cart/Cart';
 
 class CheckoutCartItem extends React.Component {
   constructor(props) {
@@ -51,15 +51,15 @@ class CheckoutCartItem extends React.Component {
             className="w-32 h-32"
           />
           <div className="flex flex-row pt-2">
-            <button
+            {!this.props.locked ? (<button
               className="w-4"
               onClick={() => this.adjustQuantity(-1)}
-            >-</button>
+            >-</button>) : null}
             <span className="flex-grow text-center">Qty: {quantity}</span>
-            <button
+            {!this.props.locked ? (<button
               className="w-4"
               onClick={() => this.adjustQuantity(1)}
-            >+</button>
+            >+</button>) : null}
           </div>
         </div>
         <div className="flex flex-col flex-grow text-left">

@@ -91,7 +91,7 @@ class OrderToastiePage extends React.Component {
 
   addToBag = () => {
     // refresh in case it's out of sync
-    this.cart.get();
+    const currentCart = this.cart.get();
 
     const { toastie, drinks, confectionary } = this.state;
     const valid = this.checkToastie(toastie);
@@ -101,7 +101,10 @@ class OrderToastiePage extends React.Component {
     const toastieOrdered = valid === true;
     const drinksOrdered = drinks.length !== 0;
     const confectionaryOrdered = confectionary.length !== 0;
-    const potentialDiscount = drinksOrdered || confectionaryOrdered;
+
+    const cartToastieItems = currentCart.items.filter(item => item.shop === "toastie");
+    const alreadyUsedDiscount = (cartToastieItems.filter(item => item.name === "Toastie").length !== 0) && (cartToastieItems.filter(item => item.name !== "Toastie").length !== 0);
+    const potentialDiscount = (drinksOrdered || confectionaryOrdered) && !alreadyUsedDiscount;
 
     if(toastieOrdered) {
       const basePrice = potentialDiscount ? -0.2 : 0;
@@ -277,7 +280,9 @@ class OrderToastiePage extends React.Component {
 
     let subtotal = (toastieOrdered ? toastieTotal : 0) + (drinksOrdered ? drinksTotal : 0) + (confectionaryOrdered ? confectionaryTotal : 0);
 
-    const hasEarnedDiscount = toastieOrdered && (drinksOrdered || confectionaryOrdered);
+    const cartToastieItems = this.cart.get().items.filter(item => item.shop === "toastie");
+    const alreadyUsedDiscount = (cartToastieItems.filter(item => item.name === "Toastie").length !== 0) && (cartToastieItems.filter(item => item.name !== "Toastie").length !== 0);
+    const hasEarnedDiscount = (toastieOrdered && (drinksOrdered || confectionaryOrdered)) && !alreadyUsedDiscount;
     const wasValidOrder = toastieOrdered || drinksOrdered || confectionaryOrdered;
 
     let total = subtotal - (hasEarnedDiscount ? 0.2 : 0);

@@ -99,7 +99,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
         };
       }
 
-      totalPrice += Number(price);
+      totalPrice += Number(price) * quantity;
     }
 
     if(modifedParameters.toastie.hasOwnProperty("nonDiscountedToastieCount") && modifedParameters.toastie.nonDiscountedToastieCount !== undefined && modifedParameters.toastie.nonDiscountedToastieCount !== null) {
@@ -134,7 +134,6 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
     }
 
     console.log("Extra:");
-    console.log(id, extraRecord.dataValues);
 
     const { name, available, type, price } = extraRecord.dataValues;
 
@@ -152,7 +151,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
     try {
       orderExtraInsert = await ToastieOrderContent.create({
         orderId: subOrderId,
-        stockId: id
+        stockId: extraId
       })
     } catch (error) {
       return {
@@ -162,7 +161,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       };
     }
 
-    totalPrice += Number(price);
+    totalPrice += Number(price) * quantity;
 
     if(modifedParameters.toastie.hasOwnProperty("nonDiscountedConfectionary") && modifedParameters.toastie.nonDiscountedConfectionary !== undefined && modifedParameters.toastie.nonDiscountedConfectionary !== null) {
       modifedParameters.toastie.nonDiscountedConfectionary += 1;

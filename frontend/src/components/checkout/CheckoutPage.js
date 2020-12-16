@@ -1,9 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import LoadingHolder from '../common/LoadingHolder';
-import Cart from './Cart';
+import Cart from '../cart/Cart';
 import CheckoutCartItem from './CheckoutCartItem';
 import api from '../../utils/axiosConfig';
+import CheckoutForm from './CheckoutForm';
 
 class CheckoutPage extends React.Component {
   constructor(props) {
@@ -14,14 +15,22 @@ class CheckoutPage extends React.Component {
       disabled: false,
       pageState: 0,
       lockedClientSideCart: null,
-      errorStatus: -1
+      errorStatus: -1,
+      clientSecret: null,
+      totalAmountInPence: -1
     }
   }
 
   startCheckout = (e) => {
     e.preventDefault();
-    this.setState({ disabled: true, pageState: 1, lockedClientSideCart: this.cart.get() }, this.submitCart);
+    this.setState({ disabled: true, pageState: 1, lockedClientSideCart: JSON.parse(JSON.stringify(this.cart.get())) }, this.submitCart);
     this.cart.setLocked(true);
+  }
+
+  onPaymentSuccess = () => {
+    this.cart.setLocked(false);
+    this.cart.clearCart();
+    this.setState({ pageState: 3 });
   }
 
   submitCart = async () => {
@@ -71,6 +80,9 @@ class CheckoutPage extends React.Component {
       return;
     }
 
+    const { clientSecret, totalAmountInPence } = serverResponse.data;
+
+    this.setState({ clientSecret, totalAmountInPence, pageState: 2 });
     console.log(JSON.stringify(submissionCart));
   }
 
@@ -85,17 +97,35 @@ class CheckoutPage extends React.Component {
     this.updateCart();
   }
 
+  displayCart = (items, locked) => {
+    return (
+      <ul>
+        {items.map((item, i) => (
+          <li key={i}>
+            <CheckoutCartItem
+              item={item}
+              locked={locked}
+            />
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
   render () {
+    if(!this.cart) {
+      return (
+        <LoadingHolder />
+      );
+    }
+
+    console.log(this.state.pageState, this.state.lockedClientSideCart);
+
+    const { items, discountCodes } = this.state.pageState <= 0 ? this.cart.get() : this.state.lockedClientSideCart ;
+
     switch(this.state.pageState) {
       // Confirm the order
       case 0:
-        if(!this.cart) {
-          return (
-            <LoadingHolder />
-          );
-        }
-
-        const { items, discountCodes } = this.cart.get();
         let subtotal = 0;
 
         items.forEach((item, i) => {
@@ -114,19 +144,11 @@ class CheckoutPage extends React.Component {
           <div className="flex flex-col justify-start">
             <div className="container mx-auto p-4 w-full">
               <h1 className="font-semibold text-5xl pb-4 text-center">Your Bag</h1>
-              <div className="sm:flex sm:flex-row sm:justify-between">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-between">
                 <div className="sm:w-1/2 sm:mx-auto w-full">
-                  <ul>
-                    {items.map((item, i) => (
-                      <li key={i}>
-                        <CheckoutCartItem
-                          item={item}
-                        />
-                      </li>
-                    ))}
-                  </ul>
+                  {this.displayCart(items, false)}
                 </div>
-                <div className="w-full sm:w-1/4 mx-auto block sm:flex sm:flex-col text-base pt-4 align-middle">
+                <div className="w-full sm:w-1/3 mx-auto block sm:flex sm:flex-col text-base pt-4 align-middle">
                   <div className="flex flex-row justify-between text-3xl pb-2">
                     <span>Total:</span>
                     <span>£{subtotal.toFixed(2)}</span>
@@ -136,9 +158,9 @@ class CheckoutPage extends React.Component {
                     onClick={this.startCheckout}
                     disabled={this.state.disabled}
                   >Pay Now</button>
-                <br />
+                  <br />
                   <button
-                    className="px-2 py-2 rounded bg-red-900 text-white text-2xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    className="px-2 py-2 rounded bg-red-900 text-white text-2xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 hidden"
                     onClick={() => {this.cart.setLocked(!Cart.locked)}}
                     disabled={this.state.disabled}
                   >LOCK/UNLOCK CART</button>
@@ -152,6 +174,50 @@ class CheckoutPage extends React.Component {
         return (
           <LoadingHolder />
         );
+
+      case 2:
+        return (
+          <div className="flex flex-col justify-start">
+            <div className="container mx-auto p-4 w-full">
+              <h1 className="font-semibold text-5xl pb-4 text-center">Your Confirmed Order</h1>
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-between">
+                <div className="sm:w-1/2 sm:mx-auto w-full">
+                  {this.displayCart(items, true)}
+                </div>
+                <div className="w-full sm:w-1/3 mx-auto block sm:flex sm:flex-col text-base pt-4 align-middle">
+                  <CheckoutForm
+                    clientSecret={this.state.clientSecret}
+                    onSuccess={this.onPaymentSuccess}
+                    totalAmountInPence={this.state.totalAmountInPence}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="flex flex-col justify-start">
+            <div className="container mx-auto p-4 w-full">
+              <h1 className="font-semibold text-5xl pb-4 text-center">Order Placed!</h1>
+              <div className="mx-auto text-center">
+                <div className="sm:w-1/2 sm:mx-auto w-full">
+                  <div className="text-3xl pb-2 font-semibold text-center">
+                    <h2>Thank you for your purchase</h2>
+                  </div>
+                  <div className="text-lg pb-4">
+                    <p>A receipt has been emailed to your Durham email address.</p>
+                    <p>The payment has been confirmed and the order has been placed.</p>
+                  </div>
+                  {this.displayCart(items, true)}
+                </div>
+                <div className="w-full sm:w-1/3 mx-auto block sm:flex sm:flex-col text-base pt-4 align-middle">
+                </div>
+              </div>
+            </div>
+          </div>
+        )
 
       case -1:
         return (

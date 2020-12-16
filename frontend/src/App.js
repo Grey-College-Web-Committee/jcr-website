@@ -13,7 +13,9 @@ import LogoutPage from './components/accounts/LogoutPage';
 import ErrorPage from './components/errors/ErrorPage';
 import HomePage from './components/home/HomePage';
 import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
-import CheckoutPage from './components/cart/CheckoutPage';
+import CheckoutPage from './components/checkout/CheckoutPage';
+
+import SpinnerTestPage from './components/common/SpinnerTestPage';
 
 // To add a new page import it like above
 
@@ -174,9 +176,9 @@ class App extends React.Component {
       <Elements stripe={stripePromise}>
         <authContext.Provider value={this.state.user}>
           <Router>
-            <div>
+            <div className="overscroll-none overflow-hidden">
               <NavBar />
-              <div>
+              <div className="overscroll-none overflow-hidden">
                 <Switch>
                   <Route exact path="/" render={() => (
                     <HomePage />
@@ -193,6 +195,9 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/toasties/" render={() => (
                     this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/spinner/" render={() => (
+                    this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/checkout/" render={() => (
                     this.isLoggedIn() ? ( <CheckoutPage /> ) : ( <Redirect to="/accounts/login" /> )
