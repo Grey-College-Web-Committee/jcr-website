@@ -47,7 +47,8 @@ class App extends React.Component {
     this.cart = new Cart();
 
     this.state = {
-      user
+      user,
+      hideBody: false
     };
   }
 
@@ -171,14 +172,22 @@ class App extends React.Component {
     }
   }
 
+  hideBody = (show) => {
+    this.setState({ hideBody: show });
+  }
+
   render () {
+    const bodyHidden = this.state.hideBody ? "hidden" : "";
+
     return (
       <Elements stripe={stripePromise}>
         <authContext.Provider value={this.state.user}>
           <Router>
             <div className="overscroll-none overflow-hidden">
-              <NavBar />
-              <div className="overscroll-none overflow-hidden">
+              <NavBar
+                hideBody={this.hideBody}
+              />
+              <div className={`overscroll-none overflow-hidden ${bodyHidden}`}>
                 <Switch>
                   <Route exact path="/" render={() => (
                     <HomePage />

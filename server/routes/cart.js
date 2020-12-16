@@ -16,23 +16,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 
   let modifedParameters = globalOrderParameters;
 
-  // Create an suborder id
-  let subOrderIdInsert;
-
-  try {
-    subOrderIdInsert = await ShopOrderContent.create({
-      orderId
-    });
-  } catch (error) {
-    return {
-      errorOccurred: true,
-      status: 500,
-      error: "Unable to create sub order"
-    };
-  }
-
   let totalPrice = 0;
-  const subOrderId = subOrderIdInsert.id;
 
   if(isToastie) {
     if(!hasComponents) {
@@ -43,63 +27,83 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       };
     }
 
-    const fillingIds = componentSubmissionInfo.map(obj => obj.id);
-
-    let hasBread = false;
-    let hasFillings = false;
-
-    for(let i = 0; i < fillingIds.length; i++) {
-      id = fillingIds[i];
-      // Check if it is in stock
-      let fillingRecord;
+    for(let subOrderCount = 0; subOrderCount < quantity; subOrderCount++) {
+      // Create an suborder id
+      let subOrderIdInsert;
 
       try {
-        fillingRecord = await ToastieStock.findOne({
-          where: { id }
+        subOrderIdInsert = await ShopOrderContent.create({
+          orderId,
+          shop: "toastie"
         });
       } catch (error) {
         return {
           errorOccurred: true,
           status: 500,
-          error: "Unable to verify toastie contents"
+          error: "Unable to create sub order"
         };
       }
 
-      const { name, available, type, price } = fillingRecord.dataValues;
+      const subOrderId = subOrderIdInsert.id;
+      const fillingIds = componentSubmissionInfo.map(obj => obj.id);
 
-      if(!available) {
-        return {
-          errorOccurred: true,
-          status: 400,
-          error: `${name} is out of stock`
-        };
+      let hasBread = false;
+      let hasFillings = false;
+
+      for(let i = 0; i < fillingIds.length; i++) {
+        id = fillingIds[i];
+        // Check if it is in stock
+        let fillingRecord;
+
+        try {
+          fillingRecord = await ToastieStock.findOne({
+            where: { id }
+          });
+        } catch (error) {
+          return {
+            errorOccurred: true,
+            status: 500,
+            error: "Unable to verify toastie contents"
+          };
+        }
+
+        const { name, available, type, price } = fillingRecord.dataValues;
+
+        if(!available) {
+          return {
+            errorOccurred: true,
+            status: 400,
+            error: `${name} is out of stock`
+          };
+        }
+
+        if(type === "filling") {
+          hasFillings = true;
+        }
+
+        if(type === "bread") {
+          hasBread = true;
+        }
+
+        // Now add it to the order
+        let orderFillingInsert;
+
+        try {
+          orderFillingInsert = await ToastieOrderContent.create({
+            orderId: subOrderId,
+            stockId: id,
+            quantity: 1
+          })
+        } catch (error) {
+          return {
+            errorOccurred: true,
+            status: 500,
+            error: "Unable to add filling to order"
+          };
+        }
+
+        totalPrice += Number(price);
       }
-
-      if(type === "filling") {
-        hasFillings = true;
-      }
-
-      if(type === "bread") {
-        hasBread = true;
-      }
-
-      // Now add it to the order
-      let orderFillingInsert;
-
-      try {
-        orderFillingInsert = await ToastieOrderContent.create({
-          orderId: subOrderId,
-          stockId: id
-        })
-      } catch (error) {
-        return {
-          errorOccurred: true,
-          status: 500,
-          error: "Unable to add filling to order"
-        };
-      }
-
-      totalPrice += Number(price) * quantity;
     }
 
     if(modifedParameters.toastie.hasOwnProperty("nonDiscountedToastieCount") && modifedParameters.toastie.nonDiscountedToastieCount !== undefined && modifedParameters.toastie.nonDiscountedToastieCount !== null) {
@@ -117,6 +121,22 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       };
     }
 
+    let subOrderIdInsert;
+
+    try {
+      subOrderIdInsert = await ShopOrderContent.create({
+        orderId,
+        shop: "toastie"
+      });
+    } catch (error) {
+      return {
+        errorOccurred: true,
+        status: 500,
+        error: "Unable to create sub order"
+      };
+    }
+
+    const subOrderId = subOrderIdInsert.id;
     const extraId = globalSubmissionInfo.id;
 
     let extraRecord;
@@ -151,7 +171,8 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
     try {
       orderExtraInsert = await ToastieOrderContent.create({
         orderId: subOrderId,
-        stockId: extraId
+        stockId: extraId,
+        quantity
       })
     } catch (error) {
       return {
@@ -326,11 +347,16 @@ router.post("/process", async (req, res) => {
     globalOrderParameters[item] = {};
   });
 
+  let usedShops = [];
+
   for(let i = 0; i < submittedCart.items.length; i++) {
     item = submittedCart.items[i];
-    console.log(item);
     const { shop, quantity, globalSubmissionInfo, componentSubmissionInfo } = item;
     const result = await shopProcessors[shop](globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo);
+
+    if(!usedShops.includes(shop)) {
+      usedShops.push(shop);
+    }
 
     console.log(shop, result);
 
@@ -376,7 +402,8 @@ router.post("/process", async (req, res) => {
     metadata: { integration_check: "accept_a_payment" },
     description: `Grey JCR Shop Order`,
     metadata: {
-      orderId
+      orderId,
+      usedShops: JSON.stringify(usedShops)
     },
     receipt_email: user.email
   });

@@ -44,11 +44,11 @@ class CheckoutCartItem extends React.Component {
 
     return (
       <div className="flex flex-row p-2 border-red-700 border-solid border-b-2 w-auto text-xl">
-        <div className="pr-4 align-middle flex flex-col justify-between">
+        <div className="pr-4 align-middle flex flex-col justify-between w-1/3">
           <img
             src="/images/cart/placeholder.png"
             alt="Cart Placeholder Image"
-            className="w-32 h-32"
+            className="w-full h-auto"
           />
           <div className="flex flex-row pt-2">
             {!this.props.locked ? (<button
@@ -62,7 +62,7 @@ class CheckoutCartItem extends React.Component {
             >+</button>) : null}
           </div>
         </div>
-        <div className="flex flex-col flex-grow text-left">
+        <div className="flex flex-col flex-grow text-left w-2/3">
           <span className="text-left text-3xl font-semibold">{name}</span>
           <div className="flex flex-row justify-between">
             <span>{quantity} x £{totalPrice.toFixed(2)}</span>

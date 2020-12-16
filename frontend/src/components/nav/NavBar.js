@@ -148,14 +148,13 @@ class NavBar extends React.Component {
             changeActiveDropdownKey={this.setActiveDropdown}
           />) : null}
           {loggedIn ? (<CartMobileNavBarElement
-            id={menuOptions.length + 1}
-            activeDropdownKey={this.state.activeDropdownKey}
-            changeActiveDropdownKey={this.setActiveDropdown}
+            hideBody={this.props.hideBody}
           />) : null}
           <HamburgerSelector
             menuOptions={menuOptions}
             user={user}
             location={location}
+            hideBody={this.props.hideBody}
           />
         </ul>
       </nav>

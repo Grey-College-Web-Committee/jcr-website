@@ -91,6 +91,10 @@ ShopOrderContent.init({
       model: ShopOrder,
       key: 'id'
     }
+  },
+  shop: {
+    type: DataTypes.STRING,
+    allowNull: false
   }
 }, { sequelize });
 
@@ -127,6 +131,11 @@ ToastieOrderContent.init({
       model: ToastieStock,
       key: 'id'
     }
+  },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1
   }
 }, { sequelize, timestamps: false });
 

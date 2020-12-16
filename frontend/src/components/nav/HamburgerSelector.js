@@ -23,6 +23,7 @@ class HamburgerSelector extends React.Component {
         className="p-3 ml-auto justify-end sm:hidden"
         onClick={() => {
           if(this.state.parentActive) {
+            this.props.hideBody(true);
             this.setShowMenu(true);
           }
         }}
@@ -36,7 +37,10 @@ class HamburgerSelector extends React.Component {
         />
         <HamburgerMenu
           active={this.state.showMenu}
-          hideSelf={() => { this.setShowMenu(false) }}
+          hideSelf={() => {
+            this.props.hideBody(false);
+            this.setShowMenu(false)
+          }}
           items={[...menuOptions]}
           user={this.props.user}
           location={this.props.location}

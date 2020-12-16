@@ -44,11 +44,11 @@ class CartItem extends React.Component {
 
     return (
       <div className="flex flex-row p-2 border-red-900 border-solid border-b-2 w-full">
-        <div className="pr-4 align-middle flex flex-col justify-between">
+        <div className="pr-4 align-middle flex flex-col justify-between w-1/3">
           <img
             src="/images/cart/placeholder.png"
             alt="Cart Placeholder Image"
-            className="w-24 h-24"
+            className="w-full h-auto"
           />
           <div className="flex flex-row pt-2">
             <button
@@ -64,7 +64,7 @@ class CartItem extends React.Component {
             >+</button>
           </div>
         </div>
-        <div className="flex flex-col flex-grow">
+        <div className="flex flex-col flex-grow w-2/3">
           <span className="font-semibold text-left">{name}</span>
           <div className="flex flex-row justify-between">
             <span>{quantity} x £{totalPrice.toFixed(2)}</span>
