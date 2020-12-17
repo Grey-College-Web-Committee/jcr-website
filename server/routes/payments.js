@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent } = require("../database.models.js");
+const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
@@ -135,8 +135,54 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders) => {
   mailer.sendEmail(user.email, `Toastie Bar Order Confirmation #${orderId}`, customerEmail);
 }
 
-const fulfilStashOrders = (orderId, relatedOrders) => {
+const customerStashEmail = (user, orderId, relatedOrders) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
 
+  const customisationValidChoices = [
+    "Back/Leg Print: Grey College or Durham University",
+    "Back Embroidery: Grey College or Durham University",
+    "Back Embroidery Personalised",
+    "Right Breast/Small Item Personalisation"
+  ];
+
+  message.push(`<h1>Stash Order Received (Order no. ${orderId})</h1>`);
+  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
+  message.push(`<p>Your order has been confirmed and registered with the JCR.</p>`);
+  message.push(`<p>Below is confirmation of your order.</p>`);
+  message.push(`<h2>Order Details</h2>`);
+
+  relatedOrders.forEach((order, i) => {
+    message.push(`<h3>${order.StashStock.name} (Qty: ${order.quantity})</h3>`);
+    message.push(`<p>Size: ${order.size}</p>`);
+    message.push(`<p>Shield Or Crest: ${order.shieldOrCrest === 1 ? "Crest" : "Shield"}</p>`);
+    message.push(`<p>Under Shield/Crest Text: ${order.underShieldText}</p>`);
+
+    if(order.colourId !== null) {
+      message.push(`<p>Colour: ${order.StashColour.name}</p>`);
+    }
+
+    console.log(JSON.stringify(order.StashOrderCustomisations, null, 2));
+
+    if(order.StashOrderCustomisations !== null && order.StashOrderCustomisations.length !== 0) {
+      message.push(`<h4>Personalisation</h4>`);
+      order.StashOrderCustomisations.forEach(cust => {
+        message.push(`<p>${customisationValidChoices[cust.type]}: ${cust.text}</p>`);
+      });
+    }
+  });
+
+  message.push(`<p>You will receive a receipt from Stripe confirming your payment.</p>`)
+  message.push(`<p><strong>Thank you for your order!</strong></p>`);
+
+  return message.join("");
+}
+
+const fulfilStashOrders = (user, orderId, relatedOrders) => {
+  const customerEmail = customerStashEmail(user, orderId, relatedOrders);
+  mailer.sendEmail(user.email, `Stash Order Confirmation #${orderId}`, customerEmail);
 }
 
 const fulfilOrderProcessors = {
@@ -221,7 +267,21 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
         return res.status(500).json({ error });
       }
 
-      if(subOrders.length === 0) {
+      let stashOrders;
+
+      try {
+        stashOrders = await StashOrder.findAll({
+          where: { orderId },
+          include: {
+            all: true,
+            nested: true
+          }
+        });
+      } catch (error) {
+        return res.status(500).json({ error });
+      }
+
+      if(subOrders.length === 0 && stashOrders.length === 0) {
         return res.status(500).json({ error: "No suborders" });
       }
 
@@ -229,8 +289,17 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
 
       usedShops.forEach(async shop => {
         const relatedOrders = subOrders.filter(order => order.shop === shop);
-        await fulfilOrderProcessors[shop](user, orderId, relatedOrders);
+
+        if(relatedOrders.length !== 0) {
+          await fulfilOrderProcessors[shop](user, orderId, relatedOrders);
+        }
       });
+
+      stashOrders = stashOrders.map(order => order.dataValues);
+
+      if(stashOrders.length !== 0) {
+        fulfilOrderProcessors["stash"](user, orderId, stashOrders);
+      }
 
       break;
     default:

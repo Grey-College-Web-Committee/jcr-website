@@ -381,7 +381,7 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
   }
 
   return {
-    price: total
+    price: total * quantity
   };
 }
 
