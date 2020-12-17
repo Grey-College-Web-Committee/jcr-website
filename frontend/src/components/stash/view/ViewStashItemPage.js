@@ -18,6 +18,8 @@ class ViewStashItemPage extends React.Component {
       item: null,
       stashId: this.props.match.params.id,
       size: "",
+      shieldOrCrest: "-1",
+      underShieldText: "-1",
       colour: -1,
       colourPreview: {
         primaryColour: null,
@@ -70,7 +72,7 @@ class ViewStashItemPage extends React.Component {
     // refresh the cart
     this.cart.get();
 
-    const { size, colour, rightBreastOption, rightBreastText, backPersonalisationOption, backPersonalisationText } = this.state;
+    const { size, colour, rightBreastOption, rightBreastText, backPersonalisationOption, backPersonalisationText, shieldOrCrest, underShieldText } = this.state;
     const { id, name, price, StashItemColours, StashCustomisations } = this.state.item;
 
     let components = [];
@@ -88,6 +90,36 @@ class ViewStashItemPage extends React.Component {
       submissionInformation: {
         type: "size",
         size
+      }
+    });
+
+    if(shieldOrCrest === "-1") {
+      this.setState({ disabled: false, error: "Please select shield or crest" });
+      return;
+    }
+
+    components.push({
+      name: shieldOrCrest === "1" ? "Crest" : "Shield" ,
+      price: 0,
+      quantity: 1,
+      submissionInformation: {
+        type: "shieldOrCrest",
+        shieldOrCrest
+      }
+    });
+
+    if(underShieldText === "-1") {
+      this.setState({ disabled: false, error: "Please select the under text" });
+      return;
+    }
+
+    components.push({
+      name: underShieldText === "1" ? "MCR Only: Grey College MCR" : "Standard: Grey College" ,
+      price: 0,
+      quantity: 1,
+      submissionInformation: {
+        type: "underShieldText",
+        underShieldText
       }
     });
 
@@ -133,8 +165,9 @@ class ViewStashItemPage extends React.Component {
           price: Number(rightBreastObj.addedPriceForCustomisation),
           quantity: 1,
           submissionInformation: {
-            type: "rightBreast",
-            rightBreastText
+            type: "customisation",
+            typeId: rightBreastOption,
+            text: rightBreastText
           },
           additionalDisplay: rightBreastText
         });
@@ -158,8 +191,9 @@ class ViewStashItemPage extends React.Component {
           price: Number(backPersonalisationObj.addedPriceForCustomisation),
           quantity: 1,
           submissionInformation: {
-            type: "back",
-            backPersonalisationText
+            type: "customisation",
+            typeId: backPersonalisationOption,
+            text: backPersonalisationText,
           },
           additionalDisplay: backPersonalisationText
         });
@@ -198,7 +232,7 @@ class ViewStashItemPage extends React.Component {
 
     const sizeDiv = (
       <div className="pb-4">
-        <label htmlFor="size" className="pr-2 w-16 inline-block">Size:</label>
+        <label htmlFor="size" className="w-40 inline-block">Size:</label>
         <select
           name="size"
           className="w-auto h-8 border border-gray-400 disabled:opacity-50"
@@ -215,11 +249,48 @@ class ViewStashItemPage extends React.Component {
       </div>
     );
 
+    const crestDiv = (
+      <div className="pb-4">
+        <label htmlFor="shieldOrCrest" className="w-40 inline-block">Shield or Crest:</label>
+        <select
+          name="shieldOrCrest"
+          className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+          onChange={this.onInputChange}
+          value={this.state.shieldOrCrest}
+          required={true}
+          disabled={this.state.disabled}
+        >
+          <option value="-1" disabled={true} hidden={true}>Please Select...</option>
+          <option value="0">Shield</option>
+          <option value="1">Crest</option>
+        </select>
+      </div>
+    );
+
+    // Add grad text here
+    const crestTextDiv = (
+      <div className="pb-4">
+        <label htmlFor="size" className="w-40 inline-block">Shield/Crest Text:</label>
+        <select
+          name="underShieldText"
+          className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+          onChange={this.onInputChange}
+          value={this.state.underShieldText}
+          required={true}
+          disabled={this.state.disabled}
+        >
+          <option value="-1" disabled={true} hidden={true}>Please Select...</option>
+          <option value="0">Standard: Grey College</option>
+          <option value="1">MCR Only: Grey College MCR</option>
+        </select>
+      </div>
+    )
+
     const { primaryColour, secondaryColour } = this.state.colourPreview;
 
     const colourDiv = StashItemColours.length === 0 ? null : (
       <div className="pb-2 flex flex-row">
-        <label htmlFor="colour" className="pr-2 w-16 inline-block">Colour:</label>
+        <label htmlFor="colour" className="w-40 inline-block">Colour:</label>
         <select
           name="colour"
           className="w-auto h-8 border border-gray-400 disabled:opacity-50"
@@ -375,6 +446,8 @@ class ViewStashItemPage extends React.Component {
                   <p>{description}</p>
                 </div>
                 {sizeDiv}
+                {crestDiv}
+                {crestTextDiv}
                 {colourDiv}
                 {customisationDiv}
                 <div>

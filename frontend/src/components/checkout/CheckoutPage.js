@@ -72,6 +72,8 @@ class CheckoutPage extends React.Component {
     let serverResponse;
     let status;
 
+    console.log(JSON.stringify(submissionCart));
+
     try {
       serverResponse = await api.post("/cart/process", { submissionCart });
     } catch (error) {

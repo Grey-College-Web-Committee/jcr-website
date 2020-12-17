@@ -8,11 +8,11 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { User, GymMembership, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent } = require("./database.models.js");
+const { User, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation } = require("./database.models.js");
 
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
-const stashRoute = require("./routes/stash");
+const stashRoute = require("./routes/stash"); 
 const toastieBarRoute = require("./routes/toastie_bar");
 const permissionsRoute = require("./routes/permissions");
 const cartRoute = require("./routes/cart");
@@ -71,18 +71,23 @@ const requiredPermissions = [
 // Initialise the tables
 (async() => {
   await User.sync();
-  await GymMembership.sync();
+  await Permission.sync();
+  await PermissionLink.sync();
+
+  await StashStock.sync();
   await StashColours.sync();
   await StashSizeChart.sync();
-  await StashStock.sync();
   await StashCustomisations.sync();
   await StashItemColours.sync();
   await StashStockImages.sync();
-  await ToastieStock.sync();
-  await Permission.sync();
-  await PermissionLink.sync();
+
   await ShopOrder.sync();
   await ShopOrderContent.sync();
+
+  await StashOrder.sync();
+  await StashOrderCustomisation.sync();
+
+  await ToastieStock.sync();
   await ToastieOrderContent.sync();
 
   requiredPermissions.forEach(async (item, i) => {
