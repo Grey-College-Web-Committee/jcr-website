@@ -197,12 +197,6 @@ class CheckoutPage extends React.Component {
                     onClick={this.startCheckout}
                     disabled={this.state.disabled || bagEmpty}
                   >Pay Now</button>
-                  <br />
-                  <button
-                    className="px-2 py-2 rounded bg-red-900 text-white text-2xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 hidden"
-                    onClick={() => {this.cart.setLocked(!Cart.locked)}}
-                    disabled={this.state.disabled}
-                  >LOCK/UNLOCK CART</button>
                 </div>
               </div>
             </div>
