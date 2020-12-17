@@ -102,11 +102,9 @@ class OrderToastiePage extends React.Component {
     const confectionaryOrdered = confectionary.length !== 0;
 
     const cartToastieItems = currentCart.items.filter(item => item.shop === "toastie");
-    const alreadyUsedDiscount = (cartToastieItems.filter(item => item.name === "Toastie").length !== 0) && (cartToastieItems.filter(item => item.name !== "Toastie").length !== 0);
-    const potentialDiscount = (drinksOrdered || confectionaryOrdered) && !alreadyUsedDiscount;
 
     if(toastieOrdered) {
-      const basePrice = potentialDiscount ? -0.2 : 0;
+      const basePrice = 0;
       let components = [];
 
       //bread here
@@ -280,11 +278,7 @@ class OrderToastiePage extends React.Component {
     let subtotal = (toastieOrdered ? toastieTotal : 0) + (drinksOrdered ? drinksTotal : 0) + (confectionaryOrdered ? confectionaryTotal : 0);
 
     const cartToastieItems = this.cart.get().items.filter(item => item.shop === "toastie");
-    const alreadyUsedDiscount = (cartToastieItems.filter(item => item.name === "Toastie").length !== 0) && (cartToastieItems.filter(item => item.name !== "Toastie").length !== 0);
-    const hasEarnedDiscount = (toastieOrdered && (drinksOrdered || confectionaryOrdered)) && !alreadyUsedDiscount;
     const wasValidOrder = toastieOrdered || drinksOrdered || confectionaryOrdered;
-
-    let total = subtotal - (hasEarnedDiscount ? 0.2 : 0);
 
     return (
       <ul>
@@ -314,26 +308,10 @@ class OrderToastiePage extends React.Component {
         ) : null}
         <li className="pt-2">
           <div className="flex flex-row justify-between font-semibold">
-            <span>{hasEarnedDiscount ? "Subtotal" : "Total"}</span>
-            <span>£{hasEarnedDiscount ? subtotal.toFixed(2) : total.toFixed(2)}</span>
+            <span>Subtotal</span>
+            <span>£{subtotal.toFixed(2)}</span>
           </div>
         </li>
-        { hasEarnedDiscount ? (
-          <li>
-            <div className="flex flex-row justify-between">
-              <span>Discount</span>
-              <span>-£0.20</span>
-            </div>
-          </li>
-        ) : null}
-        { hasEarnedDiscount ? (
-          <li>
-            <div className="flex flex-row justify-between font-semibold">
-              <span>Total</span>
-              <span>£{total.toFixed(2)}</span>
-            </div>
-          </li>
-        ) : null}
         { wasValidOrder ? (
           <li className="pt-2">
             <button
