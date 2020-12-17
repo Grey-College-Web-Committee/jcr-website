@@ -2,12 +2,14 @@
 const express = require("express");
 const router = express.Router();
 const fileUpload = require('express-fileupload');
+const path = require("path");
 // The database models
-const { User, GymMembership, StashOrder, StashStock, StashOrderContent, StashColours, StashSizeChart, StashItemColours, StashCustomisations, StashStockImages } = require("../database.models.js");
+const { User, GymMembership, StashStock, StashColours, StashSizeChart, StashItemColours, StashCustomisations, StashStockImages } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
 
-const uploadPath = __dirname + '\\stashImageUploads\\'
+const uploadPath = path.join(__dirname, "../uploads/images/stash/");
+console.log({ uploadPath });
 
 // enable files upload
 router.use(fileUpload({
@@ -21,19 +23,48 @@ router.use(fileUpload({
 const stashPurchaseDisabled = true;
 
 // Get the stock available
-router.get("/stock", async (req, res) => { 
+router.get("/stock", async (req, res) => {
   // User only
   let stock;
 
   // Just finds all the items and returns them
   try {
-    stock = await StashStock.findAll();
+    stock = await StashStock.findAll({
+      include: [ StashStockImages ]
+    });
   } catch (error) {
     res.status(500).json({ error: "Server error"+error.toString() });
     return;
   }
 
   return res.status(200).json({ stock });
+});
+
+router.get("/item/:id", async (req, res) => {
+  const id = req.params.id;
+
+  if(!id || id === null || id === undefined) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let item;
+
+  try {
+    item = await StashStock.findOne({
+      where: {
+        id
+      },
+      include: {
+        all: true,
+        nested: true
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error });
+    return;
+  }
+
+  return res.status(200).json({ item });
 });
 
 // Get the size charts available

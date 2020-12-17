@@ -137,11 +137,17 @@ app.use("/api/cart", isLoggedIn, cartRoute);
 // The directory may need to change
 app.use(express.static(path.join(__dirname, "../frontend/build")));
 app.use(express.static(path.join(__dirname, "../domain_verification")));
+app.use(express.static(path.join(__dirname, "./uploads/images/stash")));
 // Necessary since things like /gym do not actually exist they are routes
 // within the index.html file
 //
 app.get("/.well-known/apple-developer-merchantid-domain-association", function (req, res) {
   res.sendFile(path.join(__dirname, "../domain_verification", "apple-developer-merchantid-domain-association"));
+});
+
+app.get("/uploads/images/stash/:id/:image", function(req, res) {
+  const { id, image } = req.params;
+  res.sendFile(path.join(__dirname, `./uploads/images/stash/${id}/${image}`));
 });
 
 app.get('/*', function (req, res) {
