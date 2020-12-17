@@ -351,11 +351,11 @@ class AddStock extends React.Component {
 					className="shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
 					disabled={this.state.disabled}
 					>
-					<option value="hoodiesAndSweatshirts">Hoodies and Sweatshirts</option>
-					<option value="jacketsAndZips">Jackets and Zips</option>
-					<option value="shirts">Shirts</option>
-					<option value="sports">Joggers and Sports</option>
-					<option value="outdoors">The Greyt Outdoors</option>
+					<option value="hoodiesAndLoungewear">Hoodies & Loungewear</option>
+					<option value="jackets">Jackets</option>
+					<option value="jumpersAndFleeces">Jumpers/Fleeces</option>
+					<option value="sports">Sports</option>
+					<option value="tShirts">T-Shirts</option>
 					<option value="accessories">Accessories</option>
 					<option value="other">Other</option>
 					</select>
