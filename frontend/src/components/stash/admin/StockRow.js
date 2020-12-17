@@ -31,7 +31,7 @@ class StockRow extends React.Component {
     this.getAllFields=this.getAllFields.bind(this);
   }
   resetAll(){
-    this.setState({ 
+    this.setState({
       id: this.props.item.id,
       name: this.props.item.name,
       manufacturerCode: this.props.item.manufacturerCode,
@@ -100,7 +100,7 @@ class StockRow extends React.Component {
     const coloursLength = this.props.colours.length;
     for (var i = 0; i < coloursLength; i++){
       const colourId = this.props.colours[i].id;
-      
+
       const isSelected = this.props.selectedColours[colourId];
 
       if (isSelected){ // If colour is a selected colour
@@ -182,10 +182,10 @@ class StockRow extends React.Component {
     const productId = this.state.id;
 	  let length = this.state.customisationsAvailable.length;
 	  for (var i = 0; i < length; i++){
-      const { id, customisationDescription, addedPriceForCustomisation } = this.state.customisationsAvailable[i];
+      const { id, customisationChoice, addedPriceForCustomisation } = this.state.customisationsAvailable[i];
       if (this.state.customisationsAvailable[i].uploaded){
         try {
-          await api.put(`/stash/customisation/${productId}/${id}`, { customisationDescription:customisationDescription, addedPriceForCustomisation:addedPriceForCustomisation });
+          await api.put(`/stash/customisation/${productId}/${id}`, { customisationChoice:customisationChoice, addedPriceForCustomisation:addedPriceForCustomisation });
         } catch (error) {
           alert("Error updating customisation option")
           return;
@@ -193,7 +193,7 @@ class StockRow extends React.Component {
       }
       else{
         try {
-          await api.post(`/stash/customisation/${productId}`, { customisationDescription:customisationDescription, addedPriceForCustomisation:addedPriceForCustomisation });
+          await api.post(`/stash/customisation/${productId}`, { customisationChoice:customisationChoice, addedPriceForCustomisation:addedPriceForCustomisation });
         } catch (error) {
           alert("Error adding customisation option")
           return;
@@ -201,7 +201,7 @@ class StockRow extends React.Component {
       }
     }
     this.setState({ customisationsAvailable: [] })
-    this.getAllCustomisations(); 
+    this.getAllCustomisations();
   }
 
   updateSelfStock = async () => {
@@ -240,23 +240,29 @@ class StockRow extends React.Component {
     let data = this.state.customisationsAvailable;
     let targets = e.target.name.split(',')
     if (targets[1] === "addedPriceForCustomisation"){ data[targets[0]].addedPriceForCustomisation=e.target.value; }
-    else if (targets[1] === "customisationDescription"){ data[targets[0]].customisationDescription=e.target.value; }
+    else if (targets[1] === "customisationChoice"){ data[targets[0]].customisationChoice=e.target.value; }
     else if (targets[1] === "name"){ data[targets[0]].name=e.target.value; }
-    
+
     this.setState({ customisationsAvailable: data, allowSave: true });
   }
 
   showCustomisation(field){
     let codeSnippet = [];
+    const customisationValidChoices = [
+      "Back/Leg Print: Grey College or Durham University",
+      "Back Embroidery: Grey College or Durham University",
+      "Back Embroidery Personalised",
+      "Right Breast/Small Item Personalisation"
+    ];
     if (this.state.customisationsAvailable.length > 0){
       const length = this.state.customisationsAvailable.length;
       for (var i = 0; i<length; i++){
         let value;
         let classNme = "w-32 shadow border rounded py-1 px-1 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50";
         if (field === "name"){ value = this.state.customisationsAvailable[i].name; }
-        else if (field === "customisationDescription"){ value = this.state.customisationsAvailable[i].customisationDescription; }
-        else if (field === "addedPriceForCustomisation"){ 
-          value = this.state.customisationsAvailable[i].addedPriceForCustomisation; 
+        else if (field === "customisationChoice"){ value = customisationValidChoices[this.state.customisationsAvailable[i].customisationChoice]; }
+        else if (field === "addedPriceForCustomisation"){
+          value = this.state.customisationsAvailable[i].addedPriceForCustomisation;
           classNme = "w-16 shadow border rounded py-1 px-1 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50";
         }
 
@@ -267,7 +273,7 @@ class StockRow extends React.Component {
               onChange={this.changeCustValues}
               value={value}
               className={classNme}
-              disabled={this.state.disabled}
+              disabled={this.state.disabled || field === "customisationChoice"}
             />
         );
         if (field === "addedPriceForCustomisation") {
@@ -276,7 +282,7 @@ class StockRow extends React.Component {
           )
         }
       }
-      
+
     }
     if (field === "addedPriceForCustomisation") {
       codeSnippet.push(
@@ -309,11 +315,11 @@ class StockRow extends React.Component {
     this.state.customisationsAvailable.splice(e.target.value);
     if (CustomisationToDelete.uploaded === true){
       try {
-        let custDesc = CustomisationToDelete.customisationDescription;
+        let custChoice = CustomisationToDelete.customisationChoice;
         let productId = this.state.id;
-        await api.delete(`/stash/customisation/${custDesc}/${productId}`)
+        await api.delete(`/stash/customisation/${custChoice}/${productId}`)
         .then((response) => {
-        this.getAllCustomisations(); 
+        this.getAllCustomisations();
         });
       } catch (error) {
         alert("An error occurred removing this customisation option.");
@@ -321,15 +327,15 @@ class StockRow extends React.Component {
       };
     }
     else{
-      this.getAllCustomisations(); 
+      this.getAllCustomisations();
     }
   }
-  
-  
+
+
   addCustomisationOption(){
-    const customisations = this.state.customisationsAvailable;
-    customisations.push({ uploaded:false, description: "", addedPrice: 0.00 });
-    this.setState({ customisationsAvailable: customisations, allowSave: true });
+    //const customisations = this.state.customisationsAvailable;
+    //customisations.push({ uploaded:false, description: "", addedPrice: 0.00 });
+    //this.setState({ customisationsAvailable: customisations, allowSave: true });
   }
 
   onCancel(){
@@ -342,7 +348,7 @@ class StockRow extends React.Component {
       return(
         <React.Fragment>
           <td className="w-20 hidden lg:table-cell p-1 border-r border-gray-400">
-            {this.showCustomisation("customisationDescription")}
+            {this.showCustomisation("customisationChoice")}
           </td>
           <td className="hidden w-36 lg:table-cell p-1 border-r border-gray-400">
             {this.showCustomisation("addedPriceForCustomisation")}

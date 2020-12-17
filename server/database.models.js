@@ -178,8 +178,8 @@ StashCustomisations.init({
       key: 'id'
     }
   },
-  customisationDescription: {
-    type: DataTypes.STRING,
+  customisationChoice: {
+    type: DataTypes.INTEGER,
     allowNull: true
   },
   addedPriceForCustomisation: {
