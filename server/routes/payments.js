@@ -24,7 +24,7 @@ const customerToastieEmail = (user, orderId, toasties, extras) => {
   if(toasties.length !== 0) {
     message.push(`<h3>Toasties</h3>`);
     toasties.forEach((toastie, i) => {
-      message.push(`<h4>Toastie #${i + 1} (Qty: ${toastie.quantity})</h4>`);
+      message.push(`<h4>Toastie #${i + 1}</h4>`);
       message.push(`<p>Bread: ${toastie.bread.name}</p>`);
       message.push(`<ul>`);
 
@@ -67,7 +67,7 @@ const staffToastieEmail = (user, orderId, toasties, extras) => {
   if(toasties.length !== 0) {
     message.push(`<h3>Toasties</h3>`);
     toasties.forEach((toastie, i) => {
-      message.push(`<h4>Toastie #${i + 1} <strong>(Qty: ${toastie.quantity})</strong></h4>`);
+      message.push(`<h4>Toastie #${i + 1}</h4>`);
       message.push(`<p>Bread: ${toastie.bread.name}</p>`);
       message.push(`<ul>`);
 
@@ -109,7 +109,6 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders) => {
         include: [ ToastieStock ]
       });
     } catch (error) {
-      console.log({ error });
       return;
     }
 
@@ -122,10 +121,8 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders) => {
       extras.push({ name, quantity });
     } else {
       // we have a toastie
-      console.log(JSON.stringify({ orderContent } , null, 2))
       const bread = orderContent.filter(item => item.ToastieStock.type === "bread")[0].ToastieStock;
       const fillings = orderContent.filter(item => item.ToastieStock.type === "filling").map(filling => filling.ToastieStock);
-
       toasties.push({ quantity: 1, bread, fillings });
     }
   }
@@ -155,7 +152,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
   } catch (error) {
-    console.log(error);
     return res.status(400).json({ error: "Webhook signature verification failed "});
   }
 
@@ -182,18 +178,13 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
 
       let order;
 
-      console.log({orderId})
-
       try {
         order = await ShopOrder.findOne({ where: { id: orderId }});
       } catch (error) {
-        console.log("3")
-        console.log({error});
         return res.status(500).json({ error });
       }
 
       if(order === null) {
-        console.log("4")
         return res.status(500).json({ error: "Null order" });
       }
 
@@ -203,7 +194,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
       try {
         await order.save();
       } catch (error) {
-        console.log("2")
         return res.status(500).json({ error: "Unable to save order"});
       }
 
@@ -221,10 +211,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
 
       user = user.dataValues;
 
-      // from here we need to pass the user next
-
-      console.log("Received order:", orderId);
-
       // Get the sub order IDs
 
       let subOrders;
@@ -232,7 +218,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
       try {
         subOrders = await ShopOrderContent.findAll({ where: { orderId } });
       } catch (error) {
-        console.log("1")
         return res.status(500).json({ error });
       }
 

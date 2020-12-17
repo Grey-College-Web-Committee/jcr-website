@@ -2,10 +2,6 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 class SelectableItem extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render () {
     const orderButton = this.props.selected ? (
       <button
@@ -44,5 +40,15 @@ class SelectableItem extends React.Component {
     )
   }
 }
+
+SelectableItem.propTypes = {
+  name: PropTypes.string.isRequired,
+  price: PropTypes.string.isRequired,
+  available: PropTypes.bool.isRequired,
+  selected: PropTypes.bool.isRequired,
+  add: PropTypes.func.isRequired,
+  remove: PropTypes.func.isRequired,
+  exclusive: PropTypes.bool.isRequired
+};
 
 export default SelectableItem;

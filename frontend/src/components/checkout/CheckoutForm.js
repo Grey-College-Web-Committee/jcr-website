@@ -198,8 +198,8 @@ class CheckoutForm extends React.Component {
 
     const displayPrice = Number(this.props.totalAmountInPence / 100).toFixed(2);
     const expressDiv = (
-      <div className="mx-auto w-auto pt-2">
-        <div id="payment-request-button"></div>
+      <div className="mx-auto w-auto pb-2">
+        <div className="pt-2 h-auto text-2xl" id="payment-request-button"></div>
         <div className="w-full text-center"><p className="lined-header"><span>or</span></p></div>
       </div>
     );
@@ -213,20 +213,20 @@ class CheckoutForm extends React.Component {
 
     return (
       <div className="w-full">
-        <div className="border-b-2 border-gray-200 flex flex-row justify-between font-semibold text-3xl">
+        <div className="border-b-2 border-gray-200 flex flex-row justify-between font-semibold text-3xl pb-2">
           <span>Total</span>
           <span>£{displayPrice}</span>
         </div>
         {this.state.express ? expressDiv : null}
         <div>
-          <div className="mx-auto w-auto pb-4 pt-2 border-b-2">
+          <div className="mx-auto w-auto border-b-2 pb-2">
             <label htmlFor="name" className="flex flex-row justify-start pb-2 text-lg font-semibold">Name on Card</label>
             <input
               type="text"
               name="name"
               value={this.state.name}
               onChange={this.onInputChange}
-              className={`shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400 ${cardholderBorder}`}
+              className={`shadow w-full border rounded py-2 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400 ${cardholderBorder}`}
               placeholder="Cardholder name..."
               disabled={this.state.disabled}
             />

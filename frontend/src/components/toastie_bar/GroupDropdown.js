@@ -65,9 +65,8 @@ class GroupDropdown extends React.Component {
 
               return aName > bName ? 1 : (aName < bName ? -1 : 0);
             }).map((item, i) => (
-              <div className="flex-1 flex flex-row justify-center">
+              <div className="flex-1 flex flex-row justify-center" key={i}>
                 <SelectableItem
-                  key={i}
                   {...item}
                   selected={this.state.selected.includes(item.id)}
                   add={() => this.addItemToSelected(item.id)}
@@ -82,5 +81,13 @@ class GroupDropdown extends React.Component {
     )
   }
 }
+
+GroupDropdown.propTypes = {
+  title: PropTypes.string.isRequired,
+  groupItems: PropTypes.array.isRequired,
+  exclusive: PropTypes.bool.isRequired,
+  updateParent: PropTypes.func.isRequired,
+  refreshId: PropTypes.number.isRequired
+};
 
 export default GroupDropdown;

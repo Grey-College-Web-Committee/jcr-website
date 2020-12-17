@@ -47,7 +47,7 @@ class CartItem extends React.Component {
         <div className="pr-4 align-middle flex flex-col justify-between w-1/3">
           <img
             src="/images/cart/placeholder.png"
-            alt="Cart Placeholder Image"
+            alt="Cart Placeholder"
             className="w-full h-auto"
           />
           <div className="flex flex-row pt-2">
@@ -77,5 +77,10 @@ class CartItem extends React.Component {
     );
   }
 }
+
+CartItem.propTypes = {
+  item: PropTypes.object.isRequired,
+  disabled: PropTypes.bool.isRequired
+};
 
 export default CartItem;

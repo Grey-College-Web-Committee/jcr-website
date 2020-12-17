@@ -25,4 +25,10 @@ class CartDesktopNavBarElement extends React.Component {
   }
 }
 
+CartDesktopNavBarElement.propTypes = {
+  id: PropTypes.number.isRequired,
+  activeDropdownKey: PropTypes.number.isRequired,
+  changeActiveDropdownKey: PropTypes.func.isRequired
+};
+
 export default CartDesktopNavBarElement;

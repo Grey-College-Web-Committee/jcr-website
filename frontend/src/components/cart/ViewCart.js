@@ -28,7 +28,7 @@ class ViewCart extends React.Component {
       return null;
     }
 
-    const { items, discountCodes } = this.cart.get();
+    const { items } = this.cart.get();
     let subtotal = 0;
 
     items.forEach((item, i) => {
@@ -114,5 +114,10 @@ class ViewCart extends React.Component {
     );
   }
 }
+
+ViewCart.propTypes = {
+  active: PropTypes.bool.isRequired,
+  onMouseLeave: PropTypes.func.isRequired
+};
 
 export default ViewCart;

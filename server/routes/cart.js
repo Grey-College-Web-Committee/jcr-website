@@ -2,14 +2,11 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { User, GymMembership, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent } = require("../database.models.js");
+const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-// Used to check admin permissions
-const { hasPermission } = require("../utils/permissionUtils.js");
 
 const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo) => {
-  console.log("IN processor", globalSubmissionInfo);
   // A toastie will have no global submission info
   const isToastie = Object.keys(globalSubmissionInfo).length === 0;
   const hasComponents = componentSubmissionInfo.length !== 0;
@@ -152,8 +149,6 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
         error: "Unable to verify extra item content"
       };
     }
-
-    console.log("Extra:");
 
     const { name, available, type, price } = extraRecord.dataValues;
 
@@ -358,8 +353,6 @@ router.post("/process", async (req, res) => {
       usedShops.push(shop);
     }
 
-    console.log(shop, result);
-
     // Errors from the processors must be of the form
     /*
       {
@@ -379,7 +372,6 @@ router.post("/process", async (req, res) => {
         globalOrderParameters: (An object storing metadata about the order (e.g. for applying the chocholate + toastie discount))
       }
     */
-    console.log(result.price);
     validatedPrices.push(result.price);
   }
 
@@ -388,14 +380,8 @@ router.post("/process", async (req, res) => {
     validatedPrices.push(priceAdjustment);
   });
 
-  console.log(validatedPrices);
-
   const totalAmount = validatedPrices.reduce((sum, price) => sum + price, 0);
-  console.log("ta", totalAmount);
   const totalAmountInPence = Math.round(totalAmount * 100);
-
-  console.log("taip", totalAmountInPence);
-
   const paymentIntent = await stripe.paymentIntents.create({
     amount: totalAmountInPence,
     currency: "gbp",

@@ -22,7 +22,7 @@ class CartMobileNavBarElement extends React.Component {
         className="h-full p-3 inline-block sm:hidden"
         onClick={() => {
           if(this.state.parentActive) {
-            this.props.hideBody(true); 
+            this.props.hideBody(true);
             this.setShowMenu(true);
           }
         }}
@@ -43,5 +43,9 @@ class CartMobileNavBarElement extends React.Component {
     )
   }
 }
+
+CartMobileNavBarElement.propTypes = {
+  hideBody: PropTypes.func.isRequired
+};
 
 export default CartMobileNavBarElement;

@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Prompt } from 'react-router-dom';
 import LoadingHolder from '../common/LoadingHolder';
 import Cart from '../cart/Cart';
@@ -40,11 +39,10 @@ class CheckoutPage extends React.Component {
     // No checking here of the structure just send it and let the server process that
 
     let submissionCart = {
-      items: [],
-      discountCodes: []
+      items: []
     };
 
-    const { items, discountCodes } = this.state.lockedClientSideCart;
+    const { items } = this.state.lockedClientSideCart;
 
     items.forEach((item, i) => {
       const globalSubmissionInfo = item.submissionInformation;
@@ -85,7 +83,6 @@ class CheckoutPage extends React.Component {
     const { clientSecret, totalAmountInPence } = serverResponse.data;
 
     this.setState({ clientSecret, totalAmountInPence, pageState: 2 });
-    console.log(JSON.stringify(submissionCart));
   }
 
   updateCart = () => {
@@ -120,6 +117,7 @@ class CheckoutPage extends React.Component {
               <img
                 src="/images/cart/basket.png"
                 className="w-64 h-64"
+                alt="Empty Basket"
               />
             </div>
             <div>
@@ -160,7 +158,7 @@ class CheckoutPage extends React.Component {
       );
     }
 
-    const { items, discountCodes } = this.state.pageState <= 0 ? this.cart.get() : this.state.lockedClientSideCart ;
+    const { items } = this.state.pageState <= 0 ? this.cart.get() : this.state.lockedClientSideCart ;
 
     switch(this.state.pageState) {
       // Confirm the order

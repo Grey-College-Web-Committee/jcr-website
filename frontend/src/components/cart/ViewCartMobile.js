@@ -13,7 +13,6 @@ class ViewCartMobile extends React.Component {
     }
 
     this.cart = new Cart();
-    this.cart.registerCallbackOnSave(this.updateCart);
   }
 
   updateCart = () => {
@@ -21,13 +20,16 @@ class ViewCartMobile extends React.Component {
     this.setState({ id: Math.random() });
   }
 
+  componentDidMount = () => {
+    this.cart.registerCallbackOnSave(this.updateCart);
+  }
+
   render () {
-    console.log("time", this.props.active, this.cart);
     if(!this.props.active || !this.cart) {
       return null;
     }
 
-    const { items, discountCodes } = this.cart.get();
+    const { items } = this.cart.get();
     let subtotal = 0;
 
     items.forEach((item, i) => {
@@ -84,5 +86,10 @@ class ViewCartMobile extends React.Component {
     )
   }
 }
+
+ViewCartMobile.propTypes = {
+  active: PropTypes.bool.isRequired,
+  hideSelf: PropTypes.func.isRequired
+};
 
 export default ViewCartMobile;

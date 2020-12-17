@@ -1,8 +1,7 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Prompt } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
 import GroupDropdown from './GroupDropdown';
 import Cart from '../cart/Cart';
@@ -78,7 +77,7 @@ class OrderToastiePage extends React.Component {
   }
 
   checkToastie = (toastie) => {
-    if(toastie.bread == -1) {
+    if(toastie.bread === -1) {
       return "No bread selected";
     }
 
@@ -362,6 +361,10 @@ class OrderToastiePage extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
+        <Prompt
+          when={this.state.drinks.length !== 0 || this.state.toastie.fillings.length !== 0 || this.state.confectionary.length !== 0 || this.state.toastie.bread !== -1}
+          message="You have not added your items to your bag. Are you sure you want to leave?"
+        />
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Create Toastie</h1>
           <div className="flex flex-col sm:flex-row w-full text-left">
@@ -395,7 +398,7 @@ class OrderToastiePage extends React.Component {
                 refreshId={this.state.refreshId}
               />
             </div>
-            <div className="w-full sm:w-1/4 text-base">
+            <div className="w-full sm:w-1/4 text-base pb-4">
               <div className="border-2 p-2 border-black">
                 <h2 className="text-3xl font-bold">Your Order</h2>
                 <div className="pt-2">
