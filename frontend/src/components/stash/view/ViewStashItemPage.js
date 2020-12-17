@@ -4,12 +4,13 @@ import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import config from '../../../config.json';
 import LoadingHolder from '../../common/LoadingHolder';
-import AddToCartButton from '../../cart/AddToCartButton';
+import Cart from '../../cart/Cart';
 
 class ViewStashItemPage extends React.Component {
   constructor(props) {
     super(props);
 
+    this.cart = new Cart();
     this.state = {
       loaded: false,
       status: 0,
@@ -25,16 +26,18 @@ class ViewStashItemPage extends React.Component {
       rightBreastOption: "-1",
       rightBreastText: "",
       backPersonalisationOption: "-1",
-      backPersonalisationText: ""
+      backPersonalisationText: "",
+      error: null,
+      disabled: false
     };
   }
 
   onInputChange = e => {
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) });
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), error: null });
   }
 
   onInputChangeCB = (e, callback) => {
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, callback);
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), error: null }, callback);
   }
 
   // Call the API here initially and then use this.setState to render the content
@@ -63,9 +66,115 @@ class ViewStashItemPage extends React.Component {
   }
 
   addToBag = () => {
-    // First check they have selected a size
+    this.setState({ disabled: true });
+    // refresh the cart
+    this.cart.get();
+
     const { size, colour, rightBreastOption, rightBreastText, backPersonalisationOption, backPersonalisationText } = this.state;
-    const productId = this.state.item.id;
+    const { id, name, price, StashItemColours, StashCustomisations } = this.state.item;
+
+    let components = [];
+
+    // First check they have selected a size
+    if(size === "") {
+      this.setState({ disabled: false, error: "Please select a size" });
+      return;
+    }
+
+    components.push({
+      name: `Size: ${size}`,
+      price: 0,
+      quantity: 1,
+      submissionInformation: {
+        type: "size",
+        size
+      }
+    });
+
+    const colourRequired = StashItemColours.length !== 0;
+
+    if(colourRequired) {
+      if(colour === -1 || colour === "-1") {
+        this.setState({ disabled: false, error: "Please select a colour" });
+        return;
+      }
+
+      const colourObj = StashItemColours.filter(obj => obj.colourId === Number(colour))[0];
+
+      components.push({
+        name: `Colour: ${colourObj.StashColour.name}`,
+        price: 0,
+        quantity: 1,
+        submissionInformation: {
+          type: "colour",
+          colour
+        }
+      });
+    }
+
+    const customisationsAvailable = StashCustomisations.length !== 0
+
+    if(customisationsAvailable) {
+      if(rightBreastOption !== "-1") {
+        if(rightBreastText.length === 0) {
+          this.setState({ disabled: false, error: "Please enter your personalisation text" });
+          return;
+        }
+
+        if(rightBreastText.length > 20) {
+          this.setState({ disabled: false, error: "Your personalisation text must be less than 21 characters" });
+          return;
+        }
+
+        const rightBreastObj = StashCustomisations.filter(cust => cust.customisationChoice === Number(rightBreastOption))[0];
+
+        components.push({
+          name: "Right Breast Personalisation",
+          price: Number(rightBreastObj.addedPriceForCustomisation),
+          quantity: 1,
+          submissionInformation: {
+            type: "rightBreast",
+            rightBreastText
+          },
+          additionalDisplay: rightBreastText
+        });
+      }
+
+      if(backPersonalisationOption !== "-1") {
+        if(backPersonalisationText.length === 0) {
+          this.setState({ disabled: false, error: "Please enter your personalisation text" });
+          return;
+        }
+
+        if(backPersonalisationText.length > 20) {
+          this.setState({ disabled: false, error: "Your personalisation text must be less than 21 characters" });
+          return;
+        }
+
+        const backPersonalisationObj = StashCustomisations.filter(cust => cust.customisationChoice === Number(backPersonalisationOption))[0];
+
+        components.push({
+          name: "Back Personalisation",
+          price: Number(backPersonalisationObj.addedPriceForCustomisation),
+          quantity: 1,
+          submissionInformation: {
+            type: "back",
+            backPersonalisationText
+          },
+          additionalDisplay: backPersonalisationText
+        });
+      }
+    }
+
+    this.cart.addToCartRaw({
+      shop: "stash",
+      name,
+      basePrice: Number(price),
+      quantity: 1,
+      submissionInformation: { id },
+      components,
+      duplicateHash: null
+    });
   }
 
   render () {
@@ -96,6 +205,7 @@ class ViewStashItemPage extends React.Component {
           onChange={this.onInputChange}
           value={this.state.size}
           required={true}
+          disabled={this.state.disabled}
         >
           <option value="" disabled={true} hidden={true}>Choose Size...</option>
           {Object.keys(StashSizeChart).map((size, i) => (
@@ -118,6 +228,7 @@ class ViewStashItemPage extends React.Component {
           }}
           value={this.state.colour}
           required={true}
+          disabled={this.state.disabled}
         >
           <option value={-1} disabled={true} hidden={true}>Choose Colour...</option>
           {StashItemColours.map((colour, i) => (
@@ -161,6 +272,7 @@ class ViewStashItemPage extends React.Component {
                 this.setState({ rightBreastText: "" })
                 this.onInputChange(e)
               }}
+              disabled={this.state.disabled}
             >
               <option value="-1">None (+£0.00)</option>
               {
@@ -179,6 +291,7 @@ class ViewStashItemPage extends React.Component {
                   className="w-full border border-gray-400 disabled:opacity-50 pl-2 p-1 mb-4"
                   onChange={this.onInputChange}
                   maxlength="20"
+                  disabled={this.state.disabled}
                 />
               </div>
             ) : null}
@@ -195,6 +308,7 @@ class ViewStashItemPage extends React.Component {
                 this.setState({ backPersonalisationText: "" })
                 this.onInputChange(e)
               }}
+              disabled={this.state.disabled}
             >
               <option value="-1">None (+£0.00)</option>
               {
@@ -211,6 +325,7 @@ class ViewStashItemPage extends React.Component {
                   value={this.state.backPersonalisationText}
                   className="w-full border border-gray-400 disabled:opacity-50 p-1 mb-4"
                   onChange={this.onInputChange}
+                  disabled={this.state.disabled}
                 >
                   <option value="" disabled={true} hidden={true}>Select Option...</option>
                   <option value="Grey College">Grey College</option>
@@ -228,6 +343,7 @@ class ViewStashItemPage extends React.Component {
                   className="w-full border border-gray-400 disabled:opacity-50 pl-2 p-1 mb-4"
                   onChange={this.onInputChange}
                   maxlength="20"
+                  disabled={this.state.disabled}
                 />
               </div>
             ) : null}
@@ -265,7 +381,11 @@ class ViewStashItemPage extends React.Component {
                   <button
                     className="px-4 py-2 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                     onClick={this.addToBag}
+                    disabled={this.state.disabled}
                   >Add to Bag</button>
+                </div>
+                <div>
+                  { this.state.error !== null ? <p>{this.state.error}</p> : null}
                 </div>
               </div>
             </div>
