@@ -164,8 +164,6 @@ const customerStashEmail = (user, orderId, relatedOrders) => {
       message.push(`<p>Colour: ${order.StashColour.name}</p>`);
     }
 
-    console.log(JSON.stringify(order.StashOrderCustomisations, null, 2));
-
     if(order.StashOrderCustomisations !== null && order.StashOrderCustomisations.length !== 0) {
       message.push(`<h4>Personalisation</h4>`);
       order.StashOrderCustomisations.forEach(cust => {
@@ -279,7 +277,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
           ]
         });
       } catch (error) {
-        console.log({error})
         return res.status(500).json({ error });
       }
 

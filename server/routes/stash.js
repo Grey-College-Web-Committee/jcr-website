@@ -9,7 +9,6 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
 
 const uploadPath = path.join(__dirname, "../uploads/images/stash/");
-console.log({ uploadPath });
 
 // enable files upload
 router.use(fileUpload({
@@ -65,7 +64,6 @@ router.get("/item/:id", async (req, res) => {
       ]
     });
   } catch (error) {
-    console.log({error})
     return res.status(500).json({ error });
   }
 

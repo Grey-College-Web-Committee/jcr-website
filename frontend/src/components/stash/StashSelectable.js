@@ -40,4 +40,9 @@ class StashSelectable extends React.Component {
   }
 }
 
+StashSelectable.propTypes = {
+  name: PropTypes.string.isRequired,
+  price: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired
+}
+
 export default StashSelectable;

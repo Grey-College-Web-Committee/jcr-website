@@ -2,7 +2,6 @@ import React from 'react';
 import { Prompt, Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
-import config from '../../../config.json';
 import LoadingHolder from '../../common/LoadingHolder';
 import Cart from '../../cart/Cart';
 
@@ -29,17 +28,17 @@ class ViewStashItemPage extends React.Component {
       rightBreastText: "",
       backPersonalisationOption: "-1",
       backPersonalisationText: "",
-      error: null,
+      errorAdding: null,
       disabled: false
     };
   }
 
   onInputChange = e => {
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), error: null });
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), errorAdding: null });
   }
 
   onInputChangeCB = (e, callback) => {
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), error: null }, callback);
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), errorAdding: null }, callback);
   }
 
   // Call the API here initially and then use this.setState to render the content
@@ -79,7 +78,7 @@ class ViewStashItemPage extends React.Component {
 
     // First check they have selected a size
     if(size === "") {
-      this.setState({ disabled: false, error: "Please select a size" });
+      this.setState({ disabled: false, errorAdding: "Please select a size" });
       return;
     }
 
@@ -94,7 +93,7 @@ class ViewStashItemPage extends React.Component {
     });
 
     if(shieldOrCrest === "-1") {
-      this.setState({ disabled: false, error: "Please select shield or crest" });
+      this.setState({ disabled: false, errorAdding: "Please select shield or crest" });
       return;
     }
 
@@ -109,7 +108,7 @@ class ViewStashItemPage extends React.Component {
     });
 
     if(underShieldText === "-1") {
-      this.setState({ disabled: false, error: "Please select the under text" });
+      this.setState({ disabled: false, errorAdding: "Please select the under text" });
       return;
     }
 
@@ -127,7 +126,7 @@ class ViewStashItemPage extends React.Component {
 
     if(colourRequired) {
       if(colour === -1 || colour === "-1") {
-        this.setState({ disabled: false, error: "Please select a colour" });
+        this.setState({ disabled: false, errorAdding: "Please select a colour" });
         return;
       }
 
@@ -149,12 +148,12 @@ class ViewStashItemPage extends React.Component {
     if(customisationsAvailable) {
       if(rightBreastOption !== "-1") {
         if(rightBreastText.length === 0) {
-          this.setState({ disabled: false, error: "Please enter your personalisation text" });
+          this.setState({ disabled: false, errorAdding: "Please enter your personalisation text" });
           return;
         }
 
         if(rightBreastText.length > 20) {
-          this.setState({ disabled: false, error: "Your personalisation text must be less than 21 characters" });
+          this.setState({ disabled: false, errorAdding: "Your personalisation text must be less than 21 characters" });
           return;
         }
 
@@ -175,12 +174,12 @@ class ViewStashItemPage extends React.Component {
 
       if(backPersonalisationOption !== "-1") {
         if(backPersonalisationText.length === 0) {
-          this.setState({ disabled: false, error: "Please enter your personalisation text" });
+          this.setState({ disabled: false, errorAdding: "Please enter your personalisation text" });
           return;
         }
 
         if(backPersonalisationText.length > 20) {
-          this.setState({ disabled: false, error: "Your personalisation text must be less than 21 characters" });
+          this.setState({ disabled: false, errorAdding: "Your personalisation text must be less than 21 characters" });
           return;
         }
 
@@ -210,7 +209,7 @@ class ViewStashItemPage extends React.Component {
       duplicateHash: null
     });
 
-    this.setState({ error: "Added to bag! If you want to duplicate this exact item you can do so from your basket. "});
+    this.setState({ errorAdding: "Added to bag! If you want to duplicate this exact item you can do so from your basket. "});
 
     setTimeout(() => {
       this.setState({
@@ -231,7 +230,7 @@ class ViewStashItemPage extends React.Component {
     }, 1500);
 
     setTimeout(() => {
-      this.setState({ error: null });
+      this.setState({ errorAdding: null });
     }, 3000);
   }
 
@@ -490,11 +489,11 @@ class ViewStashItemPage extends React.Component {
                     <button
                       className="px-4 py-2 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                       onClick={this.addToBag}
-                      disabled={this.state.disabled}
-                    >Add to Bag</button>
+                      disabled={this.state.disabled || !available}
+                    >{available ? "Add to Bag" : "Out of Stock"}</button>
                   </div>
                   <div className="text-center p-4 underline">
-                    { this.state.error !== null ? <p>{this.state.error}</p> : null}
+                    { this.state.errorAdding !== null ? <p>{this.state.errorAdding}</p> : null}
                   </div>
                 </div>
               </div>

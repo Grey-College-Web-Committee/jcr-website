@@ -193,7 +193,6 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 };
 
 const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo) => {
-  console.log({globalSubmissionInfo})
   if(!globalSubmissionInfo.hasOwnProperty("id")) {
     return {
       errorOccurred: true,
@@ -247,9 +246,7 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
   let total = Number(productRecord.price);
   let stashOrder;
 
-  console.log({componentSubmissionInfo});
   const sizeComponent = componentSubmissionInfo.filter(component => component.type === "size");
-  console.log({sizeComponent})
 
   if(sizeComponent.length !== 1) {
     return {
@@ -334,8 +331,6 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
 
     let stashCustPriceRecord;
 
-    console.log({ productId, typeId });
-
     try {
       stashCustPriceRecord = await StashCustomisations.findOne({
         where: {
@@ -344,7 +339,6 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
         }
       });
     } catch (error) {
-      console.log({ error })
       return {
         errorOccurred: true,
         status: 500,
@@ -369,7 +363,6 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
         text
       });
     } catch (error) {
-      console.log({error});
       return {
         errorOccurred: true,
         status: 500,

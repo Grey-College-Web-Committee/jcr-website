@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
 import StashSelectable from './StashSelectable';
 
@@ -31,7 +30,6 @@ class OrderStashPage extends React.Component {
     }
 
     const { stock } = content.data;
-    console.log(stock);
 
     this.setState({ loaded: true, status: 200, stock });
   }

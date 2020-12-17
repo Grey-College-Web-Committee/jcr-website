@@ -109,7 +109,7 @@ class ErrorPage extends React.Component {
 }
 
 ErrorPage.propTypes = {
-  code: PropTypes.number
+  code: PropTypes.oneOf([PropTypes.string, PropTypes.number])
 }
 
 export default ErrorPage;
