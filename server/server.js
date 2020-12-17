@@ -74,9 +74,9 @@ const requiredPermissions = [
   await Permission.sync();
   await PermissionLink.sync();
 
-  await StashStock.sync();
   await StashColours.sync();
   await StashSizeChart.sync();
+  await StashStock.sync();
   await StashCustomisations.sync();
   await StashItemColours.sync();
   await StashStockImages.sync();
