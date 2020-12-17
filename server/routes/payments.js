@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder } = require("../database.models.js");
+const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
@@ -272,12 +272,14 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
       try {
         stashOrders = await StashOrder.findAll({
           where: { orderId },
-          include: {
-            all: true,
-            nested: true
-          }
+          include: [
+            StashStock,
+            StashColours,
+            StashOrderCustomisation
+          ]
         });
       } catch (error) {
+        console.log({error})
         return res.status(500).json({ error });
       }
 

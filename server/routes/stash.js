@@ -54,14 +54,23 @@ router.get("/item/:id", async (req, res) => {
       where: {
         id
       },
-      include: {
-        all: true,
-        nested: true
-      }
+      include: [
+        StashCustomisations,
+        StashSizeChart,
+        StashStockImages,
+        {
+          model: StashItemColours,
+          include: [ StashColours ]
+        }
+      ]
     });
   } catch (error) {
-    res.status(500).json({ error });
-    return;
+    console.log({error})
+    return res.status(500).json({ error });
+  }
+
+  if(item === null) {
+    return res.status(400).json({ error: `Unknown id ${id}` })
   }
 
   return res.status(200).json({ item });

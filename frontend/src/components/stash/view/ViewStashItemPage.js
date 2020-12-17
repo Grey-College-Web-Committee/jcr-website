@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Prompt, Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import config from '../../../config.json';
@@ -20,7 +20,7 @@ class ViewStashItemPage extends React.Component {
       size: "",
       shieldOrCrest: "-1",
       underShieldText: "-1",
-      colour: -1,
+      colour: "-1",
       colourPreview: {
         primaryColour: null,
         secondaryColour: null
@@ -209,6 +209,30 @@ class ViewStashItemPage extends React.Component {
       components,
       duplicateHash: null
     });
+
+    this.setState({ error: "Added to bag! If you want to duplicate this exact item you can do so from your basket. "});
+
+    setTimeout(() => {
+      this.setState({
+        disabled: false,
+        size: "",
+        shieldOrCrest: "-1",
+        underShieldText: "-1",
+        colour: "-1",
+        colourPreview: {
+          primaryColour: null,
+          secondaryColour: null
+        },
+        rightBreastOption: "-1",
+        rightBreastText: "",
+        backPersonalisationOption: "-1",
+        backPersonalisationText: ""
+      });
+    }, 1500);
+
+    setTimeout(() => {
+      this.setState({ error: null });
+    }, 3000);
   }
 
   render () {
@@ -232,7 +256,7 @@ class ViewStashItemPage extends React.Component {
 
     const sizeDiv = (
       <div className="pb-4">
-        <label htmlFor="size" className="w-40 inline-block">Size:</label>
+        <label htmlFor="size" className="w-40 inline-block font-semibold">Size:</label>
         <select
           name="size"
           className="w-auto h-8 border border-gray-400 disabled:opacity-50"
@@ -251,7 +275,7 @@ class ViewStashItemPage extends React.Component {
 
     const crestDiv = (
       <div className="pb-4">
-        <label htmlFor="shieldOrCrest" className="w-40 inline-block">Shield or Crest:</label>
+        <label htmlFor="shieldOrCrest" className="w-40 inline-block font-semibold">Shield or Crest:</label>
         <select
           name="shieldOrCrest"
           className="w-auto h-8 border border-gray-400 disabled:opacity-50"
@@ -270,7 +294,7 @@ class ViewStashItemPage extends React.Component {
     // Add grad text here
     const crestTextDiv = (
       <div className="pb-4">
-        <label htmlFor="size" className="w-40 inline-block">Shield/Crest Text:</label>
+        <label htmlFor="size" className="w-40 inline-block font-semibold">Shield/Crest Text:</label>
         <select
           name="underShieldText"
           className="w-auto h-8 border border-gray-400 disabled:opacity-50"
@@ -290,7 +314,7 @@ class ViewStashItemPage extends React.Component {
 
     const colourDiv = StashItemColours.length === 0 ? null : (
       <div className="pb-2 flex flex-row">
-        <label htmlFor="colour" className="w-40 inline-block">Colour:</label>
+        <label htmlFor="colour" className="w-40 inline-block font-semibold">Colour:</label>
         <select
           name="colour"
           className="w-auto h-8 border border-gray-400 disabled:opacity-50"
@@ -331,10 +355,10 @@ class ViewStashItemPage extends React.Component {
 
     const customisationDiv = StashCustomisations.length === 0 ? null : (
       <div className="pb-2 flex flex-col">
-        <h2>Customisation</h2>
+        <h2 className="font-semibold text-xl">Customisation</h2>
         {!rightBreastEnabled ? null : (
           <div>
-            <h3>Front Personalisation (+£{Number(rightBreast[0].addedPriceForCustomisation).toFixed(2)})</h3>
+            <h3 className="font-semibold">Front Personalisation</h3>
             <select
               name="rightBreastOption"
               value={this.state.rightBreastOption}
@@ -370,7 +394,7 @@ class ViewStashItemPage extends React.Component {
         )}
         {!backCustomisationsEnabled ? null : (
           <div className="flex flex-col">
-            <h3>Back Personalisation</h3>
+            <h3 className="font-semibold">Back Personalisation</h3>
             <select
               name="backPersonalisationOption"
               value={this.state.backPersonalisationOption}
@@ -427,38 +451,51 @@ class ViewStashItemPage extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
+        <Prompt
+          when={this.state.size.length !== 0}
+          message="You haven't add this to your bag yet. Are you sure you want to leave?"
+        />
         <div className="container mx-auto text-center p-4">
-          <div className="flex flex-row justify-center">
-            <div className="w-3/4 flex flex-row text-lg">
-              <div className="w-1/2 flex justify-center flex-row border-black border-2 mx-2 flex-grow-0 self-start">
-                <div className="w-full">
-                  <img
-                    src={imageUrl}
-                    alt={`${name}`}
-                    className="w-full"
-                  />
+          <div className="flex flex-col justify-center text-left align-middle w-full sm:w-3/4 mx-auto">
+            <div className="p-2">
+              <Link to="/stash/">
+                <button
+                  className="px-4 py-2 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >← Back to Stash</button>
+              </Link>
+            </div>
+            <div className="flex flex-row justify-center">
+              <div className="w-full flex flex-col sm:flex-row text-lg">
+                <div className="w-full sm:w-1/2 flex justify-center flex-row mx-2 mb-4 flex-grow-0 self-start">
+                  <div className="w-full">
+                    <img
+                      src={imageUrl}
+                      alt={`${name}`}
+                      className="w-full"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="w-1/2 border-black border-2 mx-2 text-left p-4 flex flex-col">
-                <div className="font-semibold pb-4">
-                  <h1 className="text-5xl pb-2">{name}</h1>
-                  <p className="text-3xl">£{Number(price).toFixed(2)}</p>
-                  <p>{description}</p>
-                </div>
-                {sizeDiv}
-                {crestDiv}
-                {crestTextDiv}
-                {colourDiv}
-                {customisationDiv}
-                <div>
-                  <button
-                    className="px-4 py-2 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                    onClick={this.addToBag}
-                    disabled={this.state.disabled}
-                  >Add to Bag</button>
-                </div>
-                <div>
-                  { this.state.error !== null ? <p>{this.state.error}</p> : null}
+                <div className="w-full sm:w-1/2 mx-2 text-left p-4 flex flex-col">
+                  <div className="pb-4">
+                    <h1 className="font-semibold text-5xl pb-2">{name}</h1>
+                    <p className="font-semibold text-3xl">£{Number(price).toFixed(2)}</p>
+                    <p className="font-medium">{description}</p>
+                  </div>
+                  {sizeDiv}
+                  {crestDiv}
+                  {crestTextDiv}
+                  {colourDiv}
+                  {customisationDiv}
+                  <div>
+                    <button
+                      className="px-4 py-2 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                      onClick={this.addToBag}
+                      disabled={this.state.disabled}
+                    >Add to Bag</button>
+                  </div>
+                  <div className="text-center p-4 underline">
+                    { this.state.error !== null ? <p>{this.state.error}</p> : null}
+                  </div>
                 </div>
               </div>
             </div>
