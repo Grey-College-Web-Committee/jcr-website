@@ -12,7 +12,7 @@ const uploadPath = __dirname + '\\stashImageUploads\\'
 // enable files upload
 router.use(fileUpload({
     createParentPath: true,
-    limits: { 
+    limits: {
       fileSize: 2 * 1024 * 1024 * 1024 //2MB max file(s) size
   },
 }));
@@ -20,165 +20,8 @@ router.use(fileUpload({
 // ALL ORDERING-RELATED THINGS ARE RIPPED OFF FROM FINLAY'S TOASTIE-BAR SYSTEM AND NEED TO BE CHANGED!!!!
 const stashPurchaseDisabled = true;
 
-router.post("/order", async (req, res) => { 
-  const currentDate = new Date();
-  const hours = currentDate.getHours();
-  const minutes = currentDate.getMinutes();
-
-  // Ignore the time condition if we are developing it
-  if(process.env.DEBUG.toLowerCase() === "false") {
-    if(stashPurchaseDisabled) {
-      // Orders cannot be placed outside of term time
-      return res.status(400).json({ error: "Closed until next term", timeIssue: true });
-    }
-
-    if((hours === 21 && minutes > 32) || hours < 20 || hours >= 22) {
-      // Outside 8pm to 9:32pm
-      // Past 9:32pm (instead of 9:30pm to avoid problems if users place orders just after 9:30pm)
-      return res.status(400).json({ error: "Orders can only be placed between 8pm and 9:30pm", timeIssue: true });
-    }
-  }
-
-  // User only
-  const { user } = req.session;
-  // Get the order from the data received
-  const { bread, fillings, otherItems } = req.body;
-
-  // Check the bread is actually a bread and is available
-
-  const breadEntry = await StashStock.findOne({
-    where: {
-      id: bread,
-      type: "bread"
-    }
-  });
-
-  if(breadEntry === null && bread != -1) {
-    return res.status(400).json({ error: "ID mismatch: bread" });
-  }
-
-  // breadEntry now has the database entry for this bread
-  // Now check the fillings are actually fillings
-
-  const fillingEntries = await StashStock.findAll({
-    where: {
-      id: fillings,
-      available: true,
-      type: "filling"
-    }
-  });
-
-  if(fillingEntries.length !== fillings.length) {
-    return res.status(400).json({ error: "Unable to verify fillings" });
-  }
-
-  // fillingEntries now has the database entries for each of the fillings
-  // Now check the other items
-
-  const otherEntries = await StashStock.findAll({
-    where: {
-      id: otherItems,
-      available: true,
-      type: ["chocolates", "crisps", "drinks"]
-    }
-  });
-
-  if(otherEntries.length !== otherItems.length) {
-    return res.status(400).json({ error: "Unable to verify other items" });
-  }
-
-  // Calculate the cost so we can give it to Stripe
-  // never trust the user's price calculation
-
-  let realCost = 0;
-  const orderedStash = (breadEntry !== null);
-
-  if(orderedStash) {
-    realCost += Number(breadEntry.price);
-  }
-
-  let chocOrDrinkOrdered = false;
-
-  fillingEntries.forEach(item => realCost += Number(item.price));
-  otherEntries.forEach(item => {
-    if(item.type === "chocolates" || item.type === "drinks") {
-      chocOrDrinkOrdered = true;
-    }
-
-    realCost += Number(item.price);
-  });
-
-  // Apply a slight discount if they purchase a toastie and (choc or drink)
-  if(orderedStash && chocOrDrinkOrdered) {
-    realCost -= 0.2;
-  }
-
-  realCost = +realCost.toFixed(2);
-
-  // Make a new order in the database and add each item in the order
-  // at the same time we construct the confirmed order to return to the client
-
-  const dbOrder = await StashOrder.create({ userId: user.id });
-
-  let confirmedOrder = [];
-
-  if(breadEntry !== null) {
-    confirmedOrder.push({
-      name: breadEntry.name,
-      price: breadEntry.price,
-      type: breadEntry.type
-    });
-  }
-
-  if(breadEntry !== null) {
-    await StashOrderContent.create({ orderId: dbOrder.id, stockId: breadEntry.id });
-  }
-
-  fillingEntries.forEach(async (item) => {
-    confirmedOrder.push({
-      name: item.name,
-      price: item.price,
-      type: item.type
-    });
-
-    await StashOrderContent.create({ orderId: dbOrder.id, stockId: item.id });
-  });
-
-  otherEntries.forEach(async (item) => {
-    confirmedOrder.push({
-      name: item.name,
-      price: item.price,
-      type: item.type
-    });
-
-    await StashOrderContent.create({ orderId: dbOrder.id, stockId: item.id });
-  });
-
-  // Stripe uses this to take the payment
-
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(realCost * 100),
-    currency: "gbp",
-    metadata: { integration_check: "accept_a_payment" },
-    description: `Stash Order #${dbOrder.id}`,
-    metadata: {
-      type: "stash",
-      orderId: dbOrder.id
-    },
-    receipt_email: user.email
-  });
-
-  // Return the confirmed order, the server-agreed cost and the secret for the Stripe session
-
-  return res.status(200).json({
-    confirmedOrder,
-    realCost,
-    clientSecret: paymentIntent.client_secret
-  });
-});
-
 // Get the stock available
-router.get("/stock", async (req, res) => {
+router.get("/stock", async (req, res) => { 
   // User only
   let stock;
 
@@ -356,7 +199,7 @@ router.get("/idOfStockItem/:name/:type/:price", async (req, res) => {
 
   // Gets a single item by its ID
   const { name, type, price } = req.params;
-  
+
   if (name == null || type==null || price==null){
     return res.status(400).json({ error: "Missing params" });
   }
@@ -469,7 +312,7 @@ router.post("/stock", async (req, res) => {
   if ((XS==null)||(S==null)||(M==null)||(L==null)||(XL==null)||(XXL==null)){
     return res.status(400).json({ error: "Missing or incorrect sizes" });
   }
-  
+
   let sizeChart = await StashSizeChart.findOne({ where: { XS, S, M, L, XL, XXL } });
   if(sizeChart === null) {
     // Create new size chart
@@ -514,7 +357,7 @@ router.post("/itemColour", async (req, res) => {
   }
 
   const itemExists = await StashItemColours.findOne({ where: { productId:productId, colourId:colourId } });
-  
+
   if(!(itemExists === null)) {
     return res.status(204).json({ message: "The specified relation already exists." }).end();
   }
@@ -546,11 +389,11 @@ router.post("/upload/:id", async (req, res) => {
   try {
     if(!req.files) {
       return res.status(400).json({ message: "No file uploaded" });
-    } 
+    }
     else {
       //Use the name of the input field (i.e. "image") to retrieve the uploaded file
       let image = req.files.file;
-        
+
       //Use the mv() method to place the file in upload directory (i.e. "uploads")
       image.mv(uploadPath + productId + "\\" + image.name);
       // CURRENTLY WILL OVERWRITE ANOTHER IMAGE OF SAME NAME - NEEDS VALIDATION
@@ -569,7 +412,7 @@ router.post("/upload/:id", async (req, res) => {
       //send response
       return res.status(200).json({ message: 'File has uploaded successfully',  name: image.name, mimetype: image.mimetype, size: image.size }).end();
     }
-  } 
+  }
   catch (err) {
     return res.status(500).json({error: err});
   }
@@ -741,7 +584,7 @@ router.put("/stock/:id", async (req, res) => {
   return res.status(204).end();
 });
 
-// Delete an image. 
+// Delete an image.
 router.delete("/image/:imageName/:productId", async (req, res) => {
   // Admin only
   const { user } = req.session;
@@ -772,10 +615,10 @@ router.delete("/image/:imageName/:productId", async (req, res) => {
     return res.status(500).json({ error: "Server error deleting image-item link", messg:error.toString() });
   }
 
-  return res.status(204).end(); 
+  return res.status(204).end();
 });
 
-// Delete a customisation option. 
+// Delete a customisation option.
 router.delete("/customisation/:custdesc/:productId", async (req, res) => {
   // Admin only
   const { user } = req.session;
@@ -806,10 +649,10 @@ router.delete("/customisation/:custdesc/:productId", async (req, res) => {
     return res.status(500).json({ error: "Server error deleting customisation", messg:error.toString() });
   }
 
-  return res.status(204).end(); 
+  return res.status(204).end();
 });
 
-// Delete a colour option for a particular item. 
+// Delete a colour option for a particular item.
 router.delete("/itemColour/:productId:colourId", async (req, res) => {
   // Admin only
   const { user } = req.session;
@@ -841,10 +684,10 @@ router.delete("/itemColour/:productId:colourId", async (req, res) => {
     return res.status(500).json({ error: "Server error creating new colour option for item", messg:error.toString() });
   }
 
-  return res.status(204).end(); 
+  return res.status(204).end();
 });
 
-// Delete an item. 
+// Delete an item.
 router.delete("/stock/:productId", async (req, res) => {
   // Admin only
   const { user } = req.session;
@@ -872,7 +715,7 @@ router.delete("/stock/:productId", async (req, res) => {
     return res.status(500).json({ error: "Server error deleting item", messg:error.toString() });
   }
 
-  return res.status(204).end(); 
+  return res.status(204).end();
 });
 
 // Set the module export to router so it can be used in server.js

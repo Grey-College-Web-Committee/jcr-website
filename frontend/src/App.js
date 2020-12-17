@@ -12,7 +12,6 @@ import LoginPage from './components/accounts/LoginPage';
 import LogoutPage from './components/accounts/LogoutPage';
 import ErrorPage from './components/errors/ErrorPage';
 import HomePage from './components/home/HomePage';
-import OrderStashPage from './components/stash/OrderStashPage';
 import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 import CheckoutPage from './components/checkout/CheckoutPage';
 
@@ -213,9 +212,6 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/toasties/" render={() => (
                     this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )
-                  )} />
-                  <Route exact path="/stash/" render={() => (
-                    this.isLoggedIn() ? ( <OrderStashPage /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/spinner/" render={() => (
                     this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( <Redirect to="/accounts/login" /> )

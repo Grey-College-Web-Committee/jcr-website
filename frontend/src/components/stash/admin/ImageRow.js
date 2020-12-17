@@ -35,7 +35,7 @@ class ImageRow extends React.Component {
 	let codeSnippet = [];
 	if (length !== 0){
 	  for (var i=0; i < length; i++){
-		codeSnippet.push(<tr><td><img src={this.state.currentImages[i].source}/></td>{this.getRemovalButtonCode(this.state.currentImages[i].name)}</tr>);
+		codeSnippet.push(<tr><td><img alt="Stash" src={this.state.currentImages[i].source}/></td>{this.getRemovalButtonCode(this.state.currentImages[i].name)}</tr>);
 	  }
 	}
 	this.setState({ imagesDisplayFragments: codeSnippet });
@@ -60,7 +60,7 @@ class ImageRow extends React.Component {
 		  const newImages = this.state.currentImages;
 		  newImages.push(newImg);
 		  this.setState({ currentImages: newImages });
-		} 
+		}
 	  }
 	  this.createCodeFragments();
 	}
@@ -78,7 +78,7 @@ class ImageRow extends React.Component {
       </td>
 	)
   }
-	
+
   getImage = async (imageName) => {
 	let img = { name: "", source: "" };
 	try {
@@ -100,8 +100,8 @@ class ImageRow extends React.Component {
 	let index = -1;
 	for (var i = 0; i < this.state.currentImages.length; i++){
 	  if (this.state.currentImages[i].name === e.target.value){
-		index = i; 
-		break; 
+		index = i;
+		break;
 	  }
 	}
 	if (index !== -1) {
@@ -114,7 +114,7 @@ class ImageRow extends React.Component {
 		  let productId = this.state.id;
 		  await api.delete(`/stash/image/${imageName}/${productId}`)
 		  .then((response) => {
-			this.getAllImages(); 
+			this.getAllImages();
 		  });
 		} catch (error) {
 		  alert("An error occurred removing this image.");
@@ -180,10 +180,10 @@ class ImageRow extends React.Component {
 		  <table>
 			  <tbody>{this.state.imagesDisplayFragments}</tbody>
 		  </table>
-		  
+
 		</td>
 		<td className="shadow w-40 border roundedp-1 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">
-		
+
 		  <ImageUploader
 			fileContainerStyle={{padding: 0+"px", margin: 1+"px", maxWidth: "440px"}}
 			buttonStyles={{border: "1px solid #BE2B2E", color:"black", background: "transparent", margin: 3+"px "+0}}
@@ -202,7 +202,7 @@ class ImageRow extends React.Component {
 		<div className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50" style={{ width: this.state.progress, height: "2rem", padding: "2px" }}>
 		  {this.state.progress}
 		</div>
-		<button 
+		<button
 		  type="button"
 		  onClick={this.onUpload}
 		  disabled={this.state.picturesToUpload.length > 0 ? false:true}
