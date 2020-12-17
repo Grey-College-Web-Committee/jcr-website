@@ -18,6 +18,14 @@ class ShopOrder extends Model {}
 class ShopOrderContent extends Model {}
 
 class GymMembership extends Model {}
+class StashColours extends Model {}
+class StashSizeChart extends Model {}
+class StashStock extends Model {}
+class StashCustomisations extends Model {}
+class StashItemColours extends Model {}
+class StashStockImages extends Model {}
+class StashOrder extends Model {}
+class StashOrderContent extends Model {}
 class ToastieStock extends Model {}
 class ToastieOrderContent extends Model {}
 
@@ -65,6 +73,158 @@ GymMembership.init({
   }
 }, { sequelize });
 
+StashColours.init({
+  name:{
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  colour:{
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  twoTone: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  secondaryColour:{
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: "#BE2B2E"
+  },
+}, { sequelize });
+
+StashSizeChart.init({
+  XS: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
+  S: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
+  M: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
+  L: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
+  XL: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
+  XXL: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  }
+}, { sequelize });
+
+StashStock.init({
+  manufacturerCode: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
+  type: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  customisationsAvailable: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: false
+  },
+  price: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  },
+  sizeChartId:{
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: StashSizeChart,
+      key: 'id'
+    }
+  }
+}, { sequelize, freezeTableName: true });
+
+StashCustomisations.init({
+  name:{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  productId:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: StashStock,
+      key: 'id'
+    }
+  },
+  customisationDescription: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  addedPriceForCustomisation: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: true,
+    defaultValue: 0.00
+  }
+}, { sequelize });
+
+StashItemColours.init({
+  productId:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: StashStock,
+      key: 'id'
+    }
+  },
+  colourId:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: StashColours,
+      key: 'id'
+    }
+  }
+}, { sequelize });
+
+StashStockImages.init({
+  productId:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: StashStock,
+      key: 'id'
+    }
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, { sequelize });
+
 ShopOrder.init({
   userId: {
     type: DataTypes.INTEGER,
@@ -83,6 +243,36 @@ ShopOrder.init({
     defaultValue: null
   }
 }, { sequelize });
+
+StashOrderContent.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: StashOrder,
+      key: 'id'
+    }
+  },
+  logoOrCrest: {
+    type: DataTypes.BOOLEAN, // 0 for Logo, 1 for Crest
+    allowNull: false
+  },
+  colourId:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: StashColours,
+      key: 'id'
+    }
+  },
+  stockId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: StashStock,
+      key: 'id'
+    }
+  }
+}, { sequelize, timestamps: false });
 
 ShopOrderContent.init({
   orderId: {
@@ -169,6 +359,33 @@ PermissionLink.init({
 User.hasMany(GymMembership, { foreignKey: 'userId' });
 GymMembership.belongsTo(User, { foreignKey: 'userId' });
 
+User.hasMany(StashOrder, { foreignKey: 'userId' });
+StashOrder.belongsTo(User, { foreignKey: 'userId' });
+
+StashOrder.hasMany(StashOrderContent, { foreignKey: 'orderId' });
+StashOrderContent.belongsTo(StashOrder, { foreignKey: 'orderId' });
+
+StashStock.hasMany(StashOrderContent, { foreignKey: 'stockId' });
+StashOrderContent.belongsTo(StashStock, { foreignKey: 'stockId' });
+
+StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
+StashStock.belongsTo(StashSizeChart, { foreignKey: 'sizeChartId' });
+
+StashColours.hasMany(StashItemColours, { foreignKey: 'colourId' });
+StashItemColours.belongsTo(StashColours, { foreignKey: 'colourId' });
+
+StashStock.hasMany(StashItemColours, { foreignKey: 'productId' });
+StashItemColours.belongsTo(StashStock, { foreignKey: 'productId' });
+
+StashStock.hasMany(StashCustomisations, { foreignKey: 'productId' });
+StashCustomisations.belongsTo(StashStock, { foreignKey: 'productId' });
+
+StashStock.hasMany(StashStockImages, { foreignKey: 'productId' });
+StashStockImages.belongsTo(StashStock, { foreignKey: 'productId' });
+
+User.hasMany(ToastieOrder, { foreignKey: 'userId' });
+ToastieOrder.belongsTo(User, { foreignKey: 'userId' });
+
 User.hasMany(ShopOrder, { foreignKey: 'userId' });
 ShopOrder.belongsTo(User, { foreignKey: 'userId' });
 
@@ -190,4 +407,5 @@ PermissionLink.belongsTo(Permission, { foreignKey: 'permissionId' });
 PermissionLink.belongsTo(User, { as: "grantedTo", foreignKey: "grantedToId" });
 PermissionLink.belongsTo(User, { as: "grantedBy", foreignKey: "grantedById" });
 
-module.exports = { User, GymMembership, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent };
+module.exports = { User, GymMembership, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashOrder, StashStock, StashOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent };
+
