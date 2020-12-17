@@ -14,14 +14,15 @@ class CheckoutForm extends React.Component {
     this.state = {
       name: "",
       disabled: false,
-      error: "",
+      error: null,
       ready: false,
-      express: false
+      express: false,
+      cardholderError: false
     };
   }
 
   onInputChange = e => {
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), cardholderError: false, error: null })
   }
 
   // This is used to complete a regular checkout
@@ -29,7 +30,7 @@ class CheckoutForm extends React.Component {
     // Prevent page refresh
     event.preventDefault();
     // Disable the forms
-    this.setState({ disabled: true, error: "" });
+    this.setState({ disabled: true, error: null });
     const { stripe, elements } = this.props;
 
     if(!stripe || !elements) {
@@ -43,7 +44,7 @@ class CheckoutForm extends React.Component {
 
     // Require the card holder's name to reduce transaction failures
     if(this.state.name.length === 0) {
-      this.setState({ disabled: false, error: "Please enter the cardholder name." });
+      this.setState({ disabled: false, error: "Please enter the cardholder's name.", cardholderError: true });
       cardElement.update({ disabled: false });
       return;
     }
@@ -98,7 +99,7 @@ class CheckoutForm extends React.Component {
       currency: "gbp",
       total: {
         label: "Order Total",
-        amount: Math.round(this.props.realCost)
+        amount: Math.round(this.props.totalAmountInPence)
       },
       requestPayerName: true,
       requestPayerEmail: true
@@ -195,108 +196,57 @@ class CheckoutForm extends React.Component {
       );
     }
 
-    // Apple Pay or similar is available
-    if(this.state.express) {
-      return (
-        <React.Fragment>
-          <p>You are about to make a payment of <strong>£{Number(this.props.realCost / 100).toFixed(2)}</strong> to the Grey College JCR</p>
-          <div>
-            <h2>Express Checkout</h2>
-            <p>Your device supports express checkout</p>
-            <div id="payment-request-button"></div>
-          </div>
-          <div>
-            <h2>Regular Checkout</h2>
-            <p>Please enter your card details.</p>
-            <table>
-              <tbody>
-                <tr>
-                  <td>Cardholder Name</td>
-                  <td>
-                    <input
-                      type="text"
-                      onChange={this.onInputChange}
-                      value={this.state.name}
-                      name="name"
-                      disabled={this.state.disabled}
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>Receipt Email</td>
-                  <td>
-                    <input
-                      type="text"
-                      disabled={true}
-                      value={this.context.email}
-                    />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <br />
-            <CardElement
+    const displayPrice = Number(this.props.totalAmountInPence / 100).toFixed(2);
+    const expressDiv = (
+      <div className="mx-auto w-auto pb-2">
+        <div className="pt-2 h-auto text-2xl" id="payment-request-button"></div>
+        <div className="w-full text-center"><p className="lined-header"><span>or</span></p></div>
+      </div>
+    );
+    const errorDiv = (
+      <div className="mx-auto w-auto pb-4 pt-2 border-t-2 border-gray-200 text-lg text-center">
+        <p className="underline">{this.state.error}</p>
+      </div>
+    );
+
+    const cardholderBorder = this.state.cardholderError ? "border-red-700" : "border-gray-400";
+
+    return (
+      <div className="w-full">
+        <div className="border-b-2 border-gray-200 flex flex-row justify-between font-semibold text-3xl pb-2">
+          <span>Total</span>
+          <span>£{displayPrice}</span>
+        </div>
+        {this.state.express ? expressDiv : null}
+        <div>
+          <div className="mx-auto w-auto border-b-2 pb-2">
+            <label htmlFor="name" className="flex flex-row justify-start pb-2 text-lg font-semibold">Name on Card</label>
+            <input
+              type="text"
+              name="name"
+              value={this.state.name}
+              onChange={this.onInputChange}
+              className={`shadow w-full border rounded py-2 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400 ${cardholderBorder}`}
+              placeholder="Cardholder name..."
               disabled={this.state.disabled}
             />
-            <br />
+          </div>
+          <div className="mx-auto w-auto py-2 border-b-2">
+            <CardElement
+              disabled={this.state.disabled}
+              className="border-2 border-gray-200 p-4"
+            />
+          </div>
+          <div className="mx-auto w-auto pb-4 pt-4 border-b-2 border-gray-200">
             <button
               onClick={this.handleSubmit}
               disabled={this.state.disabled}
-            >Pay £{Number(this.props.realCost / 100).toFixed(2)}</button>
-            <br />
-            {this.state.disabled ? <p>Processing payment this may take a moment. Please do not refresh this page.</p> : null}
-            <p>{this.state.error}</p>
+              className="px-2 py-2 rounded bg-red-900 text-white text-2xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+            >Pay £{displayPrice}</button>
           </div>
-        </React.Fragment>
-      );
-    }
-
-    return (
-      <React.Fragment>
-        <p>You are about to make a payment of <strong>£{Number(this.props.realCost / 100).toFixed(2)}</strong> to the Grey College JCR</p>
-        <div>
-          <h2>Checkout</h2>
-          <p>Please enter your card details.</p>
-          <table>
-            <tbody>
-              <tr>
-                <td>Cardholder Name</td>
-                <td>
-                  <input
-                    type="text"
-                    onChange={this.onInputChange}
-                    value={this.state.name}
-                    name="name"
-                    disabled={this.state.disabled}
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td>Receipt Email</td>
-                <td>
-                  <input
-                    type="text"
-                    disabled={true}
-                    value={this.context.email}
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <br />
-          <CardElement
-            disabled={this.state.disabled}
-          />
-          <br />
-          <button
-            onClick={this.handleSubmit}
-            disabled={this.state.disabled}
-          >Pay £{Number(this.props.realCost / 100).toFixed(2)}</button>
-          <br />
-          {this.state.disabled ? <p>Processing payment this may take a moment. Please do not refresh this page.</p> : null}
-          <p>{this.state.error}</p>
+          {this.state.error !== null ? errorDiv : null}
         </div>
-      </React.Fragment>
+      </div>
     );
   }
 }
@@ -307,7 +257,7 @@ CheckoutForm.propTypes = {
   elements: PropTypes.object.isRequired,
   clientSecret: PropTypes.string.isRequired,
   onSuccess: PropTypes.func.isRequired,
-  realCost: PropTypes.number.isRequired
+  totalAmountInPence: PropTypes.number.isRequired
 };
 
 // Export a slightly different version so we can use Stripe correctly
@@ -320,7 +270,7 @@ export default function InjectedCheckoutForm(props) {
           elements={elements}
           clientSecret={props.clientSecret}
           onSuccess={props.onSuccess}
-          realCost={props.realCost}
+          totalAmountInPence={props.totalAmountInPence}
         />
       )}
     </ElementsConsumer>

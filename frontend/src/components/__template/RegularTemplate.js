@@ -12,7 +12,8 @@ class RegularTemplate extends React.Component {
     this.state = {
       loaded: false,
       status: 0,
-      error: ""
+      error: "",
+      content: []
     };
   }
 
