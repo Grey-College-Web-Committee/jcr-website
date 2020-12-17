@@ -4,6 +4,7 @@ import authContext from './utils/authContext.js';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import config from './config.json';
+import Cart from './components/cart/Cart'
 
 import NavBar from './components/nav/NavBar';
 
@@ -13,6 +14,9 @@ import ErrorPage from './components/errors/ErrorPage';
 import HomePage from './components/home/HomePage';
 import OrderStashPage from './components/stash/OrderStashPage';
 import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
+import CheckoutPage from './components/checkout/CheckoutPage';
+
+import SpinnerTestPage from './components/common/SpinnerTestPage';
 
 // To add a new page import it like above
 
@@ -43,8 +47,11 @@ class App extends React.Component {
       user = null;
     }
 
+    this.cart = new Cart();
+
     this.state = {
-      user
+      user,
+      hideBody: false
     };
   }
 
@@ -156,6 +163,9 @@ class App extends React.Component {
   }
 
   logoutUser = () => {
+    this.cart.get();
+    this.cart.setLocked(false);
+    this.cart.clearCart();
     this.setState({ user: null });
   }
 
@@ -165,14 +175,22 @@ class App extends React.Component {
     }
   }
 
+  hideBody = (show) => {
+    this.setState({ hideBody: show });
+  }
+
   render () {
+    const bodyHidden = this.state.hideBody ? "hidden" : "";
+
     return (
       <Elements stripe={stripePromise}>
         <authContext.Provider value={this.state.user}>
           <Router>
-            <div>
-              <NavBar />
-              <div>
+            <div className="overscroll-none overflow-hidden">
+              <NavBar
+                hideBody={this.hideBody}
+              />
+              <div className={`overscroll-none overflow-hidden ${bodyHidden}`}>
                 <Switch>
                   <Route exact path="/" render={() => (
                     <HomePage />
@@ -198,6 +216,12 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/stash/" render={() => (
                     this.isLoggedIn() ? ( <OrderStashPage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/spinner/" render={() => (
+                    this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/checkout/" render={() => (
+                    this.isLoggedIn() ? ( <CheckoutPage /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/errors/:code" render={(props) => (
                     <ErrorPage {...props} />

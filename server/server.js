@@ -8,12 +8,14 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { User, GymMembership, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashOrder, StashStock, StashOrderContent, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink } = require("./database.models.js");
+const { User, GymMembership, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashOrder, StashStock, StashOrderContent, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent } = require("./database.models.js");
+
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
 const stashRoute = require("./routes/stash");
 const toastieBarRoute = require("./routes/toastie_bar");
 const permissionsRoute = require("./routes/permissions");
+const cartRoute = require("./routes/cart");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -23,7 +25,7 @@ const app = express();
 
 // Tells express to recognise incoming requests as JSON
 app.use((req, res, next) => {
-  if(req.originalUrl === "/api/payments/webhook") {
+  if(req.originalUrl === "/api/stripe/webhook") {
     next();
   } else {
     express.json()(req, res, next);
@@ -67,7 +69,7 @@ const requiredPermissions = [
 ];
 
 // Initialise the tables
-(async() => {
+(async() => { 
   await User.sync();
   await GymMembership.sync();
   await StashColours.sync();
@@ -80,9 +82,11 @@ const requiredPermissions = [
   await StashOrderContent.sync();
   await ToastieOrder.sync();
   await ToastieStock.sync();
-  await ToastieOrderContent.sync();
   await Permission.sync();
   await PermissionLink.sync();
+  await ShopOrder.sync();
+  await ShopOrderContent.sync();
+  await ToastieOrderContent.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
@@ -91,7 +95,7 @@ const requiredPermissions = [
       },
       defaults: {
         name: item.name,
-        description: item.description, 
+        description: item.description,
         internal: item.internal
       }
     });
@@ -122,10 +126,12 @@ const isLoggedIn = (req, res, next) => {
 
 // These are api routes that act as the backend
 app.use("/api/auth", authRoute);
+app.use("/api/stripe", paymentsRoute);
 app.use("/api/payments", paymentsRoute);
 app.use("/api/stash", isLoggedIn, stashRoute);
 app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
 app.use("/api/permissions", isLoggedIn, permissionsRoute);
+app.use("/api/cart", isLoggedIn, cartRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

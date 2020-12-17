@@ -14,6 +14,9 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 
 class User extends Model {}
 
+class ShopOrder extends Model {}
+class ShopOrderContent extends Model {}
+
 class GymMembership extends Model {}
 class StashColours extends Model {}
 class StashSizeChart extends Model {}
@@ -24,7 +27,6 @@ class StashStockImages extends Model {}
 class StashOrder extends Model {}
 class StashOrderContent extends Model {}
 class ToastieStock extends Model {}
-class ToastieOrder extends Model {}
 class ToastieOrderContent extends Model {}
 
 class Permission extends Model {}
@@ -223,7 +225,7 @@ StashStockImages.init({
   }
 }, { sequelize });
 
-StashOrder.init({
+ShopOrder.init({
   userId: {
     type: DataTypes.INTEGER,
     references: {
@@ -272,6 +274,19 @@ StashOrderContent.init({
   }
 }, { sequelize, timestamps: false });
 
+ShopOrderContent.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ShopOrder,
+      key: 'id'
+    }
+  },
+  shop: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, { sequelize });
 
 ToastieStock.init({
   name: {
@@ -292,30 +307,11 @@ ToastieStock.init({
   }
 }, { sequelize, freezeTableName: true });
 
-ToastieOrder.init({
-  userId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  paid: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  stripeId: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-    defaultValue: null
-  }
-}, { sequelize });
-
 ToastieOrderContent.init({
   orderId: {
     type: DataTypes.INTEGER,
     references: {
-      model: ToastieOrder,
+      model: ShopOrderContent,
       key: 'id'
     }
   },
@@ -325,6 +321,11 @@ ToastieOrderContent.init({
       model: ToastieStock,
       key: 'id'
     }
+  },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1
   }
 }, { sequelize, timestamps: false });
 
@@ -385,8 +386,17 @@ StashStockImages.belongsTo(StashStock, { foreignKey: 'productId' });
 User.hasMany(ToastieOrder, { foreignKey: 'userId' });
 ToastieOrder.belongsTo(User, { foreignKey: 'userId' });
 
-ToastieOrder.hasMany(ToastieOrderContent, { foreignKey: 'orderId' });
-ToastieOrderContent.belongsTo(ToastieOrder, { foreignKey: 'orderId' });
+User.hasMany(ShopOrder, { foreignKey: 'userId' });
+ShopOrder.belongsTo(User, { foreignKey: 'userId' });
+
+User.hasMany(ShopOrder, { foreignKey: 'userId' });
+ShopOrder.belongsTo(User, { foreignKey: 'userId' });
+
+ShopOrder.hasMany(ShopOrderContent, { foreignKey: 'orderId' });
+ShopOrderContent.belongsTo(ShopOrder, { foreignKey: 'orderId' });
+
+ShopOrderContent.hasMany(ToastieOrderContent, { foreignKey: 'orderId' });
+ToastieOrderContent.belongsTo(ShopOrderContent, { foreignKey: 'orderId' });
 
 ToastieStock.hasMany(ToastieOrderContent, { foreignKey: 'stockId' });
 ToastieOrderContent.belongsTo(ToastieStock, { foreignKey: 'stockId' });
@@ -397,4 +407,5 @@ PermissionLink.belongsTo(Permission, { foreignKey: 'permissionId' });
 PermissionLink.belongsTo(User, { as: "grantedTo", foreignKey: "grantedToId" });
 PermissionLink.belongsTo(User, { as: "grantedBy", foreignKey: "grantedById" });
 
-module.exports = { User, GymMembership, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashOrder, StashStock, StashOrderContent, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink };
+module.exports = { User, GymMembership, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashOrder, StashStock, StashOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent };
+

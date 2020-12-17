@@ -3,18 +3,18 @@ import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig';
 import LoadingHolder from '../common/LoadingHolder';
 
-import SelectUser from './SelectUser';
-
-class EditPermissionsPage extends React.Component {
+class AdminTemplatePage extends React.Component {
   constructor(props) {
     super(props);
+
     this.state = {
       loaded: false,
       status: 0,
       error: ""
     };
 
-    this.requiredPermission = "permissions.edit";
+    // Change this to your permission
+    this.requiredPermission = "YourPermissionHere";
   }
 
   // Load the data once the element is ready
@@ -65,12 +65,11 @@ class EditPermissionsPage extends React.Component {
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Edit User Permissions</h1>
-          <SelectUser />
+          <h1 className="font-semibold text-5xl pb-4">Title Here</h1>
         </div>
       </div>
     );
   }
 }
 
-export default EditPermissionsPage;
+export default AdminTemplatePage;

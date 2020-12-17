@@ -19,7 +19,8 @@
     "react-images-upload": "^1.2.8",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
-    "tailwindcss": "^2.0.1"
+    "tailwindcss": "^2.0.1",
+    "tailwindcss-border-styles": "^1.0.1"
   },
   "scripts": {
     "build:style": "tailwind build src/styles/index.css -o src/styles/tailwind.css",
