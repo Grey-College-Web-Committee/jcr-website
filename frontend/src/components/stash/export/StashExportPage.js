@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect, Prompt, Link } from 'react-router-dom';
+import { Redirect, Prompt } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
 import dateFormat from 'dateformat';
@@ -192,7 +192,10 @@ class StashExportPage extends React.Component {
               </div>
             </div>
           </div>
-        )
+        );
+
+      default:
+        return null;
     }
   }
 }

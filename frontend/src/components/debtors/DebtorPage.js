@@ -1,9 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import config from '../../config.json';
-import LoadingHolder from '../common/LoadingHolder';
 
 class DebtorPage extends React.Component {
   render () {
@@ -21,7 +17,7 @@ class DebtorPage extends React.Component {
               <li>Purchase formal tickets</li>
               <li>Purchase event tickets</li>
             </ul>
-            <p>If you would like to pay your debt and have access to JCR services again or believe there has been an error please <a href="mailto:finlayboyle2001@gmail.com" className="font-semibold underline">Email the FACSO</a> and clear your debt immediately.</p>
+            <p>If you would like to pay your debt and have access to JCR services again or believe there has been an error please <a href={`mailto:grey.treasurer@durham.ac.uk?subject=JCR Debt ${this.context.username}`}  className="font-semibold underline">Email the FACSO</a> and clear your debt immediately.</p>
             <br />
             <p>Access to the shop will then be granted within a few weeks.</p>
           </div>
