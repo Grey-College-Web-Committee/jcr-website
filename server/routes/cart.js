@@ -525,10 +525,16 @@ router.post("/process", async (req, res) => {
   });
 
   let usedShops = [];
+  let totalSpentByShop = {};
 
   for(let i = 0; i < submittedCart.items.length; i++) {
     item = submittedCart.items[i];
     const { shop, quantity, globalSubmissionInfo, componentSubmissionInfo } = item;
+
+    if(!totalSpentByShop.hasOwnProperty(shop)) {
+      totalSpentByShop[shop] = 0;
+    }
+
     const result = await shopProcessors[shop](globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo);
 
     if(!usedShops.includes(shop)) {
@@ -554,12 +560,24 @@ router.post("/process", async (req, res) => {
         globalOrderParameters: (An object storing metadata about the order (e.g. for applying the chocholate + toastie discount))
       }
     */
+    totalSpentByShop[shop] += result.price;
     validatedPrices.push(result.price);
   }
 
   Object.keys(shopPostProcessors).forEach(key => {
     const priceAdjustment = shopPostProcessors[key](globalOrderParameters);
+    totalSpentByShop[key] += priceAdjustment;
     validatedPrices.push(priceAdjustment);
+  });
+
+  let metadata = {
+    integration_check: "accept_a_payment",
+    orderId,
+    usedShops: JSON.stringify(usedShops)
+  };
+
+  Object.keys(totalSpentByShop).forEach(shop => {
+    metadata[shop] = Math.round(totalSpentByShop[shop] * 100);
   });
 
   const totalAmount = validatedPrices.reduce((sum, price) => sum + price, 0);
@@ -567,12 +585,8 @@ router.post("/process", async (req, res) => {
   const paymentIntent = await stripe.paymentIntents.create({
     amount: totalAmountInPence,
     currency: "gbp",
-    metadata: { integration_check: "accept_a_payment" },
     description: `Grey JCR Shop Order`,
-    metadata: {
-      orderId,
-      usedShops: JSON.stringify(usedShops)
-    },
+    metadata,
     receipt_email: user.email
   });
 
