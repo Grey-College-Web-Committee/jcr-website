@@ -84,7 +84,7 @@ class Cart {
     }
 
     const requiredProperties = ["shop", "name", "basePrice", "quantity",
-     "submissionInformation", "components", "duplicateHash"];
+     "submissionInformation", "components", "duplicateHash", "image"];
 
     for(let property of requiredProperties) {
       if(!item.hasOwnProperty(property)) {

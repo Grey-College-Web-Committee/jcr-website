@@ -29,7 +29,8 @@ class ViewStashItemPage extends React.Component {
       backPersonalisationOption: "-1",
       backPersonalisationText: "",
       errorAdding: null,
-      disabled: false
+      disabled: false,
+      buttonText: "Add To Bag"
     };
   }
 
@@ -72,7 +73,7 @@ class ViewStashItemPage extends React.Component {
     this.cart.get();
 
     const { size, colour, rightBreastOption, rightBreastText, backPersonalisationOption, backPersonalisationText, shieldOrCrest, underShieldText } = this.state;
-    const { id, name, price, StashItemColours, StashCustomisations } = this.state.item;
+    const { id, name, price, StashItemColours, StashCustomisations, StashStockImages } = this.state.item;
 
     let components = [];
 
@@ -199,6 +200,8 @@ class ViewStashItemPage extends React.Component {
       }
     }
 
+    const image = `/uploads/images/stash/${StashStockImages[0].productId}/${StashStockImages[0].name}`;
+
     this.cart.addToCartRaw({
       shop: "stash",
       name,
@@ -206,32 +209,23 @@ class ViewStashItemPage extends React.Component {
       quantity: 1,
       submissionInformation: { id },
       components,
-      duplicateHash: null
+      duplicateHash: null,
+      image
     });
 
-    this.setState({ errorAdding: "Added to bag! If you want to duplicate this exact item you can do so from your basket. "});
+    this.setState({ buttonText: "Added ✓" });
 
     setTimeout(() => {
       this.setState({
-        disabled: false,
-        size: "",
-        shieldOrCrest: "-1",
-        underShieldText: "-1",
-        colour: "-1",
-        colourPreview: {
-          primaryColour: null,
-          secondaryColour: null
-        },
-        rightBreastOption: "-1",
-        rightBreastText: "",
-        backPersonalisationOption: "-1",
-        backPersonalisationText: ""
+        disabled: false
       });
-    }, 1500);
+    }, 800);
 
     setTimeout(() => {
-      this.setState({ errorAdding: null });
-    }, 3000);
+      this.setState({
+        buttonText: "Add to Bag"
+      });
+    }, 1200);
   }
 
   render () {
@@ -490,7 +484,7 @@ class ViewStashItemPage extends React.Component {
                       className="px-4 py-2 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                       onClick={this.addToBag}
                       disabled={this.state.disabled || !available}
-                    >{available ? "Add to Bag" : "Out of Stock"}</button>
+                    >{available ? this.state.buttonText : "Out of Stock"}</button>
                   </div>
                   <div className="text-center p-4 underline">
                     { this.state.errorAdding !== null ? <p>{this.state.errorAdding}</p> : null}

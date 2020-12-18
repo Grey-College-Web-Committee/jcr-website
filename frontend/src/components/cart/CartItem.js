@@ -18,7 +18,7 @@ class CartItem extends React.Component {
       return null;
     }
 
-    const { name, basePrice, quantity, components } = this.props.item;
+    const { name, basePrice, quantity, components, image } = this.props.item;
     const hasComponents = components !== undefined && components !== null && components.length !== 0;
     let additionalPrice = 0;
 
@@ -46,8 +46,8 @@ class CartItem extends React.Component {
       <div className="flex flex-row p-2 border-red-900 border-solid border-b-2 w-full">
         <div className="pr-4 align-middle flex flex-col justify-between w-1/3">
           <img
-            src="/images/cart/placeholder.png"
-            alt="Cart Placeholder"
+            src={image}
+            alt={name}
             className="w-full h-auto"
           />
           <div className="flex flex-row pt-2">

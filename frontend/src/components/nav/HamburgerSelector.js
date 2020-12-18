@@ -20,7 +20,7 @@ class HamburgerSelector extends React.Component {
     const { menuOptions } = this.props;
     return (
       <li
-        className="p-3 ml-auto justify-end sm:hidden"
+        className="p-3 ml-auto w-20 justify-end sm:hidden"
         onClick={() => {
           if(this.state.parentActive) {
             this.props.hideBody(true);
@@ -31,9 +31,6 @@ class HamburgerSelector extends React.Component {
         <img
           src="/images/hamburger-232.png"
           alt="Additional Menu Options"
-          style={{
-            width: "48px"
-          }}
         />
         <HamburgerMenu
           active={this.state.showMenu}

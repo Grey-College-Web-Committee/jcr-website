@@ -43,7 +43,7 @@ class ViewCart extends React.Component {
       subtotal += (basePrice + additionalPrice) * quantity;
     });
 
-    const visibility = this.props.active ? "visible" : "invisible";
+    const visibility = this.props.active ? "visible" : "hidden";
 
     if(Cart.locked) {
       return (
