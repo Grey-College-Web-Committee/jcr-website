@@ -4,11 +4,16 @@ const router = express.Router();
 const fileUpload = require('express-fileupload');
 const path = require("path");
 // The database models
-const { User, GymMembership, StashStock, StashColours, StashSizeChart, StashItemColours, StashCustomisations, StashStockImages } = require("../database.models.js");
+const { User, GymMembership, StashOrder, ShopOrder, StashStock, StashColours, StashSizeChart, StashItemColours, StashOrderCustomisation, StashCustomisations, StashStockImages } = require("../database.models.js");
+const dateFormat = require("dateformat");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
+const { Op } = require("sequelize");
+const hash = require("object-hash");
+const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 
 const uploadPath = path.join(__dirname, "../uploads/images/stash/");
+const csvPath = path.join(__dirname, "../exports/stash/");
 
 // enable files upload
 router.use(fileUpload({
@@ -123,6 +128,310 @@ router.get("/stockColours", async (req, res) => {
   }
 
   return res.status(200).json({ colours });
+});
+
+router.post("/export", async(req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.export")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const startDateAsStr = req.body.startDate;
+  const endDateAsStr = req.body.endDate;
+
+  if(startDateAsStr === null || startDateAsStr === undefined) {
+    return res.status(400).json({ message: "Missing startDate" });
+  }
+
+  if(endDateAsStr === null || endDateAsStr === undefined) {
+    return res.status(400).json({ message: "Missing endDate" });
+  }
+
+  const startDate = new Date(startDateAsStr);
+  const endDate = new Date(endDateAsStr);
+
+  // Now get all orders between these two dates
+  const orders = await StashOrder.findAll({
+    where: {
+      createdAt: {
+        [Op.between]: [startDate, endDate]
+      }
+    },
+    include: [
+      StashStock,
+      StashColours,
+      StashOrderCustomisation,
+      ShopOrder
+    ]
+  });
+
+  // Just because the item is in the stash orders table doesn't mean it has been paid for
+  // we need to make sure that only orders that have been paid for show up here
+
+  const paidForOrders = orders.filter(order => order.ShopOrder.paid === true);
+
+  // Avoid using orders by accident
+  delete orders;
+
+  /*
+  * Duplicates must satisify:
+  * - Same productId,
+  * - Same size,
+  * - No customisation,
+  * - Same colourId,
+  * - Same shieldOrCrest,
+  * - Same underShieldText
+  */
+
+  const itemsWithCustomisation = [];
+  const nonCustomisedHashes = {};
+
+  // Sort into custom and non-custom
+
+  paidForOrders.forEach(order => {
+    const customisation = order.StashOrderCustomisations;
+
+    if(customisation !== undefined && customisation !== null && customisation.length !== 0) {
+      itemsWithCustomisation.push(order);
+      return;
+    }
+
+    const { productId, size, colourId, shieldOrCrest, underShieldText, quantity, StashColour, StashStock } = order;
+    const hashableComparison = { productId, size, colourId, shieldOrCrest, underShieldText };
+    const hashedObj = hash(hashableComparison);
+
+    if(Object.keys(nonCustomisedHashes).includes(hashedObj)) {
+      nonCustomisedHashes[hashedObj].quantity += quantity;
+    } else {
+      nonCustomisedHashes[hashedObj] = {
+        quantity,
+        StashStock,
+        colourId,
+        StashColour,
+        productId,
+        size,
+        shieldOrCrest,
+        underShieldText
+      };
+    }
+  });
+
+  /*
+  * We now have an object with the quantities of duplicates items and their
+  * corresponding items.
+  * We also have an array of customised stash that we can use too.
+  * Write them to the csvRecords array and then to the file
+  */
+
+  const time = new Date().getTime();
+  const fileLocation = `${time}-${dateFormat(startDate, "yyyy-mm-dd")}-to-${dateFormat(endDate, "yyyy-mm-dd")}`;
+
+  const csvWriterJCR = createCsvWriter({
+    path: `${csvPath}JCRStashOrders-${fileLocation}.csv`,
+    header: [
+      { id: "name", title: "Name" },
+      { id: "code", title: "Code" },
+      { id: "quantity", title: "Quantity" },
+      { id: "size", title: "Size" },
+      { id: "colour", title: "Colour" },
+      { id: "shieldOrCrest", title: "Shield/Crest" },
+      { id: "underShieldText", title: "Under Shield/Crest Text" },
+      { id: "backPrint", title: "Back Print" },
+      { id: "backEmbroidery", title: "Back Embroidery" },
+      { id: "legPrint", title: "Leg Print" },
+      { id: "rightPrint", title: "Right Breast Print" }
+    ]
+  });
+
+  const csvWriterMCR = createCsvWriter({
+    path: `${csvPath}MCRStashOrders-${fileLocation}.csv`,
+    header: [
+      { id: "name", title: "Name" },
+      { id: "code", title: "Code" },
+      { id: "quantity", title: "Quantity" },
+      { id: "size", title: "Size" },
+      { id: "colour", title: "Colour" },
+      { id: "shieldOrCrest", title: "Shield/Crest" },
+      { id: "underShieldText", title: "Under Shield/Crest Text" },
+      { id: "backPrint", title: "Back Print" },
+      { id: "backEmbroidery", title: "Back Embroidery" },
+      { id: "legPrint", title: "Leg Print" },
+      { id: "rightPrint", title: "Right Breast Print" }
+    ]
+  });
+
+  let csvRecordsJCR = [];
+  let csvRecordsMCR = [];
+
+  // We also need to separate out the MCR and JCR stash
+  // This will be done by looking at the underShieldText
+
+  // Start with the non-customised
+
+  Object.keys(nonCustomisedHashes).forEach(key => {
+    const item = nonCustomisedHashes[key];
+    let record = {};
+    // If it equals "Grey College MCR" it is MCR stash otherwise it's JCR stash
+    let isJCR = item.underShieldText !== "Grey College MCR";
+
+    record.name = item.StashStock.name;
+    record.code = item.StashStock.manufacturerCode;
+    record.quantity = item.quantity;
+    record.size = item.size;
+
+    if(item.colourId === null) {
+      record.colour = "";
+    } else {
+      record.colour = item.StashColour.name;
+    }
+
+    // 0 = Shield, 1 = Crest
+    record.shieldOrCrest = item.shieldOrCrest === 1 ? "Crest" : "Shield";
+    record.underShieldText = item.underShieldText;
+    record.backPrint = "";
+    record.backEmbroidery = "";
+    record.legPrint = "";
+    record.rightPrint = "";
+
+    if(isJCR) {
+      csvRecordsJCR.push(record);
+    } else {
+      csvRecordsMCR.push(record);
+    }
+  });
+
+  // All the non-customised has been processed
+  // Now lets do the customised
+
+  // These have the same indexes as the headings stored elsewhere
+  const customisationValidChoiceHeadings = [
+    "backPrint",
+    "legPrint",
+    "backEmbroidery",
+    "backEmbroidery",
+    "rightPrint"
+  ];
+
+  itemsWithCustomisation.forEach(item => {
+    let record = {};
+    let isJCR = item.underShieldText !== "Grey College MCR";
+
+    record.name = item.StashStock.name;
+    record.code = item.StashStock.manufacturerCode;
+    record.quantity = item.quantity;
+    record.size = item.size;
+
+    if(item.colourId === null) {
+      record.colour = "";
+    } else {
+      record.colour = item.StashColour.name;
+    }
+
+    record.shieldOrCrest = item.shieldOrCrest === 1 ? "Crest" : "Shield";
+    record.underShieldText = item.underShieldText;
+
+    // Set them all blank and then fill the ones that matter
+
+    record.backPrint = "";
+    record.backEmbroidery = "";
+    record.legPrint = "";
+    record.rightPrint = "";
+
+    item.StashOrderCustomisations.forEach(customisation => {
+      record[customisationValidChoiceHeadings[customisation.type]] = customisation.text;
+    });
+
+    if(isJCR) {
+      csvRecordsJCR.push(record);
+    } else {
+      csvRecordsMCR.push(record);
+    }
+  });
+
+  /*
+  * At this point we have:
+  * - All records that have been paid for
+  * - Sorted into JCR / MCR
+  * - Customised and Non-Customised
+  * - Duplicates merged
+  * Now just write them to the files.
+  */
+
+  let jcrWriteRet;
+
+  try {
+    jcrWriteRet = await csvWriterJCR.writeRecords(csvRecordsJCR);
+  } catch (error) {
+    return res.status(500).end({ error });
+  }
+
+  let mcrWriteRet;
+
+  try {
+    mcrWriteRet = await csvWriterMCR.writeRecords(csvRecordsMCR);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+
+  return res.status(200).json({ fileLocation });
+});
+
+router.get("/download/jcr/:file", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.export")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const file = req.params.file;
+
+  if(file === undefined || file === null) {
+    return res.status(400).json({ error: "Missing file" });
+  }
+
+  const split = file.split("-");
+  const millisecondsStr = split[0];
+
+  if(new Date().getTime() > Number(millisecondsStr) + 1000 * 60 * 60) {
+    return res.status(410).end();
+  }
+
+  const pathName = path.join(csvPath, `JCRStashOrders-${file}.csv`)
+
+  return res.download(pathName, `JCRStashOrders-${file}.csv`, () => {
+    res.status(404).end();
+  });
+});
+
+router.get("/download/mcr/:file", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.export")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const file = req.params.file;
+
+  if(file === undefined || file === null) {
+    return res.status(400).json({ error: "Missing file" });
+  }
+
+  const split = file.split("-");
+  const millisecondsStr = split[0];
+
+  if(new Date().getTime() > Number(millisecondsStr) + 1000 * 60 * 60) {
+    return res.status(410).end();
+  }
+
+  const pathName = path.join(csvPath, `MCRStashOrders-${file}.csv`)
+
+  return res.download(pathName, `MCRStashOrders-${file}.csv`, () => {
+    res.status(404).end();
+  });
 });
 
 router.get("/stock/:id", async (req, res) => {

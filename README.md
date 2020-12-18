@@ -4,6 +4,7 @@
 2. Download and install MySQL https://www.mysql.com/downloads/
 3. Download the repository locally
 4. Create a file called '.env' in the server folder. Fill it with the contents described in the Server .env section below.
+5. In the same directory create a file 'debtors.json' with the contents: `[]`
 5. Create a new database in MySQL called 'grey-shop'. Change the DB_USERNAME and DB_PASSWORD in the .env file to match your account for MySQL.
 6. Inside the server folder, open new a terminal and run 'npm install'.
 7. Once it is complete, run 'npm start' in the server folder. This will start the server and create the necessary tables.

@@ -121,3 +121,4 @@ dist
 /server/uploads/images/toastie_bar/*
 
 /server/debtors.json
+*.csv

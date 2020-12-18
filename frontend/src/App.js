@@ -26,6 +26,7 @@ import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockP
 import StashStockPage from './components/stash/admin/StashStockPage';
 import StashImagesPage from './components/stash/admin/ImagesPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
+import StashExportPage from './components/stash/export/StashExportPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -209,6 +210,9 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/stash/images" render={() => (
                     this.hasPermission("stash.stock.edit") ? ( <StashImagesPage /> ) : ( <Redirect to="/errors/403" /> )
+                  )} />
+                  <Route exact path="/stash/export" render={() => (
+                    this.hasPermission("stash.export") ? ( <StashExportPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
                   <Route exact path="/permissions" render={() => (
                     this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )

@@ -107,6 +107,11 @@ class NavBar extends React.Component {
               displayName: "Edit Available Stash",
               url: "/stash/stock",
               requiredPermission: "stash.stock.edit"
+            },
+            {
+              displayName: "Export Stash",
+              url: "/stash/export",
+              requiredPermission: "stash.export"
             }
           ],
           alwaysDisplayed: false
