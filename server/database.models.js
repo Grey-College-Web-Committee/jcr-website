@@ -17,13 +17,15 @@ class User extends Model {}
 class ShopOrder extends Model {}
 class ShopOrderContent extends Model {}
 
-class GymMembership extends Model {}
 class StashColours extends Model {}
 class StashSizeChart extends Model {}
 class StashStock extends Model {}
 class StashCustomisations extends Model {}
 class StashItemColours extends Model {}
 class StashStockImages extends Model {}
+class StashOrder extends Model {}
+class StashOrderCustomisation extends Model {}
+
 class ToastieStock extends Model {}
 class ToastieOrderContent extends Model {}
 
@@ -50,24 +52,6 @@ User.init({
   },
   year: {
     type: DataTypes.INTEGER
-  }
-}, { sequelize });
-
-// Only need to store the length of membership can derive end date
-// Considered putting this in the Users table but keeping it separate
-// allows for greater expansion of any functionality (e.g. automating the approval process for their cards)
-GymMembership.init({
-  userId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  approved: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
   }
 }, { sequelize });
 
@@ -178,8 +162,8 @@ StashCustomisations.init({
       key: 'id'
     }
   },
-  customisationDescription: {
-    type: DataTypes.STRING,
+  customisationChoice: {
+    type: DataTypes.INTEGER,
     allowNull: true
   },
   addedPriceForCustomisation: {
@@ -322,10 +306,73 @@ PermissionLink.init({
   }
 }, { sequelize, timestamps: true, updatedAt: false });
 
-// Associations are necessary to allow joins between tables
+StashOrder.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: ShopOrder,
+      key: 'id'
+    }
+  },
+  productId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      StashStock,
+      key: 'id'
+    }
+  },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1
+  },
+  size: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  shieldOrCrest: { // 0 = Shield, 1 = Crest
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
+  },
+  underShieldText: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "Grey College"
+  },
+  colourId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: null,
+    references: {
+      model: StashColours,
+      key: 'id'
+    }
+  }
+}, { sequelize });
 
-User.hasMany(GymMembership, { foreignKey: 'userId' });
-GymMembership.belongsTo(User, { foreignKey: 'userId' });
+StashOrderCustomisation.init({ 
+  orderId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: StashOrder,
+      key: 'id'
+    }
+  },
+  type: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  text: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, { sequelize });
+
+// Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
 StashStock.belongsTo(StashSizeChart, { foreignKey: 'sizeChartId' });
@@ -360,4 +407,16 @@ PermissionLink.belongsTo(Permission, { foreignKey: 'permissionId' });
 PermissionLink.belongsTo(User, { as: "grantedTo", foreignKey: "grantedToId" });
 PermissionLink.belongsTo(User, { as: "grantedBy", foreignKey: "grantedById" });
 
-module.exports = { User, GymMembership, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, Permission, PermissionLink, ShopOrder, ShopOrderContent };
+ShopOrder.hasMany(StashOrder, { foreignKey: 'orderId' });
+StashOrder.belongsTo(ShopOrder, { foreignKey: 'orderId' });
+
+StashStock.hasMany(StashOrder, { foreignKey: 'productId' });
+StashOrder.belongsTo(StashStock, { foreignKey: 'productId' });
+
+StashColours.hasMany(StashOrder, { foreignKey: 'colourId' });
+StashOrder.belongsTo(StashColours, { foreignKey: 'colourId' });
+
+StashOrder.hasMany(StashOrderCustomisation, { foreignKey: 'orderId' });
+StashOrderCustomisation.belongsTo(StashOrder, { foreignKey: 'orderId' });
+
+module.exports = { User, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation };

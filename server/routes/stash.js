@@ -2,12 +2,13 @@
 const express = require("express");
 const router = express.Router();
 const fileUpload = require('express-fileupload');
+const path = require("path");
 // The database models
-const { User, GymMembership, StashOrder, StashStock, StashOrderContent, StashColours, StashSizeChart, StashItemColours, StashCustomisations, StashStockImages } = require("../database.models.js");
+const { User, GymMembership, StashStock, StashColours, StashSizeChart, StashItemColours, StashCustomisations, StashStockImages } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
 
-const uploadPath = __dirname + '\\stashImageUploads\\'
+const uploadPath = path.join(__dirname, "../uploads/images/stash/");
 
 // enable files upload
 router.use(fileUpload({
@@ -21,19 +22,56 @@ router.use(fileUpload({
 const stashPurchaseDisabled = true;
 
 // Get the stock available
-router.get("/stock", async (req, res) => { 
+router.get("/stock", async (req, res) => {
   // User only
   let stock;
 
   // Just finds all the items and returns them
   try {
-    stock = await StashStock.findAll();
+    stock = await StashStock.findAll({
+      include: [ StashStockImages ]
+    });
   } catch (error) {
     res.status(500).json({ error: "Server error"+error.toString() });
     return;
   }
 
   return res.status(200).json({ stock });
+});
+
+router.get("/item/:id", async (req, res) => {
+  const id = req.params.id;
+
+  if(!id || id === null || id === undefined) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let item;
+
+  try {
+    item = await StashStock.findOne({
+      where: {
+        id
+      },
+      include: [
+        StashCustomisations,
+        StashSizeChart,
+        StashStockImages,
+        {
+          model: StashItemColours,
+          include: [ StashColours ]
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+
+  if(item === null) {
+    return res.status(400).json({ error: `Unknown id ${id}` })
+  }
+
+  return res.status(200).json({ item });
 });
 
 // Get the size charts available
@@ -175,12 +213,12 @@ router.get("/stockColours/:id", async (req, res) => {
   return res.status(200).json({ colourItem });
 });
 
-router.get("/customisations/:id/:des", async (req, res) => {
+router.get("/customisations/:id/:choice", async (req, res) => {
 
   // Gets a single customisation by its related productId and its description
   const id = req.params.id;
-  const des = req.params.des;
-  const customisation = await StashCustomisations.findOne({ where: { productId: id, customisationDescription: des } });
+  const choice = req.params.choice;
+  const customisation = await StashCustomisations.findOne({ where: { productId: id, customisationChoice: choice } });
 
   if(customisation === null) {
     return res.status(400).json({ error: "Could not find customisation option" });
@@ -222,24 +260,31 @@ router.post("/customisation/:id", async (req, res) => {
   }
 
   // Validate the details briefly
-  const {customisationDescription, addedPriceForCustomisation } = req.body;
+  const {customisationChoice, addedPriceForCustomisation } = req.body;
   const productId = req.params.id;
 
   if(productId == null) {
     return res.status(400).json({ error: "Missing productId" });
   }
 
-  if(customisationDescription == null) {
-    return res.status(400).json({ error: "Missing description of customisation option" });
+  if(customisationChoice == null) {
+    return res.status(400).json({ error: "Missing choice of customisation option" });
   }
 
   if(addedPriceForCustomisation == null) {
     return res.status(400).json({ error: "Missing added price" });
   }
 
+  // const customisationValidChoices = [
+  //   "Back/Leg Print: Grey College or Durham University",
+  //   "Back Embroidery: Grey College or Durham University",
+  //   "Back Embroidery Personalised",
+  //   "Right Breast/Small Item Personalisation"
+  // ];
+
   // Create the new colour
   try {
-    await StashCustomisations.create({ name: "new", productId, customisationDescription, addedPriceForCustomisation });
+    await StashCustomisations.create({ name: "new", productId, customisationChoice, addedPriceForCustomisation });
   } catch (error) {
     return res.status(500).json({ error: "Server error creating new colour"+error.toString() });
   }
@@ -441,8 +486,8 @@ router.put("/customisation/:productId/:id", async (req, res) => {
 
   let updatedRecord = { id: customisationId, productId: productId };
 
-  if(req.body.customisationDescription !== undefined && req.body.customisationDescription !== null) {
-    updatedRecord.customisationDescription = req.body.customisationDescription;
+  if(req.body.customisationChoice !== undefined && req.body.customisationChoice !== null) {
+    updatedRecord.customisationChoice = req.body.customisationChoice;
   }
 
   if(req.body.addedPriceForCustomisation !== undefined && req.body.addedPriceForCustomisation !== null) {
@@ -619,7 +664,7 @@ router.delete("/image/:imageName/:productId", async (req, res) => {
 });
 
 // Delete a customisation option.
-router.delete("/customisation/:custdesc/:productId", async (req, res) => {
+router.delete("/customisation/:choice/:productId", async (req, res) => {
   // Admin only
   const { user } = req.session;
 
@@ -628,17 +673,17 @@ router.delete("/customisation/:custdesc/:productId", async (req, res) => {
   }
 
   // Validate the details briefly
-  const customisationDescription = req.params.custdesc;
+  const customisationChoice = req.params.choice;
   const productId = req.params.productId;
 
-  if(customisationDescription == null) {
-    return res.status(400).json({ error: "Missing customisation description", receivedRequest:req });
+  if(customisationChoice == null) {
+    return res.status(400).json({ error: "Missing customisation choice", receivedRequest:req });
   }
   if(productId == null) {
     return res.status(400).json({ error: "Missing productId", receivedRequest:req });
   }
 
-  const customisationRecord = await StashCustomisations.findOne({ where: { customisationDescription:customisationDescription, productId:productId } });
+  const customisationRecord = await StashCustomisations.findOne({ where: { customisationChoice:customisationChoice, productId:productId } });
 
   if(customisationRecord === null) {
     return res.status(500).json({ error: "Entry not in table" });

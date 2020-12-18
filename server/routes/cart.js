@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent } = require("../database.models.js");
+const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -192,8 +192,190 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
   };
 };
 
-const stashProcessor = (orderId, quantity, globalSubmissionInfo, componentSubmissionInfo) => {
+const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo) => {
+  if(!globalSubmissionInfo.hasOwnProperty("id")) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No id"
+    };
+  }
 
+  if(globalSubmissionInfo.id === undefined) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No id"
+    };
+  }
+
+  if(globalSubmissionInfo.id === null) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No id"
+    };
+  }
+
+  const productId = globalSubmissionInfo.id;
+
+  let productRecord;
+
+  try {
+    productRecord = await StashStock.findOne({
+      where: {
+        id: productId
+      }
+    });
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to find record"
+    };
+  }
+
+  if(productRecord === null) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "Unable to find record"
+    };
+  }
+
+  let total = Number(productRecord.price);
+  let stashOrder;
+
+  const sizeComponent = componentSubmissionInfo.filter(component => component.type === "size");
+
+  if(sizeComponent.length !== 1) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No size selected"
+    };
+  }
+
+  const shieldOrCrest = componentSubmissionInfo.filter(component => component.type === "shieldOrCrest");
+
+  if(shieldOrCrest.length !== 1) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No shield or crest selected"
+    };
+  }
+
+  // 0 = Shield 1 = Crest
+  const submitShieldOrCrest = shieldOrCrest[0].shieldOrCrest === "1" ? 1 : 0;
+
+  const underShield = componentSubmissionInfo.filter(component => component.type === "underShieldText");
+
+  if(underShield.length !== 1) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No under shield text"
+    };
+  }
+
+  const resolvedUnderShieldTexts = [
+    "Grey College",
+    "Grey College MCR"
+  ];
+
+  const underShieldText = resolvedUnderShieldTexts[Number(underShield[0].underShieldText)];
+
+  const colourComponent = componentSubmissionInfo.filter(component => component.type === "colour");
+  let colourId = null;
+
+  if(colourComponent.length === 1) {
+    colourId = colourComponent[0].colour;
+  } else {
+    if(colourComponent.length > 1) {
+      return {
+        errorOccurred: true,
+        status: 400,
+        error: "Too many colours"
+      };
+    }
+  }
+
+  try {
+    stashOrder = await StashOrder.create({
+      orderId,
+      productId,
+      quantity,
+      colourId,
+      underShieldText,
+      shieldOrCrest: submitShieldOrCrest,
+      size: sizeComponent[0].size
+    });
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to create stash sub order"
+    };
+  }
+
+  const stashOrderId = stashOrder.id;
+
+  // Now add customisations
+
+  const customisationComps = componentSubmissionInfo.filter(component => component.type === "customisation");
+
+  for(let i = 0; i < customisationComps.length; i++) {
+    const component = customisationComps[i];
+    const { typeId, text } = component;
+
+    let stashCustPriceRecord;
+
+    try {
+      stashCustPriceRecord = await StashCustomisations.findOne({
+        where: {
+          productId,
+          customisationChoice: Number(typeId)
+        }
+      });
+    } catch (error) {
+      return {
+        errorOccurred: true,
+        status: 500,
+        error: "Unable to find record for customisation"
+      };
+    }
+
+    if(stashCustPriceRecord === null) {
+      return {
+        errorOccurred: true,
+        status: 400,
+        error: "Unknown customisation type"
+      };
+    }
+
+    let stashCustomisationRecord;
+
+    try {
+      stashCustomisationRecord = await StashOrderCustomisation.create({
+        orderId: stashOrderId,
+        type: Number(typeId),
+        text
+      });
+    } catch (error) {
+      return {
+        errorOccurred: true,
+        status: 500,
+        error: "Unable to create customisation"
+      };
+    }
+
+    total += Number(stashCustPriceRecord.addedPriceForCustomisation);
+  }
+
+  return {
+    price: total * quantity
+  };
 }
 
 const toastiePostProcessor = (globalOrderParameters) => {

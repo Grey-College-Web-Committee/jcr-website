@@ -116,7 +116,7 @@ class StashStockPage extends React.Component {
     this.createItemColoursSelection();
     return true;
   }
-  
+
   getItemColours = async (productId=1) => {
     let query;
 
@@ -142,7 +142,7 @@ class StashStockPage extends React.Component {
     }
 
     this.setState({ selectedColours: newObject, selectedItem: productId });
-    
+
   };
 
   createItemColoursSelection = async() =>{
@@ -193,9 +193,9 @@ class StashStockPage extends React.Component {
           </div>
           <div className="border-b-2 py-4">
             <h2 className="font-semibold text-3xl pb-4">Add New Item</h2>
-            <AddStock 
-              updateStockListing={this.updateStockListing} 
-              colours={this.state.colours} 
+            <AddStock
+              updateStockListing={this.updateStockListing}
+              colours={this.state.colours}
               selectedColours={this.state.selectedColours} />
           </div>
           <div className="border-b-2 py-4">

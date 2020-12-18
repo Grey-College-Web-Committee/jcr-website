@@ -88,7 +88,7 @@ class AddStock extends React.Component {
 	const coloursLength = this.props.colours.length;
 	for (var i = 0; i < coloursLength; i++){
 	  const colourId = this.props.colours[i].id;
-	  
+
 	  const isSelected = this.props.selectedColours[colourId];
 
 	  if (isSelected){ // If colour is a selected colour
@@ -146,7 +146,7 @@ class AddStock extends React.Component {
 
 	this.saveSelectedColours(parseInt(productId));
 	if (this.state.pictures.length > 0){ this.onUpload(parseInt(productId)); }
-	
+
 	if (this.state.customisationsAvailable.length > 0){ this.postcustomisations(productId); }
 
 	// Update the data displayed once we do this
@@ -158,9 +158,9 @@ class AddStock extends React.Component {
 	console.log("postCustomisation");
 	let length = this.state.customisationsAvailable.length;
 	for (var i = 0; i < length; i++){
-	  const { description, addedPrice } = this.state.customisationsAvailable[i];
+	  const { choice, addedPrice } = this.state.customisationsAvailable[i];
 	  try {
-		await api.post(`/stash/customisation/${productId}`, { customisationDescription:description, addedPriceForCustomisation:addedPrice });
+		await api.post(`/stash/customisation/${productId}`, { customisationChoice: choice, addedPriceForCustomisation:addedPrice });
 	  } catch (error) {
 		alert("Error adding customisation option")
 		return;
@@ -195,9 +195,9 @@ class AddStock extends React.Component {
 	let data = this.state.customisationsAvailable;
 	let targets = e.target.name.split(',')
 	if (targets[1] === "addedPrice"){ data[targets[0]].addedPrice=e.target.value; }
-	else if (targets[1] === "description"){ data[targets[0]].description=e.target.value; }
+	else if (targets[1] === "choice"){ data[targets[0]].choice=e.target.value; }
 	else if (targets[1] === "name"){ data[targets[0]].name=e.target.value; }
-	
+
 	this.setState({ customisationsAvailable: data });
   }
 
@@ -208,17 +208,29 @@ class AddStock extends React.Component {
 	  <td className="justify-start p-2 text-lg font-semibold border-2 border-red-900">Additional Cost of Customisation (£)</td>
 	</tr>];
 	const length = this.state.customisationsAvailable.length;
+  const customisationValidChoices = [
+    "Back/Leg Print: Grey College or Durham University",
+    "Back Embroidery: Grey College or Durham University",
+    "Back Embroidery Personalised",
+    "Right Breast/Small Item Personalisation"
+  ];
 	for (var i = 0; i<length; i++){
+    const usedCustomisations = this.state.customisationsAvailable.map(cust => Number(cust.choice));
+    console.log({usedCustomisations})
 	  codeSnippet.push(
 	  	<tr>
           <td className="w-auto p-2 border-2 border-red-900">
-		    <textarea
-		      name={[i,"description"]}
-		      onChange={this.changeCustValues}
-		      value={this.state.customisationsAvailable[i].description}
-		      className="shadow w-auto border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
-		      disabled={this.state.disabled}
-		    />
+      <select
+        name={[i,"choice"]}
+        onChange={this.changeCustValues}
+        value={Number(this.state.customisationsAvailable[i].choice)}
+        className="shadow w-auto border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
+        disabled={this.state.disabled}
+      >
+        {customisationValidChoices.map((item, i) => (
+          <option value={i} key={i} disabled={usedCustomisations.includes(i)}>{item}</option>
+        ))}
+      </select>
 	      </td>
 		  <td className="w-auto p-2 text-center border-2 border-red-900">
               <input
@@ -258,8 +270,15 @@ class AddStock extends React.Component {
   }
 
   addCustomisationOption(){
+  const usedCustomisations = this.state.customisationsAvailable.map(cust => Number(cust.choice));
+  const nextChoice = Math.min(...[0, 1, 2, 3].filter(n => !usedCustomisations.includes(n)));
+
+  if(nextChoice > 3 || nextChoice < 0) {
+    return;
+  }
+
 	const customisations = this.state.customisationsAvailable;
-	customisations.push({ description: "", addedPrice: 0.00 });
+	customisations.push({ choice: `${nextChoice}`, addedPrice: 0.00 });
 	this.setState({ customisationsAvailable: customisations });
   }
 
@@ -332,17 +351,17 @@ class AddStock extends React.Component {
 					className="shadow w-64 border rounded p-1 focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50"
 					disabled={this.state.disabled}
 					>
-					<option value="hoodiesAndSweatshirts">Hoodies and Sweatshirts</option>
-					<option value="jacketsAndZips">Jackets and Zips</option>
-					<option value="shirts">Shirts</option>
-					<option value="sports">Joggers and Sports</option>
-					<option value="outdoors">The Greyt Outdoors</option>
+					<option value="hoodiesAndLoungewear">Hoodies & Loungewear</option>
+					<option value="jackets">Jackets</option>
+					<option value="jumpersAndFleeces">Jumpers/Fleeces</option>
+					<option value="sports">Sports</option>
+					<option value="tShirts">T-Shirts</option>
 					<option value="accessories">Accessories</option>
 					<option value="other">Other</option>
 					</select>
 				</div>
 				</td><td className="text-right">
-				
+
 				<div className="mx-4 w-auto pb-2 pt-6 border-b-2 border-red-900">
 					<label htmlFor="price" className="flex flex-row justify-end pb-2 text-lg font-semibold">Base Price (£)</label>
 					<input
@@ -373,7 +392,7 @@ class AddStock extends React.Component {
 					onClick={() => this.addCustomisationOption()}
 					className="my-1 px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
 					></input>
-					{ this.state.customisationsAvailable.length > 0 ? this.getRemovalButtonCode():<></> }
+        { this.state.customisationsAvailable.length > 0 ? this.getRemovalButtonCode() : null }
 				</div>
 				</td></tr>
 				<tr className="content-evenly w-max">

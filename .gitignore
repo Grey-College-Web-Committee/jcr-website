@@ -117,3 +117,5 @@ dist
 
 /domain_verification/
 /domain_verification/*
+/server/uploads/images/stash/*
+/server/uploads/images/toastie_bar/*

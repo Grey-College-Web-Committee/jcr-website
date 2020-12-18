@@ -10,11 +10,11 @@ router.post("/login", async (req, res) => {
   const username = req.body.username;
   const password = req.body.password;
 
-  if(username == null) {
+  if(username === null || username === undefined) {
     return res.status(400).json({ message: "Missing username" });
   }
 
-  if(password == null) {
+  if(password === null || username === undefined) {
     return res.status(400).json({ message: "Missing password" });
   }
 

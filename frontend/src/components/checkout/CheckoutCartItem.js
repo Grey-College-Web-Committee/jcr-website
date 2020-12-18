@@ -35,7 +35,7 @@ class CheckoutCartItem extends React.Component {
             <li key={i}>
               <span>- {component.name}</span>
               {component.hasOwnProperty("additionalDisplay") ? <br /> : null}
-              {component.hasOwnProperty("additionalDisplay") ? <span>>> {component.additionalDisplay} </span> : null}
+              {component.hasOwnProperty("additionalDisplay") ? <span>→ "{component.additionalDisplay}"</span> : null}
             </li>
           ))}
         </ul>
