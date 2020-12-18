@@ -215,7 +215,8 @@ class AddStock extends React.Component {
 	</tr>];
 	const length = this.state.customisationsAvailable.length;
   const customisationValidChoices = [
-    "Back/Leg Print: Grey College or Durham University",
+    "Back Print: Grey College or Durham University",
+    "Leg Print: Grey College or Durham University",
     "Back Embroidery: Grey College or Durham University",
     "Back Embroidery Personalised",
     "Right Breast/Small Item Personalisation"
@@ -276,9 +277,18 @@ class AddStock extends React.Component {
 
   addCustomisationOption(){
   const usedCustomisations = this.state.customisationsAvailable.map(cust => Number(cust.choice));
-  const nextChoice = Math.min(...[0, 1, 2, 3].filter(n => !usedCustomisations.includes(n)));
+  const customisationValidChoices = [
+    "Back Print: Grey College or Durham University",
+    "Leg Print: Grey College or Durham University",
+    "Back Embroidery: Grey College or Durham University",
+    "Back Embroidery Personalised",
+    "Right Breast/Small Item Personalisation"
+  ];
+  const customisationIndexes = customisationValidChoices.map((cust, i) => i);
+  console.log({customisationIndexes})
+  const nextChoice = Math.min(...customisationIndexes.filter(n => !usedCustomisations.includes(n)));
 
-  if(nextChoice > 3 || nextChoice < 0) {
+  if(nextChoice > 4 || nextChoice < 0) {
     return;
   }
 

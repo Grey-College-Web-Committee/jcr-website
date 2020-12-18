@@ -85,6 +85,7 @@ class OrderStashPage extends React.Component {
             {
               Object.keys(this.state.groups).map((type, i) => (
                 <StashDropdown
+                  key={i}
                   title={this.state.groups[type].title}
                   groupItems={this.state.stock.filter(item => item.type === type)}
                 />
