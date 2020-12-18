@@ -175,20 +175,20 @@ class StashExportPage extends React.Component {
               <h1 className="font-semibold text-5xl pb-4">Export Stash Orders</h1>
               <div className="flex flex-col justify-center">
                 <p>Your downloads are ready!</p>
-                <Link to={`/api/stash/download/jcr/${this.state.fileLocation}`} download target="_self">
+                <a href={`/api/stash/download/jcr/${this.state.fileLocation}`} download target="_self">
                   <button
                     className="px-4 py-1 rounded bg-red-900 text-white w-64 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-4"
                   >
                     JCR Stash Download
                   </button>
-                </Link>
-                <Link to={`/api/stash/download/mcr/${this.state.fileLocation}`} download target="_self">
+                </a>
+                <a href={`/api/stash/download/mcr/${this.state.fileLocation}`} download target="_self">
                   <button
                     className="px-4 py-1 rounded bg-red-900 text-white w-64 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-4"
                   >
                     MCR Stash Download
                   </button>
-                </Link>
+                </a>
               </div>
             </div>
           </div>
