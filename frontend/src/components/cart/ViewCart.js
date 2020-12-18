@@ -54,6 +54,13 @@ class ViewCart extends React.Component {
             Your Bag
           </div>
           <div>
+            <div className="w-full border-b-2 border-red-900 p-2 flex flex-row flex-grow justify-between opacity-50">
+              <span className="font-semibold">Subtotal</span>
+              <span className="font-semibold">£{subtotal.toFixed(2)}</span>
+            </div>
+            <div className="w-full p-2 border-b-2 border-red-900">
+              <button disabled={true} className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">Checkout</button>
+            </div>
             <div className="bg-gray-100">
               <ul className="opacity-25">
                 <div className="absolute w-full h-full opacity-100">
@@ -68,13 +75,6 @@ class ViewCart extends React.Component {
                 ))}
               </ul>
             </div>
-            <div className="w-full border-b-2 border-red-900 p-2 flex flex-row flex-grow justify-between opacity-50">
-              <span className="font-semibold">Subtotal</span>
-              <span className="font-semibold">£{subtotal.toFixed(2)}</span>
-            </div>
-            <div className="w-full p-2">
-              <button disabled={true} className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">Checkout</button>
-            </div>
           </div>
         </div>
       )
@@ -88,6 +88,15 @@ class ViewCart extends React.Component {
           Your Bag
         </div>
         <div>
+          <div className="w-full border-b-2 border-red-900 p-2 flex flex-row flex-grow justify-between">
+            <span className="font-semibold">Subtotal</span>
+            <span className="font-semibold">£{subtotal.toFixed(2)}</span>
+          </div>
+          <div className="w-full p-2 border-b-2 border-red-900">
+            <Link to="/checkout">
+              <button className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">Checkout</button>
+            </Link>
+          </div>
           <div>
             <ul>
               {items.map((item, i) => (
@@ -99,15 +108,6 @@ class ViewCart extends React.Component {
                 </li>
               ))}
             </ul>
-          </div>
-          <div className="w-full border-b-2 border-red-900 p-2 flex flex-row flex-grow justify-between">
-            <span className="font-semibold">Subtotal</span>
-            <span className="font-semibold">£{subtotal.toFixed(2)}</span>
-          </div>
-          <div className="w-full p-2">
-            <Link to="/checkout">
-              <button className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">Checkout</button>
-            </Link>
           </div>
         </div>
       </div>
