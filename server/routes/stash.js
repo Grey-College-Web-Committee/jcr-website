@@ -155,7 +155,7 @@ router.get("/image/:name/:itemId", async (req, res) => {
     return res.status(400).json({ error: "Image not found" });
   }
 
-  const pathName = uploadPath + id + "\\" + image.name;
+  const pathName = uploadPath + id + "/" + image.name;
 
   return res.sendFile(pathName, function (err) {
     if (err) { res.status(err.status).end(); }
