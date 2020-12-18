@@ -146,7 +146,7 @@ class CheckoutPage extends React.Component {
     return (
       <Prompt
         when={this.state.pageState === 1 || this.state.pageState === 2}
-        message="Are you sure you want to cancel payment?"
+        message="You are about to navigate away from the checkout, meaning your payment will not go through. Leave checkout anyway?"
       />
     )
   }
