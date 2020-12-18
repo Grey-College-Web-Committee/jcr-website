@@ -119,3 +119,6 @@ dist
 /domain_verification/*
 /server/uploads/images/stash/*
 /server/uploads/images/toastie_bar/*
+
+/server/debtors.json
+*.csv

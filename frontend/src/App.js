@@ -16,6 +16,7 @@ import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 import CheckoutPage from './components/checkout/CheckoutPage';
 import OrderStashPage from './components/stash/OrderStashPage';
 import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
+import DebtorPage from './components/debtors/DebtorPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
@@ -25,6 +26,7 @@ import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockP
 import StashStockPage from './components/stash/admin/StashStockPage';
 import StashImagesPage from './components/stash/admin/ImagesPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
+import StashExportPage from './components/stash/export/StashExportPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -209,11 +211,17 @@ class App extends React.Component {
                   <Route exact path="/stash/images" render={() => (
                     this.hasPermission("stash.stock.edit") ? ( <StashImagesPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
+                  <Route exact path="/stash/export" render={() => (
+                    this.hasPermission("stash.export") ? ( <StashExportPage /> ) : ( <Redirect to="/errors/403" /> )
+                  )} />
                   <Route exact path="/permissions" render={() => (
                     this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
                   <Route exact path="/toasties/" render={() => (
                     this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/debtors" render={() => (
+                    this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/stash/" render={() => (
                     this.isLoggedIn() ? ( <OrderStashPage /> ) : ( <Redirect to="/accounts/login" /> )

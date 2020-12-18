@@ -12,7 +12,7 @@ const { User, StashColours, StashSizeChart, StashItemColours, StashStockImages, 
 
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
-const stashRoute = require("./routes/stash"); 
+const stashRoute = require("./routes/stash");
 const toastieBarRoute = require("./routes/toastie_bar");
 const permissionsRoute = require("./routes/permissions");
 const cartRoute = require("./routes/cart");
@@ -65,6 +65,11 @@ const requiredPermissions = [
     name: "Edit Stash Stock",
     description: "Enables editing of the available stash",
     internal: "stash.stock.edit"
+  },
+  {
+    name: "Export Stash",
+    description: "Enables exporting of stash orders",
+    internal: "stash.export"
   }
 ];
 
