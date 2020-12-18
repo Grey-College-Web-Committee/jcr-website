@@ -276,7 +276,8 @@ router.post("/customisation/:id", async (req, res) => {
   }
 
   // const customisationValidChoices = [
-  //   "Back/Leg Print: Grey College or Durham University",
+  //   "Back Print: Grey College or Durham University",
+  //   "Leg Print: Grey College or Durham University",
   //   "Back Embroidery: Grey College or Durham University",
   //   "Back Embroidery Personalised",
   //   "Right Breast/Small Item Personalisation"

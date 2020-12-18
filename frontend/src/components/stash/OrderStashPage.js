@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
-import StashSelectable from './StashSelectable';
+import StashDropdown from './StashDropdown';
 
 class OrderStashPage extends React.Component {
   constructor(props) {
@@ -13,7 +13,30 @@ class OrderStashPage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      content: []
+      content: [],
+      groups: {
+        "hoodiesAndLoungewear": {
+          title: "Hoodies & Loungewear"
+        },
+        "jackets": {
+          title: "Jackets"
+        },
+        "jumpersAndFleeces": {
+          title: "Jumpers/Fleeces"
+        },
+        "sports": {
+          title: "Sports"
+        },
+        "tShirts": {
+          title: "T-Shirts"
+        },
+        "accessories": {
+          title: "Accessories"
+        },
+        "other": {
+          title: "Other"
+        }
+      }
     };
   }
 
@@ -30,6 +53,13 @@ class OrderStashPage extends React.Component {
     }
 
     const { stock } = content.data;
+
+    stock.sort((a, b) => {
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+
+      return aName > bName ? 1 : (aName < bName ? -1 : 0);
+    });
 
     this.setState({ loaded: true, status: 200, stock });
   }
@@ -53,17 +83,12 @@ class OrderStashPage extends React.Component {
           <h1 className="font-semibold text-5xl pb-4">Stash</h1>
           <div className="flex flex-row flex-wrap">
             {
-              this.state.stock.sort((a, b) => {
-                const aName = a.name.toLowerCase();
-                const bName = b.name.toLowerCase();
-
-                return aName > bName ? 1 : (aName < bName ? -1 : 0);
-              }).map((item, i) => (
-                <div className="flex-1 flex flex-row justify-center" key={i}>
-                  <StashSelectable
-                    {...item}
-                  />
-                </div>
+              Object.keys(this.state.groups).map((type, i) => (
+                <StashDropdown
+                  key={i}
+                  title={this.state.groups[type].title}
+                  groupItems={this.state.stock.filter(item => item.type === type)}
+                />
               ))
             }
           </div>

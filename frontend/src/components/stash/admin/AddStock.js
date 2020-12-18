@@ -119,7 +119,7 @@ class AddStock extends React.Component {
 	e.preventDefault();
 	this.setState({ disabled: true });
 
-	const { name, manufacturerCode, description, available, type, customisationsAvailable, price, XS, S, M, L, XL, XXL, uploadedLocation } = this.state;
+	const { name, manufacturerCode, pictures, description, available, type, customisationsAvailable, price, XS, S, M, L, XL, XXL, uploadedLocation } = this.state;
 
 	// Validation checks - SORT THE REST OUT LATER
 	if(name.length === 0) {
@@ -133,6 +133,12 @@ class AddStock extends React.Component {
 	  this.setState({ disabled: false });
 	  return;
 	}
+
+  if(pictures.length === 0) {
+    alert("You must upload an image for the new item.");
+    this.setState({ disabled: false });
+    return;
+  }
 
 	// Add it to the database
 	let query;
@@ -209,14 +215,14 @@ class AddStock extends React.Component {
 	</tr>];
 	const length = this.state.customisationsAvailable.length;
   const customisationValidChoices = [
-    "Back/Leg Print: Grey College or Durham University",
+    "Back Print: Grey College or Durham University",
+    "Leg Print: Grey College or Durham University",
     "Back Embroidery: Grey College or Durham University",
     "Back Embroidery Personalised",
     "Right Breast/Small Item Personalisation"
   ];
 	for (var i = 0; i<length; i++){
     const usedCustomisations = this.state.customisationsAvailable.map(cust => Number(cust.choice));
-    console.log({usedCustomisations})
 	  codeSnippet.push(
 	  	<tr>
           <td className="w-auto p-2 border-2 border-red-900">
@@ -271,9 +277,18 @@ class AddStock extends React.Component {
 
   addCustomisationOption(){
   const usedCustomisations = this.state.customisationsAvailable.map(cust => Number(cust.choice));
-  const nextChoice = Math.min(...[0, 1, 2, 3].filter(n => !usedCustomisations.includes(n)));
+  const customisationValidChoices = [
+    "Back Print: Grey College or Durham University",
+    "Leg Print: Grey College or Durham University",
+    "Back Embroidery: Grey College or Durham University",
+    "Back Embroidery Personalised",
+    "Right Breast/Small Item Personalisation"
+  ];
+  const customisationIndexes = customisationValidChoices.map((cust, i) => i);
+  console.log({customisationIndexes})
+  const nextChoice = Math.min(...customisationIndexes.filter(n => !usedCustomisations.includes(n)));
 
-  if(nextChoice > 3 || nextChoice < 0) {
+  if(nextChoice > 4 || nextChoice < 0) {
     return;
   }
 

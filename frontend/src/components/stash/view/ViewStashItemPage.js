@@ -29,7 +29,9 @@ class ViewStashItemPage extends React.Component {
       backPersonalisationOption: "-1",
       backPersonalisationText: "",
       errorAdding: null,
-      disabled: false
+      disabled: false,
+      buttonText: "Add To Bag",
+      addedCount: 0
     };
   }
 
@@ -72,7 +74,7 @@ class ViewStashItemPage extends React.Component {
     this.cart.get();
 
     const { size, colour, rightBreastOption, rightBreastText, backPersonalisationOption, backPersonalisationText, shieldOrCrest, underShieldText } = this.state;
-    const { id, name, price, StashItemColours, StashCustomisations } = this.state.item;
+    const { id, name, price, StashItemColours, StashCustomisations, StashStockImages } = this.state.item;
 
     let components = [];
 
@@ -160,7 +162,7 @@ class ViewStashItemPage extends React.Component {
         const rightBreastObj = StashCustomisations.filter(cust => cust.customisationChoice === Number(rightBreastOption))[0];
 
         components.push({
-          name: "Right Breast Personalisation",
+          name: "Right Breast (Personalised)",
           price: Number(rightBreastObj.addedPriceForCustomisation),
           quantity: 1,
           submissionInformation: {
@@ -185,8 +187,17 @@ class ViewStashItemPage extends React.Component {
 
         const backPersonalisationObj = StashCustomisations.filter(cust => cust.customisationChoice === Number(backPersonalisationOption))[0];
 
+        // Don't like this but 1 is leg personalisation
+
+        const displayChoices = [
+          "Back Print",
+          "Leg Print",
+          "Back Embroidery",
+          "Back Embroidery (Personalised)"
+        ]
+
         components.push({
-          name: "Back Personalisation",
+          name: displayChoices[Number(backPersonalisationOption)],
           price: Number(backPersonalisationObj.addedPriceForCustomisation),
           quantity: 1,
           submissionInformation: {
@@ -199,6 +210,8 @@ class ViewStashItemPage extends React.Component {
       }
     }
 
+    const image = `/uploads/images/stash/${StashStockImages[0].productId}/${StashStockImages[0].name}`;
+
     this.cart.addToCartRaw({
       shop: "stash",
       name,
@@ -206,32 +219,23 @@ class ViewStashItemPage extends React.Component {
       quantity: 1,
       submissionInformation: { id },
       components,
-      duplicateHash: null
+      duplicateHash: null,
+      image
     });
 
-    this.setState({ errorAdding: "Added to bag! If you want to duplicate this exact item you can do so from your basket. "});
+    this.setState({ buttonText: "Added ✓", addedCount: this.state.addedCount + 1 });
 
     setTimeout(() => {
       this.setState({
-        disabled: false,
-        size: "",
-        shieldOrCrest: "-1",
-        underShieldText: "-1",
-        colour: "-1",
-        colourPreview: {
-          primaryColour: null,
-          secondaryColour: null
-        },
-        rightBreastOption: "-1",
-        rightBreastText: "",
-        backPersonalisationOption: "-1",
-        backPersonalisationText: ""
+        disabled: false
       });
-    }, 1500);
+    }, 800);
 
     setTimeout(() => {
-      this.setState({ errorAdding: null });
-    }, 3000);
+      this.setState({
+        buttonText: "Add to Bag"
+      });
+    }, 1200);
   }
 
   render () {
@@ -341,15 +345,16 @@ class ViewStashItemPage extends React.Component {
     );
 
     const customisationValidChoices = [
-      "Back/Leg Print: Grey College or Durham University",
+      "Back Print: Grey College or Durham University",
+      "Leg Print: Grey College or Durham University",
       "Back Embroidery: Grey College or Durham University",
       "Back Embroidery Personalised",
       "Right Breast/Small Item Personalisation"
     ];
 
-    const backCustomisations = StashCustomisations.filter(cust => [0, 1, 2].includes(cust.customisationChoice));
+    const backCustomisations = StashCustomisations.filter(cust => [0, 1, 2, 3].includes(cust.customisationChoice));
     const backCustomisationsEnabled = backCustomisations.length !== 0;
-    const rightBreast = StashCustomisations.filter(cust => cust.customisationChoice === 3);
+    const rightBreast = StashCustomisations.filter(cust => cust.customisationChoice === 4);
     const rightBreastEnabled = rightBreast.length !== 0;
 
     const customisationDiv = StashCustomisations.length === 0 ? null : (
@@ -375,7 +380,7 @@ class ViewStashItemPage extends React.Component {
                 ))
               }
             </select>
-            {this.state.rightBreastOption === "3" ? (
+            {this.state.rightBreastOption === "4" ? (
               <div>
                 <span>Front Personalisation Text</span>
                 <input
@@ -384,7 +389,7 @@ class ViewStashItemPage extends React.Component {
                   value={this.state.rightBreastText}
                   className="w-full border border-gray-400 disabled:opacity-50 pl-2 p-1 mb-4"
                   onChange={this.onInputChange}
-                  maxlength="20"
+                  maxLength="20"
                   disabled={this.state.disabled}
                 />
               </div>
@@ -411,7 +416,7 @@ class ViewStashItemPage extends React.Component {
                 ))
               }
             </select>
-            {this.state.backPersonalisationOption === "0" || this.state.backPersonalisationOption === "1" ? (
+            {this.state.backPersonalisationOption === "0" || this.state.backPersonalisationOption === "1" || this.state.backPersonalisationOption === "2" ? (
               <div>
                 <span>Back Personalisation Text</span>
                 <select
@@ -427,7 +432,7 @@ class ViewStashItemPage extends React.Component {
                 </select>
               </div>
             ) : null}
-            {this.state.backPersonalisationOption === "2" ? (
+            {this.state.backPersonalisationOption === "3" ? (
               <div>
                 <span>Back Personalisation Text</span>
                 <input
@@ -436,7 +441,7 @@ class ViewStashItemPage extends React.Component {
                   value={this.state.backPersonalisationText}
                   className="w-full border border-gray-400 disabled:opacity-50 pl-2 p-1 mb-4"
                   onChange={this.onInputChange}
-                  maxlength="20"
+                  maxLength="20"
                   disabled={this.state.disabled}
                 />
               </div>
@@ -451,7 +456,7 @@ class ViewStashItemPage extends React.Component {
     return (
       <div className="flex flex-col justify-start">
         <Prompt
-          when={this.state.size.length !== 0}
+          when={this.state.size.length !== 0 && this.state.addedCount === 0}
           message="You haven't add this to your bag yet. Are you sure you want to leave?"
         />
         <div className="container mx-auto text-center p-4">
@@ -490,7 +495,7 @@ class ViewStashItemPage extends React.Component {
                       className="px-4 py-2 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                       onClick={this.addToBag}
                       disabled={this.state.disabled || !available}
-                    >{available ? "Add to Bag" : "Out of Stock"}</button>
+                    >{available ? this.state.buttonText : "Out of Stock"}</button>
                   </div>
                   <div className="text-center p-4 underline">
                     { this.state.errorAdding !== null ? <p>{this.state.errorAdding}</p> : null}

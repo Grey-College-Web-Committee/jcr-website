@@ -135,7 +135,8 @@ class OrderToastiePage extends React.Component {
         quantity: 1,
         submissionInformation: {},
         components,
-        duplicateHash: null
+        duplicateHash: null,
+        image: "/images/cart/placeholder.png"
       });
     }
 
@@ -151,7 +152,8 @@ class OrderToastiePage extends React.Component {
             id: drink.id
           },
           components: [],
-          duplicateHash: null
+          duplicateHash: null,
+          image: "/images/cart/placeholder.png"
         })
       });
     }
@@ -168,7 +170,8 @@ class OrderToastiePage extends React.Component {
             id: confectionaryItem.id
           },
           components: [],
-          duplicateHash: null
+          duplicateHash: null,
+          image: "/images/cart/placeholder.png"
         })
       });
     }
