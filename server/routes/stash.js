@@ -155,7 +155,7 @@ router.get("/image/:name/:itemId", async (req, res) => {
     return res.status(400).json({ error: "Image not found" });
   }
 
-  const pathName = uploadPath + id + "/" + image.name;
+  const pathName = path.join(uploadPath, `../uploads/images/stash/${id}/${image.name}`);;
 
   return res.sendFile(pathName, function (err) {
     if (err) { res.status(err.status).end(); }
@@ -440,7 +440,8 @@ router.post("/upload/:id", async (req, res) => {
       let image = req.files.file;
 
       //Use the mv() method to place the file in upload directory (i.e. "uploads")
-      image.mv(uploadPath + productId + "\\" + image.name);
+      const pathName = path.join(uploadPath, `../uploads/images/stash/${productId}/${image.name}`);;
+      image.mv(pathName);
       // CURRENTLY WILL OVERWRITE ANOTHER IMAGE OF SAME NAME - NEEDS VALIDATION
 
       const imageId = await StashStockImages.findOne({ where: { productId:productId, name:image.name } });
