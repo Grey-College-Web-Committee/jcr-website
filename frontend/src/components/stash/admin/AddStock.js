@@ -119,7 +119,7 @@ class AddStock extends React.Component {
 	e.preventDefault();
 	this.setState({ disabled: true });
 
-	const { name, manufacturerCode, description, available, type, customisationsAvailable, price, XS, S, M, L, XL, XXL, uploadedLocation } = this.state;
+	const { name, manufacturerCode, pictures, description, available, type, customisationsAvailable, price, XS, S, M, L, XL, XXL, uploadedLocation } = this.state;
 
 	// Validation checks - SORT THE REST OUT LATER
 	if(name.length === 0) {
@@ -133,6 +133,12 @@ class AddStock extends React.Component {
 	  this.setState({ disabled: false });
 	  return;
 	}
+
+  if(pictures.length === 0) {
+    alert("You must upload an image for the new item.");
+    this.setState({ disabled: false });
+    return;
+  }
 
 	// Add it to the database
 	let query;
@@ -216,7 +222,6 @@ class AddStock extends React.Component {
   ];
 	for (var i = 0; i<length; i++){
     const usedCustomisations = this.state.customisationsAvailable.map(cust => Number(cust.choice));
-    console.log({usedCustomisations})
 	  codeSnippet.push(
 	  	<tr>
           <td className="w-auto p-2 border-2 border-red-900">
