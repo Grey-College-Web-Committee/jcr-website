@@ -16,6 +16,7 @@ import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 import CheckoutPage from './components/checkout/CheckoutPage';
 import OrderStashPage from './components/stash/OrderStashPage';
 import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
+import DebtorPage from './components/debtors/DebtorPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
@@ -214,6 +215,9 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/toasties/" render={() => (
                     this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/debtors" render={() => (
+                    this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/stash/" render={() => (
                     this.isLoggedIn() ? ( <OrderStashPage /> ) : ( <Redirect to="/accounts/login" /> )

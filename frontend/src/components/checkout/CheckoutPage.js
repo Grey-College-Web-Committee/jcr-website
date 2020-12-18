@@ -1,5 +1,5 @@
 import React from 'react';
-import { Prompt } from 'react-router-dom';
+import { Prompt, Redirect } from 'react-router-dom';
 import LoadingHolder from '../common/LoadingHolder';
 import Cart from '../cart/Cart';
 import CheckoutCartItem from './CheckoutCartItem';
@@ -76,6 +76,12 @@ class CheckoutPage extends React.Component {
       serverResponse = await api.post("/cart/process", { submissionCart });
     } catch (error) {
       status = error.response.status;
+
+      if(status === 402) {
+        this.setState({ pageState: 999 });
+        return;
+      }
+
       this.setState({ pageState: -1, errorStatus: status });
       return;
     }
@@ -252,6 +258,12 @@ class CheckoutPage extends React.Component {
               </div>
             </div>
           </div>
+        )
+
+      case 999:
+        // Special case for debtors
+        return (
+          <Redirect to="/debtors" />
         )
 
       case -1:

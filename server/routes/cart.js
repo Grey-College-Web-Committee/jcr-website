@@ -5,6 +5,9 @@ const router = express.Router();
 const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+// Array of debtors who are prohibited from buying from the store
+// this is temporary until the debt backlog is sorted
+const debtors = require("../debtors.json");
 
 const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo) => {
   // A toastie will have no global submission info
@@ -408,6 +411,11 @@ router.post("/process", async (req, res) => {
   // User only
   const { user } = req.session;
   const submittedCart = req.body.submissionCart;
+
+  if(debtors.includes(user.username)) {
+    console.log("debtor", { user });
+    return res.status(402).json({ error: "Debtor" });
+  }
 
   if(!submittedCart.hasOwnProperty("items")) {
     return res.status(400).json({ error: "Missing items (no property)" });
