@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation } = require("../database.models.js");
+const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
@@ -203,7 +203,25 @@ const customerGymEmail = (user, orderId, order) => {
 }
 
 const fulfilGymOrders = async (user, orderId, relatedOrders) => {
-  const customerEmail = customerGymEmail(user, orderId, relatedOrders[0]);
+  let membershipRecord;
+
+  try {
+    membershipRecord = await GymMembership.findOne({
+      where: {
+        orderId
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return;
+  }
+
+  if(membershipRecord === null) {
+    console.log("NULL MR");
+    return;
+  }
+
+  const customerEmail = customerGymEmail(user, orderId, membershipRecord);
   mailer.sendEmail(user.email, `Gym Order Confirmation #${orderId}`, customerEmail);
 }
 

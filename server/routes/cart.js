@@ -525,6 +525,20 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
     };
   }
 
+  try {
+    await ShopOrderContent.create({
+      orderId,
+      shop: "gym"
+    });
+  } catch (error) {
+    console.log({error});
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to create new sub order for membership"
+    };
+  }
+
   return {
     price: currentMembershipOptions[type].price,
     globalSubmissionInfo: globalSubmissionInfo
@@ -694,7 +708,7 @@ router.post("/process", async (req, res) => {
       }
     */
     if(result.hasOwnProperty("errorOccurred") && result.errorOccurred !== undefined && result.errorOccurred !== null) {
-      return res.status(result.status).json({ error: result.error });
+      return res.status(result.status).json({ error: result });
     }
 
     // Valid results from the processors must return:

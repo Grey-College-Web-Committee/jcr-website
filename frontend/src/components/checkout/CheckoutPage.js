@@ -17,7 +17,8 @@ class CheckoutPage extends React.Component {
       lockedClientSideCart: null,
       errorStatus: -1,
       clientSecret: null,
-      totalAmountInPence: -1
+      totalAmountInPence: -1,
+      error: null
     }
   }
 
@@ -82,7 +83,7 @@ class CheckoutPage extends React.Component {
         return;
       }
 
-      this.setState({ pageState: -1, errorStatus: status });
+      this.setState({ pageState: -1, errorStatus: status, error: error.response.data.error });
       return;
     }
 
@@ -268,7 +269,13 @@ class CheckoutPage extends React.Component {
 
       case -1:
         return (
-          <h1>Error</h1>
+          <div className="flex flex-col justify-start">
+            <div className="container mx-auto p-4 w-full text-center text-3xl">
+              <h1 className="font-semibold text-5xl pb-4 text-center">Something went wrong...</h1>
+              <p>Unfortunately there was an issue during checkout.</p>
+              <p>Reason: {this.state.error.error}</p>
+            </div>
+          </div>
         );
 
       default:
