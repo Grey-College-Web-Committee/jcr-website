@@ -6,17 +6,45 @@ import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
 import GenericCartableItem from '../cart/GenericCartableItem';
 import dateFormat from 'dateformat';
+import Cart from '../cart/Cart';
 
 class GymInformationPage extends React.Component {
   constructor(props) {
     super(props);
 
+    this.cart = new Cart();
     this.state = {
       loaded: false,
       status: 0,
       error: "",
-      content: []
+      content: [],
+      termsOfUse: false,
+      parq: false,
+      inBasket: this.cart.get().items.filter(item => item.shop === "gym").length !== 0
     };
+  }
+
+  // Basic function to change the state for any text-based input
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, this.checkCart);
+  }
+
+  checkCart = () => {
+    if(this.state.termsOfUse && this.state.parq) {
+      return;
+    }
+
+    const gymItems = this.cart.get().items.reduce((arr, item, index) => {
+      if(item.shop === "gym") {
+        arr.push(index);
+      }
+
+      return arr;
+    }, []);
+
+    gymItems.forEach(index => {
+      this.cart.removeFromCart(index);
+    });
   }
 
   // Call the API here initially and then use this.setState to render the content
@@ -54,6 +82,30 @@ class GymInformationPage extends React.Component {
         <div>
           <h2 className="text-4xl font-semibold pb-2 text-center">Purchase Membership</h2>
         </div>
+        <div className="flex flex-row justify-center align-middle">
+          <div className="flex flex-col text-center">
+            <div>
+              <label className="h-4 px-2 align-middle w-64" htmlFor="termsOfUse">I accept the Terms of Use of Grey College Gym</label>
+              <input
+                type="checkbox"
+                name="termsOfUse"
+                className="p-2 h-4 w-4 align-middle"
+                onChange={this.onInputChange}
+                disabled={this.state.inBasket}
+              />
+            </div>
+            <div>
+              <label className="h-4 px-2 align-middle w-64" htmlFor="parq">I confirm the authenticity of my PARQ</label>
+              <input
+                type="checkbox"
+                name="parq"
+                className="p-2 h-4 w-4 align-middle"
+                onChange={this.onInputChange}
+                disabled={this.state.inBasket}
+              />
+            </div>
+          </div>
+        </div>
         <div className="flex flex-row flex-wrap w-full justify-center">
           <GenericCartableItem
             price={40}
@@ -72,10 +124,13 @@ class GymInformationPage extends React.Component {
               image: "/images/cart/placeholder.png",
               upperLimit: 1
             }}
-            disabled={membership !== null}
-            buttonText={membership !== null ? "Already Purchased" : "Add To Bag" }
+            disabled={membership !== null || !this.state.termsOfUse || !this.state.parq}
+            buttonText={membership !== null ? "Already Purchased" : "Add To Bag"}
             disableOnCondition={(items) => {
               return items.filter(item => item.shop === "gym").length !== 0;
+            }}
+            callback={() => {
+              this.setState({ inBasket: true })
             }}
           />
           <GenericCartableItem
@@ -95,10 +150,13 @@ class GymInformationPage extends React.Component {
               image: "/images/cart/placeholder.png",
               upperLimit: 1
             }}
-            disabled={membership !== null}
+            disabled={membership !== null || !this.state.termsOfUse || !this.state.parq}
             buttonText={membership !== null ? "Already Purchased" : "Add To Bag" }
             disableOnCondition={(items) => {
               return items.filter(item => item.shop === "gym").length !== 0;
+            }}
+            callback={() => {
+              this.setState({ inBasket: true })
             }}
           />
         </div>

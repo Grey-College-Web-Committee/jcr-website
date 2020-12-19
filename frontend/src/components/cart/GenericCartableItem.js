@@ -25,6 +25,7 @@ class GenericCartableItem extends React.Component {
               disabled={this.props.disabled}
               text={this.props.buttonText}
               disableOnCondition={this.props.disableOnCondition}
+              callback={this.props.callback}
             />
           </div>
         </div>
@@ -40,7 +41,8 @@ GenericCartableItem.propTypes = {
   description: PropTypes.string,
   disabled: PropTypes.bool,
   buttonText: PropTypes.string,
-  disableOnCondition: PropTypes.func
+  disableOnCondition: PropTypes.func,
+  callback: PropTypes.func
 }
 
 export default GenericCartableItem;

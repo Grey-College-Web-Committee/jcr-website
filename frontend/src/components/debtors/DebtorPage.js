@@ -17,9 +17,9 @@ class DebtorPage extends React.Component {
               <li>Purchase formal tickets</li>
               <li>Purchase event tickets</li>
             </ul>
-            <p>Please clear your debt immediately by visiting <a href="https://greyjcr.com/services/debt" target="_blank" className="font-semibold underline">the old JCR website</a> and then <a href={`mailto:grey.treasurer@durham.ac.uk?subject=JCR Debt ${this.context.username}`} target="_blank" className="font-semibold underline">email the FACSO.</a></p>
+            <p>Please clear your debt immediately by visiting <a href="https://greyjcr.com/services/debt" rel="noopener noreferrer" target="_blank" className="font-semibold underline">the old JCR website</a> and then <a href={`mailto:grey.treasurer@durham.ac.uk?subject=JCR Debt ${this.context.username}`} rel="noopener noreferrer" target="_blank" className="font-semibold underline">email the FACSO.</a></p>
             <br />
-            <p>If you believe this message has been shown in error please contact the <a href={`mailto:grey.treasurer@durham.ac.uk?subject=JCR Debt ${this.context.username}`} className="font-semibold underline" target="_blank">the FACSO.</a></p>
+            <p>If you believe this message has been shown in error please contact the <a href={`mailto:grey.treasurer@durham.ac.uk?subject=JCR Debt ${this.context.username}`} className="font-semibold underline" rel="noopener noreferrer" target="_blank">the FACSO.</a></p>
             <br />
             <p>Access to the shop will then be granted.</p>
           </div>
