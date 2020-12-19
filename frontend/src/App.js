@@ -17,6 +17,7 @@ import CheckoutPage from './components/checkout/CheckoutPage';
 import OrderStashPage from './components/stash/OrderStashPage';
 import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
 import DebtorPage from './components/debtors/DebtorPage';
+import GymInformationPage from './components/gym/GymInformationPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
@@ -27,6 +28,7 @@ import StashStockPage from './components/stash/admin/StashStockPage';
 import StashImagesPage from './components/stash/admin/ImagesPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
 import StashExportPage from './components/stash/export/StashExportPage';
+import GymAdminPage from './components/gym/admin/GymAdminPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -222,6 +224,12 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/debtors" render={() => (
                     this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/gym" render={() => (
+                    this.isLoggedIn() ? ( <GymInformationPage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/gym/admin" render={() => (
+                    this.hasPermission("gym.export") ? ( <GymAdminPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
                   <Route exact path="/stash/" render={() => (
                     this.isLoggedIn() ? ( <OrderStashPage /> ) : ( <Redirect to="/accounts/login" /> )

@@ -32,6 +32,8 @@ class ToastieOrderContent extends Model {}
 class Permission extends Model {}
 class PermissionLink extends Model {}
 
+class GymMembership extends Model {}
+
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
 // No need to store a users email it is simply username@durham.ac.uk
@@ -52,6 +54,10 @@ User.init({
   },
   year: {
     type: DataTypes.INTEGER
+  },
+  lastLogin: {
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.NOW
   }
 }, { sequelize });
 
@@ -353,7 +359,7 @@ StashOrder.init({
   }
 }, { sequelize });
 
-StashOrderCustomisation.init({ 
+StashOrderCustomisation.init({
   orderId: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -367,6 +373,32 @@ StashOrderCustomisation.init({
     allowNull: false
   },
   text: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, { sequelize });
+
+GymMembership.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  orderId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: ShopOrder,
+      key: 'id'
+    }
+  },
+  expiresAt: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  type: {
     type: DataTypes.STRING,
     allowNull: false
   }
@@ -419,4 +451,10 @@ StashOrder.belongsTo(StashColours, { foreignKey: 'colourId' });
 StashOrder.hasMany(StashOrderCustomisation, { foreignKey: 'orderId' });
 StashOrderCustomisation.belongsTo(StashOrder, { foreignKey: 'orderId' });
 
-module.exports = { User, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation };
+ShopOrder.hasMany(GymMembership, { foreignKey: 'orderId' });
+GymMembership.belongsTo(ShopOrder, { foreignKey: 'orderId' });
+
+User.hasMany(GymMembership, { foreignKey: 'userId' }); 
+GymMembership.belongsTo(User, { foreignKey: 'userId' });
+
+module.exports = { User, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership };

@@ -17,9 +17,11 @@ class DebtorPage extends React.Component {
               <li>Purchase formal tickets</li>
               <li>Purchase event tickets</li>
             </ul>
-            <p>To pay your debt and regain access to JCR services (or if you believe there has been an error) please<a href={`mailto:grey.treasurer@durham.ac.uk?subject=JCR Debt ${this.context.username}`}  className="font-semibold underline">Email the FACSO</a> and clear your debt immediately.</p>
+            <p>Please clear your debt immediately by visiting <a href="https://greyjcr.com/services/debt" target="_blank" className="font-semibold underline">the old JCR website</a> and then <a href={`mailto:grey.treasurer@durham.ac.uk?subject=JCR Debt ${this.context.username}`} target="_blank" className="font-semibold underline">email the FACSO.</a></p>
             <br />
-            <p>Access to the shop will then be granted thereafter.</p>
+            <p>If you believe this message has been shown in error please contact the <a href={`mailto:grey.treasurer@durham.ac.uk?subject=JCR Debt ${this.context.username}`} className="font-semibold underline" target="_blank">the FACSO.</a></p>
+            <br />
+            <p>Access to the shop will then be granted.</p>
           </div>
         </div>
       </div>

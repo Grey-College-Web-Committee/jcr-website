@@ -74,6 +74,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Gym",
+          url: "/gym",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false
+        },
+        {
           displayName: `${user.username}`,
           url: null,
           requiredPermission: null,
@@ -112,6 +120,11 @@ class NavBar extends React.Component {
               displayName: "Export Stash",
               url: "/stash/export",
               requiredPermission: "stash.export"
+            },
+            {
+              displayName: "Export Gym Members",
+              url: "/gym/admin",
+              requiredPermission: "gym.export"
             }
           ],
           alwaysDisplayed: false

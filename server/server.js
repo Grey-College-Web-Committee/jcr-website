@@ -8,7 +8,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { User, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation } = require("./database.models.js");
+const { User, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership } = require("./database.models.js");
 
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
@@ -16,6 +16,7 @@ const stashRoute = require("./routes/stash");
 const toastieBarRoute = require("./routes/toastie_bar");
 const permissionsRoute = require("./routes/permissions");
 const cartRoute = require("./routes/cart");
+const gymRoute = require("./routes/gym");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -70,6 +71,11 @@ const requiredPermissions = [
     name: "Export Stash",
     description: "Enables exporting of stash orders",
     internal: "stash.export"
+  },
+  {
+    name: "Export Gym Memberships",
+    description: "Enables exporting of gym memberships",
+    internal: "gym.export"
   }
 ];
 
@@ -94,6 +100,8 @@ const requiredPermissions = [
 
   await ToastieStock.sync();
   await ToastieOrderContent.sync();
+
+  await GymMembership.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
@@ -134,11 +142,11 @@ const isLoggedIn = (req, res, next) => {
 // These are api routes that act as the backend
 app.use("/api/auth", authRoute);
 app.use("/api/stripe", paymentsRoute);
-app.use("/api/payments", paymentsRoute);
 app.use("/api/stash", isLoggedIn, stashRoute);
 app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
 app.use("/api/permissions", isLoggedIn, permissionsRoute);
 app.use("/api/cart", isLoggedIn, cartRoute);
+app.use("/api/gym", isLoggedIn, gymRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

@@ -1,11 +1,12 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation } = require("../database.models.js");
+const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
 const mailer = require("../utils/mailer");
+const dateFormat = require("dateformat")
 
 const customerToastieEmail = (user, orderId, toasties, extras) => {
   let firstName = user.firstNames.split(",")[0];
@@ -184,9 +185,50 @@ const fulfilStashOrders = (user, orderId, relatedOrders) => {
   mailer.sendEmail(user.email, `Stash Order Confirmation #${orderId}`, customerEmail);
 }
 
+const customerGymEmail = (user, orderId, order) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<h1>Gym Order Received (Order no. ${orderId})</h1>`);
+  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
+  message.push(`<p>Your order has been confirmed and registered with the JCR.</p>`);
+  message.push(`<p>Access to the gym will be granted soon!</p>`);
+  message.push(`<p>Your access will expire on ${dateFormat(order.expiresAt, "dd/mm/yyyy")}</p>`);
+  message.push(`<p>You will receive a receipt from Stripe confirming your payment.</p>`)
+  message.push(`<p><strong>Thank you for your order!</strong></p>`);
+
+  return message.join("");
+}
+
+const fulfilGymOrders = async (user, orderId, relatedOrders) => {
+  let membershipRecord;
+
+  try {
+    membershipRecord = await GymMembership.findOne({
+      where: {
+        orderId
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return;
+  }
+
+  if(membershipRecord === null) {
+    console.log("NULL MR");
+    return;
+  }
+
+  const customerEmail = customerGymEmail(user, orderId, membershipRecord);
+  mailer.sendEmail(user.email, `Gym Order Confirmation #${orderId}`, customerEmail);
+}
+
 const fulfilOrderProcessors = {
   "toastie": fulfilToastieOrders,
-  "stash": fulfilStashOrders
+  "stash": fulfilStashOrders,
+  "gym": fulfilGymOrders
 }
 
 router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {

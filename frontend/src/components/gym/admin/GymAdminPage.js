@@ -4,7 +4,7 @@ import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
 import dateFormat from 'dateformat';
 
-class StashExportPage extends React.Component {
+class GymAdminPage extends React.Component {
   constructor(props) {
     super(props);
 
@@ -17,45 +17,14 @@ class StashExportPage extends React.Component {
       error: "",
       startDate: "",
       endDate: dateFormat(tomorrow, "yyyy-mm-dd"),
+      expiredOnly: false,
       disabled: false,
       pageState: 0,
       fileLocation: null
     };
 
     // Change this to your permission
-    this.requiredPermission = "stash.export";
-  }
-
-  // Load the data once the element is ready
-  componentDidMount = async () => {
-    let adminCheck;
-
-    try {
-      adminCheck = await api.get("/auth/verify");
-    } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify admin status" });
-      return;
-    }
-
-    // Ensure they are an admin
-    if(adminCheck.data.user.permissions) {
-      if(adminCheck.data.user.permissions.length === 0) {
-        this.setState({ status: 403, error: "You are not an admin" });
-        return;
-      }
-
-      if(!adminCheck.data.user.permissions.includes(this.requiredPermission)) {
-        this.setState({ status: 403, error: "You are not an admin" });
-        return;
-      }
-    } else {
-      this.setState({ status: 403, error: "You are not an admin" });
-      return;
-    }
-
-    // Load any required data for the page here
-
-    this.setState({ loaded: true });
+    this.requiredPermission = "gym.export";
   }
 
   // Basic function to change the state for any text-based input
@@ -90,8 +59,10 @@ class StashExportPage extends React.Component {
 
     let exportResponse;
 
+    const { expiredOnly } = this.state;
+
     try {
-      exportResponse = await api.post("/stash/export", { startDate, endDate });
+      exportResponse = await api.post("/gym/export", { startDate, endDate, expiredOnly });
     } catch (error) {
       console.log({ error });
       alert("An error occurred downloading the stash order");
@@ -100,6 +71,38 @@ class StashExportPage extends React.Component {
 
     const { fileLocation } = exportResponse.data;
     this.setState({ pageState: 1, disabled: false, fileLocation })
+  }
+
+  // Load the data once the element is ready
+  componentDidMount = async () => {
+    let adminCheck;
+
+    try {
+      adminCheck = await api.get("/auth/verify");
+    } catch (error) {
+      this.setState({ status: error.response.status, error: "Unable to verify admin status" });
+      return;
+    }
+
+    // Ensure they are an admin
+    if(adminCheck.data.user.permissions) {
+      if(adminCheck.data.user.permissions.length === 0) {
+        this.setState({ status: 403, error: "You are not an admin" });
+        return;
+      }
+
+      if(!adminCheck.data.user.permissions.includes(this.requiredPermission)) {
+        this.setState({ status: 403, error: "You are not an admin" });
+        return;
+      }
+    } else {
+      this.setState({ status: 403, error: "You are not an admin" });
+      return;
+    }
+
+    // Load any required data for the page here
+
+    this.setState({ loaded: true });
   }
 
   render () {
@@ -131,7 +134,7 @@ class StashExportPage extends React.Component {
                   <form onSubmit={this.processDownload}>
                     <fieldset>
                       <div className="mx-auto w-max pb-4 border-b-2">
-                        <label htmlFor="startDate" className="flex flex-row justify-start pb-2 text-lg font-semibold">Stash Start Date</label>
+                        <label htmlFor="startDate" className="flex flex-row justify-start pb-2 text-lg font-semibold">Membership Start Date</label>
                         <input
                           type="date"
                           name="startDate"
@@ -142,7 +145,7 @@ class StashExportPage extends React.Component {
                         />
                       </div>
                       <div className="mx-auto w-max pb-4 border-b-2">
-                        <label htmlFor="endDate" className="flex flex-row justify-start pb-2 text-lg font-semibold">Stash End Date</label>
+                        <label htmlFor="endDate" className="flex flex-row justify-start pb-2 text-lg font-semibold">Membership End Date</label>
                         <input
                           type="date"
                           name="endDate"
@@ -152,7 +155,18 @@ class StashExportPage extends React.Component {
                           disabled={this.state.disabled}
                         />
                       </div>
-                      <div className="mx-auto w-64 pb-4 pt-4">
+                      <div className="mx-auto w-max pb-4">
+                        <label htmlFor="expiredOnly" className="flex flex-row justify-start pb-2 text-lg font-semibold">Expired Only?</label>
+                        <input
+                          type="checkbox"
+                          name="expiredOnly"
+                          checked={this.state.expiredOnly}
+                          onChange={this.onInputChange}
+                          className={`shadow w-8 h-8 border rounded focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400`}
+                          disabled={this.state.disabled}
+                        />
+                      </div>
+                      <div className="mx-auto w-64 pb-4 pt-4 border-t-2">
                         <input
                           type="submit"
                           value="Process"
@@ -174,26 +188,12 @@ class StashExportPage extends React.Component {
             <div className="container mx-auto text-center p-4">
               <h1 className="font-semibold text-5xl pb-4">Export Stash Orders</h1>
               <div className="flex flex-col justify-center">
-                <p>Your downloads are ready!</p>
-                <a href={`/api/stash/download/jcr/${this.state.fileLocation}`} download target="_self">
+                <p>Your download is ready!</p>
+                <a href={`/api/gym/download/${this.state.expiredOnly ? "expired" : "all"}/${this.state.fileLocation}`} download target="_self">
                   <button
-                    className="px-4 py-1 rounded bg-red-900 text-white w-64 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-4"
+                    className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-4"
                   >
-                    JCR Stash Download
-                  </button>
-                </a>
-                <a href={`/api/stash/download/mcr/${this.state.fileLocation}`} download target="_self">
-                  <button
-                    className="px-4 py-1 rounded bg-red-900 text-white w-64 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-4"
-                  >
-                    MCR Stash Download
-                  </button>
-                </a>
-                <a href={`/api/stash/download/checklist/${this.state.fileLocation}`} download target="_self">
-                  <button
-                    className="px-4 py-1 rounded bg-red-900 text-white w-64 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-4"
-                  >
-                    Checklist Download
+                    Gym Membership Download ({this.state.expiredOnly ? "Expired Only" : "All"})
                   </button>
                 </a>
               </div>
@@ -207,4 +207,4 @@ class StashExportPage extends React.Component {
   }
 }
 
-export default StashExportPage;
+export default GymAdminPage;

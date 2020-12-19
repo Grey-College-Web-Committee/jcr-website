@@ -68,13 +68,13 @@ class Cart {
     });
   }
 
-  addToCart = (shop, name, basePrice, quantity, submissionInformation, components, duplicateHash) => {
+  addToCart = (shop, name, basePrice, quantity, submissionInformation, components, duplicateHash, image, upperLimit) => {
     if(Cart.locked) {
       return false;
     }
 
     return this.addToCartRaw({
-      shop, name, basePrice, quantity, submissionInformation, components, duplicateHash
+      shop, name, basePrice, quantity, submissionInformation, components, duplicateHash, image, upperLimit
     });
   }
 
@@ -94,6 +94,10 @@ class Cart {
       if(item[property] === undefined) {
         return false;
       }
+    }
+
+    if(!item.hasOwnProperty("upperLimit") || item["upperLimit"] === undefined || item["upperLimit"] === null) {
+      item.upperLimit = 50;
     }
 
     if(item.duplicateHash === null) {
@@ -195,12 +199,16 @@ class Cart {
       return false;
     }
 
-    const currentAmount = this.cart.items[duplicateIndex].quantity;
+    const { upperLimit, quantity } = this.cart.items[duplicateIndex];
 
-    if(currentAmount + amount <= 0) {
+    if(quantity + amount <= 0) {
       this.removeFromCart(duplicateIndex);
     } else {
-      this.cart.items[duplicateIndex].quantity += amount;
+      if(quantity + amount > upperLimit) {
+        this.cart.items[duplicateIndex].quantity = upperLimit;
+      } else {
+        this.cart.items[duplicateIndex].quantity += amount;
+      }
     }
 
     this.saveToLocalStorage();
