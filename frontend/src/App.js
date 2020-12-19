@@ -17,6 +17,7 @@ import CheckoutPage from './components/checkout/CheckoutPage';
 import OrderStashPage from './components/stash/OrderStashPage';
 import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
 import DebtorPage from './components/debtors/DebtorPage';
+import GymInformationPage from './components/gym/GymInformationPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
@@ -222,6 +223,9 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/debtors" render={() => (
                     this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                <Route exact path="/gym" render={() => (
+                    this.isLoggedIn() ? ( <GymInformationPage /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/stash/" render={() => (
                     this.isLoggedIn() ? ( <OrderStashPage /> ) : ( <Redirect to="/accounts/login" /> )

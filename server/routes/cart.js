@@ -2,14 +2,14 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations } = require("../database.models.js");
+const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // Array of debtors who are prohibited from buying from the store
 // this is temporary until the debt backlog is sorted
 const debtors = require("../debtors.json");
 
-const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo) => {
+const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
   // A toastie will have no global submission info
   const isToastie = Object.keys(globalSubmissionInfo).length === 0;
   const hasComponents = componentSubmissionInfo.length !== 0;
@@ -195,7 +195,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
   };
 };
 
-const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo) => {
+const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
   if(!globalSubmissionInfo.hasOwnProperty("id")) {
     return {
       errorOccurred: true,
@@ -377,7 +377,8 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
   }
 
   return {
-    price: total * quantity
+    price: total * quantity,
+    globalSubmissionInfo: globalSubmissionInfo
   };
 }
 
@@ -397,11 +398,147 @@ const toastiePostProcessor = (globalOrderParameters) => {
   return 0;
 }
 
-const shopProcessors = {
-  "toastie": toastieProcessor,
-  "stash": stashProcessor
+const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
+  if(!globalSubmissionInfo.hasOwnProperty("type")) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No type"
+    };
+  }
+
+  if(globalSubmissionInfo.type === undefined) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No type"
+    };
+  }
+
+  if(globalSubmissionInfo.type === null) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No type"
+    };
+  }
+
+  const type = globalSubmissionInfo.type;
+
+  if(quantity !== 1) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "You can only order 1 gym membership"
+    }
+  }
+
+  const currentMembershipOptions = {
+    full_year: {
+      expires: new Date("2021-07-01"),
+      price: 80
+    },
+    single_term: {
+      expires: new Date("2021-03-20"),
+      price: 40
+    }
+  };
+
+  if(!Object.keys(currentMembershipOptions).includes(type)) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "Invalid membership type"
+    }
+  }
+
+  const selectedExpiry = currentMembershipOptions[type].expires;
+  const currentDate = new Date();
+
+  if(currentDate > selectedExpiry) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "New memberships are not available at this time"
+    }
+  }
+
+  // Need to check if they already have a gym membership
+
+  let existingMemberships;
+
+  try {
+    existingMemberships = await GymMembership.findAll({
+      include: [
+        {
+          model: User,
+          where: {
+            id: user.id
+          },
+          required: true
+        },
+        {
+          model: ShopOrder,
+          where: {
+            paid: true
+          },
+          required: true
+        }
+      ]
+    });
+  } catch (error) {
+    console.log({error});
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to check existing memberships"
+    };
+  }
+
+  if(existingMemberships.length !== 0) {
+    const unexpiredMemberships = existingMemberships.filter(membership => membership.expiresAt > currentDate);
+
+    if(unexpiredMemberships.length !== 0) {
+      return {
+        errorOccurred: true,
+        status: 400,
+        error: "You already have an active membership"
+      };
+    }
+  }
+
+  // Otherwise they don't have a membership so create one
+
+  try {
+    await GymMembership.create({
+      orderId,
+      userId: user.id,
+      type,
+      expiresAt: selectedExpiry
+    });
+  } catch (error) {
+    console.log({error});
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to create new membership"
+    };
+  }
+
+  return {
+    price: currentMembershipOptions[type].price,
+    globalSubmissionInfo: globalSubmissionInfo
+  };
 }
 
+// Required
+const shopProcessors = {
+  "toastie": toastieProcessor,
+  "stash": stashProcessor,
+  "gym": gymProcessor
+}
+
+// Optional
 const shopPostProcessors = {
   "toastie": toastiePostProcessor
 }
@@ -413,7 +550,6 @@ router.post("/process", async (req, res) => {
   const submittedCart = req.body.submissionCart;
 
   if(debtors.includes(user.username.toLowerCase())) {
-    console.log("debtor", { user });
     return res.status(402).json({ error: "Debtor" });
   }
 
@@ -543,7 +679,7 @@ router.post("/process", async (req, res) => {
       totalSpentByShop[shop] = 0;
     }
 
-    const result = await shopProcessors[shop](globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo);
+    const result = await shopProcessors[shop](globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user);
 
     if(!usedShops.includes(shop)) {
       usedShops.push(shop);
@@ -568,14 +704,17 @@ router.post("/process", async (req, res) => {
         globalOrderParameters: (An object storing metadata about the order (e.g. for applying the chocholate + toastie discount))
       }
     */
+    globalOrderParameters = result.globalOrderParameters;
     totalSpentByShop[shop] += result.price;
     validatedPrices.push(result.price);
   }
 
-  Object.keys(shopPostProcessors).forEach(key => {
-    const priceAdjustment = shopPostProcessors[key](globalOrderParameters);
-    totalSpentByShop[key] += priceAdjustment;
-    validatedPrices.push(priceAdjustment);
+  Object.keys(usedShops).forEach(key => {
+    if(Object.keys(shopPostProcessors).includes(key)) {
+      const priceAdjustment = shopPostProcessors[key](globalOrderParameters);
+      totalSpentByShop[key] += priceAdjustment;
+      validatedPrices.push(priceAdjustment);
+    }
   });
 
   let metadata = {

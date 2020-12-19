@@ -74,6 +74,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Gym",
+          url: "/gym",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false
+        },
+        {
           displayName: `${user.username}`,
           url: null,
           requiredPermission: null,

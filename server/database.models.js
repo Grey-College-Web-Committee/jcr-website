@@ -32,6 +32,8 @@ class ToastieOrderContent extends Model {}
 class Permission extends Model {}
 class PermissionLink extends Model {}
 
+class GymMembership extends Model {}
+
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
 // No need to store a users email it is simply username@durham.ac.uk
@@ -376,6 +378,32 @@ StashOrderCustomisation.init({
   }
 }, { sequelize });
 
+GymMembership.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  orderId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: ShopOrder,
+      key: 'id'
+    }
+  },
+  expiresAt: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  type: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, { sequelize });
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -423,4 +451,10 @@ StashOrder.belongsTo(StashColours, { foreignKey: 'colourId' });
 StashOrder.hasMany(StashOrderCustomisation, { foreignKey: 'orderId' });
 StashOrderCustomisation.belongsTo(StashOrder, { foreignKey: 'orderId' });
 
-module.exports = { User, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation };
+ShopOrder.hasMany(GymMembership, { foreignKey: 'orderId' });
+GymMembership.belongsTo(ShopOrder, { foreignKey: 'orderId' });
+
+User.hasMany(GymMembership, { foreignKey: 'userId' }); 
+GymMembership.belongsTo(User, { foreignKey: 'userId' });
+
+module.exports = { User, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership };

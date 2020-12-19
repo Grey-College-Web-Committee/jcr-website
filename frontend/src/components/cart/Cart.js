@@ -68,13 +68,13 @@ class Cart {
     });
   }
 
-  addToCart = (shop, name, basePrice, quantity, submissionInformation, components, duplicateHash) => {
+  addToCart = (shop, name, basePrice, quantity, submissionInformation, components, duplicateHash, image) => {
     if(Cart.locked) {
       return false;
     }
 
     return this.addToCartRaw({
-      shop, name, basePrice, quantity, submissionInformation, components, duplicateHash
+      shop, name, basePrice, quantity, submissionInformation, components, duplicateHash, image
     });
   }
 

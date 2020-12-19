@@ -8,7 +8,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { User, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation } = require("./database.models.js");
+const { User, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership } = require("./database.models.js");
 
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
@@ -94,6 +94,8 @@ const requiredPermissions = [
 
   await ToastieStock.sync();
   await ToastieOrderContent.sync();
+
+  await GymMembership.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
