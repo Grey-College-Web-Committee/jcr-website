@@ -4,7 +4,7 @@ const router = express.Router();
 const fileUpload = require('express-fileupload');
 const path = require("path");
 // The database models
-const { User, GymMembership, StashOrder, ShopOrder, StashStock, StashColours, StashSizeChart, StashItemColours, StashOrderCustomisation, StashCustomisations, StashStockImages } = require("../database.models.js");
+const { User, StashOrder, ShopOrder, StashStock, StashColours, StashSizeChart, StashItemColours, StashOrderCustomisation, StashCustomisations, StashStockImages } = require("../database.models.js");
 const dateFormat = require("dateformat");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
@@ -163,7 +163,10 @@ router.post("/export", async(req, res) => {
       StashStock,
       StashColours,
       StashOrderCustomisation,
-      ShopOrder
+      {
+        model: ShopOrder,
+        include: [ User ]
+      }
     ]
   });
 
@@ -262,8 +265,29 @@ router.post("/export", async(req, res) => {
     ]
   });
 
+  const csvWriterChecklist = createCsvWriter({
+    path: `${csvPath}Checklist-${fileLocation}.csv`,
+    header: [
+      { id: "username", title: "Username" },
+      { id: "surname", title: "Surname" },
+      { id: "name", title: "Item Name" },
+      { id: "code", title: "Code" },
+      { id: "quantity", title: "Quantity" },
+      { id: "size", title: "Size" },
+      { id: "colour", title: "Colour" },
+      { id: "shieldOrCrest", title: "Shield/Crest" },
+      { id: "underShieldText", title: "Under Shield/Crest Text" },
+      { id: "backPrint", title: "Back Print" },
+      { id: "backEmbroidery", title: "Back Embroidery" },
+      { id: "legPrint", title: "Leg Print" },
+      { id: "rightPrint", title: "Right Breast Print" },
+      { id: "collected", title: "Collected" }
+    ]
+  });
+
   let csvRecordsJCR = [];
   let csvRecordsMCR = [];
+  let csvRecordsChecklist = [];
 
   // We also need to separate out the MCR and JCR stash
   // This will be done by looking at the underShieldText
@@ -288,7 +312,7 @@ router.post("/export", async(req, res) => {
     }
 
     // 0 = Shield, 1 = Crest
-    record.shieldOrCrest = item.shieldOrCrest === 1 ? "Crest" : "Shield";
+    record.shieldOrCrest = (item.shieldOrCrest === 1 || item.shieldOrCrest === "1") ? "Crest" : "Shield";
     record.underShieldText = item.underShieldText;
     record.backPrint = "";
     record.backEmbroidery = "";
@@ -350,27 +374,95 @@ router.post("/export", async(req, res) => {
     }
   });
 
+  // Now we have these done all that is left is to make a CSV
+  // for the JCR to use to give stash out
+  // MCR and JCR can be merged on here to make it easier
+
+  let ordersByUser = {};
+
+  // Sort into users
+  paidForOrders.forEach(order => {
+    const username = order.ShopOrder.User.username;
+
+    if(Object.keys(ordersByUser).includes(username)) {
+      ordersByUser[username].items.push(order);
+    } else {
+      ordersByUser[username] = {
+        items: [order],
+        surname: order.ShopOrder.User.surname
+      };
+    }
+  });
+
+  // Keys are sorted by surname
+  Object.keys(ordersByUser).sort((a, b) => {
+    const aName = ordersByUser[a].surname.toLowerCase();
+    const bName = ordersByUser[b].surname.toLowerCase();
+
+    return aName > bName ? 1 : (aName < bName ? -1 : 0);
+  }).forEach(username => {
+    const items = ordersByUser[username].items;
+    items.forEach(item => {
+      let record = {};
+
+      record.username = username;
+      record.surname = item.ShopOrder.User.surname;
+
+      record.name = item.StashStock.name;
+      record.code = item.StashStock.manufacturerCode;
+      record.quantity = item.quantity;
+      record.size = item.size;
+
+      if(item.colourId === null) {
+        record.colour = "";
+      } else {
+        record.colour = item.StashColour.name;
+      }
+
+      record.shieldOrCrest = item.shieldOrCrest === 1 ? "Crest" : "Shield";
+      record.underShieldText = item.underShieldText;
+
+      // Set them all blank and then fill the ones that matter
+
+      record.backPrint = "";
+      record.backEmbroidery = "";
+      record.legPrint = "";
+      record.rightPrint = "";
+
+      item.StashOrderCustomisations.forEach(customisation => {
+        record[customisationValidChoiceHeadings[customisation.type]] = customisation.text;
+      });
+
+      record.collected = "";
+
+      csvRecordsChecklist.push(record);
+    });
+  });
+
   /*
   * At this point we have:
   * - All records that have been paid for
   * - Sorted into JCR / MCR
   * - Customised and Non-Customised
   * - Duplicates merged
+  * We also have the checklist for JCR handout
   * Now just write them to the files.
   */
 
-  let jcrWriteRet;
-
   try {
-    jcrWriteRet = await csvWriterJCR.writeRecords(csvRecordsJCR);
+    await csvWriterJCR.writeRecords(csvRecordsJCR);
   } catch (error) {
     return res.status(500).end({ error });
   }
 
-  let mcrWriteRet;
+  try {
+    await csvWriterMCR.writeRecords(csvRecordsMCR);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
 
   try {
-    mcrWriteRet = await csvWriterMCR.writeRecords(csvRecordsMCR);
+    await csvWriterChecklist.writeRecords(csvRecordsChecklist);
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -430,6 +522,34 @@ router.get("/download/mcr/:file", async (req, res) => {
   const pathName = path.join(csvPath, `MCRStashOrders-${file}.csv`)
 
   return res.download(pathName, `MCRStashOrders-${file}.csv`, () => {
+    res.status(404).end();
+  });
+});
+
+router.get("/download/checklist/:file", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.export")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const file = req.params.file;
+
+  if(file === undefined || file === null) {
+    return res.status(400).json({ error: "Missing file" });
+  }
+
+  const split = file.split("-");
+  const millisecondsStr = split[0];
+
+  if(new Date().getTime() > Number(millisecondsStr) + 1000 * 60 * 60) {
+    return res.status(410).end();
+  }
+
+  const pathName = path.join(csvPath, `Checklist-${file}.csv`)
+
+  return res.download(pathName, `Checklist-${file}.csv`, () => {
     res.status(404).end();
   });
 });
