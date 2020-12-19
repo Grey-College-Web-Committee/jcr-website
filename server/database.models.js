@@ -52,6 +52,10 @@ User.init({
   },
   year: {
     type: DataTypes.INTEGER
+  },
+  lastLogin: {
+    type: DataTypes.DATE,
+    defaultValue: Sequelize.NOW
   }
 }, { sequelize });
 
@@ -353,7 +357,7 @@ StashOrder.init({
   }
 }, { sequelize });
 
-StashOrderCustomisation.init({ 
+StashOrderCustomisation.init({
   orderId: {
     type: DataTypes.INTEGER,
     allowNull: false,

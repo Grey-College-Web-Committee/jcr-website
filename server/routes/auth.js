@@ -7,14 +7,16 @@ const axios = require("axios");
 // Called when a POST request is to be served at /api/authentication/login
 router.post("/login", async (req, res) => {
   // Get the username and password, verify they are both there
-  const username = req.body.username;
+  let username = req.body.username;
   const password = req.body.password;
 
-  if(username === null || username === undefined) {
+  if(username === undefined || username === null || typeof username !== "string") {
     return res.status(400).json({ message: "Missing username" });
   }
 
-  if(password === null || password === undefined) {
+  username = username.toLowerCase();
+
+  if(password === undefined || password === null || typeof password !== "string") {
     return res.status(400).json({ message: "Missing password" });
   }
 
@@ -56,6 +58,8 @@ router.post("/login", async (req, res) => {
     return res.status(500).json({ message: "Server error: Unable to find user. Database error." });
   }
 
+  const lastLogin = new Date();
+
   if(user == null) {
     let details;
 
@@ -73,9 +77,18 @@ router.post("/login", async (req, res) => {
 
     try {
       // Create a new user record
-      user = await User.create({ username, email, surname, firstNames: firstnames, year: studyyear, email });
+      user = await User.create({ username, email, surname, firstNames: firstnames, year: studyyear, email, lastLogin });
     } catch (error) {
       return res.status(500).json({ message: "Server error: Unable to create a new user. Database error." });
+    }
+  } else {
+    // Set the last login time and save
+    user.lastLogin = lastLogin;
+
+    try {
+      user.save();
+    } catch (error) {
+      return res.status(500).json({ message: "Server error: Unable to update last login. Database error." });
     }
   }
 

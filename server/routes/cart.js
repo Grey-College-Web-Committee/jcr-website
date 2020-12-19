@@ -412,7 +412,7 @@ router.post("/process", async (req, res) => {
   const { user } = req.session;
   const submittedCart = req.body.submissionCart;
 
-  if(debtors.includes(user.username)) {
+  if(debtors.includes(user.username.toLowerCase())) {
     console.log("debtor", { user });
     return res.status(402).json({ error: "Debtor" });
   }

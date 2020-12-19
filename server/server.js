@@ -134,7 +134,6 @@ const isLoggedIn = (req, res, next) => {
 // These are api routes that act as the backend
 app.use("/api/auth", authRoute);
 app.use("/api/stripe", paymentsRoute);
-app.use("/api/payments", paymentsRoute);
 app.use("/api/stash", isLoggedIn, stashRoute);
 app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
 app.use("/api/permissions", isLoggedIn, permissionsRoute);
