@@ -2,9 +2,7 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { User, ToastieOrder, ToastieStock, ToastieOrderContent, Permission, PermissionLink } = require("../database.models.js");
-// Stripe if it is needed
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { User, Permission, PermissionLink } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 

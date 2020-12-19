@@ -16,6 +16,7 @@ const stashRoute = require("./routes/stash");
 const toastieBarRoute = require("./routes/toastie_bar");
 const permissionsRoute = require("./routes/permissions");
 const cartRoute = require("./routes/cart");
+const gymRoute = require("./routes/gym");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -140,6 +141,7 @@ app.use("/api/stash", isLoggedIn, stashRoute);
 app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
 app.use("/api/permissions", isLoggedIn, permissionsRoute);
 app.use("/api/cart", isLoggedIn, cartRoute);
+app.use("/api/gym", isLoggedIn, gymRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

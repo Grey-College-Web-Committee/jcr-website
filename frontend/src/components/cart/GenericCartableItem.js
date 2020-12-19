@@ -22,6 +22,9 @@ class GenericCartableItem extends React.Component {
           <div className="p-2">
             <AddToCartButton
               {...cartData}
+              disabled={this.props.disabled}
+              text={this.props.buttonText}
+              disableOnCondition={this.props.disableOnCondition}
             />
           </div>
         </div>
@@ -34,7 +37,10 @@ GenericCartableItem.propTypes = {
   name: PropTypes.string.isRequired,
   price: PropTypes.number.isRequired,
   image: PropTypes.string.isRequired,
-  description: PropTypes.string
+  description: PropTypes.string,
+  disabled: PropTypes.bool,
+  buttonText: PropTypes.string,
+  disableOnCondition: PropTypes.func
 }
 
 export default GenericCartableItem;

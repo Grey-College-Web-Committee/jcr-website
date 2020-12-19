@@ -10,8 +10,19 @@ class AddToCartButton extends React.Component {
     this.state = {
       defaultText: this.props.text ? this.props.text : "Add To Bag",
       currentText: this.props.text ? this.props.text : "Add To Bag",
-      disabled: false
+      disabled: false,
+      disableOnCondition: this.props.disableOnCondition ? this.props.disableOnCondition : null
     }
+  }
+
+  updateCart = () => {
+    // Forces a re-render
+    this.setState({ id: Math.random() });
+  }
+
+  componentDidMount = () => {
+    this.cart = new Cart();
+    this.cart.registerCallbackOnSave(this.updateCart);
   }
 
   addItemToCart = () => {
@@ -27,10 +38,9 @@ class AddToCartButton extends React.Component {
       this.props.submissionInformation,
       this.props.components,
       duplicateHash,
-      this.props.image
+      this.props.image,
+      this.props.upperLimit
     );
-
-    console.log(success)
 
     if(success) {
       this.setState({ currentText: "Added  ✓" });
@@ -54,6 +64,14 @@ class AddToCartButton extends React.Component {
   }
 
   render () {
+    const cart = this.cart.get();
+
+    let disabledByCondition = false;
+
+    if(this.state.disableOnCondition) {
+      disabledByCondition = this.state.disableOnCondition(cart.items);
+    }
+
     return (
       <button
         onClick={this.addItemToCart}
@@ -61,7 +79,7 @@ class AddToCartButton extends React.Component {
           this.props.overrideClasses ? this.props.overrideClasses :
           "px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
         }
-        disabled={this.state.disabled}
+        disabled={this.state.disabled || this.props.disabled || disabledByCondition}
       >
         {this.state.currentText}
       </button>
@@ -82,7 +100,9 @@ AddToCartButton.propTypes = {
   ]),
   text: PropTypes.string,
   overrideClasses: PropTypes.string,
-  callback: PropTypes.func
+  callback: PropTypes.func,
+  disabled: PropTypes.bool,
+  disableOnCondition: PropTypes.func
 }
 
 export default AddToCartButton;
