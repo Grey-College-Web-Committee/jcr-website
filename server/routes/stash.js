@@ -165,7 +165,11 @@ router.post("/export", async(req, res) => {
       StashOrderCustomisation,
       {
         model: ShopOrder,
-        include: [ User ]
+        include: [ User ],
+        where: {
+          paid: true
+        },
+        required: true
       }
     ]
   });
@@ -244,7 +248,8 @@ router.post("/export", async(req, res) => {
       { id: "backPrint", title: "Back Print" },
       { id: "backEmbroidery", title: "Back Embroidery" },
       { id: "legPrint", title: "Leg Print" },
-      { id: "rightPrint", title: "Right Breast Print" }
+      { id: "rightPrint", title: "Right Breast Print" },
+      { id: "paid", title: "Paid" }
     ]
   });
 
@@ -261,7 +266,8 @@ router.post("/export", async(req, res) => {
       { id: "backPrint", title: "Back Print" },
       { id: "backEmbroidery", title: "Back Embroidery" },
       { id: "legPrint", title: "Leg Print" },
-      { id: "rightPrint", title: "Right Breast Print" }
+      { id: "rightPrint", title: "Right Breast Print" },
+      { id: "paid", title: "Paid" }
     ]
   });
 
@@ -281,6 +287,7 @@ router.post("/export", async(req, res) => {
       { id: "backEmbroidery", title: "Back Embroidery" },
       { id: "legPrint", title: "Leg Print" },
       { id: "rightPrint", title: "Right Breast Print" },
+      { id: "paid", title: "Paid" },
       { id: "collected", title: "Collected" }
     ]
   });
@@ -318,6 +325,7 @@ router.post("/export", async(req, res) => {
     record.backEmbroidery = "";
     record.legPrint = "";
     record.rightPrint = "";
+    record.paid = item.ShopOrder.paid;
 
     if(isJCR) {
       csvRecordsJCR.push(record);
@@ -362,6 +370,7 @@ router.post("/export", async(req, res) => {
     record.backEmbroidery = "";
     record.legPrint = "";
     record.rightPrint = "";
+    record.paid = item.ShopOrder.paid;
 
     item.StashOrderCustomisations.forEach(customisation => {
       record[customisationValidChoiceHeadings[customisation.type]] = customisation.text;
@@ -433,6 +442,7 @@ router.post("/export", async(req, res) => {
         record[customisationValidChoiceHeadings[customisation.type]] = customisation.text;
       });
 
+      record.paid = item.ShopOrder.paid;
       record.collected = "";
 
       csvRecordsChecklist.push(record);

@@ -120,6 +120,11 @@ class NavBar extends React.Component {
               displayName: "Export Stash",
               url: "/stash/export",
               requiredPermission: "stash.export"
+            },
+            {
+              displayName: "Export Gym Members",
+              url: "/gym/admin",
+              requiredPermission: "gym.export"
             }
           ],
           alwaysDisplayed: false

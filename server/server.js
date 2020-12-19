@@ -71,6 +71,11 @@ const requiredPermissions = [
     name: "Export Stash",
     description: "Enables exporting of stash orders",
     internal: "stash.export"
+  },
+  {
+    name: "Export Gym Memberships",
+    description: "Enables exporting of gym memberships",
+    internal: "gym.export"
   }
 ];
 
