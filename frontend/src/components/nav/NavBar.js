@@ -146,6 +146,11 @@ class NavBar extends React.Component {
               displayName: "Export Gym Members",
               url: "/gym/admin",
               requiredPermission: "gym.export"
+            },
+            {
+              displayName: "Export JCR Members",
+              url: "/membership/export",
+              requiredPermission: "jcr.export"
             }
           ],
           alwaysDisplayed: false

@@ -30,6 +30,7 @@ import StashImagesPage from './components/stash/admin/ImagesPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
 import StashExportPage from './components/stash/export/StashExportPage';
 import GymAdminPage from './components/gym/admin/GymAdminPage';
+import ExportMembershipsPage from './components/membership/export/ExportMembershipsPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -235,11 +236,14 @@ class App extends React.Component {
                   <Route exact path="/gym/admin" render={() => (
                     this.hasPermission("gym.export") ? ( <GymAdminPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
+                  <Route exact path="/membership/export" render={() => (
+                    this.hasPermission("jcr.export") ? ( <ExportMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
+                  )} />
                   <Route exact path="/stash/" render={() => (
-                    this.isLoggedIn() ? ( <OrderStashPage /> ) : ( <Redirect to="/accounts/login" /> )
+                    this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/membership" /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/stash/view/:id" render={(props) => (
-                    this.isLoggedIn() ? ( <ViewStashItemPage {...props} /> ) : ( <Redirect to="/accounts/login" /> )
+                    this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/membership" /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/spinner/" render={() => (
                     this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( <Redirect to="/accounts/login" /> )

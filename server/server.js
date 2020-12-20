@@ -17,6 +17,7 @@ const toastieBarRoute = require("./routes/toastie_bar");
 const permissionsRoute = require("./routes/permissions");
 const cartRoute = require("./routes/cart");
 const gymRoute = require("./routes/gym");
+const membershipsRoute = require("./routes/memberships");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -53,11 +54,6 @@ app.use(session({
 
 const requiredPermissions = [
   {
-    name: "JCR Membership",
-    description: "Grants JCR membership",
-    internal: "jcr.member"
-  },
-  {
     name: "Edit Permissions",
     description: "Allows a user to assign permissions to other users",
     internal: "permissions.edit"
@@ -81,6 +77,16 @@ const requiredPermissions = [
     name: "Export Gym Memberships",
     description: "Enables exporting of gym memberships",
     internal: "gym.export"
+  },
+  {
+    name: "JCR Membership",
+    description: "Grants JCR membership",
+    internal: "jcr.member"
+  },
+  {
+    name: "Export JCR Memberships",
+    description: "Enables exporting of JCR memberships",
+    internal: "jcr.export"
   }
 ];
 
@@ -152,6 +158,7 @@ app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
 app.use("/api/permissions", isLoggedIn, permissionsRoute);
 app.use("/api/cart", isLoggedIn, cartRoute);
 app.use("/api/gym", isLoggedIn, gymRoute);
+app.use("/api/memberships", isLoggedIn, membershipsRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
