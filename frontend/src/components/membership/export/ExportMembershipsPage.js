@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect, Prompt } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
-import dateFormat from 'dateformat';
 
 class ExportMembershipPage extends React.Component {
   constructor(props) {
@@ -38,7 +37,6 @@ class ExportMembershipPage extends React.Component {
     try {
       exportResponse = await api.post("/memberships/export");
     } catch (error) {
-      console.log({ error });
       alert("An error occurred downloading the stash order");
       return;
     }

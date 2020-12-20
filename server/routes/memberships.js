@@ -111,7 +111,6 @@ router.get("/user/ids", async (req, res) => {
       attributes: [ "id" ]
     });
   } catch (error) {
-    console.log({error});
     return res.status(500).json({ error });
   }
 
@@ -141,11 +140,8 @@ router.get("/user/single/:id", async (req, res) => {
       attributes: [ "id", "username", "surname", "firstNames", "year", "lastLogin", "membershipExpiresAt", "createdAt" ]
     });
   } catch (error) {
-    console.log({error});
     return res.status(500).json({ error });
   }
-
-  console.log(JSON.stringify(userRecord));
 
   if(userRecord === null) {
     return res.status(400).json({ error: "id does not match record" });
@@ -239,11 +235,7 @@ router.post("/grant", async (req, res) => {
   // Send the user an email to let them know
 
   const customerEmail = customerJCRGrantedEmail(userRecord, membershipExpiresAt);
-  // REMOVE BEFORE PUSHING
-  if(userRecord.id === 1) {
-    mailer.sendEmail(userRecord.email, `JCR Membership Approved`, customerEmail);
-  }
-
+  mailer.sendEmail(userRecord.email, `JCR Membership Approved`, customerEmail);
   return res.status(204).end();
 });
 

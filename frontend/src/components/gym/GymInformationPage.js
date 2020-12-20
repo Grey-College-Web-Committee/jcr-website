@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
 import GenericCartableItem from '../cart/GenericCartableItem';
 import dateFormat from 'dateformat';

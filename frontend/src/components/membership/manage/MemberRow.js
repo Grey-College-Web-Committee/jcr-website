@@ -31,7 +31,6 @@ class MemberRow extends React.Component {
     try {
       userRecord = await api.get(`/memberships/user/single/${this.props.id}`);
     } catch (error) {
-      console.log({error})
       this.setState({ loaded: false });
       return;
     }
@@ -131,5 +130,10 @@ class MemberRow extends React.Component {
     );
   }
 }
+
+MemberRow.propTypes = {
+  id: PropTypes.number.isRequired,
+  displayCondition: PropTypes.func.isRequired
+};
 
 export default MemberRow;
