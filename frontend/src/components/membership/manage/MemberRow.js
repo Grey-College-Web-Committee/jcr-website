@@ -97,27 +97,32 @@ class MemberRow extends React.Component {
         <td className="p-2 border-r border-gray-400">{username}</td>
         <td className="p-2 border-r border-gray-400 break-all">{firstNames}</td>
         <td className="p-2 border-r border-gray-400">{surname}</td>
-        <td className="p-2 border-r border-gray-400">{dateFormat(createdAt, "dd/mm/yyyy hh:MM:ss")}</td>
-        <td className="border-r border-gray-400 hidden sm:table-cell">{dateFormat(lastLogin, "dd/mm/yyyy hh:MM:ss")}</td>
-        <td className="border-r border-gray-400 hidden sm:table-cell">{membershipExpiresAt === null ? "N/A" : dateFormat(membershipExpiresAt, "dd/mm/yyyy hh:MM:ss")}</td>
+        <td className="p-2 border-r border-gray-400">{dateFormat(createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
+        <td className="border-r border-gray-400 hidden sm:table-cell">{dateFormat(lastLogin, "dd/mm/yyyy HH:MM:ss")}</td>
+        <td className="border-r border-gray-400 hidden sm:table-cell">{membershipExpiresAt === null ? "N/A" : dateFormat(membershipExpiresAt, "dd/mm/yyyy HH:MM:ss")}</td>
         <td className="p-2 border-r border-gray-400">
           {membershipExpiresAt === null ? (
             <div className="flex flex-col">
               <div>
-                <label htmlFor="expiry">Expires On:</label>
+                <label htmlFor="expiry" className="mr-2">Expires On:</label>
                 <input
                   type="date"
                   value={this.state.expiry}
                   name="expiry"
                   onChange={this.onInputChange}
+                  className="w-48 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                 />
               </div>
-              <button
-                onClick={this.grantMembership}
-              >Grant</button>
+              <div className="flex flex-row justify-center mt-2">
+                <button
+                  className="px-4 py-1 rounded bg-green-700 text-white w-32 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  onClick={this.grantMembership}
+                >Grant</button>
+              </div>
             </div>
           ) : (
             <button
+              className="px-4 py-1 rounded bg-red-700 text-white w-32 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               onClick={this.revokeMembership}
             >Revoke</button>
           )}
