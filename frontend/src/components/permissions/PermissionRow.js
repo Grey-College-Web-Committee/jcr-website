@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import dateFormat from 'dateformat';
 import api from '../../utils/axiosConfig.js';
+import { Link } from 'react-router-dom';
 
 class PermissionRow extends React.Component {
   constructor(props) {
@@ -31,11 +32,19 @@ class PermissionRow extends React.Component {
         <td className="w-32 p-2 border-l border-r border-gray-400 text-center">{this.state.grantedDetails.grantedBy.username}</td>
         <td className="hidden sm:table-cell w-64 p-2 border-l border-r border-gray-400 text-center">{dateFormat(this.state.grantedDetails.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
         <td className="w-40 p-2 border-l border-gray-400">
-          <button
-            onClick={this.revokePermission}
-            disabled={this.state.disabled}
-            className="px-4 py-1 rounded bg-red-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-          >Revoke</button>
+          {this.props.permissionInformation.internal === "jcr.member" ? (
+            <Link to="/memberships/manage">
+              <button
+                className="px-4 py-1 rounded bg-blue-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              >Manage</button>
+            </Link>
+          ) :(
+            <button
+              onClick={this.revokePermission}
+              disabled={this.state.disabled}
+              className="px-4 py-1 rounded bg-red-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+            >Revoke</button>
+          )}
         </td>
       </tr>
     );
@@ -53,11 +62,19 @@ class PermissionRow extends React.Component {
         <td className="w-32 p-2 border-l border-r border-gray-400 text-center">N/A</td>
         <td className="hidden sm:table-cell w-64 p-2 border-l border-r border-gray-400 text-center">N/A</td>
         <td className="w-40 p-2 border-l border-gray-400">
-          <button
-            onClick={this.grantPermission}
-            disabled={this.state.disabled}
-            className="px-4 py-1 rounded bg-green-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-          >Grant</button>
+          {this.props.permissionInformation.internal === "jcr.member" ? (
+            <Link to="/memberships/manage">
+              <button
+                className="px-4 py-1 rounded bg-blue-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              >Manage</button>
+            </Link>
+          ) :(
+            <button
+              onClick={this.grantPermission}
+              disabled={this.state.disabled}
+              className="px-4 py-1 rounded bg-green-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+            >Grant</button>
+          )}
         </td>
       </tr>
     );

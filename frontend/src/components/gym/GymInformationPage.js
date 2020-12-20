@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
 import GenericCartableItem from '../cart/GenericCartableItem';
 import dateFormat from 'dateformat';
@@ -14,6 +13,7 @@ class GymInformationPage extends React.Component {
 
     this.cart = new Cart();
     this.state = {
+      isMember: true,
       loaded: false,
       status: 0,
       error: "",
@@ -49,6 +49,25 @@ class GymInformationPage extends React.Component {
 
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
+    let membershipCheck;
+    let isMember = true;
+
+    try {
+      membershipCheck = await api.get("/auth/verify");
+    } catch (error) {
+      this.setState({ loaded: false, status: error.response.status });
+      return;
+    }
+
+    // Ensure they are a member
+    if(membershipCheck.data.user.permissions) {
+      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
+        isMember = false;
+      }
+    } else {
+      isMember = false;
+    }
+
     // Once the component is ready we can query the API
     let content;
 
@@ -59,7 +78,7 @@ class GymInformationPage extends React.Component {
       return;
     }
 
-    this.setState({ loaded: true, status: 200, membership: content.data.membership });
+    this.setState({ loaded: true, status: 200, membership: content.data.membership, isMember });
   }
 
   render () {
@@ -76,6 +95,31 @@ class GymInformationPage extends React.Component {
     }
 
     const { membership } = this.state;
+
+    const membershipOptions = [
+      {
+        price: 40,
+        nonMemberPrice: 55,
+        name: "Epiphany Term Membership",
+        image: "/images/cart/placeholder.png",
+        description: "(expires 20/03/2021)",
+        displayName: "Epiphany Term Gym Membership",
+        submissionInformation: {
+          type: "single_term"
+        }
+      },
+      {
+        price: 80,
+        nonMemberPrice: 100,
+        name: "Full Year Membership",
+        image: "/images/cart/placeholder.png",
+        description: "(expires 01/07/2021)",
+        displayName: "Full Year Gym Membership",
+        submissionInformation: {
+          type: "full_year"
+        }
+      }
+    ]
 
     const purchaseDiv = membership === null ? (
       <div className="flex flex-col mx-auto justify-center sm:w-1/2 sm:mr-24 sm:ml-4 px-4 sm:px-0 mb-2 sm:mb-0 w-full">
@@ -107,58 +151,34 @@ class GymInformationPage extends React.Component {
           </div>
         </div>
         <div className="flex flex-row flex-wrap w-full justify-center">
-          <GenericCartableItem
-            price={40}
-            name="Epiphany Term Membership"
-            image="/images/cart/placeholder.png"
-            description="(expires 20/03/2021)"
-            cartData={{
-              shop: "gym",
-              name: "Epiphany Term Gym Membership",
-              basePrice: 40,
-              quantity: 1,
-              submissionInformation: {
-                type: "single_term"
-              },
-              components: [],
-              image: "/images/cart/placeholder.png",
-              upperLimit: 1
-            }}
-            disabled={membership !== null || !this.state.termsOfUse || !this.state.parq}
-            buttonText={membership !== null ? "Already Purchased" : "Add To Bag"}
-            disableOnCondition={(items) => {
-              return items.filter(item => item.shop === "gym").length !== 0;
-            }}
-            callback={() => {
-              this.setState({ inBasket: true })
-            }}
-          />
-          <GenericCartableItem
-            price={80}
-            name="Full Year Membership"
-            image="/images/cart/placeholder.png"
-            description="(expires 01/07/2021)"
-            cartData={{
-              shop: "gym",
-              name: "Full Year Gym Membership",
-              basePrice: 80,
-              quantity: 1,
-              submissionInformation: {
-                type: "full_year"
-              },
-              components: [],
-              image: "/images/cart/placeholder.png",
-              upperLimit: 1
-            }}
-            disabled={membership !== null || !this.state.termsOfUse || !this.state.parq}
-            buttonText={membership !== null ? "Already Purchased" : "Add To Bag" }
-            disableOnCondition={(items) => {
-              return items.filter(item => item.shop === "gym").length !== 0;
-            }}
-            callback={() => {
-              this.setState({ inBasket: true })
-            }}
-          />
+          {
+            membershipOptions.map((option, i) => (
+              <GenericCartableItem
+                price={this.state.isMember ? option.price : option.nonMemberPrice}
+                name={option.name}
+                image={option.image}
+                description={option.description}
+                cartData={{
+                  shop: "gym",
+                  name: option.displayName,
+                  basePrice: this.state.isMember ? option.price : option.nonMemberPrice,
+                  quantity: 1,
+                  submissionInformation: option.submissionInformation,
+                  components: [],
+                  image: option.image,
+                  upperLimit: 1
+                }}
+                disabled={membership !== null || !this.state.termsOfUse || !this.state.parq}
+                buttonText={membership !== null ? "Already Purchased" : "Add To Bag"}
+                disableOnCondition={(items) => {
+                  return items.filter(item => item.shop === "gym").length !== 0;
+                }}
+                callback={() => {
+                  this.setState({ inBasket: true })
+                }}
+              />
+            ))
+          }
         </div>
       </div>
     ) : null;

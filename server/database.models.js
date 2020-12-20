@@ -58,6 +58,10 @@ User.init({
   lastLogin: {
     type: DataTypes.DATE,
     defaultValue: Sequelize.NOW
+  },
+  membershipExpiresAt: {
+    type: DataTypes.DATE,
+    defaultValue: null
   }
 }, { sequelize });
 
@@ -243,6 +247,11 @@ ShopOrderContent.init({
   shop: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  additional: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
   }
 }, { sequelize });
 
@@ -454,7 +463,7 @@ StashOrderCustomisation.belongsTo(StashOrder, { foreignKey: 'orderId' });
 ShopOrder.hasMany(GymMembership, { foreignKey: 'orderId' });
 GymMembership.belongsTo(ShopOrder, { foreignKey: 'orderId' });
 
-User.hasMany(GymMembership, { foreignKey: 'userId' }); 
+User.hasMany(GymMembership, { foreignKey: 'userId' });
 GymMembership.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = { User, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership };

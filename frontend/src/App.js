@@ -18,6 +18,7 @@ import OrderStashPage from './components/stash/OrderStashPage';
 import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
 import DebtorPage from './components/debtors/DebtorPage';
 import GymInformationPage from './components/gym/GymInformationPage';
+import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
@@ -29,6 +30,8 @@ import StashImagesPage from './components/stash/admin/ImagesPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
 import StashExportPage from './components/stash/export/StashExportPage';
 import GymAdminPage from './components/gym/admin/GymAdminPage';
+import ExportMembershipsPage from './components/membership/export/ExportMembershipsPage';
+import ManageMembershipsPage from './components/membership/manage/ManageMembershipsPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -204,6 +207,9 @@ class App extends React.Component {
                     this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
                   )} />
                   <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
+                  <Route exact path="/memberships/purchase" render={() => (
+                    this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <LoginPage loginUser={this.loginUser} /> )
+                  )} />
                   <Route exact path="/toasties/stock" render={() => (
                     this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
@@ -220,7 +226,7 @@ class App extends React.Component {
                     this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
                   <Route exact path="/toasties/" render={() => (
-                    this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )
+                    this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/debtors" render={() => (
                     this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )
@@ -231,11 +237,17 @@ class App extends React.Component {
                   <Route exact path="/gym/admin" render={() => (
                     this.hasPermission("gym.export") ? ( <GymAdminPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
+                  <Route exact path="/memberships/export" render={() => (
+                    this.hasPermission("jcr.export") ? ( <ExportMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
+                  )} />
+                  <Route exact path="/memberships/manage" render={() => (
+                    this.hasPermission("jcr.manage") ? ( <ManageMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
+                  )} />
                   <Route exact path="/stash/" render={() => (
-                    this.isLoggedIn() ? ( <OrderStashPage /> ) : ( <Redirect to="/accounts/login" /> )
+                    this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/stash/view/:id" render={(props) => (
-                    this.isLoggedIn() ? ( <ViewStashItemPage {...props} /> ) : ( <Redirect to="/accounts/login" /> )
+                    this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/spinner/" render={() => (
                     this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( <Redirect to="/accounts/login" /> )

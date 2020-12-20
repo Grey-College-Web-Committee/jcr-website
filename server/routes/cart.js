@@ -436,11 +436,13 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
   const currentMembershipOptions = {
     full_year: {
       expires: new Date("2021-07-01"),
-      price: 80
+      price: 80,
+      nonMemberPrice: 100
     },
     single_term: {
       expires: new Date("2021-03-20"),
-      price: 40
+      price: 40,
+      nonMemberPrice: 55
     }
   };
 
@@ -454,6 +456,7 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
 
   const selectedExpiry = currentMembershipOptions[type].expires;
   const currentDate = new Date();
+  const isMember = user.membershipExpiresAt !== null && new Date(user.membershipExpiresAt) > currentDate;
 
   if(currentDate > selectedExpiry) {
     return {
@@ -540,6 +543,129 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
   }
 
   return {
+    price: isMember ? currentMembershipOptions[type].price : currentMembershipOptions[type].nonMemberPrice,
+    globalSubmissionInfo: globalSubmissionInfo
+  };
+}
+
+const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
+  if(!globalSubmissionInfo.hasOwnProperty("type")) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No type"
+    };
+  }
+
+  if(globalSubmissionInfo.type === undefined) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No type"
+    };
+  }
+
+  if(globalSubmissionInfo.type === null) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No type"
+    };
+  }
+
+  const type = globalSubmissionInfo.type;
+
+  if(quantity !== 1) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "You can only order 1 JCR membership"
+    }
+  }
+
+  const currentMembershipOptions = {
+    single_year: {
+      expires: new Date("2021-09-01"),
+      price: 10
+    },
+    three_year: {
+      expires: new Date("2023-09-01"),
+      price: 15
+    }
+  };
+
+  if(!Object.keys(currentMembershipOptions).includes(type)) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "Invalid membership type"
+    }
+  }
+
+  const selectedExpiry = currentMembershipOptions[type].expires;
+  const currentDate = new Date();
+
+  if(currentDate > selectedExpiry) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "New memberships are not available at this time"
+    }
+  }
+
+  // Check they don't have an active membership
+  // would usually use session but this can cause problems if they don't bother logging out
+
+  let userRecord;
+
+  try {
+    userRecord = await User.findOne({
+      where: {
+        id: user.id
+      }
+    });
+  } catch (error) {
+    console.log({error});
+    return;
+  }
+
+  if(userRecord === null) {
+    console.log("NULL UR");
+    return;
+  }
+
+  const { membershipExpiresAt } = userRecord;
+
+  if(membershipExpiresAt !== null) {
+    const membershipExpiresAtDate = new Date(membershipExpiresAt);
+
+    if(membershipExpiresAtDate > currentDate) {
+      return {
+        errorOccurred: true,
+        status: 400,
+        error: "You already have an active JCR membership!"
+      }
+    }
+  }
+
+  // Create the order entry
+
+  try {
+    await ShopOrderContent.create({
+      orderId,
+      shop: "jcr_membership",
+      additional: type
+    });
+  } catch (error) {
+    console.log({error});
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to create new sub order for membership"
+    };
+  }
+
+  return {
     price: currentMembershipOptions[type].price,
     globalSubmissionInfo: globalSubmissionInfo
   };
@@ -549,18 +675,25 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
 const shopProcessors = {
   "toastie": toastieProcessor,
   "stash": stashProcessor,
-  "gym": gymProcessor
-}
+  "gym": gymProcessor,
+  "jcr_membership": jcrMembershipProcessor
+};
 
 // Optional
 const shopPostProcessors = {
   "toastie": toastiePostProcessor
-}
+};
+
+const requiresMembershipShops = [
+  "toastie",
+  "stash"
+];
 
 // Called at the base path of your route with HTTP method POST
 router.post("/process", async (req, res) => {
   // User only
   const { user } = req.session;
+  const isMember = user.membershipExpiresAt !== null && new Date(user.membershipExpiresAt) > new Date();
   const submittedCart = req.body.submissionCart;
 
   if(debtors.includes(user.username.toLowerCase())) {
@@ -615,6 +748,12 @@ router.post("/process", async (req, res) => {
 
     if(!validShops.includes(item.shop)) {
       return res.status(400).json({ error: `${i} missing shop (invalid type)`});
+    }
+
+    if(requiresMembershipShops.includes(item.shop) && !isMember) {
+      return res.status(400).json({ error: {
+        error: "You must be a JCR member to buy one of the items in your bag."
+      }});
     }
 
     if(!item.hasOwnProperty("quantity")) {
