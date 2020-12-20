@@ -500,20 +500,22 @@ class ViewStashItemPage extends React.Component {
               <div className="w-full flex flex-col sm:flex-row text-lg">
                 <div className="w-full sm:w-1/2 flex justify-center flex-row mx-2 mb-4 flex-grow-0 self-start">
                   <div className="w-full">
-                    {this.getCurrentImage()}
-                    <div className="flex space-x-4">
+                    <div className="flex">
                       <div className="flex-1 text-center">
                         <button
                           onClick={()=>this.changeImage(-1)}
                           disabled={this.state.disabled || !this.state.multipleImages}
-                          className="my-1 px-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                          className="h-full px-2 rounded bg-gray-400 text-white w-full font-semibold hover:bg-red-900 disabled:opacity-20"
                         >&lt;</button>
                       </div>
+
+                      <div className="flex-auto">{this.getCurrentImage()}</div>
+                      
                       <div className="flex-1 text-center">
                         <button
                           onClick={()=>this.changeImage(1)}
                           disabled={this.state.disabled || !this.state.multipleImages}
-                          className="my-1 px-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                          className="h-full px-2 rounded bg-gray-400 text-white w-full font-semibold hover:bg-red-900 disabled:opacity-20"
                         >&gt;</button>
                       </div>
                     </div>
