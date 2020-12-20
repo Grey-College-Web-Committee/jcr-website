@@ -77,13 +77,55 @@ router.post("/login", async (req, res) => {
 
     try {
       // Create a new user record
-      user = await User.create({ username, email, surname, firstNames: firstnames, year: studyyear, email, lastLogin });
+      user = await User.create({ username, email, surname, firstNames: firstnames, year: studyyear, email, lastLogin, membershipExpiresAt: null });
     } catch (error) {
       return res.status(500).json({ message: "Server error: Unable to create a new user. Database error." });
     }
   } else {
     // Set the last login time and save
     user.lastLogin = lastLogin;
+
+    const { membershipExpiresAt } = user;
+
+    // Their JCR membership has expired
+    if(membershipExpiresAt !== null) {
+      const membershipExpiresAtDate = new Date(membershipExpiresAt);
+
+      if(membershipExpiresAtDate < new Date()) {
+        user.membershipExpiresAt = null;
+
+        // Now remove the permission
+        let permissionRecord;
+
+        try {
+          permissionRecord = await Permission.findOne({
+            where: {
+              internal: "jcr.member"
+            }
+          });
+        } catch (error) {
+          console.log({error});
+          return;
+        }
+
+        if(permissionRecord === null) {
+          console.log("NULL PR");
+          return;
+        }
+
+        try {
+          await PermissionLink.destroy({
+            where: {
+              grantedToId: user.id,
+              permissionId: permissionRecord.id
+            }
+          });
+        } catch (error) {
+          console.log({error});
+          return;
+        }
+      }
+    }
 
     try {
       user.save();

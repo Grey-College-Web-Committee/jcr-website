@@ -12,6 +12,7 @@ class OrderToastiePage extends React.Component {
 
     this.cart = new Cart();
     this.state = {
+      isMember: true,
       loaded: false,
       status: 0,
       error: "",
@@ -30,6 +31,30 @@ class OrderToastiePage extends React.Component {
 
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
+    console.log("what??")
+    let membershipCheck;
+
+    try {
+      console.log("??")
+      membershipCheck = await api.get("/auth/verify");
+    } catch (error) {
+      this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
+      return;
+    }
+
+    console.log(membershipCheck.data.user.permissions)
+
+    // Ensure they are an admin
+    if(membershipCheck.data.user.permissions) {
+      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
+        this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
+        return;
+      }
+    } else {
+      this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
+      return;
+    }
+
     // Once the component is ready we can query the API
     let content;
 
@@ -326,6 +351,12 @@ class OrderToastiePage extends React.Component {
 
   render () {
     if(!this.state.loaded) {
+      if(!this.state.isMember) {
+          return (
+            <Redirect to="/membership" />
+          )
+      }
+
       if(this.state.status !== 200 && this.state.status !== 0) {
         return (
          <Redirect to={`/errors/${this.state.status}`} />

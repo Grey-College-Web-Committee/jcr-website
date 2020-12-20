@@ -545,11 +545,116 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
   };
 }
 
+const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
+  if(!globalSubmissionInfo.hasOwnProperty("type")) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No type"
+    };
+  }
+
+  if(globalSubmissionInfo.type === undefined) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No type"
+    };
+  }
+
+  if(globalSubmissionInfo.type === null) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No type"
+    };
+  }
+
+  const type = globalSubmissionInfo.type;
+
+  if(quantity !== 1) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "You can only order 1 JCR membership"
+    }
+  }
+
+  const currentMembershipOptions = {
+    single_year: {
+      expires: new Date("2021-09-01"),
+      price: 10
+    },
+    three_year: {
+      expires: new Date("2023-09-01"),
+      price: 15
+    }
+  };
+
+  if(!Object.keys(currentMembershipOptions).includes(type)) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "Invalid membership type"
+    }
+  }
+
+  const selectedExpiry = currentMembershipOptions[type].expires;
+  const currentDate = new Date();
+
+  if(currentDate > selectedExpiry) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "New memberships are not available at this time"
+    }
+  }
+
+  // Check they don't have an active membership
+
+  const { membershipExpiresAt } = user;
+
+  if(membershipExpiresAt !== null) {
+    const membershipExpiresAtDate = new Date(membershipExpiresAt);
+
+    if(membershipExpiresAtDate > currentDate) {
+      return {
+        errorOccurred: true,
+        status: 400,
+        error: "You already have an active JCR membership!"
+      }
+    }
+  }
+
+  // Create the order entry
+
+  try {
+    await ShopOrderContent.create({
+      orderId,
+      shop: "jcr_membership",
+      additional: type
+    });
+  } catch (error) {
+    console.log({error});
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to create new sub order for membership"
+    };
+  }
+
+  return {
+    price: currentMembershipOptions[type].price,
+    globalSubmissionInfo: globalSubmissionInfo
+  };
+}
+
 // Required
 const shopProcessors = {
   "toastie": toastieProcessor,
   "stash": stashProcessor,
-  "gym": gymProcessor
+  "gym": gymProcessor,
+  "jcr_membership": jcrMembershipProcessor
 }
 
 // Optional

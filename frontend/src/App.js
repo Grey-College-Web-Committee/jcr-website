@@ -18,6 +18,7 @@ import OrderStashPage from './components/stash/OrderStashPage';
 import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
 import DebtorPage from './components/debtors/DebtorPage';
 import GymInformationPage from './components/gym/GymInformationPage';
+import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
@@ -204,6 +205,9 @@ class App extends React.Component {
                     this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
                   )} />
                   <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
+                  <Route exact path="/membership" render={() => (
+                    this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <LoginPage loginUser={this.loginUser} /> )
+                  )} />
                   <Route exact path="/toasties/stock" render={() => (
                     this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
@@ -220,7 +224,7 @@ class App extends React.Component {
                     this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
                   <Route exact path="/toasties/" render={() => (
-                    this.isLoggedIn() ? ( <OrderToastiePage /> ) : ( <Redirect to="/accounts/login" /> )
+                    this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/membership" /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/debtors" render={() => (
                     this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )

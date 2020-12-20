@@ -53,6 +53,11 @@ app.use(session({
 
 const requiredPermissions = [
   {
+    name: "JCR Membership",
+    description: "Grants JCR membership",
+    internal: "jcr.member"
+  },
+  {
     name: "Edit Permissions",
     description: "Allows a user to assign permissions to other users",
     internal: "permissions.edit"

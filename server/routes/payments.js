@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership } = require("../database.models.js");
+const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
@@ -225,10 +225,107 @@ const fulfilGymOrders = async (user, orderId, relatedOrders) => {
   mailer.sendEmail(user.email, `Gym Order Confirmation #${orderId}`, customerEmail);
 }
 
+const customerJCRMembershipEmail = (user, orderId, expiresAt) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<h1>Welcome to the JCR!</h1>`);
+  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
+  message.push(`<p>Your membership has been confirmed and registered with the JCR.</p>`);
+  message.push(`<p>Please logout and back into the website to gain access to the JCR services!</p>`);
+  message.push(`<p>Your membership will expire on ${dateFormat(expiresAt, "dd/mm/yyyy")}</p>`);
+  message.push(`<p>You will receive a receipt from Stripe confirming your payment.</p>`)
+  message.push(`<p><strong>Thank you!</strong></p>`);
+
+  return message.join("");
+}
+
+const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders) => {
+  if(relatedOrders.length !== 1) {
+    console.log("Many memberships?");
+    return;
+  }
+
+  const type = relatedOrders[0].additional;
+
+  if(type === null) {
+    console.log("NULL TYPE");
+    return;
+  }
+
+  const currentMembershipOptions = {
+    single_year: {
+      expires: new Date("2021-09-01"),
+      price: 10
+    },
+    three_year: {
+      expires: new Date("2023-09-01"),
+      price: 15
+    }
+  };
+
+  let userRecord;
+
+  try {
+    userRecord = await User.findOne({
+      where: {
+        id: user.id
+      }
+    });
+  } catch (error) {
+    console.log({error});
+    return;
+  }
+
+  userRecord.membershipExpiresAt = currentMembershipOptions[type].expires;
+
+  try {
+    await userRecord.save();
+  } catch (error) {
+    console.log({error});
+    return;
+  }
+
+  let permissionRecord;
+
+  try {
+    permissionRecord = await Permission.findOne({
+      where: {
+        internal: "jcr.member"
+      }
+    });
+  } catch (error) {
+    console.log({error});
+    return;
+  }
+
+  if(permissionRecord === null) {
+    console.log("NULL PR");
+    return;
+  }
+
+  try {
+    await PermissionLink.create({
+      grantedToId: userRecord.id,
+      permissionId: permissionRecord.id,
+      grantedById: 1
+    });
+  } catch (error) {
+    console.log({error});
+    return;
+  }
+
+  const customerEmail = customerJCRMembershipEmail(user, orderId, currentMembershipOptions[type].expires);
+  mailer.sendEmail(user.email, `JCR Membership Confirmation #${orderId}`, customerEmail);
+}
+
 const fulfilOrderProcessors = {
   "toastie": fulfilToastieOrders,
   "stash": fulfilStashOrders,
-  "gym": fulfilGymOrders
+  "gym": fulfilGymOrders,
+  "jcr_membership": fulfilJCRMembershipOrders
 }
 
 router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {
