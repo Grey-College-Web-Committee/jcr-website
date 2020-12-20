@@ -72,7 +72,7 @@ class NavBar extends React.Component {
       const loggedInOptions = [
         {
           displayName: "Purchase JCR Membership",
-          url: "/membership",
+          url: "/memberships/purchase",
           requiredPermission: permissions.includes("jcr.member") ? "no-one-has-this-perm" : null,
           staticImage: null,
           dropdown: null,
@@ -149,8 +149,13 @@ class NavBar extends React.Component {
             },
             {
               displayName: "Export JCR Members",
-              url: "/membership/export",
+              url: "/memberships/export",
               requiredPermission: "jcr.export"
+            },
+            {
+              displayName: "Manage JCR Members",
+              url: "/memberships/manage",
+              requiredPermission: "jcr.manage"
             }
           ],
           alwaysDisplayed: false

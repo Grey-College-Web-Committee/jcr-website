@@ -263,7 +263,7 @@ class ViewStashItemPage extends React.Component {
     if(!this.state.loaded) {
       if(!this.state.isMember) {
           return (
-            <Redirect to="/membership" />
+            <Redirect to="/memberships/purchase" />
           )
       }
 

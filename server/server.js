@@ -87,6 +87,11 @@ const requiredPermissions = [
     name: "Export JCR Memberships",
     description: "Enables exporting of JCR memberships",
     internal: "jcr.export"
+  },
+  {
+    name: "Manage JCR Memberships",
+    description: "Enables managing of JCR memberships",
+    internal: "jcr.manage"
   }
 ];
 
