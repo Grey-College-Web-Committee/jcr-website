@@ -56,19 +56,40 @@ class NavBar extends React.Component {
 
       baseOptions = baseOptions.concat(loggedOutOptions);
     } else {
+      // use a bit of a trick to hide the JCR membership tab if they have a membership
+      let permissions = [];
+
+      if(!user.hasOwnProperty("permissions")) {
+        permissions = [];
+      } else {
+        permissions = user.permissions;
+      }
+
+      if(permissions === null) {
+        permissions = [];
+      }
+
       const loggedInOptions = [
         {
-          displayName: "Order Toastie",
-          url: "/toasties",
-          requiredPermission: null,
+          displayName: "Purchase JCR Membership",
+          url: "/membership",
+          requiredPermission: permissions.includes("jcr.member") ? "no-one-has-this-perm" : null,
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: false
         },
         {
-          displayName: "Order Stash",
+          displayName: "Toasties",
+          url: "/toasties",
+          requiredPermission: "jcr.member",
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false
+        },
+        {
+          displayName: "Stash",
           url: "/stash",
-          requiredPermission: null,
+          requiredPermission: "jcr.member",
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: false

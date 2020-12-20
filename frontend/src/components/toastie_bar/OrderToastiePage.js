@@ -31,18 +31,14 @@ class OrderToastiePage extends React.Component {
 
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
-    console.log("what??")
     let membershipCheck;
 
     try {
-      console.log("??")
       membershipCheck = await api.get("/auth/verify");
     } catch (error) {
       this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
       return;
     }
-
-    console.log(membershipCheck.data.user.permissions)
 
     // Ensure they are an admin
     if(membershipCheck.data.user.permissions) {

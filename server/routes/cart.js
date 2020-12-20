@@ -436,11 +436,13 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
   const currentMembershipOptions = {
     full_year: {
       expires: new Date("2021-07-01"),
-      price: 80
+      price: 80,
+      nonMemberPrice: 100
     },
     single_term: {
       expires: new Date("2021-03-20"),
-      price: 40
+      price: 40,
+      nonMemberPrice: 55
     }
   };
 
@@ -454,6 +456,7 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
 
   const selectedExpiry = currentMembershipOptions[type].expires;
   const currentDate = new Date();
+  const isMember = user.membershipExpiresAt !== null && new Date(user.membershipExpiresAt) > currentDate;
 
   if(currentDate > selectedExpiry) {
     return {
@@ -540,7 +543,7 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
   }
 
   return {
-    price: currentMembershipOptions[type].price,
+    price: isMember ? currentMembershipOptions[type].price : currentMembershipOptions[type].nonMemberPrice,
     globalSubmissionInfo: globalSubmissionInfo
   };
 }
@@ -611,8 +614,27 @@ const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, 
   }
 
   // Check they don't have an active membership
+  // would usually use session but this can cause problems if they don't bother logging out
 
-  const { membershipExpiresAt } = user;
+  let userRecord;
+
+  try {
+    userRecord = await User.findOne({
+      where: {
+        id: user.id
+      }
+    });
+  } catch (error) {
+    console.log({error});
+    return;
+  }
+
+  if(userRecord === null) {
+    console.log("NULL UR");
+    return;
+  }
+
+  const { membershipExpiresAt } = userRecord;
 
   if(membershipExpiresAt !== null) {
     const membershipExpiresAtDate = new Date(membershipExpiresAt);
@@ -655,17 +677,23 @@ const shopProcessors = {
   "stash": stashProcessor,
   "gym": gymProcessor,
   "jcr_membership": jcrMembershipProcessor
-}
+};
 
 // Optional
 const shopPostProcessors = {
   "toastie": toastiePostProcessor
-}
+};
+
+const requiresMembershipShops = [
+  "toastie",
+  "stash"
+];
 
 // Called at the base path of your route with HTTP method POST
 router.post("/process", async (req, res) => {
   // User only
   const { user } = req.session;
+  const isMember = user.membershipExpiresAt !== null && new Date(user.membershipExpiresAt) > new Date();
   const submittedCart = req.body.submissionCart;
 
   if(debtors.includes(user.username.toLowerCase())) {
@@ -720,6 +748,12 @@ router.post("/process", async (req, res) => {
 
     if(!validShops.includes(item.shop)) {
       return res.status(400).json({ error: `${i} missing shop (invalid type)`});
+    }
+
+    if(requiresMembershipShops.includes(item.shop) && !isMember) {
+      return res.status(400).json({ error: {
+        error: "You must be a JCR member to buy one of the items in your bag."
+      }});
     }
 
     if(!item.hasOwnProperty("quantity")) {
