@@ -47,8 +47,8 @@ router.post("/export", async(req, res) => {
   let csvRecords = [];
 
   members.sort((a, b) => {
-    const aName = a.User.surname.toLowerCase();
-    const bName = b.User.surname.toLowerCase();
+    const aName = a.surname.toLowerCase();
+    const bName = b.surname.toLowerCase();
 
     return aName > bName ? 1 : (aName < bName ? -1 : 0);
   }).forEach(member => {
@@ -234,8 +234,8 @@ router.post("/grant", async (req, res) => {
 
   // Send the user an email to let them know
 
-  const customerEmail = customerJCRGrantedEmail(userRecord, membershipExpiresAt);
-  mailer.sendEmail(userRecord.email, `JCR Membership Approved`, customerEmail);
+  //const customerEmail = customerJCRGrantedEmail(userRecord, membershipExpiresAt);
+  //mailer.sendEmail(userRecord.email, `JCR Membership Approved`, customerEmail);
   return res.status(204).end();
 });
 
