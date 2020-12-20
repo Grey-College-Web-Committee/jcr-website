@@ -76,13 +76,6 @@ class AddStock extends React.Component {
 	this.setState({ cusotmisationDescription: newDesc })
   }
 
-  saveImage = async(productId) =>{
-	if(this.state.pictures.length === 0){
-		return;
-	}
-
-  }
-
   saveSelectedColours = async(productId) =>{
 
 	const coloursLength = this.props.colours.length;
