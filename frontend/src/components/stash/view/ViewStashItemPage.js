@@ -59,10 +59,10 @@ class ViewStashItemPage extends React.Component {
 
     this.setState({ loaded: true, status: 200, item: content.data.item, multipleImages:content.data.item.StashStockImages.length>1 });
 
-    // Change displayed image every 7 seconds
+    // Change displayed image every 6 seconds
     this.interval = setInterval(() => {
       this.changeImage(1);
-    }, 7000);
+    }, 6000);
   }
 
   componentWillUnmount() {
