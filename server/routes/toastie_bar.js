@@ -183,6 +183,10 @@ router.put("/stock/:id", async (req, res) => {
     updatedRecord.available = req.body.available;
   }
 
+  if(req.body.imageName !== undefined){
+    updatedRecord.imageName = req.body.imageName;
+  }
+
   // Let sequelize update the record;
 
   try {

@@ -11,189 +11,67 @@ class ImageRow extends React.Component {
 	this.state = {
 	  id: this.props.item.id,
 	  name: this.props.item.name,
-	  currentImages: [],
+	  imageName: null,
+	  imageUrl: null,
 	  picturesToUpload: [],
-	  progress: 0,
-	  imagesDisplayFragments: [],
-	  readyToUpload: false,
-	  disabled: false,
-	  multipleImagesExist: false,
-	  multipleImagesAllowed: this.props.multipleImagesAllowed
+	  disabled: false
 	}
 	this.onDrop = this.onDrop.bind(this);
-	this.onRemove = this.onRemove.bind(this);
+	this.onUpload = this.onUpload.bind(this);
+  }
+
+  componentDidMount = async() => {
+    this.getImage();
   }
 
   onInputChange = e => {
 	this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
-  componentDidMount = async () => {
-	this.getAllImages();
-  }
-
-  createCodeFragments(){
-	var length = this.state.currentImages.length;
-	let codeSnippet = [];
-	if (length !== 0){
-	  for (var i=0; i < length; i++){
-		codeSnippet.push(<tr><td><img alt="Stash" src={this.state.currentImages[i].source}/></td>{this.state.multipleImagesAllowed ? this.getRemovalButtonCode(this.state.currentImages[i].name):<td></td>}</tr>);
-	  }
-	}
-	this.setState({ imagesDisplayFragments: codeSnippet });
-  }
-
-  getAllImages = async () => {
-	this.setState({ currentImages: [] })
+  getImage = async() => {
 	let query;
-	try {
-	  let itemId = this.state.id;
-	  query = await api.get(`/stash/allImageNames/${itemId}`);
-	} catch (error) {
-	  alert("An error occurred getting the details of images");
-	  return;
-	};
-	const images = query.data.images;
-	var length = images.length;
-	this.setState({ multipleImagesExist: length > 1 });
-	if (length !== 0){
-	  if (this.state.multipleImagesAllowed){
-	    for (var i=0; i < length; i++){
-		  let newImg = await this.getImage(images[i].name);
-		  if (newImg !== null && newImg !== undefined){
-		    const newImages = this.state.currentImages;
-		    newImages.push(newImg);
-		    this.setState({ currentImages: newImages });
-		  }
-	  	}
-	  }
-	  else{
-		let newImg = await this.getImage(images[0].name);
-		if (newImg !== null && newImg !== undefined){
-		  const newImages = this.state.currentImages;
-		  newImages.push(newImg);
-		  this.setState({ currentImages: newImages });
-		}
-	  }
-	  this.createCodeFragments();
-	}
-  }
-
-  getRemovalButtonCode(i){
-	return(
-	  <td className="w-auto p-1">
-        <button
-		  value={i}
-          onClick={(e) => (window.confirm('Are you sure you wish to delete this item?')) ? this.onRemove(e) : console.log("cancel")}
-          disabled={this.state.disabled || !this.state.multipleImagesExist}
-          className="px-2 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-        >Remove</button>
-      </td>
-	);
-  }
-
-  getImage = async (imageName) => {
-	let img = { name: "", source: "" };
-	try {
-	  let productId = this.state.id;
-	  await api.get(`/stash/image/${imageName}/${productId}`, { responseType: 'arraybuffer' }).then(response => {
-		const image = btoa(
-		  new Uint8Array(response.data).reduce( (data, byte) => data + String.fromCharCode(byte), '' ),
-		);
-		img = { name: imageName, source: `data:${response.headers['content-type'].toLowerCase()};base64,${image}` };
-	  });
+    try {
+      query = await api.get(`/toastie_bar/stock/${this.state.id}`);
     } catch (error) {
-	  alert("An error occurred getting this image.");
-	  return null;
-	};
-	return img;
-  }
-
-  onRemove = async (e) => {
-	let index = -1;
-	for (var i = 0; i < this.state.currentImages.length; i++){
-	  if (this.state.currentImages[i].name === e.target.value){
-		index = i;
-		break;
-	  }
+      alert(error);
+    }
+	const imageName = query.data.stockItem.imageName;
+	console.log(imageName);
+	if (imageName !== null){
+		const imageUrl = `../uploads/images/toastie_bar/${imageName}`;
+		const imageCode = <img alt={this.state.name} src={imageUrl}/>;
+		await this.setState({ imageUrl:imageCode, imageName });
 	}
-	if (index !== -1) {
-	  const ImgToDelete = this.state.currentImages[i];
-	  this.state.currentImages.splice(index);
-	  await this.setState({ currentImages: [] });
-		this.createCodeFragments();
-		try {
-		  let imageName = ImgToDelete.name;
-		  let productId = this.state.id;
-		  await api.delete(`/stash/image/${imageName}/${productId}`)
-		  .then((response) => {
-			this.getAllImages();
-		  });
-		} catch (error) {
-		  alert("An error occurred removing this image.");
-		return null;
-	  };
+	else{
+		this.setState({imageName:null, imageUrl: null});
 	}
-	else{ alert( "Unable to delete" ); }
-  }
-
-  deleteOriginalImage = async () =>{ // Deletes original image when image is replaced (only to be used when multipleImagesAllowed is false)
-	const ImgToDelete = this.state.currentImages[0];
-	this.state.currentImages.splice(0);
-	try {
-	  let imageName = ImgToDelete.name;
-	  let productId = this.state.id;
-	  await api.delete(`/stash/image/${imageName}/${productId}`)
-	  .then((response) => {
-		this.getAllImages();
-	  });
-	} catch (error) {
-	  alert("An error occurred removing this image.");
-	  return null;
-	};
-	this.setState({currentImages:[]});
-	this.createCodeFragments();
-	return true;
   }
 
   onUpload = async () => {
 	const productId = this.state.id;
-	this.setState({ disabled: true, progress: 0+"%" });
+    this.setState({ disabled: true });
 	const pictures = this.state.picturesToUpload;
-	if(pictures.length === 0) {
-	  alert("You haven't selected any picture to upload.");
-	  this.setState({ disabled: false });
-	  return;
-	}
+	
+    if(pictures.length === 0) { // No picture to upload
+      this.setState({ disabled: false });
+      return;
+    }
 
-	// Send to the server
-	const file = pictures[0]
-	const formData = new FormData();
-	formData.append('file', file); // appending file
-	let query;
-	try {
-	  query=await api.post(`/stash/upload/${productId}`, formData, {
-		onUploadProgress: (ProgressEvent) => {
-			let progress = Math.round(ProgressEvent.loaded / ProgressEvent.total * 100) + '%';
-			this.setState({progress});
-		}
-	  });
-	} catch (error) {
-	  alert("An error occurred adding this colour option");
-	  this.setState({ disabled: false });
-	  return;
-	}
-
-	if (!this.multipleImagesAllowed){
-	  await this.deleteOriginalImage();
-	  alert(query.data.message);
-	  this.setState({ picturesToUpload: [], disabled: false });	
-	}
-	else{
-	  alert(query.data.message);
-	  this.setState({ picturesToUpload: [], disabled: false });
-	  this.getAllImages();
-	}
+    // Send to the server
+    const file = pictures[0]
+    const formData = new FormData();
+    formData.append('file', file); // appending file
+    let query;
+    try {
+      query = await api.post(`/toastie_bar/upload/${productId}`, formData);
+    } catch (error) {
+      alert("An error occurred adding this colour option");
+      this.setState({ disabled: false });
+      return;
+    }
+	this.setState({ picturesToUpload: [], disabled: false });
+	alert(query.data.message);
+	return;
   }
 
   onDrop(pictureFiles, pictureDataURLs) {
@@ -217,20 +95,17 @@ class ImageRow extends React.Component {
 		  <span disabled={this.state.disabled} className="w-full px-2 text-center font-semibold disabled:opacity-50">{this.state.name}</span>
 		</td>
 		<td className="w-64 p-2 border-r border-gray-400">
-		  <table>
-			  <tbody>{this.state.imagesDisplayFragments}</tbody>
-		  </table>
-
+		  {this.state.imageName === null ? "No image":this.state.imageUrl}
 		</td>
 		<td className="p-2 shadow w-40 border-r border-gray-400">
 		 <div>
 		    <ImageUploader
 			  fileContainerStyle={{ padding: "0px", margin: 1+"px", maxWidth: "440px"}}
-			  buttonStyles={{border: "1px solid #BE2B2E", color:"black", background: "transparent", margin: 3+"px "+0}}
+			  buttonStyles={{border: "1px solid #BE2B2E", color:"black", background: "transparent", margin: 2+"px "+0, padding: "6px"}}
 			  withIcon={false}
 			  withLabel={false}
 			  withPreview={false}
-			  buttonText="Select new image"
+			  buttonText={this.state.imageName === null ? "Select new image":"Replace Image"}
 			  onChange={this.onDrop}
 			  imgExtension={['.jpg', '.gif', '.png']}
 			  maxFileSize={2097152}
@@ -239,9 +114,6 @@ class ImageRow extends React.Component {
 			  singleImage={true /* not allowed to upload multiple, for now... */}
 		    />
 		    {this.readyToUploadMessage()}
-		    <div className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50" style={{ width: this.state.progress, height: "2rem", padding: "2px" }}>
-		      {this.state.progress}
-		    </div>
 		    <button
 		      type="button"
 		      onClick={this.onUpload}
@@ -261,7 +133,7 @@ class ImageRow extends React.Component {
 ImageRow.propTypes = {
   item: PropTypes.object.isRequired,
   key: PropTypes.number,
-  multipleImagesAllowed: PropTypes.bool.isRequired
+  //updateFunc: PropTypes.func.isRequired
 };
 
 export default ImageRow;

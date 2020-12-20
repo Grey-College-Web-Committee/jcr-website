@@ -5,7 +5,7 @@ class SelectableItem extends React.Component {
 
   getImage = () =>{
     if (this.props.imageName!==null){
-      const imageUrl = `uploads/images/toastie_bar/5.jpg`;
+      const imageUrl = `uploads/images/toastie_bar/${this.props.imageName}`;
       return (<img
           src={imageUrl}
           alt="Placeholder for ingredient"
