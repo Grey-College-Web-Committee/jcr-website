@@ -58,6 +58,15 @@ class ViewStashItemPage extends React.Component {
     }
 
     this.setState({ loaded: true, status: 200, item: content.data.item, multipleImages:content.data.item.StashStockImages.length>1 });
+
+    // Change displayed image every 7 seconds
+    this.interval = setInterval(() => {
+      this.changeImage(1);
+    }, 7000);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
   }
 
   onColourChange = () => {
@@ -503,7 +512,7 @@ class ViewStashItemPage extends React.Component {
                     <div className="flex">
                       <div className="flex-1 text-center">
                         <button
-                          onClick={()=>this.changeImage(-1)}
+                          onClick={()=>{this.changeImage(-1);clearInterval(this.interval);}}
                           disabled={this.state.disabled || !this.state.multipleImages}
                           className="h-full px-2 rounded bg-gray-400 text-white w-full font-semibold hover:bg-red-900 disabled:opacity-20"
                         >&lt;</button>
@@ -513,7 +522,7 @@ class ViewStashItemPage extends React.Component {
                       
                       <div className="flex-1 text-center">
                         <button
-                          onClick={()=>this.changeImage(1)}
+                          onClick={()=>{this.changeImage(1);clearInterval(this.interval);}}
                           disabled={this.state.disabled || !this.state.multipleImages}
                           className="h-full px-2 rounded bg-gray-400 text-white w-full font-semibold hover:bg-red-900 disabled:opacity-20"
                         >&gt;</button>
