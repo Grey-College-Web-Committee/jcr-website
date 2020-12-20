@@ -31,7 +31,9 @@ class ViewStashItemPage extends React.Component {
       errorAdding: null,
       disabled: false,
       buttonText: "Add To Bag",
-      addedCount: 0
+      addedCount: 0,
+      currentImage: 0,
+      multipleImages: false
     };
   }
 
@@ -55,7 +57,7 @@ class ViewStashItemPage extends React.Component {
       return;
     }
 
-    this.setState({ loaded: true, status: 200, item: content.data.item });
+    this.setState({ loaded: true, status: 200, item: content.data.item, multipleImages:content.data.item.StashStockImages.length>1 });
   }
 
   onColourChange = () => {
@@ -66,6 +68,31 @@ class ViewStashItemPage extends React.Component {
         secondaryColour: colourObj.twoTone ? colourObj.secondaryColour : null
       }
     });
+  }
+
+  getCurrentImage() {
+    const StashStockImages = this.state.item.StashStockImages;
+    const name = this.state.item.name;
+    const imageUrl = `/uploads/images/stash/${StashStockImages[this.state.currentImage].productId}/${StashStockImages[this.state.currentImage].name}`;
+    return (
+      <img
+        src={imageUrl}
+        alt={`${name}`}
+        className="w-full"
+      />
+    );
+  }
+
+  changeImage(direction) {
+    let currentImage = this.state.currentImage;
+    currentImage = currentImage+direction;
+    if (currentImage < 0){
+      currentImage = this.state.item.StashStockImages.length-1;
+    }
+    else if (currentImage >= this.state.item.StashStockImages.length) {
+      currentImage = 0;
+    }
+    this.setState({ currentImage: currentImage });
   }
 
   addToBag = () => {
@@ -211,6 +238,7 @@ class ViewStashItemPage extends React.Component {
     }
 
     const image = `/uploads/images/stash/${StashStockImages[0].productId}/${StashStockImages[0].name}`;
+
 
     this.cart.addToCartRaw({
       shop: "stash",
@@ -457,7 +485,7 @@ class ViewStashItemPage extends React.Component {
       <div className="flex flex-col justify-start">
         <Prompt
           when={this.state.size.length !== 0 && this.state.addedCount === 0}
-          message="You haven't add this to your bag yet. Are you sure you want to leave?"
+          message="You haven't added this to your bag yet. Are you sure you want to leave?"
         />
         <div className="container mx-auto text-center p-4">
           <div className="flex flex-col justify-center text-left align-middle w-full sm:w-3/4 mx-auto">
@@ -472,11 +500,23 @@ class ViewStashItemPage extends React.Component {
               <div className="w-full flex flex-col sm:flex-row text-lg">
                 <div className="w-full sm:w-1/2 flex justify-center flex-row mx-2 mb-4 flex-grow-0 self-start">
                   <div className="w-full">
-                    <img
-                      src={imageUrl}
-                      alt={`${name}`}
-                      className="w-full"
-                    />
+                    {this.getCurrentImage()}
+                    <div className="flex space-x-4">
+                      <div className="flex-1 text-center">
+                        <button
+                          onClick={()=>this.changeImage(-1)}
+                          disabled={this.state.disabled || !this.state.multipleImages}
+                          className="my-1 px-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                        >&lt;</button>
+                      </div>
+                      <div className="flex-1 text-center">
+                        <button
+                          onClick={()=>this.changeImage(1)}
+                          disabled={this.state.disabled || !this.state.multipleImages}
+                          className="my-1 px-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                        >&gt;</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="w-full sm:w-1/2 mx-2 text-left p-4 flex flex-col">

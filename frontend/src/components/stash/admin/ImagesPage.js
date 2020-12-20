@@ -12,7 +12,8 @@ class StashImagesPage extends React.Component {
       stockstatus: 0,
       stock: [],
       error: "",
-      selectedItem: 1
+      selectedItem: 1,
+      multipleImagesAllowed: true
     };
   }
 
@@ -94,15 +95,15 @@ class StashImagesPage extends React.Component {
               <thead className="bg-red-900 text-white">
                 <tr>
                   <th className="p-2 font-semibold">Item</th>
-                  <th className="p-2 font-semibold">Current Image(s)</th>
-                  <th className="p-2 font-semibold">Add New</th>
+                  <th className="p-2 font-semibold">Current Image{this.state.multipleImagesAllowed ? "(s)":" "}</th>
+                  <th className="p-2 font-semibold">{this.state.multipleImagesAllowed ? "Add New":"Replace Image"}</th>
                   <th className="p-2 font-semibold hidden sm:table-cell">Last Updated</th>
                 </tr>
               </thead>
               <tbody>
                 {this.state.stock.map((item, index) => (
                     <ImageRow
-                      key={index} item={item} 
+                      key={index} item={item} multipleImagesAllowed={this.state.multipleImagesAllowed}
                     />
                 ))}
               </tbody>
