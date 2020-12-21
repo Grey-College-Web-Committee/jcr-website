@@ -181,6 +181,12 @@ class StashStockPage extends React.Component {
       );
     }
 
+    if(!this.state.sizes) {
+      return (
+        <LoadingHolder />
+      );
+    }
+
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
@@ -195,6 +201,7 @@ class StashStockPage extends React.Component {
             <h2 className="font-semibold text-3xl pb-4">Add New Item</h2>
             <AddStock
               updateStockListing={this.updateStockListing}
+              updateSizeListing={this.updateSizeListing}
               colours={this.state.colours}
               selectedColours={this.state.selectedColours} />
           </div>

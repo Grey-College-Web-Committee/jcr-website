@@ -10,7 +10,7 @@ class ExistingStock extends React.Component {
       simpleView: true
     }
   }
-  
+
   onInputChange = e => {
     if(this.state.simpleView){ this.setState({simpleView: false}); }
     else{ this.setState({simpleView:true}); }
@@ -23,7 +23,7 @@ class ExistingStock extends React.Component {
 
   getFields(){
     if (!this.state.simpleView)
-    { 
+    {
       return (
         <React.Fragment>
           <th className="p-2 font-semibold hidden lg:table-cell">Customisation Description</th>
@@ -31,7 +31,7 @@ class ExistingStock extends React.Component {
           <th className="p-2 font-semibold hidden sm:table-cell">Options Available</th>
           <th className="hidden sm:table-cell p-2 font-semibold hidden lg:table-cell">Last Updated</th>
         </React.Fragment>
-      ) 
+      )
     }
   }
 
@@ -48,7 +48,7 @@ class ExistingStock extends React.Component {
     return (
       <div>
         <button
-          style={{ margin: "5px" }} 
+          style={{ margin: "5px" }}
           className="px-3 py-1 rounded bg-red-900 text-white font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400"
           value={this.state.simpleView}
             onClick={this.onInputChange}
@@ -69,11 +69,11 @@ class ExistingStock extends React.Component {
           <tbody>
             {this.props.stock.map((item, index) => (
               <StockRow
-                 item={item} 
-                simpleView={this.state.simpleView} 
-                colours={this.props.colours} 
-                selectedColours={this.props.selectedColours} 
-                updateItemColours={this.props.updateItemColours} 
+                 item={item}
+                simpleView={this.state.simpleView}
+                colours={this.props.colours}
+                selectedColours={this.props.selectedColours}
+                updateItemColours={this.props.updateItemColours}
                 updateAll={this.props.updateAll}
                 sizesAvailable={this.props.sizes[item.sizeChartId-1]}
                 key={index}
