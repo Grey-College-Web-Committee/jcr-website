@@ -156,9 +156,10 @@ class AddStock extends React.Component {
 	if (this.state.customisationsAvailable.length > 0){ this.postcustomisations(productId); }
 
 	// Update the data displayed once we do this
-  this.props.updateSizeListing();
-	this.props.updateStockListing();
-	this.setState({ name: "", type: "hoodiesAndLoungewear", manufacturerCode: "", description: "", price: 0, customisationsAvailable: false, cusotmisationDescription: "", addedPriceForCusotmisation: 0, available: true, disabled: false, XS: true, S: true, M: true, L: true, XL: true, XXL: true, pictures: [], progress: "0%", uploadedLocation: "" });
+  // add awaits
+  await this.props.updateSizeListing();
+	await this.props.updateStockListing();
+	this.setState({ name: "", type: "hoodiesAndLoungewear", manufacturerCode: "", description: "", price: 0, customisationsAvailable: false, customisationDescription: "", addedPriceForCustomisation: 0, available: true, disabled: false, XS: true, S: true, M: true, L: true, XL: true, XXL: true, pictures: [], progress: "0%", uploadedLocation: "" });
   }
 
   postcustomisations = async(productId) => {

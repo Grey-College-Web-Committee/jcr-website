@@ -67,9 +67,15 @@ class ExistingStock extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {this.props.stock.map((item, index) => (
-              <StockRow
-                 item={item}
+            {this.props.stock.map((item, index) => {
+
+              if(this.props.sizes.length <= item.sizeChartId - 1) {
+                console.log(`${this.props.sizes.length} <= ${item.sizeChartId - 1} will cause the page to crash, returning null`);
+                return null;
+              }
+
+              return (<StockRow
+                item={item}
                 simpleView={this.state.simpleView}
                 colours={this.props.colours}
                 selectedColours={this.props.selectedColours}
@@ -77,8 +83,8 @@ class ExistingStock extends React.Component {
                 updateAll={this.props.updateAll}
                 sizesAvailable={this.props.sizes[item.sizeChartId-1]}
                 key={index}
-              />
-            ))}
+              />)
+            })}
           </tbody>
         </table>
       </div>
