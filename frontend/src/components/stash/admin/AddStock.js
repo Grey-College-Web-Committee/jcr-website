@@ -11,7 +11,7 @@ class AddStock extends React.Component {
 	  manufacturerCode: "",
 	  description: "",
 	  available: true,
-	  type: "Hoodies and SweatShirts",
+	  type: "hoodiesAndLoungewear",
 	  customisationsAvailable: [],
 	  price: 0,
 	  XS: true,
@@ -158,7 +158,7 @@ class AddStock extends React.Component {
 	// Update the data displayed once we do this
   this.props.updateSizeListing();
 	this.props.updateStockListing();
-	this.setState({ name: "", type: "Hoodies and SweatShirts", manufacturerCode: "", description: "", price: 0, customisatiosnAvailable: false, cusotmisationDescription: "", addedPriceForCusotmisation: 0, available: true, disabled: false, XS: true, S: true, M: true, L: true, XL: true, XXL: true, pictures: [], progress: "0%", uploadedLocation: "" });
+	this.setState({ name: "", type: "hoodiesAndLoungewear", manufacturerCode: "", description: "", price: 0, customisationsAvailable: false, cusotmisationDescription: "", addedPriceForCusotmisation: 0, available: true, disabled: false, XS: true, S: true, M: true, L: true, XL: true, XXL: true, pictures: [], progress: "0%", uploadedLocation: "" });
   }
 
   postcustomisations = async(productId) => {
