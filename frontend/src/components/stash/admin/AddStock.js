@@ -150,7 +150,7 @@ class AddStock extends React.Component {
 	}
 	const productId = query.data.productId;
 
-	this.saveSelectedColours(parseInt(productId));
+  await this.saveSelectedColours(parseInt(productId));
 	if (this.state.pictures.length > 0){ await this.onUpload(parseInt(productId)); }
 
 	if (this.state.customisationsAvailable.length > 0){ await this.postcustomisations(productId); }
