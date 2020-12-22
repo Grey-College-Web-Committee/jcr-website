@@ -23,9 +23,6 @@ router.use(fileUpload({
   },
 }));
 
-// ALL ORDERING-RELATED THINGS ARE RIPPED OFF FROM FINLAY'S TOASTIE-BAR SYSTEM AND NEED TO BE CHANGED!!!!
-const stashPurchaseDisabled = true;
-
 // Get the stock available
 router.get("/stock", async (req, res) => {
   // User only
@@ -867,7 +864,7 @@ router.post("/upload/:id", async (req, res) => {
   // Validate the details briefly
   const productId = req.params.id;
 
-  if(productId == null) {
+  if(!productId) {
     return res.status(400).json({ error: "Missing productId" });
   }
 
@@ -879,15 +876,15 @@ router.post("/upload/:id", async (req, res) => {
       //Use the name of the input field (i.e. "image") to retrieve the uploaded file
       let image = req.files.file;
 
-      //Use the mv() method to place the file in upload directory (i.e. "uploads")
-      const pathName = path.join(uploadPath, `${productId}/${image.name}`);;
-      image.mv(pathName);
-      // CURRENTLY WILL OVERWRITE ANOTHER IMAGE OF SAME NAME - NEEDS VALIDATION
-
       const imageId = await StashStockImages.findOne({ where: { productId:productId, name:image.name } });
       if (imageId !== null){
         return res.status(400).json({ message: "A file already exists under this name" });
       }
+
+      //Use the mv() method to place the file in upload directory (i.e. "uploads")
+      const pathName = path.join(uploadPath, `${productId}/${image.name}`);;
+      await image.mv(pathName);
+
       // Create the new image-item link
       try {
         await StashStockImages.create({ productId:productId, name:image.name });

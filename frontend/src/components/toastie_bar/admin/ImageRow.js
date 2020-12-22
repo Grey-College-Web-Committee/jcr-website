@@ -40,7 +40,7 @@ class ImageRow extends React.Component {
 	if (imageName !== null){
 		const imageUrl = `../uploads/images/toastie_bar/${imageName}`;
 		const imageCode = <img alt={this.state.name} src={imageUrl}/>;
-		await this.setState({ imageUrl:imageCode, imageName });
+		this.setState({ imageUrl:imageCode, imageName });
 	}
 	else{
 		this.setState({imageName:null, imageUrl: null});
@@ -51,7 +51,7 @@ class ImageRow extends React.Component {
 	const productId = this.state.id;
     this.setState({ disabled: true });
 	const pictures = this.state.picturesToUpload;
-	
+
     if(pictures.length === 0) { // No picture to upload
       this.setState({ disabled: false });
       return;
@@ -69,6 +69,7 @@ class ImageRow extends React.Component {
       this.setState({ disabled: false });
       return;
     }
+    await this.getImage();
 	this.setState({ picturesToUpload: [], disabled: false });
 	alert(query.data.message);
 	return;

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import ImageRow from './ImageRow';
+import LoadingHolder from '../../common/LoadingHolder';
 
 class StashImagesPage extends React.Component {
   constructor(props) {
@@ -78,9 +79,7 @@ class StashImagesPage extends React.Component {
       }
 
       return (
-        <React.Fragment>
-          <h1>Loading...</h1>
-        </React.Fragment>
+        <LoadingHolder />
       );
     }
 

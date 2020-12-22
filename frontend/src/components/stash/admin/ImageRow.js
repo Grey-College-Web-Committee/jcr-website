@@ -179,15 +179,15 @@ class ImageRow extends React.Component {
 		}
 	  });
 	} catch (error) {
-	  alert("An error occurred adding this colour option");
+	  alert(`Error: ${error.response.data.message ? error.response.data.message : "Unknown"}`);
 	  this.setState({ disabled: false });
 	  return;
 	}
 
-	if (!this.multipleImagesAllowed){
+	if (!this.state.multipleImagesAllowed){
 	  await this.deleteOriginalImage();
 	  alert(query.data.message);
-	  this.setState({ picturesToUpload: [], disabled: false });	
+	  this.setState({ picturesToUpload: [], disabled: false });
 	}
 	else{
 	  alert(query.data.message);
