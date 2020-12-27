@@ -108,15 +108,15 @@ class OrderStashPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Stash</h1>
-          <div className="flex flex-row h-64 mb-8 justify-center">
+          <div className="flex flex-row sm:h-64 h-32 mb-8 justify-center">
             <div className="flex-grow flex flex-row justify-center">
               <figure>
                 <img
                   src="/images/grey_shield.png"
                   alt="Grey Shield"
-                  className="h-64"
+                  className="sm:h-64 h-32 mx-auto"
                 />
-              <figcaption className="font-semibold text-lg">Grey College Shield</figcaption>
+                <figcaption className="font-semibold text-lg">Grey College Shield</figcaption>
               </figure>
             </div>
             <div className="flex-grow flex flex-row justify-center">
@@ -124,9 +124,9 @@ class OrderStashPage extends React.Component {
                 <img
                   src="/images/grey_crest.svg"
                   alt="Grey Crest"
-                  className="h-64"
+                  className="sm:h-64 h-32"
                 />
-                <figcaption className="font-semibold text-lg">Grey College Crest</figcaption>
+                <figcaption className="font-semibold text-lg mx-auto">Grey College Crest</figcaption>
               </figure>
             </div>
           </div>

@@ -195,11 +195,11 @@ class App extends React.Component {
       <Elements stripe={stripePromise}>
         <authContext.Provider value={this.state.user}>
           <Router>
-            <div className="overscroll-none overflow-hidden">
+            <div>
               <NavBar
                 hideBody={this.hideBody}
               />
-              <div className={`overscroll-none overflow-hidden ${bodyHidden}`}>
+              <div className={`${bodyHidden}`}>
                 <Switch>
                   <Route exact path="/" render={() => (
                     <HomePage />

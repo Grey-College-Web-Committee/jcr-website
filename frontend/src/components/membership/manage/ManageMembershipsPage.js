@@ -122,7 +122,7 @@ class ManageMembershipsPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Manage JCR Memberships</h1>
           <div>
-            <div>
+            <div className="mb-2">
               <h2 className="text-left font-semibold text-2xl">Filters</h2>
               <table>
                 <tbody>
@@ -181,12 +181,11 @@ class ManageMembershipsPage extends React.Component {
               </table>
             </div>
             <div>
-              <p className="text-left font-semibold text-lg">Matched X rows</p>
               <table className="mx-auto border-2 text-left border-red-900 w-full">
                 <thead className="bg-red-900 text-white">
                   <tr>
                     <th className="p-2 font-semibold">Username</th>
-                    <th className="p-2 font-semibold">First Names</th>
+                    <th className="p-2 font-semibold hidden sm:table-cell">First Names</th>
                     <th className="p-2 font-semibold">Surname</th>
                     <th className="p-2 font-semibold hidden sm:table-cell">Registered On</th>
                     <th className="p-2 font-semibold hidden sm:table-cell">Last Login</th>

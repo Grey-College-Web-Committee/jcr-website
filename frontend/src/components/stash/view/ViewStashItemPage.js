@@ -322,11 +322,11 @@ class ViewStashItemPage extends React.Component {
     delete StashSizeChart.updatedAt;
 
     const sizeDiv = (
-      <div className="pb-4">
+      <div className="pb-4 flex flex-row">
         <label htmlFor="size" className="w-40 inline-block font-semibold">Size:</label>
         <select
           name="size"
-          className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+          className="sm:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
           onChange={this.onInputChange}
           value={this.state.size}
           required={true}
@@ -341,11 +341,11 @@ class ViewStashItemPage extends React.Component {
     );
 
     const crestDiv = (
-      <div className="pb-4">
+      <div className="pb-4 flex flex-row">
         <label htmlFor="shieldOrCrest" className="w-40 inline-block font-semibold">Shield or Crest:</label>
         <select
           name="shieldOrCrest"
-          className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+          className="sm:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
           onChange={this.onInputChange}
           value={this.state.shieldOrCrest}
           required={true}
@@ -360,11 +360,11 @@ class ViewStashItemPage extends React.Component {
 
     // Add grad text here
     const crestTextDiv = (
-      <div className="pb-4">
+      <div className="pb-4 flex flex-row">
         <label htmlFor="size" className="w-40 inline-block font-semibold">Shield/Crest Text:</label>
         <select
           name="underShieldText"
-          className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+          className="sm:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
           onChange={this.onInputChange}
           value={this.state.underShieldText}
           required={true}
@@ -380,11 +380,11 @@ class ViewStashItemPage extends React.Component {
     const { primaryColour, secondaryColour } = this.state.colourPreview;
 
     const colourDiv = StashItemColours.length === 0 ? null : (
-      <div className="pb-2 flex flex-row">
+      <div className="pb-4 flex flex-row">
         <label htmlFor="colour" className="w-40 inline-block font-semibold">Colour:</label>
         <select
           name="colour"
-          className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+          className="sm:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
           onChange={(e) => {
             this.onInputChangeCB(e, this.onColourChange)
           }}
@@ -397,14 +397,16 @@ class ViewStashItemPage extends React.Component {
             <option key={i} value={colour.colourId}>{colour.StashColour.name}</option>
           ))}
         </select>
-        {primaryColour === null ? null : (
-          <div className="w-8 h-8 border-black border ml-2" style={{backgroundColor: primaryColour}}>
-          </div>
-        )}
-        {secondaryColour === null ? null : (
-          <div className="w-8 h-8 border-black border ml-2" style={{backgroundColor: secondaryColour}}>
-          </div>
-        )}
+        <div className="w-auto flex flex-row">
+          {primaryColour === null ? null : (
+            <div className="w-8 h-8 border-black border ml-2" style={{backgroundColor: primaryColour}}>
+            </div>
+          )}
+          {secondaryColour === null ? null : (
+            <div className="w-8 h-8 border-black border ml-2" style={{backgroundColor: secondaryColour}}>
+            </div>
+          )}
+        </div>
       </div>
     );
 
@@ -523,7 +525,7 @@ class ViewStashItemPage extends React.Component {
           when={this.state.size.length !== 0 && this.state.addedCount === 0}
           message="You haven't added this to your bag yet. Are you sure you want to leave?"
         />
-        <div className="container mx-auto text-center p-4">
+      <div className="sm:container text-center p-4">
           <div className="flex flex-col justify-center text-left align-middle w-full sm:w-3/4 mx-auto">
             <div className="p-2">
               <Link to="/stash/">
@@ -532,32 +534,27 @@ class ViewStashItemPage extends React.Component {
                 >← Back to Stash</button>
               </Link>
             </div>
-            <div className="flex flex-row justify-center">
-              <div className="w-full flex flex-col sm:flex-row text-lg">
-                <div className="w-full sm:w-1/2 flex justify-center flex-row mx-2 mb-4 flex-grow-0 self-start">
-                  <div className="w-full">
-                    <div className="flex">
-                      <div className="flex-1 text-center">
-                        <button
-                          onClick={()=>{this.changeImage(-1);clearInterval(this.interval);}}
-                          disabled={this.state.disabled || !this.state.multipleImages}
-                          className="h-full px-2 rounded bg-gray-400 text-white w-full font-semibold hover:bg-red-900 disabled:opacity-20"
-                        >&lt;</button>
-                      </div>
-
-                      <div className="flex-auto">{this.getCurrentImage()}</div>
-                      
-                      <div className="flex-1 text-center">
-                        <button
-                          onClick={()=>{this.changeImage(1);clearInterval(this.interval);}}
-                          disabled={this.state.disabled || !this.state.multipleImages}
-                          className="h-full px-2 rounded bg-gray-400 text-white w-full font-semibold hover:bg-red-900 disabled:opacity-20"
-                        >&gt;</button>
-                      </div>
-                    </div>
+            <div className="flex flex-row justify-center mx-2">
+              <div className="w-full flex flex-col-reverse sm:flex-row text-lg">
+                <div className="w-full sm:w-1/2 flex justify-center flex-col mb-4 flex-grow-0 self-start">
+                  <div className="mb-4">
+                    {this.getCurrentImage()}
+                  </div>
+                  <div className="flex flex-row justify-between text-2xl align-middle">
+                    <button
+                      onClick={()=>{this.changeImage(-1);clearInterval(this.interval);}}
+                      disabled={this.state.disabled || !this.state.multipleImages}
+                      className="h-full px-12 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
+                    >&lt;</button>
+                    <p>{this.state.currentImage + 1}/{this.state.item.StashStockImages.length}</p>
+                    <button
+                      onClick={()=>{this.changeImage(1);clearInterval(this.interval);}}
+                      disabled={this.state.disabled || !this.state.multipleImages}
+                      className="h-full px-12 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
+                    >&gt;</button>
                   </div>
                 </div>
-                <div className="w-full sm:w-1/2 mx-2 text-left p-4 flex flex-col">
+                <div className="w-full sm:w-1/2 text-left sm:p-4 flex flex-col">
                   <div className="pb-4">
                     <h1 className="font-semibold text-5xl pb-2">{name}</h1>
                     <p className="font-semibold text-3xl">£{Number(price).toFixed(2)}</p>
