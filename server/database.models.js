@@ -271,6 +271,11 @@ ToastieStock.init({
   price: {
     type: DataTypes.DECIMAL(6, 2),
     allowNull: false
+  },
+  imageName:{
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
   }
 }, { sequelize, freezeTableName: true });
 

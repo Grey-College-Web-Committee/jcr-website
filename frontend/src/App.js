@@ -25,6 +25,7 @@ import SpinnerTestPage from './components/common/SpinnerTestPage';
 // To add a new page import it like above
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
+import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
 import StashStockPage from './components/stash/admin/StashStockPage';
 import StashImagesPage from './components/stash/admin/ImagesPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
@@ -212,6 +213,9 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/toasties/stock" render={() => (
                     this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                  )} />
+                  <Route exact path="/toasties/images" render={() => (
+                    this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )
                   )} />
                   <Route exact path="/stash/stock" render={() => (
                     this.hasPermission("stash.stock.edit") ? ( <StashStockPage /> ) : ( <Redirect to="/errors/403" /> )

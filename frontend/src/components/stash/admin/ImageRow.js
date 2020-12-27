@@ -16,7 +16,9 @@ class ImageRow extends React.Component {
 	  progress: 0,
 	  imagesDisplayFragments: [],
 	  readyToUpload: false,
-	  disabled: false
+	  disabled: false,
+	  multipleImagesExist: false,
+	  multipleImagesAllowed: this.props.multipleImagesAllowed
 	}
 	this.onDrop = this.onDrop.bind(this);
 	this.onRemove = this.onRemove.bind(this);
@@ -35,7 +37,7 @@ class ImageRow extends React.Component {
 	let codeSnippet = [];
 	if (length !== 0){
 	  for (var i=0; i < length; i++){
-		codeSnippet.push(<tr><td><img alt="Stash" src={this.state.currentImages[i].source}/></td>{this.getRemovalButtonCode(this.state.currentImages[i].name)}</tr>);
+		codeSnippet.push(<tr><td><img alt="Stash" src={this.state.currentImages[i].source}/></td>{this.state.multipleImagesAllowed ? this.getRemovalButtonCode(this.state.currentImages[i].name):<td></td>}</tr>);
 	  }
 	}
 	this.setState({ imagesDisplayFragments: codeSnippet });
@@ -53,9 +55,20 @@ class ImageRow extends React.Component {
 	};
 	const images = query.data.images;
 	var length = images.length;
+	this.setState({ multipleImagesExist: length > 1 });
 	if (length !== 0){
-	  for (var i=0; i < length; i++){
-		let newImg = await this.getImage(images[i].name);
+	  if (this.state.multipleImagesAllowed){
+	    for (var i=0; i < length; i++){
+		  let newImg = await this.getImage(images[i].name);
+		  if (newImg !== null && newImg !== undefined){
+		    const newImages = this.state.currentImages;
+		    newImages.push(newImg);
+		    this.setState({ currentImages: newImages });
+		  }
+	  	}
+	  }
+	  else{
+		let newImg = await this.getImage(images[0].name);
 		if (newImg !== null && newImg !== undefined){
 		  const newImages = this.state.currentImages;
 		  newImages.push(newImg);
@@ -67,16 +80,16 @@ class ImageRow extends React.Component {
   }
 
   getRemovalButtonCode(i){
-    return(
+	return(
 	  <td className="w-auto p-1">
         <button
 		  value={i}
           onClick={(e) => (window.confirm('Are you sure you wish to delete this item?')) ? this.onRemove(e) : console.log("cancel")}
-          disabled={this.state.disabled}
+          disabled={this.state.disabled || !this.state.multipleImagesExist}
           className="px-2 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
         >Remove</button>
       </td>
-	)
+	);
   }
 
   getImage = async (imageName) => {
@@ -124,12 +137,31 @@ class ImageRow extends React.Component {
 	else{ alert( "Unable to delete" ); }
   }
 
+  deleteOriginalImage = async () =>{ // Deletes original image when image is replaced (only to be used when multipleImagesAllowed is false)
+	const ImgToDelete = this.state.currentImages[0];
+	this.state.currentImages.splice(0);
+	try {
+	  let imageName = ImgToDelete.name;
+	  let productId = this.state.id;
+	  await api.delete(`/stash/image/${imageName}/${productId}`)
+	  .then((response) => {
+		this.getAllImages();
+	  });
+	} catch (error) {
+	  alert("An error occurred removing this image.");
+	  return null;
+	};
+	this.setState({currentImages:[]});
+	this.createCodeFragments();
+	return true;
+  }
+
   onUpload = async () => {
 	const productId = this.state.id;
 	this.setState({ disabled: true, progress: 0+"%" });
 	const pictures = this.state.picturesToUpload;
 	if(pictures.length === 0) {
-	  alert("You haven't selected any pictures to upload.");
+	  alert("You haven't selected any picture to upload.");
 	  this.setState({ disabled: false });
 	  return;
 	}
@@ -147,13 +179,21 @@ class ImageRow extends React.Component {
 		}
 	  });
 	} catch (error) {
-	  alert("An error occurred adding this colour option");
+	  alert(`Error: ${error.response.data.message ? error.response.data.message : "Unknown"}`);
 	  this.setState({ disabled: false });
 	  return;
 	}
-	alert(query.data.message);
-	this.setState({ picturesToUpload: [], disabled: false });
-	this.getAllImages();
+
+	if (!this.state.multipleImagesAllowed){
+	  await this.deleteOriginalImage();
+	  alert(query.data.message);
+	  this.setState({ picturesToUpload: [], disabled: false });
+	}
+	else{
+	  alert(query.data.message);
+	  this.setState({ picturesToUpload: [], disabled: false });
+	  this.getAllImages();
+	}
   }
 
   onDrop(pictureFiles, pictureDataURLs) {
@@ -172,7 +212,7 @@ class ImageRow extends React.Component {
 
   render () {
 	return (
-	  <tr>
+	  <tr className="border-b border-red-900">
 		<td className="sm:w-40 p-2 border-r text-center border-gray-400">
 		  <span disabled={this.state.disabled} className="w-full px-2 text-center font-semibold disabled:opacity-50">{this.state.name}</span>
 		</td>
@@ -182,32 +222,33 @@ class ImageRow extends React.Component {
 		  </table>
 
 		</td>
-		<td className="shadow w-40 border roundedp-1 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">
-
-		  <ImageUploader
-			fileContainerStyle={{padding: 0+"px", margin: 1+"px", maxWidth: "440px"}}
-			buttonStyles={{border: "1px solid #BE2B2E", color:"black", background: "transparent", margin: 3+"px "+0}}
-			withIcon={false}
-			withLabel={false}
-			withPreview={false}
-			buttonText="Select new image"
-			onChange={this.onDrop}
-			imgExtension={['.jpg', '.gif', '.png']}
-			maxFileSize={2097152}
-			fileSizeError=" is larger than filesize limit (2MB)"
-			fileTypeError=" is not a supported file type: .jpg, .gif or .png"
-			singleImage={true /* not allowed to upload multiple, for now... */}
-		/>
-		{this.readyToUploadMessage()}
-		<div className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50" style={{ width: this.state.progress, height: "2rem", padding: "2px" }}>
-		  {this.state.progress}
-		</div>
-		<button
-		  type="button"
-		  onClick={this.onUpload}
-		  disabled={this.state.picturesToUpload.length > 0 ? false:true}
-		  className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-		>Upload</button>
+		<td className="p-2 shadow w-40 border-r border-gray-400">
+		 <div>
+		    <ImageUploader
+			  fileContainerStyle={{ padding: "0px", margin: 1+"px", maxWidth: "440px"}}
+			  buttonStyles={{border: "1px solid #BE2B2E", color:"black", background: "transparent", margin: 3+"px "+0}}
+			  withIcon={false}
+			  withLabel={false}
+			  withPreview={false}
+			  buttonText="Select new image"
+			  onChange={this.onDrop}
+			  imgExtension={['.jpg', '.gif', '.png']}
+			  maxFileSize={2097152}
+			  fileSizeError=" is larger than filesize limit (2MB)"
+			  fileTypeError=" is not a supported file type: .jpg, .gif or .png"
+			  singleImage={true /* not allowed to upload multiple, for now... */}
+		    />
+		    {this.readyToUploadMessage()}
+		    <div className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50" style={{ width: this.state.progress, height: "2rem", padding: "2px" }}>
+		      {this.state.progress}
+		    </div>
+		    <button
+		      type="button"
+		      onClick={this.onUpload}
+		      disabled={this.state.picturesToUpload.length > 0 ? false:true}
+		      className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+		    >Upload</button>
+		  </div>
 		</td>
 		<td className="hidden sm:table-cell p-2 border-r border-gray-400 text-center">
           {dateFormat(this.state.updatedAt, "dd/mm/yyyy HH:MM:ss")}
@@ -219,7 +260,8 @@ class ImageRow extends React.Component {
 
 ImageRow.propTypes = {
   item: PropTypes.object.isRequired,
-  key: PropTypes.number
+  key: PropTypes.number,
+  multipleImagesAllowed: PropTypes.bool.isRequired
 };
 
 export default ImageRow;

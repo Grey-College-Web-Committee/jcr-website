@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import api from '../../../utils/axiosConfig';
+import ImageUploader from 'react-images-upload';
 
 class AddStock extends React.Component {
   constructor(props) {
@@ -10,8 +11,60 @@ class AddStock extends React.Component {
       type: "filling",
       price: 0,
       available: true,
-      disabled: false
+      disabled: false,
+      pictures: []
     }
+    this.onDrop = this.onDrop.bind(this);
+  }
+
+  imageSelectedButtonText(){
+    if (this.state.pictures.length > 0){
+      return "Change Image";
+    }
+    return "Select Image"
+  }
+  
+  readyToUploadMessage(){
+    if (this.state.pictures.length > 0){
+      let fileName = this.state.pictures[0].name.toString();
+      return fileName+" is ready to upload";
+    }
+    return ""
+  }
+
+  onUpload = async (productId) => {
+    this.setState({ disabled: true });
+    const pictures = this.state.pictures;
+    if(pictures.length === 0) {
+      this.setState({ disabled: false });
+      return;
+    }
+  
+    // Send to the server
+    const file = pictures[0]
+    const formData = new FormData();
+    formData.append('file', file); // appending file
+    let query;
+    try {
+      query=await api.post(`/toastie_bar/upload/${productId}`, formData, {
+      onUploadProgress: (ProgressEvent) => {
+        let progress = Math.round(ProgressEvent.loaded / ProgressEvent.total * 100) + '%';
+        this.setState({progress});
+      }
+      });
+    } catch (error) {
+      alert("An error occurred adding this colour option");
+      this.setState({ disabled: false });
+      return;
+    }
+    alert(query.data.message);
+    this.setState({ pictures: [], disabled: false, uploadedLocation: query.data.name });
+  }
+  
+  onDrop(pictureFiles, pictureDataURLs) {
+    this.setState({
+      pictures: pictureFiles
+    });
   }
 
   onInputChange = e => {
@@ -39,17 +92,18 @@ class AddStock extends React.Component {
     }
 
     // Add it to the database
-
+    let query;
     try {
-      await api.post("/toastie_bar/stock", { name, type, price, available });
+      query = await api.post("/toastie_bar/stock", { name, type, price, available });
     } catch (error) {
       this.setState({ status: error.response.status, error: error.response.data.error, loaded: true });
       return;
     }
-
+    const newId = query.data.newId;
+    this.onUpload(newId);
     // Update the data displayed once we do this
     this.props.updateStockListing();
-    this.setState({ name: "", type: "filling", price: 0, available: true, disabled: false });
+    this.setState({ name: "", type: "filling", price: 0, available: true, disabled: false, pictures:[] });
   }
 
   render () {
@@ -97,6 +151,25 @@ class AddStock extends React.Component {
                 className="shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                 disabled={this.state.disabled}
               />
+            </div>
+            <div className="mx-auto w-max pb-4 border-b-2">
+              <div className="shadow w-64 border rounded py-1 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50">
+                <ImageUploader
+                  fileContainerStyle={{padding: 0+"px", margin: 0+"px"}}
+                  buttonStyles={{border: "1px solid #BE2B2E", color:"black", background: "transparent", margin: 3+"px "+0}}
+                  withIcon={false}
+                  withLabel={false}
+                  withPreview={false}
+                  buttonText={this.imageSelectedButtonText()}
+                  onChange={this.onDrop}
+                  imgExtension={['.jpg', '.gif', '.png']}
+                  maxFileSize={2097152}
+                  fileSizeError=" is larger than filesize limit (2MB)"
+                  fileTypeError=" is not a supported file type: .jpg, .gif or .png"
+                  singleImage={true}
+                />
+                {this.readyToUploadMessage()}
+              </div>
             </div>
             <div className="mx-auto w-64 pt-4">
               <input

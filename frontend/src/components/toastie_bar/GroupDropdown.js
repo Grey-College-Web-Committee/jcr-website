@@ -50,6 +50,7 @@ class GroupDropdown extends React.Component {
   }
 
   render () {
+    //console.log(this.props.groupItems);
     const visibility = this.state.open ? "visible" : "hidden";
 
     return (

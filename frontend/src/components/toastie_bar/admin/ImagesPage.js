@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import ImageRow from './ImageRow';
-import LoadingHolder from '../../common/LoadingHolder';
 
-class StashImagesPage extends React.Component {
+class ToastiesImagesPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -14,7 +13,7 @@ class StashImagesPage extends React.Component {
       stock: [],
       error: "",
       selectedItem: 1,
-      multipleImagesAllowed: true
+      multipleImagesAllowed: false
     };
   }
 
@@ -35,7 +34,7 @@ class StashImagesPage extends React.Component {
         return;
       }
 
-      if(!adminCheck.data.user.permissions.includes("stash.stock.edit")) {
+      if(!adminCheck.data.user.permissions.includes("toastie.stock.edit")) {
         this.setState({ status: 403, error: "You are not an admin" });
         return;
       }
@@ -48,25 +47,18 @@ class StashImagesPage extends React.Component {
     this.setState({ stockloaded });
   }
 
-  updateAll = async () => {
-    this.updateSizeListing();
-    this.updateStockListing();
-  }
-
   // Just gets the data from the server
   updateStockListing = async () => {
     let query;
 
     try {
-      query = await api.get("/stash/stock");
+      query = await api.get("/toastie_bar/stock");
     } catch (error) {
       this.setState({ status: error.response.status, error: error.response.data.error });
       return false;
     }
 
-    const stock = query.data.stock;
-
-    this.setState({ status: query.status, stock });
+    this.setState({ status: query.status, stock:query.data.stock });
     return true;
   }
 
@@ -79,16 +71,18 @@ class StashImagesPage extends React.Component {
       }
 
       return (
-        <LoadingHolder />
+        <React.Fragment>
+          <h1>Loading...</h1>
+        </React.Fragment>
       );
     }
 
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Stash Images - Admin</h1>
+          <h1 className="font-semibold text-5xl pb-4">Toastie Bar Images - Admin</h1>
           <div className="border-b-2 border-t-2 py-4">
-            <h2 className="font-semibold text-3xl pb-4">Manage Existing Item Images</h2>
+            <h2 className="font-semibold text-3xl pb-4">Manage Existing Images</h2>
             <span className="block sm:hidden pb-4">Your screen is too small to display all columns</span>
             <table className="mx-auto border-2 text-left border-red-900">
               <thead className="bg-red-900 text-white">
@@ -102,12 +96,12 @@ class StashImagesPage extends React.Component {
               <tbody>
                 {this.state.stock.map((item, index) => (
                     <ImageRow
-                      key={index} item={item} multipleImagesAllowed={this.state.multipleImagesAllowed}
+                      key={index} item={item} //updateFunc={this.updateImage()}
                     />
                 ))}
               </tbody>
             </table>
-            <p>Return to the <Link className="font-semibold text-red-900" to="/stash/stock">Stash Admin Page</Link>.</p>
+            <p>Return to the <Link className="font-semibold text-red-900" to="/toasties/stock">Toastie Bar Admin Page</Link>.</p>
           </div>
         </div>
       </div>
@@ -115,4 +109,4 @@ class StashImagesPage extends React.Component {
   }
 }
 
-export default StashImagesPage;
+export default ToastiesImagesPage;
