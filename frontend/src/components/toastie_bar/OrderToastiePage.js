@@ -372,8 +372,8 @@ class OrderToastiePage extends React.Component {
         />
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Create Toastie</h1>
-          <div className="flex flex-col sm:flex-row w-full text-left">
-            <div className="w-full sm:w-3/4 sm:px-2 sm:mx-2">
+          <div className="flex flex-col lg:flex-row w-full text-left">
+            <div className="w-full lg:w-3/4 lg:px-2 lg:mx-2">
               <GroupDropdown
                 title="Toastie: Bread"
                 groupItems={this.state.stock.filter(item => item.type === "bread")}
@@ -403,7 +403,7 @@ class OrderToastiePage extends React.Component {
                 refreshId={this.state.refreshId}
               />
             </div>
-            <div className="w-full sm:w-1/4 text-base pb-4">
+            <div className="w-full lg:w-1/4 text-base pb-4">
               <div className="border-2 p-2 border-black">
                 <h2 className="text-3xl font-bold">Your Order</h2>
                 <div className="pt-2">

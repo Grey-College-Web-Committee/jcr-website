@@ -31,7 +31,7 @@ class CartMobileNavBarElement extends React.Component {
   render () {
     return (
       <li
-        className="h-full p-3 w-20 inline-block sm:hidden"
+        className="h-full p-3 w-20 inline-block lg:hidden"
         onClick={() => {
           if(this.state.parentActive) {
             this.props.hideBody(true);

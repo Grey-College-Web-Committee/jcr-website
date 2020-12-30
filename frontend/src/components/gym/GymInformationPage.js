@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
@@ -122,14 +122,18 @@ class GymInformationPage extends React.Component {
     ]
 
     const purchaseDiv = membership === null ? (
-      <div className="flex flex-col mx-auto justify-center sm:w-1/2 sm:mr-24 sm:ml-4 px-4 sm:px-0 mb-2 sm:mb-0 w-full">
+      <div className="flex flex-col mx-auto justify-center lg:w-1/2 lg:mr-24 lg:ml-4 px-4 lg:px-0 mb-2 lg:mb-0 w-full">
         <div>
           <h2 className="text-4xl font-semibold pb-2 text-center">Purchase Membership</h2>
         </div>
         <div className="flex flex-row justify-center align-middle">
           <div className="flex flex-col text-center">
+            <div className="pb-2">
+              <p>You must agree to the following conditions before you are able to add a membership to your bag.</p>
+              <p>Please read the Terms of Use by clicking the red text below.</p>
+            </div>
             <div>
-              <label className="h-4 px-2 align-middle w-64" htmlFor="termsOfUse">I accept the Terms of Use of Grey College Gym</label>
+              <label className="h-4 px-2 align-middle w-64" htmlFor="termsOfUse">I accept the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link></label>
               <input
                 type="checkbox"
                 name="termsOfUse"
@@ -189,7 +193,7 @@ class GymInformationPage extends React.Component {
     }
 
     const viewMembershipDiv = membership !== null ? (
-      <div className="flex flex-col mx-auto justify-center text-center sm:w-1/2 sm:mr-24 sm:ml-4 px-4 sm:px-0 mb-2 sm:mb-0 w-full">
+      <div className="flex flex-col mx-auto justify-center text-center lg:w-1/2 lg:mr-24 lg:ml-4 px-4 lg:px-0 mb-2 lg:mb-0 w-full">
         <h2 className="text-4xl font-semibold pb-2">Your Membership</h2>
         <div className="text-left mx-auto">
           <p>Expires On: {dateFormat(new Date(membership.expiresAt), "dd/mm/yyyy")}</p>
@@ -209,8 +213,8 @@ class GymInformationPage extends React.Component {
           alt="Gym Banner"
           className="mb-4"
         />
-      <div className="flex flex-col sm:flex-row">
-          <div className="mx-auto px-4 sm:px-0 mb-2 w-full sm:w-1/2 sm:ml-24 sm:mr-4">
+      <div className="flex flex-col lg:flex-row">
+          <div className="mx-auto px-4 lg:px-0 mb-2 w-full lg:w-1/2 lg:ml-24 lg:mr-4">
             <h1 className="font-semibold text-4xl pb-4 text-center">Information</h1>
             <p>Some information about the gym here...</p>
           </div>

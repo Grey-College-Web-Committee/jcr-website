@@ -94,10 +94,10 @@ class MemberRow extends React.Component {
     return (
       <tr className="text-center border-b border-gray-400">
         <td className="p-2 border-r border-gray-400">{username}</td>
-        <td className="p-2 border-r border-gray-400 break-all hidden sm:table-cell">{firstNames}</td>
+        <td className="p-2 border-r border-gray-400 break-all hidden lg:table-cell">{firstNames}</td>
         <td className="p-2 border-r border-gray-400">{surname}</td>
-        <td className="p-2 border-r border-gray-400 hidden sm:table-cell">{dateFormat(createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
-        <td className="border-r border-gray-400 hidden sm:table-cell">{dateFormat(lastLogin, "dd/mm/yyyy HH:MM:ss")}</td>
+        <td className="p-2 border-r border-gray-400 hidden lg:table-cell">{dateFormat(createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
+        <td className="border-r border-gray-400 hidden lg:table-cell">{dateFormat(lastLogin, "dd/mm/yyyy HH:MM:ss")}</td>
         <td className="border-r border-gray-400">{membershipExpiresAt === null ? "N/A" : dateFormat(membershipExpiresAt, "dd/mm/yyyy HH:MM:ss")}</td>
         <td className="p-2 border-r border-gray-400">
           {membershipExpiresAt === null ? (

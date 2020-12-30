@@ -20,6 +20,12 @@ class AddStock extends React.Component {
 	  L: true,
 	  XL: true,
 	  XXL: true,
+	  WS8: false,
+	  WS10: false,
+	  WS12: false,
+	  WS14: false,
+	  WS16: false,
+	  WS18: false,
 	  pictures: [],
 	  progress: 0,
 	  disabled: false,
@@ -112,7 +118,7 @@ class AddStock extends React.Component {
 	e.preventDefault();
 	this.setState({ disabled: true });
 
-	const { name, manufacturerCode, pictures, description, available, type, customisationsAvailable, price, XS, S, M, L, XL, XXL, uploadedLocation } = this.state;
+	const { name, manufacturerCode, pictures, description, available, type, customisationsAvailable, price, XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18,  uploadedLocation } = this.state;
 
 	// Validation checks - SORT THE REST OUT LATER
 	if(name.length === 0) {
@@ -136,7 +142,7 @@ class AddStock extends React.Component {
 	// Add it to the database
 	let query;
 	try {
-	  query = await api.post("/stash/stock", { name, manufacturerCode, description, available, type, customisationsAvailable: customisationsAvailable.length, price, XS, S, M, L, XL, XXL, uploadedLocation });
+	  query = await api.post("/stash/stock", { name, manufacturerCode, description, available, type, customisationsAvailable: customisationsAvailable.length, price, XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18, uploadedLocation });
 	} catch (error) {
 	  this.setState({ status: error.response.status, error: error.response.data.error, loaded: true });
 	  return;
@@ -152,11 +158,10 @@ class AddStock extends React.Component {
   // add awaits
   await this.props.updateSizeListing();
 	await this.props.updateStockListing();
-	this.setState({ name: "", type: "hoodiesAndLoungewear", manufacturerCode: "", description: "", price: 0, customisationsAvailable: [], customisationDescription: "", available: true, disabled: false, XS: true, S: true, M: true, L: true, XL: true, XXL: true, pictures: [], progress: "0%", uploadedLocation: "" });
+	this.setState({ name: "", type: "hoodiesAndLoungewear", manufacturerCode: "", description: "", price: 0, customisationsAvailable: [], customisationDescription: "", available: true, disabled: false, XS: true, S: true, M: true, L: true, XL: true, XXL: true, WS8: false, WS10: false, WS12: false, WS14: false, WS16: false, WS18: false, pictures: [], progress: "0%", uploadedLocation: "" });
   }
 
   postcustomisations = async(productId) => {
-	console.log("postCustomisation");
 	let length = this.state.customisationsAvailable.length;
 	for (var i = 0; i < length; i++){
 	  const { choice, addedPrice } = this.state.customisationsAvailable[i];
@@ -419,6 +424,19 @@ class AddStock extends React.Component {
 						<td><input type="checkbox" name="L" onChange={this.onInputChange} checked={this.state.L} disabled={this.state.disabled}/></td>
 						<td><input type="checkbox" name="XL" onChange={this.onInputChange} checked={this.state.XL} disabled={this.state.disabled}/></td>
 						<td><input type="checkbox" name="XXL" onChange={this.onInputChange} checked={this.state.XXL} disabled={this.state.disabled}/></td>
+						</tr></tbody>
+					</table>
+					</div>
+					<div name="sizes" className="content-center">
+					<table className="w-40 p-1 focus:outline-none disabled:opacity-50">
+						<thead><tr><th>WS8</th><th>WS10</th><th>WS12</th><th>WS14</th><th>WS16</th><th>WS18</th></tr></thead>
+						<tbody><tr>
+						<td><input type="checkbox" name="WS8" onChange={this.onInputChange} checked={this.state.WS8} disabled={this.state.disabled}/></td>
+						<td><input type="checkbox" name="WS10" onChange={this.onInputChange} checked={this.state.WS10} disabled={this.state.disabled}/></td>
+						<td><input type="checkbox" name="WS12" onChange={this.onInputChange} checked={this.state.WS12} disabled={this.state.disabled}/></td>
+						<td><input type="checkbox" name="WS14" onChange={this.onInputChange} checked={this.state.WS14} disabled={this.state.disabled}/></td>
+						<td><input type="checkbox" name="WS16" onChange={this.onInputChange} checked={this.state.WS16} disabled={this.state.disabled}/></td>
+						<td><input type="checkbox" name="WS18" onChange={this.onInputChange} checked={this.state.WS18} disabled={this.state.disabled}/></td>
 						</tr></tbody>
 					</table>
 					</div>

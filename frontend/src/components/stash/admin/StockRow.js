@@ -22,6 +22,12 @@ class StockRow extends React.Component {
       L: this.props.sizesAvailable.L,
       XL: this.props.sizesAvailable.XL,
       XXL: this.props.sizesAvailable.XXL,
+      WS8: this.props.sizesAvailable.WS8,
+      WS10: this.props.sizesAvailable.WS10,
+      WS12: this.props.sizesAvailable.WS12,
+      WS14: this.props.sizesAvailable.WS14,
+      WS16: this.props.sizesAvailable.WS16,
+      WS18: this.props.sizesAvailable.WS18,
       updatedAt: this.props.item.updatedAt,
       disabled: false,
       allowSave: false,
@@ -46,6 +52,11 @@ class StockRow extends React.Component {
       L: this.props.sizesAvailable.L,
       XL: this.props.sizesAvailable.XL,
       XXL: this.props.sizesAvailable.XXL,
+      WS10: this.props.sizesAvailable.WS10,
+      WS12: this.props.sizesAvailable.WS12,
+      WS14: this.props.sizesAvailable.WS14,
+      WS16: this.props.sizesAvailable.WS16,
+      WS18: this.props.sizesAvailable.WS18,
       updatedAt: this.props.item.updatedAt,
       disabled: false,
       allowSave: false,
@@ -137,7 +148,7 @@ class StockRow extends React.Component {
     }
 
     // Validate data
-    const { name, manufacturerCode, description, available, type, price, XS, S, M, L, XL, XXL } = this.state;
+    const { name, manufacturerCode, description, available, type, price, XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 } = this.state;
 
     if(name === null || name.length === 0) {
       alert("You must set a name for the item");
@@ -166,7 +177,7 @@ class StockRow extends React.Component {
     // Update the item on the server
 
     try {
-      await api.put(`/stash/stock/${this.state.id}`, { name, manufacturerCode, description, available, type, price, XS, S, M, L, XL, XXL });
+      await api.put(`/stash/stock/${this.state.id}`, { name, manufacturerCode, description, available, type, price, XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 });
     } catch (error) {
       alert("An error occurred updating this value");
       return;
@@ -365,6 +376,20 @@ class StockRow extends React.Component {
                   <td><input type="checkbox" name="L" onChange={this.onInputChange} checked={this.state.L} disabled={this.state.disabled}/></td>
                   <td><input type="checkbox" name="XL" onChange={this.onInputChange} checked={this.state.XL} disabled={this.state.disabled}/></td>
                   <td><input type="checkbox" name="XXL" onChange={this.onInputChange} checked={this.state.XXL} disabled={this.state.disabled}/></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table className="text-center focus:outline-none focus:ring-2 focus:ring-gray-400 border-gray-400 disabled:opacity-50">
+              <thead><tr><th>WS8</th><th>WS10</th><th>WS12</th><th>WS14</th><th>WS16</th><th>WS18</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" name="WS8" onChange={this.onInputChange} checked={this.state.WS8} disabled={this.state.disabled}/></td>
+                  <td><input type="checkbox" name="WS10" onChange={this.onInputChange} checked={this.state.WS10} disabled={this.state.disabled}/></td>
+                  <td><input type="checkbox" name="WS12" onChange={this.onInputChange} checked={this.state.WS12} disabled={this.state.disabled}/></td>
+                  <td><input type="checkbox" name="WS14" onChange={this.onInputChange} checked={this.state.WS14} disabled={this.state.disabled}/></td>
+                  <td><input type="checkbox" name="WS16" onChange={this.onInputChange} checked={this.state.WS16} disabled={this.state.disabled}/></td>
+                  <td><input type="checkbox" name="WS18" onChange={this.onInputChange} checked={this.state.WS18} disabled={this.state.disabled}/></td>
                 </tr>
               </tbody>
             </table>
