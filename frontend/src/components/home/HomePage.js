@@ -23,13 +23,11 @@ class HomePage extends React.Component {
                   <p>To get started, login using your Durham CIS account.</p>
                 </div>
               )}
-              <div>
-                <img
-                  src="/images/grey_crest.svg"
-                  alt="Grey College Crest"
-                  className="p-4"
-                />
-              </div>
+              <img
+                src="/images/grey_crest.svg"
+                alt="Grey College Crest"
+                className="pt-4 w-4/5 mx-auto"
+              />
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ import config from './config.json';
 import Cart from './components/cart/Cart'
 
 import NavBar from './components/nav/NavBar';
+import CommonFooter from './components/common/CommonFooter';
 
 import LoginPage from './components/accounts/LoginPage';
 import LogoutPage from './components/accounts/LogoutPage';
@@ -20,6 +21,9 @@ import DebtorPage from './components/debtors/DebtorPage';
 import GymInformationPage from './components/gym/GymInformationPage';
 import GymTermsPage from './components/gym/GymTermsPage';
 import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
+
+import ContributorsPage from './components/legal/ContributorsPage';
+import CookiesPage from './components/legal/CookiesPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
@@ -196,80 +200,89 @@ class App extends React.Component {
       <Elements stripe={stripePromise}>
         <authContext.Provider value={this.state.user}>
           <Router>
-            <div>
+            <div className="min-h-full h-full flex flex-col">
               <NavBar
                 hideBody={this.hideBody}
               />
-              <div className={`${bodyHidden}`}>
-                <Switch>
-                  <Route exact path="/" render={() => (
-                    <HomePage />
-                  )} />
-                  <Route exact path="/accounts/login" render={() => (
-                    this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
-                  )} />
-                  <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
-                  <Route exact path="/memberships/purchase" render={() => (
-                    this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <LoginPage loginUser={this.loginUser} /> )
-                  )} />
-                  <Route exact path="/toasties/stock" render={() => (
-                    this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
-                  )} />
-                  <Route exact path="/toasties/images" render={() => (
-                    this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )
-                  )} />
-                  <Route exact path="/stash/stock" render={() => (
-                    this.hasPermission("stash.stock.edit") ? ( <StashStockPage /> ) : ( <Redirect to="/errors/403" /> )
-                  )} />
-                  <Route exact path="/stash/images" render={() => (
-                    this.hasPermission("stash.stock.edit") ? ( <StashImagesPage /> ) : ( <Redirect to="/errors/403" /> )
-                  )} />
-                  <Route exact path="/stash/export" render={() => (
-                    this.hasPermission("stash.export") ? ( <StashExportPage /> ) : ( <Redirect to="/errors/403" /> )
-                  )} />
-                  <Route exact path="/permissions" render={() => (
-                    this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )
-                  )} />
-                  <Route exact path="/toasties/" render={() => (
-                    this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
-                  )} />
-                  <Route exact path="/debtors" render={() => (
-                    this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )
-                  )} />
-                  <Route exact path="/gym" render={() => (
-                    this.isLoggedIn() ? ( <GymInformationPage /> ) : ( <Redirect to="/accounts/login" /> )
-                  )} />
-                  <Route exact path="/gym/terms" render={() => (
-                    this.isLoggedIn() ? ( <GymTermsPage /> ) : ( <Redirect to="/accounts/login" /> )
-                  )} />
-                  <Route exact path="/gym/admin" render={() => (
-                    this.hasPermission("gym.export") ? ( <GymAdminPage /> ) : ( <Redirect to="/errors/403" /> )
-                  )} />
-                  <Route exact path="/memberships/export" render={() => (
-                    this.hasPermission("jcr.export") ? ( <ExportMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
-                  )} />
-                  <Route exact path="/memberships/manage" render={() => (
-                    this.hasPermission("jcr.manage") ? ( <ManageMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
-                  )} />
-                  <Route exact path="/stash/" render={() => (
-                    this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
-                  )} />
-                  <Route exact path="/stash/view/:id" render={(props) => (
-                    this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
-                  )} />
-                  <Route exact path="/spinner/" render={() => (
-                    this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( <Redirect to="/accounts/login" /> )
-                  )} />
-                  <Route exact path="/checkout/" render={() => (
-                    this.isLoggedIn() ? ( <CheckoutPage /> ) : ( <Redirect to="/accounts/login" /> )
-                  )} />
-                  <Route exact path="/errors/:code" render={(props) => (
-                    <ErrorPage {...props} />
-                  )} />
-                  <Route render={() => (
-                    <ErrorPage code="404" />
-                  )} />
-                </Switch>
+              <div className={`${bodyHidden} flex-grow flex flex-col`}>
+                <div className="flex-grow">
+                  <Switch>
+                    <Route exact path="/" render={() => (
+                      <HomePage />
+                    )} />
+                    <Route exact path="/contributors" render={() => (
+                      <ContributorsPage />
+                    )} />
+                    <Route exact path="/cookies" render={() => (
+                      <CookiesPage />
+                    )} />
+                    <Route exact path="/accounts/login" render={() => (
+                      this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
+                    )} />
+                    <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
+                    <Route exact path="/memberships/purchase" render={() => (
+                      this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <LoginPage loginUser={this.loginUser} /> )
+                    )} />
+                    <Route exact path="/toasties/stock" render={() => (
+                      this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/toasties/images" render={() => (
+                      this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/stash/stock" render={() => (
+                      this.hasPermission("stash.stock.edit") ? ( <StashStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/stash/images" render={() => (
+                      this.hasPermission("stash.stock.edit") ? ( <StashImagesPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/stash/export" render={() => (
+                      this.hasPermission("stash.export") ? ( <StashExportPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/permissions" render={() => (
+                      this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/toasties/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/debtors" render={() => (
+                      this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/gym" render={() => (
+                      this.isLoggedIn() ? ( <GymInformationPage /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/gym/terms" render={() => (
+                      this.isLoggedIn() ? ( <GymTermsPage /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/gym/admin" render={() => (
+                      this.hasPermission("gym.export") ? ( <GymAdminPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/memberships/export" render={() => (
+                      this.hasPermission("jcr.export") ? ( <ExportMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/memberships/manage" render={() => (
+                      this.hasPermission("jcr.manage") ? ( <ManageMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/stash/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/stash/view/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/spinner/" render={() => (
+                      this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/checkout/" render={() => (
+                      this.isLoggedIn() ? ( <CheckoutPage /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/errors/:code" render={(props) => (
+                      <ErrorPage {...props} />
+                    )} />
+                    <Route render={() => (
+                      <ErrorPage code="404" />
+                    )} />
+                  </Switch>
+                </div>
+                <CommonFooter />
               </div>
             </div>
           </Router>

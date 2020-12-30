@@ -186,7 +186,7 @@ class NavBar extends React.Component {
             this.setActiveDropdown(-1);
           }
         }}
-        className="flex flex-row justify-between bg-red-900 text-white items-center"
+        className="flex flex-row justify-between bg-red-900 text-white items-center flex-shrink-0"
       >
         <ul className="flex flex-row items-center">
           {
