@@ -185,10 +185,10 @@ class ManageMembershipsPage extends React.Component {
                 <thead className="bg-red-900 text-white">
                   <tr>
                     <th className="p-2 font-semibold">Username</th>
-                    <th className="p-2 font-semibold hidden sm:table-cell">First Names</th>
+                    <th className="p-2 font-semibold hidden lg:table-cell">First Names</th>
                     <th className="p-2 font-semibold">Surname</th>
-                    <th className="p-2 font-semibold hidden sm:table-cell">Registered On</th>
-                    <th className="p-2 font-semibold hidden sm:table-cell">Last Login</th>
+                    <th className="p-2 font-semibold hidden lg:table-cell">Registered On</th>
+                    <th className="p-2 font-semibold hidden lg:table-cell">Last Login</th>
                     <th className="p-2 font-semibold">Membership Expires On</th>
                     <th className="p-2 font-semibold">Grant/Revoke Membership</th>
                   </tr>

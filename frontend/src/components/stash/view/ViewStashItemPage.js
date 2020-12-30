@@ -345,7 +345,7 @@ class ViewStashItemPage extends React.Component {
         <label htmlFor="size" className="w-40 inline-block font-semibold">Size:</label>
         <select
           name="size"
-          className="sm:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
+          className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
           onChange={this.onInputChange}
           value={this.state.size}
           required={true}
@@ -364,7 +364,7 @@ class ViewStashItemPage extends React.Component {
         <label htmlFor="shieldOrCrest" className="w-40 inline-block font-semibold">Shield or Crest:</label>
         <select
           name="shieldOrCrest"
-          className="sm:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
+          className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
           onChange={this.onInputChange}
           value={this.state.shieldOrCrest}
           required={true}
@@ -383,7 +383,7 @@ class ViewStashItemPage extends React.Component {
         <label htmlFor="size" className="w-40 inline-block font-semibold">Shield/Crest Text:</label>
         <select
           name="underShieldText"
-          className="sm:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
+          className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
           onChange={this.onInputChange}
           value={this.state.underShieldText}
           required={true}
@@ -403,7 +403,7 @@ class ViewStashItemPage extends React.Component {
         <label htmlFor="colour" className="w-40 inline-block font-semibold">Colour:</label>
         <select
           name="colour"
-          className="sm:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
+          className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
           onChange={(e) => {
             this.onInputChangeCB(e, this.onColourChange)
           }}
@@ -544,8 +544,8 @@ class ViewStashItemPage extends React.Component {
           when={this.state.size.length !== 0 && this.state.addedCount === 0}
           message="You haven't added this to your bag yet. Are you sure you want to leave?"
         />
-      <div className="sm:container text-center p-4">
-          <div className="flex flex-col justify-center text-left align-middle w-full sm:w-3/4 mx-auto">
+      <div className="md:container text-center p-4">
+          <div className="flex flex-col justify-center text-left align-middle w-full md:w-3/4 mx-auto">
             <div className="p-2">
               <Link to="/stash/">
                 <button
@@ -554,8 +554,8 @@ class ViewStashItemPage extends React.Component {
               </Link>
             </div>
             <div className="flex flex-row justify-center mx-2">
-              <div className="w-full flex flex-col-reverse sm:flex-row text-lg">
-                <div className="w-full sm:w-1/2 flex justify-center flex-col mb-4 flex-grow-0 self-start">
+              <div className="w-full flex flex-col-reverse md:flex-row text-lg">
+                <div className="w-full md:w-1/2 flex justify-center flex-col mb-4 flex-grow-0 self-start">
                   <div className="mb-4">
                     {this.getCurrentImage()}
                   </div>
@@ -573,7 +573,7 @@ class ViewStashItemPage extends React.Component {
                     >&gt;</button>
                   </div>
                 </div>
-                <div className="w-full sm:w-1/2 text-left sm:p-4 flex flex-col">
+                <div className="w-full md:w-1/2 text-left md:p-4 flex flex-col">
                   <div className="pb-4">
                     <h1 className="font-semibold text-5xl pb-2">{name}</h1>
                     <p className="font-semibold text-3xl">£{Number(price).toFixed(2)}</p>

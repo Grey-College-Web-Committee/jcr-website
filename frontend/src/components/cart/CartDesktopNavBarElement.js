@@ -24,7 +24,7 @@ class CartDesktopNavBarElement extends React.Component {
   render () {
     return (
       <li
-        className="h-full p-3 hidden w-20 sm:inline-block"
+        className="h-full p-3 hidden w-20 lg:inline-block"
         onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
       >
         <div className="w-full">

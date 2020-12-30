@@ -60,10 +60,10 @@ class EditUserPermissions extends React.Component {
         <thead className="bg-red-900 text-white">
           <tr>
             <th className="p-2 font-semibold">Permission</th>
-            <th className="p-2 font-semibold hidden sm:table-cell">Description</th>
+            <th className="p-2 font-semibold hidden lg:table-cell">Description</th>
             <th className="p-2 font-semibold">Granted</th>
             <th className="p-2 font-semibold">Granted By</th>
-            <th className="p-2 font-semibold hidden sm:table-cell">Granted At</th>
+            <th className="p-2 font-semibold hidden lg:table-cell">Granted At</th>
             <th className="p-2 font-semibold">Grant/Revoke</th>
           </tr>
         </thead>

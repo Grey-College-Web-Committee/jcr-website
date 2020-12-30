@@ -190,11 +190,11 @@ class CheckoutPage extends React.Component {
             {this.injectPrompt()}
             <div className="container mx-auto p-4 w-full">
               <h1 className="font-semibold text-5xl pb-4 text-center">Your Bag</h1>
-              <div className="flex flex-col-reverse sm:flex-row sm:justify-between">
-                <div className="sm:w-1/2 sm:mx-auto w-full">
+              <div className="flex flex-col-reverse lg:flex-row lg:justify-between">
+                <div className="lg:w-1/2 lg:mx-auto w-full">
                   {this.displayCart(items, false)}
                 </div>
-                <div className="w-full sm:w-1/3 mx-auto block sm:flex sm:flex-col text-base py-4 align-middle">
+                <div className="w-full lg:w-1/3 mx-auto block lg:flex lg:flex-col text-base py-4 align-middle">
                   <div className="flex flex-row justify-between font-semibold text-3xl mb-4">
                     <span>Total</span>
                     <span>£{subtotal.toFixed(2)}</span>
@@ -224,11 +224,11 @@ class CheckoutPage extends React.Component {
             {this.injectPrompt()}
             <div className="container mx-auto p-4 w-full">
               <h1 className="font-semibold text-5xl pb-4 text-center">Your Confirmed Order</h1>
-              <div className="flex flex-col-reverse sm:flex-row sm:justify-between">
-                <div className="sm:w-1/2 sm:mx-auto w-full">
+              <div className="flex flex-col-reverse lg:flex-row lg:justify-between">
+                <div className="lg:w-1/2 lg:mx-auto w-full">
                   {this.displayCart(items, true)}
                 </div>
-                <div className="w-full sm:w-1/3 mx-auto block sm:flex sm:flex-col text-base py-4 align-middle">
+                <div className="w-full lg:w-1/3 mx-auto block lg:flex lg:flex-col text-base py-4 align-middle">
                   <CheckoutForm
                     clientSecret={this.state.clientSecret}
                     onSuccess={this.onPaymentSuccess}
@@ -246,7 +246,7 @@ class CheckoutPage extends React.Component {
             <div className="container mx-auto p-4 w-full">
               <h1 className="font-semibold text-5xl pb-4 text-center">Order Placed!</h1>
               <div className="mx-auto text-center">
-                <div className="sm:w-1/2 sm:mx-auto w-full">
+                <div className="lg:w-1/2 lg:mx-auto w-full">
                   <div className="text-3xl pb-2 font-semibold text-center">
                     <h2>Thank you for your purchase</h2>
                   </div>

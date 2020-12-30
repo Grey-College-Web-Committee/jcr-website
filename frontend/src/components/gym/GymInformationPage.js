@@ -122,7 +122,7 @@ class GymInformationPage extends React.Component {
     ]
 
     const purchaseDiv = membership === null ? (
-      <div className="flex flex-col mx-auto justify-center sm:w-1/2 sm:mr-24 sm:ml-4 px-4 sm:px-0 mb-2 sm:mb-0 w-full">
+      <div className="flex flex-col mx-auto justify-center lg:w-1/2 lg:mr-24 lg:ml-4 px-4 lg:px-0 mb-2 lg:mb-0 w-full">
         <div>
           <h2 className="text-4xl font-semibold pb-2 text-center">Purchase Membership</h2>
         </div>
@@ -193,7 +193,7 @@ class GymInformationPage extends React.Component {
     }
 
     const viewMembershipDiv = membership !== null ? (
-      <div className="flex flex-col mx-auto justify-center text-center sm:w-1/2 sm:mr-24 sm:ml-4 px-4 sm:px-0 mb-2 sm:mb-0 w-full">
+      <div className="flex flex-col mx-auto justify-center text-center lg:w-1/2 lg:mr-24 lg:ml-4 px-4 lg:px-0 mb-2 lg:mb-0 w-full">
         <h2 className="text-4xl font-semibold pb-2">Your Membership</h2>
         <div className="text-left mx-auto">
           <p>Expires On: {dateFormat(new Date(membership.expiresAt), "dd/mm/yyyy")}</p>
@@ -213,8 +213,8 @@ class GymInformationPage extends React.Component {
           alt="Gym Banner"
           className="mb-4"
         />
-      <div className="flex flex-col sm:flex-row">
-          <div className="mx-auto px-4 sm:px-0 mb-2 w-full sm:w-1/2 sm:ml-24 sm:mr-4">
+      <div className="flex flex-col lg:flex-row">
+          <div className="mx-auto px-4 lg:px-0 mb-2 w-full lg:w-1/2 lg:ml-24 lg:mr-4">
             <h1 className="font-semibold text-4xl pb-4 text-center">Information</h1>
             <p>Some information about the gym here...</p>
           </div>
