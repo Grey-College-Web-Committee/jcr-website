@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
@@ -128,8 +128,12 @@ class GymInformationPage extends React.Component {
         </div>
         <div className="flex flex-row justify-center align-middle">
           <div className="flex flex-col text-center">
+            <div className="pb-2">
+              <p>You must agree to the following conditions before you are able to add a membership to your bag.</p>
+              <p>Please read the Terms of Use by clicking the red text below.</p>
+            </div>
             <div>
-              <label className="h-4 px-2 align-middle w-64" htmlFor="termsOfUse">I accept the Terms of Use of Grey College Gym</label>
+              <label className="h-4 px-2 align-middle w-64" htmlFor="termsOfUse">I accept the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link></label>
               <input
                 type="checkbox"
                 name="termsOfUse"

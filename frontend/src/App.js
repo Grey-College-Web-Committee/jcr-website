@@ -18,6 +18,7 @@ import OrderStashPage from './components/stash/OrderStashPage';
 import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
 import DebtorPage from './components/debtors/DebtorPage';
 import GymInformationPage from './components/gym/GymInformationPage';
+import GymTermsPage from './components/gym/GymTermsPage';
 import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
@@ -237,6 +238,9 @@ class App extends React.Component {
                   )} />
                   <Route exact path="/gym" render={() => (
                     this.isLoggedIn() ? ( <GymInformationPage /> ) : ( <Redirect to="/accounts/login" /> )
+                  )} />
+                  <Route exact path="/gym/terms" render={() => (
+                    this.isLoggedIn() ? ( <GymTermsPage /> ) : ( <Redirect to="/accounts/login" /> )
                   )} />
                   <Route exact path="/gym/admin" render={() => (
                     this.hasPermission("gym.export") ? ( <GymAdminPage /> ) : ( <Redirect to="/errors/403" /> )

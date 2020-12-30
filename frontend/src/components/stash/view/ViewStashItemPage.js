@@ -334,7 +334,7 @@ class ViewStashItemPage extends React.Component {
       );
     }
 
-    const { name, description, price, available, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations } = this.state.item;
+    const { name, description, price, available, StashSizeChart, StashItemColours, StashCustomisations } = this.state.item;
 
     delete StashSizeChart.id;
     delete StashSizeChart.createdAt;
@@ -536,7 +536,7 @@ class ViewStashItemPage extends React.Component {
       </div>
     );
 
-    const imageUrl = `/uploads/images/stash/${StashStockImages[0].productId}/${StashStockImages[0].name}`;
+    //const imageUrl = `/uploads/images/stash/${StashStockImages[0].productId}/${StashStockImages[0].name}`;
 
     return (
       <div className="flex flex-col justify-start">
