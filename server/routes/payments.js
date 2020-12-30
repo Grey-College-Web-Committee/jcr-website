@@ -136,6 +136,25 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders) => {
   mailer.sendEmail(user.email, `Toastie Bar Order Confirmation #${orderId}`, customerEmail);
 }
 
+const translateSize = (size) => {
+  switch(size) {
+    case "WS8":
+      return "Women's Size 8";
+    case "WS10":
+      return "Women's Size 10";
+    case "WS12":
+      return "Women's Size 12";
+    case "WS14":
+      return "Women's Size 14";
+    case "WS16":
+      return "Women's Size 16";
+    case "WS18":
+      return "Women's Size 18";
+    default:
+      return size;
+  }
+}
+
 const customerStashEmail = (user, orderId, relatedOrders) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -158,7 +177,7 @@ const customerStashEmail = (user, orderId, relatedOrders) => {
 
   relatedOrders.forEach((order, i) => {
     message.push(`<h3>${order.StashStock.name} (Qty: ${order.quantity})</h3>`);
-    message.push(`<p>Size: ${order.size}</p>`);
+    message.push(`<p>Size: ${translateSize(order.size)}</p>`);
     message.push(`<p>Shield Or Crest: ${order.shieldOrCrest === 1 ? "Crest" : "Shield"}</p>`);
     message.push(`<p>Under Shield/Crest Text: ${order.underShieldText}</p>`);
 

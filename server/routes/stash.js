@@ -15,6 +15,25 @@ const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 const uploadPath = path.join(__dirname, "../uploads/images/stash/");
 const csvPath = path.join(__dirname, "../exports/stash/");
 
+const translateSize = (size) => {
+  switch(size) {
+    case "WS8":
+      return "Women's Size 8";
+    case "WS10":
+      return "Women's Size 10";
+    case "WS12":
+      return "Women's Size 12";
+    case "WS14":
+      return "Women's Size 14";
+    case "WS16":
+      return "Women's Size 16";
+    case "WS18":
+      return "Women's Size 18";
+    default:
+      return size;
+  }
+}
+
 // enable files upload
 router.use(fileUpload({
     createParentPath: true,
@@ -175,6 +194,7 @@ router.post("/export", async(req, res) => {
   // we need to make sure that only orders that have been paid for show up here
 
   const paidForOrders = orders.filter(order => order.ShopOrder.paid === true);
+  //console.log(JSON.stringify(paidForOrders));
 
   // Avoid using orders by accident
   delete orders;
@@ -202,7 +222,7 @@ router.post("/export", async(req, res) => {
       return;
     }
 
-    const { productId, size, colourId, shieldOrCrest, underShieldText, quantity, StashColour, StashStock } = order;
+    const { productId, size, colourId, shieldOrCrest, underShieldText, quantity, StashColour, StashStock, ShopOrder } = order;
     const hashableComparison = { productId, size, colourId, shieldOrCrest, underShieldText };
     const hashedObj = hash(hashableComparison);
 
@@ -217,7 +237,8 @@ router.post("/export", async(req, res) => {
         productId,
         size,
         shieldOrCrest,
-        underShieldText
+        underShieldText,
+        ShopOrder
       };
     }
   });
@@ -300,6 +321,7 @@ router.post("/export", async(req, res) => {
 
   Object.keys(nonCustomisedHashes).forEach(key => {
     const item = nonCustomisedHashes[key];
+    console.log(JSON.stringify(item));
     let record = {};
     // If it equals "Grey College MCR" it is MCR stash otherwise it's JCR stash
     let isJCR = item.underShieldText !== "Grey College MCR";
@@ -307,7 +329,7 @@ router.post("/export", async(req, res) => {
     record.name = item.StashStock.name;
     record.code = item.StashStock.manufacturerCode;
     record.quantity = item.quantity;
-    record.size = item.size;
+    record.size = translateSize(item.size);
 
     if(item.colourId === null) {
       record.colour = "";
@@ -350,7 +372,7 @@ router.post("/export", async(req, res) => {
     record.name = item.StashStock.name;
     record.code = item.StashStock.manufacturerCode;
     record.quantity = item.quantity;
-    record.size = item.size;
+    record.size = translateSize(item.size);
 
     if(item.colourId === null) {
       record.colour = "";
@@ -417,7 +439,7 @@ router.post("/export", async(req, res) => {
       record.name = item.StashStock.name;
       record.code = item.StashStock.manufacturerCode;
       record.quantity = item.quantity;
-      record.size = item.size;
+      record.size = translateSize(item.size);
 
       if(item.colourId === null) {
         record.colour = "";
@@ -773,7 +795,8 @@ router.post("/stock", async (req, res) => {
   }
 
   // Validate the details briefly
-  const { name, manufacturerCode, description, available, type, customisationsAvailable, price, XS, S, M, L, XL, XXL } = req.body;
+  const { name, manufacturerCode, description, available, type, customisationsAvailable, price,
+    XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 } = req.body;
 
   if(name == null) {
     return res.status(400).json({ error: "Missing name" });
@@ -791,19 +814,19 @@ router.post("/stock", async (req, res) => {
     return res.status(400).json({ error: "Missing available" });
   }
 
-  if ((XS==null)||(S==null)||(M==null)||(L==null)||(XL==null)||(XXL==null)){
+  if ((XS==null)||(S==null)||(M==null)||(L==null)||(XL==null)||(XXL==null)||(WS8==null)||(WS10==null)||(WS12==null)||(WS14==null)||(WS16==null)||(WS18==null)){
     return res.status(400).json({ error: "Missing or incorrect sizes" });
   }
 
-  let sizeChart = await StashSizeChart.findOne({ where: { XS, S, M, L, XL, XXL } });
+  let sizeChart = await StashSizeChart.findOne({ where: { XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 } });
   if(sizeChart === null) {
     // Create new size chart
     try {
-      await StashSizeChart.create({ XS, S, M, L, XL, XXL });
+      await StashSizeChart.create({ XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 });
     } catch (error) {
       return res.status(500).json({ error: "Server error creating new item" });
     }
-    sizeChart = await StashSizeChart.findOne({ where: { XS, S, M, L, XL, XXL } });
+    sizeChart = await StashSizeChart.findOne({ where: { XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 } });
   }
   const sizeChartId = sizeChart.id.toString();
   //return res.status(500).json({ cId: chartId, chart: sizeChart });
@@ -1041,17 +1064,17 @@ router.put("/stock/:id", async (req, res) => {
   if(req.body.manufacturerCode !== undefined && req.body.manufacturerCode !== null) {
     updatedRecord.manufacturerCode = req.body.manufacturerCode;
   }
-  const { XS, S, M, L, XL, XXL } = req.body;
-  if (!(XS==null)&&!(S==null)&&!(M==null)&&!(L==null)&&!(XL==null)&&!(XXL==null)){ // If we've been provided values for size
-    let sizeChart = await StashSizeChart.findOne({ where: { XS, S, M, L, XL, XXL } }); // Try to find a matching size record
+  const { XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 } = req.body;
+  if (!(XS==null)&&!(S==null)&&!(M==null)&&!(L==null)&&!(XL==null)&&!(XXL==null)&&!(WS8==null)&&!(WS10==null)&&!(WS12==null)&&!(WS14==null)&&!(WS16==null)&&!(WS18==null)){ // If we've been provided values for size
+    let sizeChart = await StashSizeChart.findOne({ where: { XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 } }); // Try to find a matching size record
     if(sizeChart === null) { // If there isn't a match...
       // Create new size chart
       try {
-        await StashSizeChart.create({ XS, S, M, L, XL, XXL });
+        await StashSizeChart.create({ XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 });
       } catch (error) {
         return res.status(500).json({ error: "Server error creating new item" });
       }
-      sizeChart = await StashSizeChart.findOne({ where: { XS, S, M, L, XL, XXL } }); // Get Id of new chart
+      sizeChart = await StashSizeChart.findOne({ where: { XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 } }); // Get Id of new chart
     }
     updatedRecord.sizeChartId = sizeChart.id.toString();
   }

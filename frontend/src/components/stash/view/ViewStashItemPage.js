@@ -125,6 +125,25 @@ class ViewStashItemPage extends React.Component {
     this.setState({ currentImage: currentImage });
   }
 
+  translateSize = (size) => {
+    switch(size) {
+      case "WS8":
+        return "Women's Size 8";
+      case "WS10":
+        return "Women's Size 10";
+      case "WS12":
+        return "Women's Size 12";
+      case "WS14":
+        return "Women's Size 14";
+      case "WS16":
+        return "Women's Size 16";
+      case "WS18":
+        return "Women's Size 18";
+      default:
+        return size;
+    }
+  }
+
   addToBag = () => {
     this.setState({ disabled: true });
     // refresh the cart
@@ -142,7 +161,7 @@ class ViewStashItemPage extends React.Component {
     }
 
     components.push({
-      name: `Size: ${size}`,
+      name: `Size: ${this.translateSize(size)}`,
       price: 0,
       quantity: 1,
       submissionInformation: {
@@ -334,7 +353,7 @@ class ViewStashItemPage extends React.Component {
         >
           <option value="" disabled={true} hidden={true}>Choose Size...</option>
           {Object.keys(StashSizeChart).map((size, i) => (
-            StashSizeChart[size] === true ? <option key={i} value={size}>{size}</option> : null
+            StashSizeChart[size] === true ? <option key={i} value={size}>{this.translateSize(size)}</option> : null
           ))}
         </select>
       </div>
