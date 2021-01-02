@@ -317,16 +317,16 @@ class ViewStashItemPage extends React.Component {
 
   render () {
     if(!this.state.loaded) {
+      if(this.state.status !== 200 && this.state.status !== 0 && this.state.status !== 403) {
+        return (
+          <Redirect to={`/errors/${this.state.status}`} />
+        );
+      }
+
       if(!this.state.isMember) {
           return (
             <Redirect to="/memberships/purchase" />
           )
-      }
-
-      if(this.state.status !== 200 && this.state.status !== 0) {
-        return (
-         <Redirect to={`/errors/${this.state.status}`} />
-        );
       }
 
       return (

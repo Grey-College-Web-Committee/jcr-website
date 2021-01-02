@@ -30,7 +30,7 @@ class ContributorsPage extends React.Component {
               <h2 className="font-semibold text-3xl pb-4 text-center">Image Attributions</h2>
               <ul className="list-inside list-disc">
                 <li>Assets reused from the <a href="https://github.com/ben-willis/grey-jcr/" target="_blank" rel="noopener noreferrer"><span className="mr-2 underline">existing Grey JCR Website</span></a></li>
-                <li>Grey Crest by AlexD - Own work, CC BY-SA 3.0, https://commons.wikimedia.org/w/index.php?curid=5147969</li>
+                <li>Grey Crest by AlexD - Own work, CC BY-SA 3.0, <a href="https://commons.wikimedia.org/w/index.php?curid=5147969" target="_blank" rel="noopener noreferrer" className="underline">source</a></li>
               </ul>
             </div>
           </div>

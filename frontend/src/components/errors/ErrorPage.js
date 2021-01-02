@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 
 class ErrorPage extends React.Component {
   constructor(props) {
@@ -89,6 +89,12 @@ class ErrorPage extends React.Component {
 
   render () {
     const error = this.getErrorContent(this.state.code);
+
+    if(error.codes.includes(401)) {
+      return (
+        <Redirect to="/accounts/logout" />
+      )
+    }
 
     return (
       <div className="flex justify-center items-center">

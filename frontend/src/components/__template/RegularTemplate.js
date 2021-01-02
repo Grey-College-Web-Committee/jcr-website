@@ -55,16 +55,16 @@ class RegularTemplate extends React.Component {
 
   render () {
     if(!this.state.loaded) {
-      if(!this.state.isMember) {
-          return (
-            <Redirect to="/membership" />
-          )
-      }
-
       if(this.state.status !== 200 && this.state.status !== 0) {
         return (
          <Redirect to={`/errors/${this.state.status}`} />
         );
+      }
+
+      if(!this.state.isMember) {
+          return (
+            <Redirect to="/membership" />
+          )
       }
 
       return (

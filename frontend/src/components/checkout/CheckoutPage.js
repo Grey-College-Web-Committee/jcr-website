@@ -18,7 +18,8 @@ class CheckoutPage extends React.Component {
       errorStatus: -1,
       clientSecret: null,
       totalAmountInPence: -1,
-      error: null
+      error: null,
+      status: 0
     }
   }
 
@@ -97,7 +98,16 @@ class CheckoutPage extends React.Component {
     this.setState({ id: Math.random() });
   }
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
+    let membershipCheck;
+
+    try {
+      membershipCheck = await api.get("/auth/verify");
+    } catch (error) {
+      this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
+      return;
+    }
+
     this.cart = new Cart();
     this.cart.registerCallbackOnSave(this.updateCart);
     this.updateCart();
@@ -112,7 +122,9 @@ class CheckoutPage extends React.Component {
   }
 
   componentWillUnmount = () => {
-    this.cart.setLocked(false);
+    if(this.cart) {
+      this.cart.setLocked(false);
+    }
   }
 
   displayCart = (items, locked) => {
@@ -159,6 +171,18 @@ class CheckoutPage extends React.Component {
   }
 
   render () {
+    if(!this.state.loaded) {
+      if(this.state.status !== 200 && this.state.status !== 0) {
+        return (
+         <Redirect to={`/errors/${this.state.status}`} />
+        );
+      }
+
+      return (
+        <LoadingHolder />
+      );
+    }
+
     if(!this.cart) {
       return (
         <LoadingHolder />
