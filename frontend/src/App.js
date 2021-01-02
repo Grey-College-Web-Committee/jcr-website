@@ -8,6 +8,7 @@ import Cart from './components/cart/Cart'
 
 import NavBar from './components/nav/NavBar';
 import CommonFooter from './components/common/CommonFooter';
+import CookieAccept from './components/legal/CookieAccept';
 
 import LoginPage from './components/accounts/LoginPage';
 import LogoutPage from './components/accounts/LogoutPage';
@@ -201,6 +202,7 @@ class App extends React.Component {
         <authContext.Provider value={this.state.user}>
           <Router>
             <div className="min-h-full h-full flex flex-col">
+              <CookieAccept />
               <NavBar
                 hideBody={this.hideBody}
               />

@@ -39,12 +39,12 @@ class CartMobileNavBarElement extends React.Component {
           }
         }}
       >
-        <div className="w-full">
+        <div className="w-full relative">
           <img
             src="/images/cart/basket.png"
             alt="Shopping Basket"
           />
-        <span className="absolute z-10 font-bold" style={{top: "48px"}}>{this.state.quantity}</span>
+          <span className="z-10 font-bold absolute" style={{top: "36px"}}>{this.state.quantity}</span>
         </div>
         <ViewCartMobile
           active={this.state.showMenu}

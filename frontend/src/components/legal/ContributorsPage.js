@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 class ContributorsPage extends React.Component {
   render () {
@@ -22,6 +21,7 @@ class ContributorsPage extends React.Component {
                   <img
                     src="/images/GitHub-Mark-120px-plus.png"
                     className="h-4"
+                    alt="GitHub logo"
                   />
                 </div>
               </a>

@@ -18,6 +18,7 @@ class CommonFooter extends React.Component {
               <img
                 src="/images/GitHub-Mark-Light-32px.png"
                 className="h-4"
+                alt="GitHub logo"
               />
             </div>
           </a>

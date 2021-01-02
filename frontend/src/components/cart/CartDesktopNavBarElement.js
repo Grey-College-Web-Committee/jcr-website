@@ -11,6 +11,7 @@ class CartDesktopNavBarElement extends React.Component {
       quantity: 0
     };
   }
+
   updateCart = () => {
     // Calculates items in the basket
     this.setState({ quantity: this.cart.get().items.reduce((sum, obj) => sum + obj.quantity, 0) });
@@ -27,13 +28,13 @@ class CartDesktopNavBarElement extends React.Component {
         className="h-full p-3 hidden w-20 lg:inline-block"
         onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
       >
-        <div className="w-full">
+        <div className="w-full relative">
           <img
             src="/images/cart/basket.png"
             alt="Shopping Basket"
             className="w-full"
           />
-        <span className="absolute z-10 font-bold" style={{top: "48px"}}>{this.state.quantity}</span>
+          <span className="z-10 font-bold absolute" style={{top: "36px"}}>{this.state.quantity}</span>
         </div>
         <ViewCart
           active={this.props.activeDropdownKey === this.props.id}
