@@ -544,7 +544,7 @@ class ViewStashItemPage extends React.Component {
           when={this.state.size.length !== 0 && this.state.addedCount === 0}
           message="You haven't added this to your bag yet. Are you sure you want to leave?"
         />
-      <div className="md:container text-center p-4">
+      <div className="md:container mx-auto text-center p-4">
           <div className="flex flex-col justify-center text-left align-middle w-full md:w-3/4 mx-auto">
             <div className="p-2">
               <Link to="/stash/">
