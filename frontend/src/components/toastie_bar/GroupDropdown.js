@@ -55,7 +55,7 @@ class GroupDropdown extends React.Component {
 
     return (
       <div className="w-full mb-4 border-4 border-red-900">
-        <div className="bg-red-900 text-white" onClick={() => {this.setState({ open: !this.state.open })}}>
+        <div className="bg-red-900 text-white cursor-pointer" onClick={() => {this.setState({ open: !this.state.open })}}>
           <p className="p-2 text-2xl">{this.state.open ? "▾" : "▸"} {this.props.title}</p>
         </div>
         <div className={`flex flex-row flex-wrap ${visibility}`}>
