@@ -104,7 +104,7 @@ class CheckoutPage extends React.Component {
     try {
       membershipCheck = await api.get("/auth/verify");
     } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
+      this.setState({ status: error.response.status, error: "Unable to verify membership status" });
       return;
     }
 
@@ -113,6 +113,7 @@ class CheckoutPage extends React.Component {
     this.updateCart();
 
     window.addEventListener("beforeunload", this.unlockHandler);
+    this.setState({ loaded: true, status: 200 });
   }
 
   unlockHandler = (ev) => {

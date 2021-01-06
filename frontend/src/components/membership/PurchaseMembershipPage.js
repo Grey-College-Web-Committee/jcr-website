@@ -19,17 +19,26 @@ class PurchaseMembershipPage extends React.Component {
 
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
-    // Once the component is ready we can query the API
-    let content;
+    let membershipCheck;
+    let isMember = true;
 
     try {
-      content = await api.get("/some/path");
+      membershipCheck = await api.get("/auth/verify");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
     }
 
-    this.setState({ loaded: true, status: 200, content: content });
+    // Ensure they are a member
+    if(membershipCheck.data.user.permissions) {
+      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
+        isMember = false;
+      }
+    } else {
+      isMember = false;
+    }
+
+    this.setState({ loaded: true, status: 200, isMember });
   }
 
   render () {
@@ -42,6 +51,12 @@ class PurchaseMembershipPage extends React.Component {
 
       return (
         <LoadingHolder />
+      );
+    }
+
+    if(this.state.isMember) {
+      return (
+        <Redirect to="/" />
       );
     }
 
