@@ -68,8 +68,6 @@ class App extends React.Component {
       user,
       hideBody: false
     };
-
-    console.log("refresh")
   }
 
   /*

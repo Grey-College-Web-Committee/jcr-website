@@ -1,8 +1,7 @@
-'database.models.js'
 // Get the exported classes from the sequelize module in node.js
 const { Sequelize, Model, DataTypes } = require("sequelize");
 
-// Create an instance of sequelise with the specific database from the .env file
+// Create an instance of sequelize with the specific database from the .env file
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, process.env.DB_PASSWORD, {
   host: process.env.DB_HOST,
   dialect: process.env.DB_DIALECT
@@ -13,6 +12,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 // User => users
 
 class User extends Model {}
+class Address extends Model {}
 
 class ShopOrder extends Model {}
 class ShopOrderContent extends Model {}
@@ -62,6 +62,29 @@ User.init({
   membershipExpiresAt: {
     type: DataTypes.DATE,
     defaultValue: null
+  }
+}, { sequelize });
+
+Address.init({
+  recipient: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  line1: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  line2: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  city: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  postcode: {
+    type: DataTypes.STRING,
+    allowNull: false
   }
 }, { sequelize });
 
@@ -263,6 +286,20 @@ ShopOrder.init({
     type: DataTypes.TEXT,
     allowNull: true,
     defaultValue: null
+  },
+  deliveryOption: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    defaultValue: "none"
+  },
+  deliveryAddressId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: -1,
+    references: {
+      model: Address,
+      key: 'id'
+    }
   }
 }, { sequelize });
 
@@ -468,6 +505,9 @@ StashStockImages.belongsTo(StashStock, { foreignKey: 'productId' });
 User.hasMany(ShopOrder, { foreignKey: 'userId' });
 ShopOrder.belongsTo(User, { foreignKey: 'userId' });
 
+Address.hasMany(ShopOrder, { foreignKey: 'deliveryAddressId' });
+ShopOrder.belongsTo(Address, { foreignKey: 'deliveryAddressId' });
+
 ShopOrder.hasMany(ShopOrderContent, { foreignKey: 'orderId' });
 ShopOrderContent.belongsTo(ShopOrder, { foreignKey: 'orderId' });
 
@@ -501,4 +541,4 @@ GymMembership.belongsTo(ShopOrder, { foreignKey: 'orderId' });
 User.hasMany(GymMembership, { foreignKey: 'userId' });
 GymMembership.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { User, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership };
+module.exports = { User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership };

@@ -19,12 +19,51 @@ class CheckoutPage extends React.Component {
       clientSecret: null,
       totalAmountInPence: -1,
       error: null,
-      status: 0
+      status: 0,
+      requiresDeliveryOption: true,
+      deliveryOption: "none",
+      address: {
+        recipient: "",
+        line1: "",
+        line2: "",
+        city: "",
+        postcode: ""
+      }
     }
   }
 
   startCheckout = (e) => {
     e.preventDefault();
+
+    // Double check in case they make changes on another tab
+    this.cart.get();
+    const { items } = this.cart.get();
+    const stashItems = items.filter(item => item.shop === "stash");
+    const hasStashItems = stashItems.length !== 0;
+
+    if(hasStashItems !== this.state.requiresDeliveryOption) {
+      alert("You have made changes to your cart. Please refresh the page.");
+      this.setState({ disabled: true });
+      return;
+    }
+
+    if(this.state.requiresDeliveryOption) {
+      switch(this.state.deliveryOption) {
+        case "collection":
+        case "delivery":
+          this.cart.setDeliveryInformation(true, this.state.deliveryOption, this.state.address);
+          break;
+        case "none":
+        default:
+          alert("Stash in cart but no delivery option set!");
+          return;
+      }
+    } else {
+      this.cart.setDeliveryInformation(false, this.state.deliveryOption, this.state.address);
+    }
+
+    console.log(this.cart.get());
+
     this.setState({ disabled: true, pageState: 1, lockedClientSideCart: JSON.parse(JSON.stringify(this.cart.get())) }, this.submitCart);
     this.cart.setLocked(true);
   }
@@ -44,7 +83,7 @@ class CheckoutPage extends React.Component {
       items: []
     };
 
-    const { items } = this.state.lockedClientSideCart;
+    const { items, delivery } = this.state.lockedClientSideCart;
 
     items.forEach((item, i) => {
       const globalSubmissionInfo = item.submissionInformation;
@@ -75,7 +114,7 @@ class CheckoutPage extends React.Component {
     let status;
 
     try {
-      serverResponse = await api.post("/cart/process", { submissionCart });
+      serverResponse = await api.post("/cart/process", { submissionCart, delivery });
     } catch (error) {
       status = error.response.status;
 
@@ -148,6 +187,56 @@ class CheckoutPage extends React.Component {
       )
     }
 
+    const deliveryElement = this.state.deliveryOption === "delivery" ? (
+      <li>
+        <div className="flex flex-row p-2 border-red-700 border-solid border-b-2 w-auto text-xl">
+          <div className="pr-4 align-middle flex flex-col justify-between w-1/3">
+            <img
+              src="/images/cart/placeholder.png"
+              alt="Placeholder"
+              className="w-full h-auto"
+            />
+          </div>
+          <div className="flex flex-col flex-grow text-left w-2/3">
+            <span className="text-left text-3xl font-semibold">Stash Delivery</span>
+            <div className="flex flex-row justify-between">
+              <span>1 x £3.55</span>
+              <span>(£3.55)</span>
+            </div>
+            <ul>
+              <li>{this.state.address.recipient}</li>
+              <li>{this.state.address.line1}</li>
+              <li>{this.state.address.line2}</li>
+              <li>{this.state.address.city}</li>
+              <li>{this.state.address.postcode}</li>
+            </ul>
+          </div>
+        </div>
+      </li>
+    ) : null;
+
+    const collectionElement = this.state.deliveryOption === "collection" ? (
+      <li>
+        <div className="flex flex-row p-2 border-red-700 border-solid border-b-2 w-auto text-xl">
+          <div className="pr-4 align-middle flex flex-col justify-between w-1/3">
+            <img
+              src="/images/cart/placeholder.png"
+              alt="Placeholder"
+              className="w-full h-auto"
+            />
+          </div>
+          <div className="flex flex-col flex-grow text-left w-2/3">
+            <span className="text-left text-3xl font-semibold">Stash Collection</span>
+            <div className="flex flex-row justify-between">
+              <span>1 x £0.00</span>
+              <span>(£0.00)</span>
+            </div>
+            <span>Collection from Grey College</span>
+          </div>
+        </div>
+      </li>
+    ) : null;
+
     return (
       <ul>
         {items.map((item, i) => (
@@ -158,8 +247,180 @@ class CheckoutPage extends React.Component {
             />
           </li>
         ))}
+        { deliveryElement }
+        { collectionElement }
       </ul>
     );
+  }
+
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+  }
+
+  onAddressChange = e => {
+    const { name, type, checked, value } = e.target;
+    this.setState(prevState => ({
+      address: {
+        ...prevState.address,
+        [name]: (type === "checkbox" ? checked : value)
+      }
+    }))
+  }
+
+  requestDeliveryOption = () => {
+    const { items } = this.cart.get();
+    const stashItems = items.filter(item => item.shop === "stash");
+
+    // No stash items so no need for delivery address
+    if(stashItems.length === 0) {
+      if(this.state.requiresDeliveryOption) {
+        this.setState({ requiresDeliveryOption: false });
+      }
+
+      return null;
+    }
+
+    return (
+      <div>
+        <h2 className="text-xl font-semibold pb-2">Stash Delivery</h2>
+        <p className="pb-2">For stash items you can have the items delivered directly to your address or you can collect them from college for free once restrictions are eased.</p>
+        <div className="pb-2 flex flex-col md:flex-row max-w-full">
+          <div className="flex-shrink-0">
+            <label htmlFor="deliveryOption" className="w-40 inline-block font-semibold">Delivery Option:</label>
+          </div>
+          <div className="flex-grow">
+            <select
+              name="deliveryOption"
+              className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+              onChange={this.onInputChange}
+              value={this.state.deliveryOption}
+              required={true}
+              disabled={this.state.disabled}
+            >
+              <option value="none" disabled={true} hidden={true}>Please Select...</option>
+              <option value="collection">Collect From College (+£0.00)</option>
+              <option value="delivery">Deliver To Address (+£3.55)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  requestAddress = () => {
+    if(this.state.deliveryOption !== "delivery") {
+      return null;
+    }
+
+    return (
+      <div>
+        <p className="pb-2">Please enter your address below</p>
+        <fieldset>
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0">
+              <label htmlFor="recipient" className="w-40 inline-block font-semibold">Recipient:</label>
+            </div>
+            <div className="flex-grow">
+              <input
+                type="text"
+                name="recipient"
+                value={this.state.address.recipient}
+                onChange={this.onAddressChange}
+                className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                placeholder="Recipient Name..."
+                disabled={this.props.disabled}
+              />
+            </div>
+          </div>
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0">
+              <label htmlFor="line1" className="w-40 inline-block font-semibold">Address Line 1:</label>
+            </div>
+            <div className="flex-grow">
+              <input
+                type="text"
+                name="line1"
+                value={this.state.address.line1}
+                onChange={this.onAddressChange}
+                className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                placeholder="Address Line 1..."
+                disabled={this.props.disabled}
+              />
+            </div>
+          </div>
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0">
+              <label htmlFor="line2" className="w-40 inline-block font-semibold">Address Line 2:</label>
+            </div>
+            <div className="flex-grow">
+              <input
+                type="text"
+                name="line2"
+                value={this.state.address.line2}
+                onChange={this.onAddressChange}
+                className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                placeholder="Address Line 2..."
+                disabled={this.props.disabled}
+              />
+            </div>
+          </div>
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0">
+              <label htmlFor="city" className="w-40 inline-block font-semibold">Town/City:</label>
+            </div>
+            <div className="flex-grow">
+              <input
+                type="text"
+                name="city"
+                value={this.state.address.city}
+                onChange={this.onAddressChange}
+                className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                placeholder="Town/City..."
+                disabled={this.props.disabled}
+              />
+            </div>
+          </div>
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0">
+              <label htmlFor="postcode" className="w-40 inline-block font-semibold">Postcode:</label>
+            </div>
+            <div className="flex-grow">
+              <input
+                type="text"
+                name="postcode"
+                value={this.state.address.postcode}
+                onChange={this.onAddressChange}
+                className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                placeholder="Postcode..."
+                disabled={this.props.disabled}
+              />
+          </div>
+          </div>
+        </fieldset>
+      </div>
+    )
+  }
+
+  isReadyForPayment = () => {
+    if(!this.state.requiresDeliveryOption) {
+      return true;
+    }
+
+    switch(this.state.deliveryOption) {
+      case "collection":
+        return true;
+      case "delivery":
+        for(let property in this.state.address) {
+          if(this.state.address[property].length === 0) {
+            return false;
+          }
+        }
+
+        return true;
+      case "none":
+      default:
+        return false;
+    }
   }
 
   injectPrompt = () => {
@@ -195,7 +456,7 @@ class CheckoutPage extends React.Component {
     switch(this.state.pageState) {
       // Confirm the order
       case 0:
-        let subtotal = 0;
+        let subtotal = (this.state.deliveryOption === "delivery" ? 3.55 : 0);
         const bagEmpty = items.length === 0;
 
         items.forEach((item, i) => {
@@ -224,10 +485,12 @@ class CheckoutPage extends React.Component {
                     <span>Total</span>
                     <span>£{subtotal.toFixed(2)}</span>
                   </div>
+                  { this.requestDeliveryOption() }
+                  { this.requestAddress() }
                   <button
                     className="px-2 py-2 rounded bg-red-900 text-white text-2xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                     onClick={this.startCheckout}
-                    disabled={this.state.disabled || bagEmpty}
+                    disabled={this.state.disabled || bagEmpty || !this.isReadyForPayment()}
                   >Pay Now</button>
                 </div>
               </div>

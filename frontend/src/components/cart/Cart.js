@@ -38,7 +38,18 @@ class Cart {
       localSave = {
         cart: {
           items: [],
-          discountCodes: []
+          discountCodes: [],
+          delivery: {
+            required: false,
+            option: "none",
+            address: {
+              recipient: "",
+              line1: "",
+              line2: "",
+              city: "",
+              postcode: "",
+            }
+          }
         },
         savedAt: new Date(),
         locked: false
@@ -66,6 +77,28 @@ class Cart {
     Cart.registeredCallbacks.forEach((callback, i) => {
       callback(this);
     });
+  }
+
+  setDeliveryInformation = (required, option, address) => {
+    if(!["none", "collection", "delivery"].includes(option)) {
+      return false;
+    }
+
+    const requiredProperties = ["recipient", "line1", "line2", "city", "postcode"];
+
+    for(let property of requiredProperties) {
+      if(!address.hasOwnProperty(property)) {
+        return false;
+      }
+
+      if(address[property] === undefined) {
+        return false;
+      }
+    }
+
+    this.cart.delivery = { required, option, address };
+    this.saveToLocalStorage();
+    return true;
   }
 
   addToCart = (shop, name, basePrice, quantity, submissionInformation, components, duplicateHash, image, upperLimit) => {

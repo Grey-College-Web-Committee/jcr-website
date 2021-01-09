@@ -4,7 +4,7 @@ const router = express.Router();
 const fileUpload = require('express-fileupload');
 const path = require("path");
 // The database models
-const { User, StashOrder, ShopOrder, StashStock, StashColours, StashSizeChart, StashItemColours, StashOrderCustomisation, StashCustomisations, StashStockImages } = require("../database.models.js");
+const { User, Address, StashOrder, ShopOrder, StashStock, StashColours, StashSizeChart, StashItemColours, StashOrderCustomisation, StashCustomisations, StashStockImages } = require("../database.models.js");
 const dateFormat = require("dateformat");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
@@ -181,7 +181,7 @@ router.post("/export", async(req, res) => {
       StashOrderCustomisation,
       {
         model: ShopOrder,
-        include: [ User ],
+        include: [ User, Address ],
         where: {
           paid: true
         },
@@ -194,7 +194,6 @@ router.post("/export", async(req, res) => {
   // we need to make sure that only orders that have been paid for show up here
 
   const paidForOrders = orders.filter(order => order.ShopOrder.paid === true);
-  //console.log(JSON.stringify(paidForOrders));
 
   // Avoid using orders by accident
   delete orders;
@@ -267,7 +266,9 @@ router.post("/export", async(req, res) => {
       { id: "backEmbroidery", title: "Back Embroidery" },
       { id: "legPrint", title: "Leg Print" },
       { id: "rightPrint", title: "Right Breast Print" },
-      { id: "paid", title: "Paid" }
+      { id: "paid", title: "Paid" },
+      { id: "deliveryOrCollection", title: "Delivery/Collection" },
+      { id: "deliveryAddress", title: "Delivery Address"}
     ]
   });
 
@@ -285,7 +286,9 @@ router.post("/export", async(req, res) => {
       { id: "backEmbroidery", title: "Back Embroidery" },
       { id: "legPrint", title: "Leg Print" },
       { id: "rightPrint", title: "Right Breast Print" },
-      { id: "paid", title: "Paid" }
+      { id: "paid", title: "Paid" },
+      { id: "deliveryOrCollection", title: "Delivery/Collection" },
+      { id: "deliveryAddress", title: "Delivery Address"}
     ]
   });
 
@@ -306,6 +309,7 @@ router.post("/export", async(req, res) => {
       { id: "legPrint", title: "Leg Print" },
       { id: "rightPrint", title: "Right Breast Print" },
       { id: "paid", title: "Paid" },
+      { id: "deliveryOrCollection", title: "Delivery/Collection" },
       { id: "collected", title: "Collected" }
     ]
   });
@@ -321,7 +325,6 @@ router.post("/export", async(req, res) => {
 
   Object.keys(nonCustomisedHashes).forEach(key => {
     const item = nonCustomisedHashes[key];
-    console.log(JSON.stringify(item));
     let record = {};
     // If it equals "Grey College MCR" it is MCR stash otherwise it's JCR stash
     let isJCR = item.underShieldText !== "Grey College MCR";
@@ -345,6 +348,25 @@ router.post("/export", async(req, res) => {
     record.legPrint = "";
     record.rightPrint = "";
     record.paid = item.ShopOrder.paid;
+    record.deliveryOrCollection = item.ShopOrder.deliveryOption;
+
+    let address = [];
+
+    if(item.ShopOrder.Address !== null) {
+      address.push(item.ShopOrder.Address.recipient);
+      address.push(item.ShopOrder.Address.line1);
+      address.push(item.ShopOrder.Address.line2);
+      address.push(item.ShopOrder.Address.city);
+      address.push(item.ShopOrder.Address.postcode);
+    }
+
+    if(address.length === 0) {
+      address = "N/A";
+    } else {
+      address = address.join(", ");
+    }
+
+    record.deliveryAddress = address;
 
     if(isJCR) {
       csvRecordsJCR.push(record);
@@ -390,6 +412,25 @@ router.post("/export", async(req, res) => {
     record.legPrint = "";
     record.rightPrint = "";
     record.paid = item.ShopOrder.paid;
+    record.deliveryOrCollection = item.ShopOrder.deliveryOption;
+
+    let address = [];
+
+    if(item.ShopOrder.Address !== null) {
+      address.push(item.ShopOrder.Address.recipient);
+      address.push(item.ShopOrder.Address.line1);
+      address.push(item.ShopOrder.Address.line2);
+      address.push(item.ShopOrder.Address.city);
+      address.push(item.ShopOrder.Address.postcode);
+    }
+
+    if(address.length === 0) {
+      address = "N/A";
+    } else {
+      address = address.join(", ");
+    }
+
+    record.deliveryAddress = address;
 
     item.StashOrderCustomisations.forEach(customisation => {
       record[customisationValidChoiceHeadings[customisation.type]] = customisation.text;
@@ -462,7 +503,26 @@ router.post("/export", async(req, res) => {
       });
 
       record.paid = item.ShopOrder.paid;
-      record.collected = "";
+      record.deliveryOrCollection = item.ShopOrder.deliveryOption;
+
+      let address = [];
+
+      if(item.ShopOrder.Address !== null) {
+        address.push(item.ShopOrder.Address.recipient);
+        address.push(item.ShopOrder.Address.line1);
+        address.push(item.ShopOrder.Address.line2);
+        address.push(item.ShopOrder.Address.city);
+        address.push(item.ShopOrder.Address.postcode);
+      }
+
+      if(address.length === 0) {
+        address = "N/A";
+      } else {
+        address = address.join(", ");
+      }
+
+      record.deliveryAddress = address;
+      record.collected = item.ShopOrder.deliveryOption === "delivery" ? "N/A" : "";
 
       csvRecordsChecklist.push(record);
     });
