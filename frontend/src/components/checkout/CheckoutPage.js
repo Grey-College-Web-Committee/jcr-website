@@ -187,6 +187,56 @@ class CheckoutPage extends React.Component {
       )
     }
 
+    const deliveryElement = this.state.deliveryOption === "delivery" ? (
+      <li>
+        <div className="flex flex-row p-2 border-red-700 border-solid border-b-2 w-auto text-xl">
+          <div className="pr-4 align-middle flex flex-col justify-between w-1/3">
+            <img
+              src="/images/cart/placeholder.png"
+              alt="Placeholder"
+              className="w-full h-auto"
+            />
+          </div>
+          <div className="flex flex-col flex-grow text-left w-2/3">
+            <span className="text-left text-3xl font-semibold">Stash Delivery</span>
+            <div className="flex flex-row justify-between">
+              <span>1 x £3.55</span>
+              <span>(£3.55)</span>
+            </div>
+            <ul>
+              <li>{this.state.address.recipient}</li>
+              <li>{this.state.address.line1}</li>
+              <li>{this.state.address.line2}</li>
+              <li>{this.state.address.city}</li>
+              <li>{this.state.address.postcode}</li>
+            </ul>
+          </div>
+        </div>
+      </li>
+    ) : null;
+
+    const collectionElement = this.state.deliveryOption === "collection" ? (
+      <li>
+        <div className="flex flex-row p-2 border-red-700 border-solid border-b-2 w-auto text-xl">
+          <div className="pr-4 align-middle flex flex-col justify-between w-1/3">
+            <img
+              src="/images/cart/placeholder.png"
+              alt="Placeholder"
+              className="w-full h-auto"
+            />
+          </div>
+          <div className="flex flex-col flex-grow text-left w-2/3">
+            <span className="text-left text-3xl font-semibold">Stash Collection</span>
+            <div className="flex flex-row justify-between">
+              <span>1 x £0.00</span>
+              <span>(£0.00)</span>
+            </div>
+            <span>Collection from Grey College</span>
+          </div>
+        </div>
+      </li>
+    ) : null;
+
     return (
       <ul>
         {items.map((item, i) => (
@@ -197,6 +247,8 @@ class CheckoutPage extends React.Component {
             />
           </li>
         ))}
+        { deliveryElement }
+        { collectionElement }
       </ul>
     );
   }
@@ -230,22 +282,26 @@ class CheckoutPage extends React.Component {
 
     return (
       <div>
-        <h2 className="text-xl font-semibold pb-2">Delivery</h2>
-        <p className="pb-2">For stash items you can have the items delivered directly to your address or you can collect them from college for free once the UK Government's restrictions ease.</p>
-        <div className="pb-2">
-          <label htmlFor="deliveryOption" className="w-40 inline-block font-semibold">Delivery Option:</label>
-          <select
-            name="deliveryOption"
-            className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
-            onChange={this.onInputChange}
-            value={this.state.deliveryOption}
-            required={true}
-            disabled={this.state.disabled}
-          >
-            <option value="none" disabled={true} hidden={true}>Please Select...</option>
-            <option value="collection">Collect From College (+£0.00)</option>
-            <option value="delivery">Deliver To Address (£+3.55)</option>
-          </select>
+        <h2 className="text-xl font-semibold pb-2">Stash Delivery</h2>
+        <p className="pb-2">For stash items you can have the items delivered directly to your address or you can collect them from college for free once restrictions are eased.</p>
+        <div className="pb-2 flex flex-col md:flex-row max-w-full">
+          <div className="flex-shrink-0">
+            <label htmlFor="deliveryOption" className="w-40 inline-block font-semibold">Delivery Option:</label>
+          </div>
+          <div className="flex-grow">
+            <select
+              name="deliveryOption"
+              className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+              onChange={this.onInputChange}
+              value={this.state.deliveryOption}
+              required={true}
+              disabled={this.state.disabled}
+            >
+              <option value="none" disabled={true} hidden={true}>Please Select...</option>
+              <option value="collection">Collect From College (+£0.00)</option>
+              <option value="delivery">Deliver To Address (+£3.55)</option>
+            </select>
+          </div>
         </div>
       </div>
     )
@@ -258,66 +314,87 @@ class CheckoutPage extends React.Component {
 
     return (
       <div>
+        <p className="pb-2">Please enter your address below</p>
         <fieldset>
-          <div className="pb-2">
-            <label htmlFor="recipient" className="w-40 inline-block font-semibold">Recipient:</label>
-            <input
-              type="text"
-              name="recipient"
-              value={this.state.address.recipient}
-              onChange={this.onAddressChange}
-              className={`w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
-              placeholder="Recipient Name..."
-              disabled={this.props.disabled}
-            />
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0">
+              <label htmlFor="recipient" className="w-40 inline-block font-semibold">Recipient:</label>
+            </div>
+            <div className="flex-grow">
+              <input
+                type="text"
+                name="recipient"
+                value={this.state.address.recipient}
+                onChange={this.onAddressChange}
+                className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                placeholder="Recipient Name..."
+                disabled={this.props.disabled}
+              />
+            </div>
           </div>
-          <div className="pb-2">
-            <label htmlFor="line1" className="w-40 inline-block font-semibold">Address Line 1:</label>
-            <input
-              type="text"
-              name="line1"
-              value={this.state.address.line1}
-              onChange={this.onAddressChange}
-              className={`w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
-              placeholder="Address Line 1..."
-              disabled={this.props.disabled}
-            />
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0">
+              <label htmlFor="line1" className="w-40 inline-block font-semibold">Address Line 1:</label>
+            </div>
+            <div className="flex-grow">
+              <input
+                type="text"
+                name="line1"
+                value={this.state.address.line1}
+                onChange={this.onAddressChange}
+                className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                placeholder="Address Line 1..."
+                disabled={this.props.disabled}
+              />
+            </div>
           </div>
-          <div className="pb-2">
-            <label htmlFor="line2" className="w-40 inline-block font-semibold">Address Line 2:</label>
-            <input
-              type="text"
-              name="line2"
-              value={this.state.address.line2}
-              onChange={this.onAddressChange}
-              className={`w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
-              placeholder="Address Line 2..."
-              disabled={this.props.disabled}
-            />
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0">
+              <label htmlFor="line2" className="w-40 inline-block font-semibold">Address Line 2:</label>
+            </div>
+            <div className="flex-grow">
+              <input
+                type="text"
+                name="line2"
+                value={this.state.address.line2}
+                onChange={this.onAddressChange}
+                className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                placeholder="Address Line 2..."
+                disabled={this.props.disabled}
+              />
+            </div>
           </div>
-          <div className="pb-2">
-            <label htmlFor="city" className="w-40 inline-block font-semibold">Town/City:</label>
-            <input
-              type="text"
-              name="city"
-              value={this.state.address.city}
-              onChange={this.onAddressChange}
-              className={`w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
-              placeholder="Town/City..."
-              disabled={this.props.disabled}
-            />
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0">
+              <label htmlFor="city" className="w-40 inline-block font-semibold">Town/City:</label>
+            </div>
+            <div className="flex-grow">
+              <input
+                type="text"
+                name="city"
+                value={this.state.address.city}
+                onChange={this.onAddressChange}
+                className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                placeholder="Town/City..."
+                disabled={this.props.disabled}
+              />
+            </div>
           </div>
-          <div className="pb-2">
-            <label htmlFor="postcode" className="w-40 inline-block font-semibold">Postcode:</label>
-            <input
-              type="text"
-              name="postcode"
-              value={this.state.address.postcode}
-              onChange={this.onAddressChange}
-              className={`w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
-              placeholder="Postcode..."
-              disabled={this.props.disabled}
-            />
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0">
+              <label htmlFor="postcode" className="w-40 inline-block font-semibold">Postcode:</label>
+            </div>
+            <div className="flex-grow">
+              <input
+                type="text"
+                name="postcode"
+                value={this.state.address.postcode}
+                onChange={this.onAddressChange}
+                className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                placeholder="Postcode..."
+                disabled={this.props.disabled}
+              />
+          </div>
           </div>
         </fieldset>
       </div>
