@@ -11,7 +11,10 @@ const transporter = nodemailer.createTransport({
   },
   tls: {
     ciphers: "SSLv3"
-  }
+  },
+  pool: true,
+  maxConnections: 3,
+  maxMessages: 100
 });
 
 // Send an email using the transporter we have constructed
