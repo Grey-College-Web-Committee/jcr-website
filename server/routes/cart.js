@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User } = require("../database.models.js");
+const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // Array of debtors who are prohibited from buying from the store
@@ -805,11 +805,92 @@ router.post("/process", async (req, res) => {
     }
   }
 
+  // Now we check the delivery addres
+  const delivery = req.body.delivery;
+
+  if(!delivery.hasOwnProperty("required")) {
+    return res.status(400).json({ error: "Missing required (no property)" });
+  }
+
+  if(delivery.required === undefined) {
+    return res.status(400).json({ error: "Missing required (undefined)" });
+  }
+
+  if(delivery.required === null) {
+    return res.status(400).json({ error: "Missing required (null)" });
+  }
+
+  if(!delivery.hasOwnProperty("option")) {
+    return res.status(400).json({ error: "Missing option (no property)" });
+  }
+
+  if(delivery.option === undefined) {
+    return res.status(400).json({ error: "Missing option (undefined)" });
+  }
+
+  if(delivery.option === null) {
+    return res.status(400).json({ error: "Missing option (null)" });
+  }
+
+  if(!["none", "collection", "delivery"].includes(delivery.option)) {
+    return res.status(400).json({ error: "Invalid option (wrong type)" });
+  }
+
+  if(!delivery.hasOwnProperty("address")) {
+    return res.status(400).json({ error: "Missing address (no property)" });
+  }
+
+  if(delivery.address === undefined) {
+    return res.status(400).json({ error: "Missing address (undefined)" });
+  }
+
+  if(delivery.address === null) {
+    return res.status(400).json({ error: "Missing address (null)" });
+  }
+
+  const requiredProperties = ["recipient", "line1", "line2", "city", "postcode"];
+
+  for(let property of requiredProperties) {
+    if(!delivery.address.hasOwnProperty(property)) {
+      return res.status(400).json({ error: "Address is missing properties (null)" });
+    }
+
+    if(delivery.address[property] === undefined) {
+      return res.status(400).json({ error: "Address is missing properties (undefined)" });
+    }
+  }
+
+  // TODO: Implement some check to make sure the address is real?
+  // Address is validated
+
+  let addressRecord = null;
+
+  // They've opted for a delivery to their address
+  if(delivery.option === "delivery") {
+    try {
+      addressRecord = await Address.create({
+        recipient: delivery.address.recipient,
+        line1: delivery.address.line1,
+        line2: delivery.address.line2,
+        city: delivery.address.city,
+        postcode: delivery.address.postcode
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to add the address to the database "});
+    }
+  }
+
   let validatedPrices = [];
   let dbOrderRecord;
 
+  let deliveryAddressId = -1;
+
+  if(addressRecord) {
+    deliveryAddressId = addressRecord.id;
+  }
+
   try {
-    dbOrderRecord = await ShopOrder.create({ userId: user.id });
+    dbOrderRecord = await ShopOrder.create({ userId: user.id,  deliveryOption: delivery.option, deliveryAddressId });
   } catch (error) {
     return res.status(500).json({ error: "Unable to create order in database" });
   }
@@ -823,6 +904,14 @@ router.post("/process", async (req, res) => {
 
   let usedShops = [];
   let totalSpentByShop = {};
+
+  // Set the total spent for delivery
+  // Will add it to the subtotal and Stripe metadata
+  if(delivery.option === "delivery") {
+    totalSpentByShop["delivery"] = 3.55;
+    usedShops.push("delivery");
+    validatedPrices.push(3.55);
+  }
 
   for(let i = 0; i < submittedCart.items.length; i++) {
     item = submittedCart.items[i];

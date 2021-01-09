@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink } = require("../database.models.js");
+const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
@@ -14,7 +14,7 @@ const customerToastieEmail = (user, orderId, toasties, extras) => {
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
   let message = [];
 
-  message.push(`<h1>Order Received (Order no. ${orderId})</h1>`);
+  message.push(`<h1>Order Received</h1>`);
   message.push(`<p>Hello ${firstName} ${lastName},</p>`);
   message.push(`<p>Your order has been confirmed and sent to the Toastie Bar.</p>`);
   message.push(`<p>Please collect your order from the collection area outside the JCR.</p>`);
@@ -60,7 +60,7 @@ const staffToastieEmail = (user, orderId, toasties, extras) => {
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
   let message = [];
 
-  message.push(`<h1>Order Received (Order no. ${orderId})</h1>`);
+  message.push(`<h1>Order Received</h1>`);
   message.push(`<p>Payment received at ${new Date().toLocaleString()}</p>`);
   message.push(`<p>Ordered by: ${firstName} ${lastName}</p>`);
   message.push(`<h2>Order Details</h2>`);
@@ -94,7 +94,7 @@ const staffToastieEmail = (user, orderId, toasties, extras) => {
   return message.join("");
 }
 
-const fulfilToastieOrders = async (user, orderId, relatedOrders) => {
+const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
   let extras = [];
   let toasties = [];
 
@@ -133,7 +133,7 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders) => {
   mailer.sendEmail(process.env.TOASTIE_BAR_EMAIL_TO, `Toastie Bar Order Received #${orderId}`, staffEmail);
 
   const customerEmail = customerToastieEmail(user, orderId, toasties, extras);
-  mailer.sendEmail(user.email, `Toastie Bar Order Confirmation #${orderId}`, customerEmail);
+  mailer.sendEmail(user.email, `Toastie Bar Order Confirmation`, customerEmail);
 }
 
 const translateSize = (size) => {
@@ -155,7 +155,7 @@ const translateSize = (size) => {
   }
 }
 
-const customerStashEmail = (user, orderId, relatedOrders) => {
+const customerStashEmail = (user, orderId, relatedOrders, deliveryInformation) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
@@ -169,10 +169,25 @@ const customerStashEmail = (user, orderId, relatedOrders) => {
     "Right Breast/Small Item Personalisation"
   ];
 
-  message.push(`<h1>Stash Order Received (Order no. ${orderId})</h1>`);
+  message.push(`<h1>Stash Order Received</h1>`);
   message.push(`<p>Hello ${firstName} ${lastName},</p>`);
   message.push(`<p>Your order has been confirmed and registered with the JCR.</p>`);
-  message.push(`<p>Below is confirmation of your order.</p>`);
+
+  if(deliveryInformation.option === "delivery") {
+    message.push(`<h2>Delivery Information</h2>`);
+    message.push(`<p>You have opted for delivery. The stash company will send this to your address as soon as possible.</p>`);
+    message.push(`<h3>Address</h3>`);
+    message.push(`<p>${deliveryInformation.address.recipient}</p>`);
+    message.push(`<p>${deliveryInformation.address.line1}</p>`);
+    message.push(`<p>${deliveryInformation.address.line2}</p>`);
+    message.push(`<p>${deliveryInformation.address.city}</p>`);
+    message.push(`<p>${deliveryInformation.address.postcode}</p>`);
+  } else {
+    message.push(`<h2>Collection Information</h2>`);
+    message.push(`<p>You have opted to collect your stash from the JCR.</p>`);
+    message.push(`<p>Once the stash has arrived and is ready for the collection the JCR secretary will be in touch!</p>`);
+  }
+
   message.push(`<h2>Order Details</h2>`);
 
   relatedOrders.forEach((order, i) => {
@@ -199,9 +214,9 @@ const customerStashEmail = (user, orderId, relatedOrders) => {
   return message.join("");
 }
 
-const fulfilStashOrders = (user, orderId, relatedOrders) => {
-  const customerEmail = customerStashEmail(user, orderId, relatedOrders);
-  mailer.sendEmail(user.email, `Stash Order Confirmation #${orderId}`, customerEmail);
+const fulfilStashOrders = (user, orderId, relatedOrders, deliveryInformation) => {
+  const customerEmail = customerStashEmail(user, orderId, relatedOrders, deliveryInformation);
+  mailer.sendEmail(user.email, `Stash Order Confirmation`, customerEmail);
 }
 
 const customerGymEmail = (user, orderId, order) => {
@@ -210,7 +225,7 @@ const customerGymEmail = (user, orderId, order) => {
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
   let message = [];
 
-  message.push(`<h1>Gym Order Received (Order no. ${orderId})</h1>`);
+  message.push(`<h1>Gym Order Received</h1>`);
   message.push(`<p>Hello ${firstName} ${lastName},</p>`);
   message.push(`<p>Your order has been confirmed and registered with the JCR.</p>`);
   message.push(`<p>Access to the gym will be granted soon!</p>`);
@@ -221,7 +236,7 @@ const customerGymEmail = (user, orderId, order) => {
   return message.join("");
 }
 
-const fulfilGymOrders = async (user, orderId, relatedOrders) => {
+const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
   let membershipRecord;
 
   try {
@@ -241,7 +256,7 @@ const fulfilGymOrders = async (user, orderId, relatedOrders) => {
   }
 
   const customerEmail = customerGymEmail(user, orderId, membershipRecord);
-  mailer.sendEmail(user.email, `Gym Order Confirmation #${orderId}`, customerEmail);
+  mailer.sendEmail(user.email, `Gym Membership Confirmation`, customerEmail);
 }
 
 const customerJCRMembershipEmail = (user, orderId, expiresAt) => {
@@ -261,7 +276,7 @@ const customerJCRMembershipEmail = (user, orderId, expiresAt) => {
   return message.join("");
 }
 
-const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders) => {
+const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
   if(relatedOrders.length !== 1) {
     console.log("Many memberships?");
     return;
@@ -337,7 +352,7 @@ const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders) => {
   }
 
   const customerEmail = customerJCRMembershipEmail(user, orderId, currentMembershipOptions[type].expires);
-  mailer.sendEmail(user.email, `JCR Membership Confirmation #${orderId}`, customerEmail);
+  mailer.sendEmail(user.email, `JCR Membership Confirmation`, customerEmail);
 }
 
 const fulfilOrderProcessors = {
@@ -400,6 +415,29 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
         return res.status(500).json({ error: "Unable to save order"});
       }
 
+      const { deliveryOption, deliveryAddressId } = order;
+      let deliveryInformation = {
+        option: deliveryOption,
+        address: null
+      }
+
+      if(deliveryOption === "delivery") {
+        if(deliveryAddressId === undefined || deliveryAddressId === null || deliveryAddressId === "-1") {
+          return res.status(500).json({ error: "Error with addresses" });
+        }
+
+        let addressRecord;
+
+        try {
+          addressRecord = await Address.findOne({ where: { id: deliveryAddressId }});
+        } catch (error) {
+          return res.status(500).json({ error: "Unable to find address" });
+        }
+
+        console.log(addressRecord);
+        deliveryInformation.address = addressRecord.dataValues;
+      }
+
       let user;
 
       try {
@@ -449,14 +487,14 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
         const relatedOrders = subOrders.filter(order => order.shop === shop);
 
         if(relatedOrders.length !== 0) {
-          await fulfilOrderProcessors[shop](user, orderId, relatedOrders);
+          await fulfilOrderProcessors[shop](user, orderId, relatedOrders, deliveryInformation);
         }
       });
 
       stashOrders = stashOrders.map(order => order.dataValues);
 
       if(stashOrders.length !== 0) {
-        fulfilOrderProcessors["stash"](user, orderId, stashOrders);
+        fulfilOrderProcessors["stash"](user, orderId, stashOrders, deliveryInformation);
       }
 
       break;
