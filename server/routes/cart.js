@@ -14,7 +14,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
   const isToastie = Object.keys(globalSubmissionInfo).length === 0;
   const hasComponents = componentSubmissionInfo.length !== 0;
 
-  let modifedParameters = globalOrderParameters;
+  let modifiedParameters = globalOrderParameters;
 
   let totalPrice = 0;
 
@@ -106,10 +106,12 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       }
     }
 
-    if(modifedParameters.toastie.hasOwnProperty("nonDiscountedToastieCount") && modifedParameters.toastie.nonDiscountedToastieCount !== undefined && modifedParameters.toastie.nonDiscountedToastieCount !== null) {
-      modifedParameters.toastie.nonDiscountedToastieCount += 1;
-    } else {
-      modifedParameters.toastie.nonDiscountedToastieCount = 1;
+    if(modifiedParameters.hasOwnProperty("toastie")) {
+      if(modifiedParameters.toastie.hasOwnProperty("nonDiscountedToastieCount") && modifiedParameters.toastie.nonDiscountedToastieCount !== undefined && modifiedParameters.toastie.nonDiscountedToastieCount !== null) {
+        modifiedParameters.toastie.nonDiscountedToastieCount += 1;
+      } else {
+        modifiedParameters.toastie.nonDiscountedToastieCount = 1;
+      }
     }
   } else {
     // Drinks or confectionary
@@ -182,16 +184,18 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 
     totalPrice += Number(price) * quantity;
 
-    if(modifedParameters.toastie.hasOwnProperty("nonDiscountedConfectionary") && modifedParameters.toastie.nonDiscountedConfectionary !== undefined && modifedParameters.toastie.nonDiscountedConfectionary !== null) {
-      modifedParameters.toastie.nonDiscountedConfectionary += 1;
-    } else {
-      modifedParameters.toastie.nonDiscountedConfectionary = 1;
+    if(modifiedParameters.hasOwnProperty("toastie")) {
+      if(modifiedParameters.toastie.hasOwnProperty("nonDiscountedConfectionary") && modifiedParameters.toastie.nonDiscountedConfectionary !== undefined && modifiedParameters.toastie.nonDiscountedConfectionary !== null) {
+        modifiedParameters.toastie.nonDiscountedConfectionary += 1;
+      } else {
+        modifiedParameters.toastie.nonDiscountedConfectionary = 1;
+      }
     }
   }
 
   return {
     price: Number(totalPrice),
-    globalOrderParameters: modifedParameters
+    globalOrderParameters: modifiedParameters
   };
 };
 
@@ -378,7 +382,8 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
 
   return {
     price: total * quantity,
-    globalSubmissionInfo: globalSubmissionInfo
+    globalSubmissionInfo: globalSubmissionInfo,
+    globalOrderParameters: globalOrderParameters
   };
 }
 
@@ -544,7 +549,8 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
 
   return {
     price: isMember ? currentMembershipOptions[type].price : currentMembershipOptions[type].nonMemberPrice,
-    globalSubmissionInfo: globalSubmissionInfo
+    globalSubmissionInfo: globalSubmissionInfo,
+    globalOrderParameters: globalOrderParameters
   };
 }
 
@@ -667,7 +673,8 @@ const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, 
 
   return {
     price: currentMembershipOptions[type].price,
-    globalSubmissionInfo: globalSubmissionInfo
+    globalSubmissionInfo: globalSubmissionInfo,
+    globalOrderParameters: globalOrderParameters
   };
 }
 
