@@ -19,12 +19,51 @@ class CheckoutPage extends React.Component {
       clientSecret: null,
       totalAmountInPence: -1,
       error: null,
-      status: 0
+      status: 0,
+      requiresDeliveryOption: true,
+      deliveryOption: "none",
+      address: {
+        recipient: "",
+        line1: "",
+        line2: "",
+        city: "",
+        postcode: ""
+      }
     }
   }
 
   startCheckout = (e) => {
     e.preventDefault();
+
+    // Double check in case they make changes on another tab
+    this.cart.get();
+    const { items } = this.cart.get();
+    const stashItems = items.filter(item => item.shop === "stash");
+    const hasStashItems = stashItems.length !== 0;
+
+    if(hasStashItems !== this.state.requiresDeliveryOption) {
+      alert("You have made changes to your cart. Please refresh the page.");
+      this.setState({ disabled: true });
+      return;
+    }
+
+    if(this.state.requiresDeliveryOption) {
+      switch(this.state.deliveryOption) {
+        case "collection":
+        case "delivery":
+          this.cart.setDeliveryInformation(true, this.state.deliveryOption, this.state.address);
+          break;
+        case "none":
+        default:
+          alert("Stash in cart but no delivery option set!");
+          return;
+      }
+    } else {
+      this.cart.setDeliveryInformation(false, this.state.deliveryOption, this.state.address);
+    }
+
+    console.log(this.cart.get());
+
     this.setState({ disabled: true, pageState: 1, lockedClientSideCart: JSON.parse(JSON.stringify(this.cart.get())) }, this.submitCart);
     this.cart.setLocked(true);
   }
@@ -44,7 +83,7 @@ class CheckoutPage extends React.Component {
       items: []
     };
 
-    const { items } = this.state.lockedClientSideCart;
+    const { items, delivery } = this.state.lockedClientSideCart;
 
     items.forEach((item, i) => {
       const globalSubmissionInfo = item.submissionInformation;
@@ -75,7 +114,7 @@ class CheckoutPage extends React.Component {
     let status;
 
     try {
-      serverResponse = await api.post("/cart/process", { submissionCart });
+      serverResponse = await api.post("/cart/process", { submissionCart, delivery });
     } catch (error) {
       status = error.response.status;
 
@@ -162,6 +201,151 @@ class CheckoutPage extends React.Component {
     );
   }
 
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+  }
+
+  onAddressChange = e => {
+    const { name, type, checked, value } = e.target;
+    this.setState(prevState => ({
+      address: {
+        ...prevState.address,
+        [name]: (type === "checkbox" ? checked : value)
+      }
+    }))
+  }
+
+  requestDeliveryOption = () => {
+    const { items } = this.cart.get();
+    const stashItems = items.filter(item => item.shop === "stash");
+
+    // No stash items so no need for delivery address
+    if(stashItems.length === 0) {
+      if(this.state.requiresDeliveryOption) {
+        this.setState({ requiresDeliveryOption: false });
+      }
+
+      return null;
+    }
+
+    return (
+      <div>
+        <h2 className="text-xl font-semibold pb-2">Delivery</h2>
+        <p className="pb-2">For stash items you can have the items delivered directly to your address or you can collect them from college for free once the UK Government's restrictions ease.</p>
+        <div className="pb-2">
+          <label htmlFor="deliveryOption" className="w-40 inline-block font-semibold">Delivery Option:</label>
+          <select
+            name="deliveryOption"
+            className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
+            onChange={this.onInputChange}
+            value={this.state.deliveryOption}
+            required={true}
+            disabled={this.state.disabled}
+          >
+            <option value="none" disabled={true} hidden={true}>Please Select...</option>
+            <option value="collection">Collect From College (+£0.00)</option>
+            <option value="delivery">Deliver To Address (£+3.55)</option>
+          </select>
+        </div>
+      </div>
+    )
+  }
+
+  requestAddress = () => {
+    if(this.state.deliveryOption !== "delivery") {
+      return null;
+    }
+
+    return (
+      <div>
+        <fieldset>
+          <div className="pb-2">
+            <label htmlFor="recipient" className="w-40 inline-block font-semibold">Recipient:</label>
+            <input
+              type="text"
+              name="recipient"
+              value={this.state.address.recipient}
+              onChange={this.onAddressChange}
+              className={`w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+              placeholder="Recipient Name..."
+              disabled={this.props.disabled}
+            />
+          </div>
+          <div className="pb-2">
+            <label htmlFor="line1" className="w-40 inline-block font-semibold">Address Line 1:</label>
+            <input
+              type="text"
+              name="line1"
+              value={this.state.address.line1}
+              onChange={this.onAddressChange}
+              className={`w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+              placeholder="Address Line 1..."
+              disabled={this.props.disabled}
+            />
+          </div>
+          <div className="pb-2">
+            <label htmlFor="line2" className="w-40 inline-block font-semibold">Address Line 2:</label>
+            <input
+              type="text"
+              name="line2"
+              value={this.state.address.line2}
+              onChange={this.onAddressChange}
+              className={`w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+              placeholder="Address Line 2..."
+              disabled={this.props.disabled}
+            />
+          </div>
+          <div className="pb-2">
+            <label htmlFor="city" className="w-40 inline-block font-semibold">Town/City:</label>
+            <input
+              type="text"
+              name="city"
+              value={this.state.address.city}
+              onChange={this.onAddressChange}
+              className={`w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+              placeholder="Town/City..."
+              disabled={this.props.disabled}
+            />
+          </div>
+          <div className="pb-2">
+            <label htmlFor="postcode" className="w-40 inline-block font-semibold">Postcode:</label>
+            <input
+              type="text"
+              name="postcode"
+              value={this.state.address.postcode}
+              onChange={this.onAddressChange}
+              className={`w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+              placeholder="Postcode..."
+              disabled={this.props.disabled}
+            />
+          </div>
+        </fieldset>
+      </div>
+    )
+  }
+
+  isReadyForPayment = () => {
+    if(!this.state.requiresDeliveryOption) {
+      return true;
+    }
+
+    switch(this.state.deliveryOption) {
+      case "collection":
+        return true;
+      case "delivery":
+        for(let property in this.state.address) {
+          if(this.state.address[property].length === 0) {
+            return false;
+          }
+        }
+
+        return true;
+      case "none":
+      default:
+        return false;
+    }
+  }
+
   injectPrompt = () => {
     return (
       <Prompt
@@ -195,7 +379,7 @@ class CheckoutPage extends React.Component {
     switch(this.state.pageState) {
       // Confirm the order
       case 0:
-        let subtotal = 0;
+        let subtotal = (this.state.deliveryOption === "delivery" ? 3.55 : 0);
         const bagEmpty = items.length === 0;
 
         items.forEach((item, i) => {
@@ -224,10 +408,12 @@ class CheckoutPage extends React.Component {
                     <span>Total</span>
                     <span>£{subtotal.toFixed(2)}</span>
                   </div>
+                  { this.requestDeliveryOption() }
+                  { this.requestAddress() }
                   <button
                     className="px-2 py-2 rounded bg-red-900 text-white text-2xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                     onClick={this.startCheckout}
-                    disabled={this.state.disabled || bagEmpty}
+                    disabled={this.state.disabled || bagEmpty || !this.isReadyForPayment()}
                   >Pay Now</button>
                 </div>
               </div>
