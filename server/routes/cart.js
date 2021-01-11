@@ -590,13 +590,21 @@ const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, 
   }
 
   const currentMembershipOptions = {
-    single_year: {
-      expires: new Date("2021-09-01"),
-      price: 10
+    one_year: {
+      expires: new Date("2021-08-01"),
+      price: 56
+    },
+    two_year: {
+      expires: new Date("2022-08-01"),
+      price: 112
     },
     three_year: {
-      expires: new Date("2023-09-01"),
-      price: 15
+      expires: new Date("2023-08-01"),
+      price: 168
+    },
+    four_year: {
+      expires: new Date("2024-08-01"),
+      price: 208
     }
   };
 
