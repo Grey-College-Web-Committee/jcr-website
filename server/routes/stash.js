@@ -355,7 +355,11 @@ router.post("/export", async(req, res) => {
     if(item.ShopOrder.Address !== null) {
       address.push(item.ShopOrder.Address.recipient);
       address.push(item.ShopOrder.Address.line1);
-      address.push(item.ShopOrder.Address.line2);
+
+      if(item.ShopOrder.Address.line2.length !== 0) {
+        address.push(item.ShopOrder.Address.line2);
+      }
+
       address.push(item.ShopOrder.Address.city);
       address.push(item.ShopOrder.Address.postcode);
     }
@@ -419,7 +423,11 @@ router.post("/export", async(req, res) => {
     if(item.ShopOrder.Address !== null) {
       address.push(item.ShopOrder.Address.recipient);
       address.push(item.ShopOrder.Address.line1);
-      address.push(item.ShopOrder.Address.line2);
+
+      if(item.ShopOrder.Address.line2.length !== 0) {
+        address.push(item.ShopOrder.Address.line2);
+      }
+
       address.push(item.ShopOrder.Address.city);
       address.push(item.ShopOrder.Address.postcode);
     }
@@ -510,7 +518,11 @@ router.post("/export", async(req, res) => {
       if(item.ShopOrder.Address !== null) {
         address.push(item.ShopOrder.Address.recipient);
         address.push(item.ShopOrder.Address.line1);
-        address.push(item.ShopOrder.Address.line2);
+
+        if(item.ShopOrder.Address.line2.length !== 0) {
+          address.push(item.ShopOrder.Address.line2);
+        }
+
         address.push(item.ShopOrder.Address.city);
         address.push(item.ShopOrder.Address.postcode);
       }

@@ -283,9 +283,9 @@ class CheckoutPage extends React.Component {
     return (
       <div>
         <h2 className="text-xl font-semibold pb-2">Stash Delivery</h2>
-        <p className="pb-2">For stash items you can have the items delivered directly to your address or you can collect them from college for free once restrictions are eased.</p>
+        <p className="pb-2">For stash items you can have the items delivered directly to your address (within the UK) or you can collect them from college for free once restrictions are eased.</p>
         <div className="pb-2 flex flex-col md:flex-row max-w-full">
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 flex flex-col justify-center">
             <label htmlFor="deliveryOption" className="w-40 inline-block font-semibold">Delivery Option:</label>
           </div>
           <div className="flex-grow">
@@ -299,7 +299,7 @@ class CheckoutPage extends React.Component {
             >
               <option value="none" disabled={true} hidden={true}>Please Select...</option>
               <option value="collection">Collect From College (+£0.00)</option>
-              <option value="delivery">Deliver To Address (+£3.55)</option>
+              <option value="delivery">Deliver To UK Address (+£3.55)</option>
             </select>
           </div>
         </div>
@@ -314,11 +314,11 @@ class CheckoutPage extends React.Component {
 
     return (
       <div>
-        <p className="pb-2">Please enter your address below</p>
+        <p className="pb-2">Please enter your address below. Starred fields are required. Please ensure that your address is accurately written. You can check your address on the <a href="https://www.royalmail.com/find-a-postcode" target="_blank" rel="noopener noreferrer" className="underline">Royal Mail's website.</a></p>
         <fieldset>
           <div className="pb-2 flex flex-row">
-            <div className="flex-shrink-0">
-              <label htmlFor="recipient" className="w-40 inline-block font-semibold">Recipient:</label>
+            <div className="flex-shrink-0 flex flex-col justify-center">
+              <label htmlFor="recipient" className="w-40 inline-block font-semibold">*Recipient:</label>
             </div>
             <div className="flex-grow">
               <input
@@ -333,8 +333,8 @@ class CheckoutPage extends React.Component {
             </div>
           </div>
           <div className="pb-2 flex flex-row">
-            <div className="flex-shrink-0">
-              <label htmlFor="line1" className="w-40 inline-block font-semibold">Address Line 1:</label>
+            <div className="flex-shrink-0 flex flex-col justify-center">
+              <label htmlFor="line1" className="w-40 inline-block font-semibold">*Address Line 1:</label>
             </div>
             <div className="flex-grow">
               <input
@@ -349,7 +349,7 @@ class CheckoutPage extends React.Component {
             </div>
           </div>
           <div className="pb-2 flex flex-row">
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 flex flex-col justify-center">
               <label htmlFor="line2" className="w-40 inline-block font-semibold">Address Line 2:</label>
             </div>
             <div className="flex-grow">
@@ -365,8 +365,8 @@ class CheckoutPage extends React.Component {
             </div>
           </div>
           <div className="pb-2 flex flex-row">
-            <div className="flex-shrink-0">
-              <label htmlFor="city" className="w-40 inline-block font-semibold">Town/City:</label>
+            <div className="flex-shrink-0 flex flex-col justify-center">
+              <label htmlFor="city" className="w-40 inline-block font-semibold">*Town/City:</label>
             </div>
             <div className="flex-grow">
               <input
@@ -381,8 +381,8 @@ class CheckoutPage extends React.Component {
             </div>
           </div>
           <div className="pb-2 flex flex-row">
-            <div className="flex-shrink-0">
-              <label htmlFor="postcode" className="w-40 inline-block font-semibold">Postcode:</label>
+            <div className="flex-shrink-0 flex flex-col justify-center">
+              <label htmlFor="postcode" className="w-40 inline-block font-semibold">*Postcode:</label>
             </div>
             <div className="flex-grow">
               <input
@@ -411,7 +411,7 @@ class CheckoutPage extends React.Component {
         return true;
       case "delivery":
         for(let property in this.state.address) {
-          if(this.state.address[property].length === 0) {
+          if(this.state.address[property].length === 0 && property !== "line2") {
             return false;
           }
         }
