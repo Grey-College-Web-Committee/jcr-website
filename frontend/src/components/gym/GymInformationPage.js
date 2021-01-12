@@ -94,6 +94,20 @@ class GymInformationPage extends React.Component {
       );
     }
 
+    // Temporary locking measures
+    const locked = true;
+
+    if(locked) {
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-4">Grey Gym</h1>
+            <p className="text-xl mb-2">Unfortunately, Grey Gym is closed due to coronavirus restrictions currently in place in Durham.</p>
+          </div>
+        </div>
+      );
+    }
+
     const { membership } = this.state;
 
     const membershipOptions = [
