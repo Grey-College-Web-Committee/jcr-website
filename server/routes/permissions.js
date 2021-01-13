@@ -248,12 +248,12 @@ router.get("/userswith/:permissionId", async (req, res) => {
   const { user } = req.session;
   const permissionId = req.params.permissionId;
 
-  if(!permissionId || permissionId === null || permissionId === undefined) {
-    return res.status(400).json({ error: "Missing permissionId" });
+  if(!hasPermission(req.session, "permissions.edit")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  if(!hasPermission(req.session, permissionId)) {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  if(!permissionId || permissionId === null || permissionId === undefined) {
+    return res.status(400).json({ error: "Missing permissionId" });
   }
 
   // Check if it exists
@@ -265,10 +265,18 @@ router.get("/userswith/:permissionId", async (req, res) => {
         permissionId
       },
       include: [
-        Permission,
+        {
+          model: Permission,
+          attributes: ["name"]
+        },
         {
           model: User,
           as: "grantedTo",
+          attributes: [ "id", "username", "firstNames", "surname" ]
+        },
+        {
+          model: User,
+          as: "grantedBy",
           attributes: [ "id", "username", "firstNames", "surname" ]
         }
       ]
@@ -278,9 +286,11 @@ router.get("/userswith/:permissionId", async (req, res) => {
   }
 
   const granted = existing.length != 0;
-  const grantedDetails = granted ? existing[0] : null;
+  if (existing.length === 0){
+    return res.status(200).json({ existing: null });
+  }
 
-  return res.status(200).json({ hasPermission: granted, grantedDetails });
+  return res.status(200).json({ existing });
 });
 
 // Set the module export to router so it can be used in server.js

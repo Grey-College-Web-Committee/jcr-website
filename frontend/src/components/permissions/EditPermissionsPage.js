@@ -4,6 +4,7 @@ import api from '../../utils/axiosConfig';
 import LoadingHolder from '../common/LoadingHolder';
 
 import SelectUser from './SelectUser';
+import SelectPermission from './SelectPermision';
 
 class EditPermissionsPage extends React.Component {
   constructor(props) {
@@ -67,6 +68,7 @@ class EditPermissionsPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Edit User Permissions</h1>
           <SelectUser />
+          <SelectPermission />
         </div>
       </div>
     );
