@@ -156,6 +156,11 @@ class NavBar extends React.Component {
               displayName: "Manage JCR Members",
               url: "/memberships/manage",
               requiredPermission: "jcr.manage"
+            },
+            {
+              displayName: "Create Election",
+              url: "/elections/create",
+              requiredPermission: "elections.manage"
             }
           ],
           alwaysDisplayed: false

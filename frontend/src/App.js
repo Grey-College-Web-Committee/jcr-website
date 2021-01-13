@@ -39,6 +39,7 @@ import StashExportPage from './components/stash/export/StashExportPage';
 import GymAdminPage from './components/gym/admin/GymAdminPage';
 import ExportMembershipsPage from './components/membership/export/ExportMembershipsPage';
 import ManageMembershipsPage from './components/membership/manage/ManageMembershipsPage';
+import CreateElectionPage from './components/elections/create/CreateElectionPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -263,6 +264,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/memberships/manage" render={() => (
                       this.hasPermission("jcr.manage") ? ( <ManageMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/elections/create" render={() => (
+                      this.hasPermission("elections.manage") ? ( <CreateElectionPage /> ) : ( <Redirect to="/errors/403" /> )
                     )} />
                     <Route exact path="/stash/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )

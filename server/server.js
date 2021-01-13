@@ -8,7 +8,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership } = require("./database.models.js");
+const { User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate } = require("./database.models.js");
 
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
@@ -18,6 +18,7 @@ const permissionsRoute = require("./routes/permissions");
 const cartRoute = require("./routes/cart");
 const gymRoute = require("./routes/gym");
 const membershipsRoute = require("./routes/memberships");
+const electionsRoute = require("./routes/elections");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -92,6 +93,11 @@ const requiredPermissions = [
     name: "Manage JCR Memberships",
     description: "Enables managing of JCR memberships",
     internal: "jcr.manage"
+  },
+  {
+    name: "Manage Elections",
+    description: "Allows creation of elections as well as generating their results",
+    internal: "elections.manage"
   }
 ];
 
@@ -120,6 +126,9 @@ const requiredPermissions = [
   await ToastieOrderContent.sync();
 
   await GymMembership.sync();
+
+  await Election.sync();
+  await ElectionCandidate.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
@@ -166,6 +175,7 @@ app.use("/api/permissions", isLoggedIn, permissionsRoute);
 app.use("/api/cart", isLoggedIn, cartRoute);
 app.use("/api/gym", isLoggedIn, gymRoute);
 app.use("/api/memberships", isLoggedIn, membershipsRoute);
+app.use("/api/elections", isLoggedIn, electionsRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
