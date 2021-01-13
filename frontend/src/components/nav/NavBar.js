@@ -71,8 +71,8 @@ class NavBar extends React.Component {
 
       const loggedInOptions = [
         {
-          displayName: "Purchase JCR Membership",
-          url: "/memberships/purchase",
+          displayName: "JCR Membership",
+          url: "/memberships/join",
           requiredPermission: permissions.includes("jcr.member") ? "no-one-has-this-perm" : null,
           staticImage: null,
           dropdown: null,

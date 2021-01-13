@@ -222,7 +222,7 @@ class App extends React.Component {
                       this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
                     )} />
                     <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
-                    <Route exact path="/memberships/purchase" render={() => (
+                    <Route exact path="/memberships/join" render={() => (
                       this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <LoginPage loginUser={this.loginUser} /> )
                     )} />
                     <Route exact path="/toasties/stock" render={() => (
@@ -244,7 +244,7 @@ class App extends React.Component {
                       this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )
                     )} />
                     <Route exact path="/toasties/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
                     )} />
                     <Route exact path="/debtors" render={() => (
                       this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )
@@ -265,10 +265,10 @@ class App extends React.Component {
                       this.hasPermission("jcr.manage") ? ( <ManageMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
                     )} />
                     <Route exact path="/stash/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
                     )} />
                     <Route exact path="/stash/view/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/purchase" /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
                     )} />
                     <Route exact path="/spinner/" render={() => (
                       this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( <Redirect to="/accounts/login" /> )

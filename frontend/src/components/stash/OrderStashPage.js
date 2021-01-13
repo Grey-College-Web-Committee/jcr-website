@@ -95,7 +95,7 @@ class OrderStashPage extends React.Component {
 
       if(!this.state.isMember) {
           return (
-            <Redirect to="/memberships/purchase" />
+            <Redirect to="/memberships/join" />
           )
       }
 

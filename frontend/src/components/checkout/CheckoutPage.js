@@ -62,8 +62,6 @@ class CheckoutPage extends React.Component {
       this.cart.setDeliveryInformation(false, this.state.deliveryOption, this.state.address);
     }
 
-    console.log(this.cart.get());
-
     this.setState({ disabled: true, pageState: 1, lockedClientSideCart: JSON.parse(JSON.stringify(this.cart.get())) }, this.submitCart);
     this.cart.setLocked(true);
   }
@@ -281,7 +279,7 @@ class CheckoutPage extends React.Component {
     }
 
     return (
-      <div>
+      <div className="text-justify">
         <h2 className="text-xl font-semibold pb-2">Stash Delivery</h2>
         <p className="pb-2">For stash items you can have the items delivered directly to your address (within the UK) or you can collect them from college for free once restrictions are eased.</p>
         <div className="pb-2 flex flex-col md:flex-row max-w-full">
@@ -313,8 +311,8 @@ class CheckoutPage extends React.Component {
     }
 
     return (
-      <div>
-        <p className="pb-2">Please enter your address below. Starred fields are required. Please ensure that your address is accurately written. You can check your address on the <a href="https://www.royalmail.com/find-a-postcode" target="_blank" rel="noopener noreferrer" className="underline">Royal Mail's website.</a></p>
+      <div className="text-justify">
+        <p className="pb-2">Please enter your address below. Starred fields are required. Please ensure that your address is accurately written. You can check your address on the <a href="https://www.royalmail.com/find-a-postcode" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Royal Mail's website.</a></p>
         <fieldset>
           <div className="pb-2 flex flex-row">
             <div className="flex-shrink-0 flex flex-col justify-center">
@@ -394,8 +392,9 @@ class CheckoutPage extends React.Component {
                 placeholder="Postcode..."
                 disabled={this.props.disabled}
               />
+            </div>
           </div>
-          </div>
+          <p className="mb-2">By writing your address, you consent to us sharing your data with our supplier "SAGITTARIAN SECURITY LIMITED" for the purpose of order preparation and delivery.</p>
         </fieldset>
       </div>
     )

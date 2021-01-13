@@ -98,7 +98,7 @@ class PurchaseMembershipPage extends React.Component {
           <div className="mb-2">
           </div>
           <div className="mb-2">
-            <p className="font-semibold mb-2 text-xl">After purchase, please logout and back in to see the changes!</p>
+            <p className="font-semibold mb-2 text-xl">After payment, please logout and back in to see the changes!</p>
           </div>
           <div className="flex flex-row flex-wrap justify-center">
             <GenericCartableItem
