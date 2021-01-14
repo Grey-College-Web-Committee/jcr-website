@@ -61,12 +61,12 @@ class SelectPermission extends React.Component {
   }
 
   // Tidies up their name for displaying
-  displayName = (firstNames, surname) => {
+  displayName = (firstNames, surname, username) => {
     let firstName = firstNames.split(",")[0];
     firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
     const lastName = surname.charAt(0).toUpperCase() + surname.substr(1).toLowerCase();
 
-    return `${firstName} ${lastName}`;
+    return `${firstName} ${lastName} (${username})`;
   }
 
   renderPermissionSelect = () => {
@@ -114,9 +114,9 @@ class SelectPermission extends React.Component {
       return (
         <tr className={colour}>
         <td className="w-40 p-2 font-semibold border-r border-gray-400">{item.Permission.name}</td>
-           <td className="w-32 p-2 border-l border-r border-gray-400 text-center">{item.grantedTo.username}</td>
-           <td className="w-32 p-2 border-l border-r border-gray-400 text-center">{item.grantedBy.username}</td>
-           <td className="hidden lg:table-cell w-64 p-2 border-l border-r border-gray-400 text-center">{dateFormat(item.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
+           <td className="w-48 p-2 border-l border-r border-gray-400 text-center">{this.displayName(item.grantedTo.firstNames, item.grantedTo.surname, item.grantedTo.username)}</td>
+           <td className="w-48 p-2 border-l border-r border-gray-400 text-center">{this.displayName(item.grantedBy.firstNames, item.grantedBy.surname, item.grantedBy.username)}</td>
+           <td className="hidden lg:table-cell w-48 p-2 border-l border-r border-gray-400 text-center">{dateFormat(item.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
           <td className="w-40 p-2 border-l border-gray-400">
             <button
               onClick={this.revokePermission}
