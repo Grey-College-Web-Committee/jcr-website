@@ -66,8 +66,9 @@ class EditPermissionsPage extends React.Component {
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Edit User Permissions</h1>
+          <h1 className="font-semibold text-5xl pb-4">Edit Permissions By User</h1>
           <SelectUser />
+          <h1 className="font-semibold text-5xl pt-10 pb-4">Edit Permissions By Type</h1>
           <SelectPermission />
         </div>
       </div>

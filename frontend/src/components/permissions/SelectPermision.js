@@ -1,10 +1,10 @@
 import React from 'react';
 import api from '../../utils/axiosConfig.js';
-import { Redirect } from 'react-router-dom';
 import dateFormat from 'dateformat';
+import { Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import LoadingHolder from '../common/LoadingHolder';
-import PermissionRow from './PermissionRow';
 
 class SelectPermission extends React.Component {
   constructor(props) {
@@ -52,7 +52,7 @@ class SelectPermission extends React.Component {
       alert("No users have this permission.");
     }
     else{
-      this.setState({ loadedPermission: permId, results: res });
+      this.setState({ loadedPermission: permId, results: res, disabled: false });
     }
   }
 
@@ -88,11 +88,20 @@ class SelectPermission extends React.Component {
           <td className="w-40 p-2 font-semibold border-r border-gray-400">{item.name}</td>
           <td className="hidden lg:table-cell w-64 p-2 border-l border-r border-gray-400">{item.description}</td>
           <td className="w-40 p-2 border-l border-gray-400">
+          {item.internal === "jcr.member" ? (
+            <Link to="/memberships/manage">
+              <button
+                className="px-4 py-1 rounded bg-blue-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              >Manage</button>
+            </Link>
+          ) :(
             <button
               onClick={()=>this.loadPermission(item.id)}
+              disabled={this.state.disabled}
               className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             >View</button>
-          </td>
+          )}
+        </td>
       </tr>
       );
     });
@@ -114,14 +123,14 @@ class SelectPermission extends React.Component {
       return (
         <tr className={colour}>
         <td className="w-40 p-2 font-semibold border-r border-gray-400">{item.Permission.name}</td>
-           <td className="w-48 p-2 border-l border-r border-gray-400 text-center">{this.displayName(item.grantedTo.firstNames, item.grantedTo.surname, item.grantedTo.username)}</td>
-           <td className="w-48 p-2 border-l border-r border-gray-400 text-center">{this.displayName(item.grantedBy.firstNames, item.grantedBy.surname, item.grantedBy.username)}</td>
-           <td className="hidden lg:table-cell w-48 p-2 border-l border-r border-gray-400 text-center">{dateFormat(item.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
+          <td className="w-48 p-2 border-l border-r border-gray-400 text-center">{this.displayName(item.grantedTo.firstNames, item.grantedTo.surname, item.grantedTo.username)}</td>
+          <td className="w-48 p-2 border-l border-r border-gray-400 text-center">{this.displayName(item.grantedBy.firstNames, item.grantedBy.surname, item.grantedBy.username)}</td>
+          <td className="hidden lg:table-cell w-48 p-2 border-l border-r border-gray-400 text-center">{dateFormat(item.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
           <td className="w-40 p-2 border-l border-gray-400">
             <button
               onClick={this.revokePermission}
               value = {item.grantedTo.id}
-              disabled = {this.state.disabled}
+              disabled={this.state.disabled}
               className="px-4 py-1 rounded bg-red-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             >Revoke</button>
           </td>
