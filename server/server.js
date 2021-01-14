@@ -22,6 +22,7 @@ const electionsRoute = require("./routes/elections");
 
 // Required to deploy the static React files for production
 const path = require("path");
+const fs = require("fs");
 
 // Load express
 const app = express();
@@ -202,6 +203,19 @@ app.get("/uploads/images/toastie_bar/:image", function(req, res) {
   const image = req.params.image;
   res.sendFile(path.join(__dirname, `./uploads/images/toastie_bar/${image}`));
 });
+
+app.get("/elections/manifesto/:filename", function(req, res) {
+  const filename = req.params.filename;
+
+  fs.readFile(path.join(__dirname, `./manifestos/${filename}`), (err, data) => {
+    if(err) {
+      res.status(404).end();
+    } else {
+      res.contentType("application/pdf");
+      res.send(data);
+    }
+  })
+})
 
 app.get('/*', function (req, res) {
   res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));

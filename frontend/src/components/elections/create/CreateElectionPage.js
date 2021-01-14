@@ -5,6 +5,7 @@ import LoadingHolder from '../../common/LoadingHolder';
 
 import ElectionCandidates from './ElectionCandidates';
 import ElectionDetails from './ElectionDetails';
+import CandidateRow from './CandidateRow';
 
 class CreateElectionPage extends React.Component {
   constructor(props) {
@@ -64,6 +65,12 @@ class CreateElectionPage extends React.Component {
     this.setState({ candidates });
   }
 
+  removeCandidate = (id) => {
+    const { candidates } = this.state;
+    const filtered = candidates.filter(candidate => candidate.id !== id);
+    this.setState({ candidates: filtered });
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -81,7 +88,7 @@ class CreateElectionPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Create New Election</h1>
-          <div className="flex flex-col md:w-3/5 mx-auto w-full">
+          <div className="flex flex-col md:w-1/2 mx-auto w-full">
             <div className="border-red-900 border-b-2">
               <h2 className="font-semibold text-2xl pb-4">Election Details</h2>
               <ElectionDetails
@@ -103,10 +110,15 @@ class CreateElectionPage extends React.Component {
                 <thead>
                   <tr><th>Name</th><th>Manifesto</th><th>Remove</th></tr>
                 </thead>
+                <tbody>
+                  { this.state.candidates.map((item, i) => (
+                    <CandidateRow
+                      candidate={item}
+                      removeCandidate={this.removeCandidate}
+                    />
+                  ))}
+                </tbody>
               </table>
-              <pre>
-                { JSON.stringify(this.state.candidates, null, 2) }
-              </pre>
             </div>
           </div>
         </div>

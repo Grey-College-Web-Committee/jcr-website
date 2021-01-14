@@ -49,7 +49,7 @@ class ElectionCandidates extends React.Component {
     let result;
 
     try {
-      result = await api.post("/elections/candidate/create", formData, {
+      result = await api.post("/elections/candidate", formData, {
         headers: { "content-type": "multipart/form-data" }
       });
     } catch (error) {
@@ -68,6 +68,12 @@ class ElectionCandidates extends React.Component {
   }
 
   render () {
+    if(this.props.disabled) {
+      return (
+        <p className="text-lg mb-4">Once you have confirmed the election details you will be able to add candidates.</p>
+      );
+    }
+
     return (
       <div className="w-full">
         <form onSubmit={this.addCandidate}>

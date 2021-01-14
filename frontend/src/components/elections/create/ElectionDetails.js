@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import api from '../../../utils/axiosConfig';
+import dateFormat from 'dateformat';
 
 class ElectionDetails extends React.Component {
   constructor(props) {
@@ -77,19 +78,19 @@ class ElectionDetails extends React.Component {
       <div className="w-full">
         <form onSubmit={this.createElection}>
           <fieldset>
-            <div className="mx-auto w-full pb-4 border-b-2">
-              <label htmlFor="name" className="flex flex-row justify-start pb-2 text-lg font-semibold">Election Name</label>
-              <input
-                type="text"
-                name="name"
-                value={this.state.name}
-                onChange={this.onInputChange}
-                className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-                placeholder="Election name..."
-                disabled={this.state.disabled || this.props.confirmed}
-              />
-            </div>
-            <div className="md:w-1/2 mx-auto">
+            <div className="mx-auto">
+              <div className="mx-auto w-full pb-4 border-b-2">
+                <label htmlFor="name" className="flex flex-row justify-start pb-2 text-lg font-semibold">Election Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={this.state.name}
+                  onChange={this.onInputChange}
+                  className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                  placeholder="Election name..."
+                  disabled={this.state.disabled || this.props.confirmed}
+                />
+              </div>
               <div className="mx-auto w-full pb-4 border-b-2 mt-2">
                 <label htmlFor="manifestoReleaseTime" className="flex flex-row justify-start pb-2 text-lg font-semibold">Manifesto Release</label>
                 <input
@@ -141,9 +142,14 @@ class ElectionDetails extends React.Component {
   getConfirmedDiv = () => {
     return (
       <div>
-        <pre>
-          { JSON.stringify(this.props.electionDetails, null, 2) }
-        </pre>
+        <table>
+          <tbody>
+            <tr><td>Election Name</td><td>{this.props.electionDetails.name}</td></tr>
+            <tr><td>Manifesto Releases</td><td>{dateFormat(this.props.electionDetails.manifestoReleaseTime, "dd/mm/yyyy HH:MM:ss")}</td></tr>
+            <tr><td>Voting Opens</td><td>{dateFormat(this.props.electionDetails.votingOpenTime, "dd/mm/yyyy HH:MM:ss")}</td></tr>
+            <tr><td>Voting Closes</td><td>{dateFormat(this.props.electionDetails.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</td></tr>
+          </tbody>
+        </table>
       </div>
     )
   }

@@ -23,6 +23,8 @@ import GymInformationPage from './components/gym/GymInformationPage';
 import GymTermsPage from './components/gym/GymTermsPage';
 import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
 
+import ElectionOverviewPage from './components/elections/overview/ElectionOverviewPage';
+
 import ContributorsPage from './components/legal/ContributorsPage';
 import CookiesPage from './components/legal/CookiesPage';
 
@@ -264,6 +266,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/memberships/manage" render={() => (
                       this.hasPermission("jcr.manage") ? ( <ManageMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/elections/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
                     )} />
                     <Route exact path="/elections/create" render={() => (
                       this.hasPermission("elections.manage") ? ( <CreateElectionPage /> ) : ( <Redirect to="/errors/403" /> )
