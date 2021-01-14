@@ -122,7 +122,6 @@ class SelectPermission extends React.Component {
       const colour = i % 2 === 0 ? "bg-red-100" : "bg-white";
       return (
         <tr className={colour}>
-        <td className="w-40 p-2 font-semibold border-r border-gray-400">{item.Permission.name}</td>
           <td className="w-48 p-2 border-l border-r border-gray-400 text-center">{this.displayName(item.grantedTo.firstNames, item.grantedTo.surname, item.grantedTo.username)}</td>
           <td className="w-48 p-2 border-l border-r border-gray-400 text-center">{this.displayName(item.grantedBy.firstNames, item.grantedBy.surname, item.grantedBy.username)}</td>
           <td className="hidden lg:table-cell w-48 p-2 border-l border-r border-gray-400 text-center">{dateFormat(item.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
@@ -158,6 +157,7 @@ class SelectPermission extends React.Component {
     }
 
     this.loadPermission(this.state.loadedPermission);
+    this.setState({ disabled: false })
   }
 
   getResultsTable = () => {
@@ -166,11 +166,10 @@ class SelectPermission extends React.Component {
     }
     return(
       <div className="border-b-2 border-t-2 p-4">
-          <h2 className="font-semibold text-3xl pb-4">Users With Selected Permission</h2>
+          <h2 className="font-semibold text-3xl pb-4">Users With Permission to "{this.state.results[0].Permission.name}"</h2>
           <table className="mx-auto border-2 text-left border-red-900">
             <thead className="bg-red-900 text-white">
               <tr>
-                <th className="p-2 font-semibold">Permission</th>
                 <th className="p-2 font-semibold">Granted To</th>
                 <th className="p-2 font-semibold">Granted By</th>
                 <th className="p-2 font-semibold hidden lg:table-cell">Granted At</th>
