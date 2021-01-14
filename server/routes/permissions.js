@@ -243,6 +243,56 @@ router.get("/single/:userId/:permissionId", async (req, res) => {
   return res.status(200).json({ hasPermission: granted, grantedDetails });
 });
 
+router.get("/userswith/:permissionId", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+  const permissionId = req.params.permissionId;
+
+  if(!hasPermission(req.session, "permissions.edit")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  if(!permissionId || permissionId === null || permissionId === undefined) {
+    return res.status(400).json({ error: "Missing permissionId" });
+  }
+
+  // Check if it exists
+  let existing;
+
+  try {
+    existing = await PermissionLink.findAll({
+      where: {
+        permissionId
+      },
+      include: [
+        {
+          model: Permission,
+          attributes: ["name"]
+        },
+        {
+          model: User,
+          as: "grantedTo",
+          attributes: [ "id", "username", "firstNames", "surname" ]
+        },
+        {
+          model: User,
+          as: "grantedBy",
+          attributes: [ "id", "username", "firstNames", "surname" ]
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error checking if the permission exists" });
+  }
+
+  const granted = existing.length != 0;
+  if (existing.length === 0){
+    return res.status(200).json({ existing: null });
+  }
+
+  return res.status(200).json({ existing });
+});
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;
