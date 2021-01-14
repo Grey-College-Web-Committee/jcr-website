@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import config from '../../../config.json';
@@ -84,7 +84,7 @@ class ElectionOverviewPage extends React.Component {
                 <p className="p-2 text-2xl">{election.name}</p>
               </div>
               <div className="flex flex-col flex-wrap border border-red-900 p-2">
-                <button>VOTE NOW!</button>
+                <Link to={`/elections/vote/${election.id}`}><button>VOTE NOW!</button></Link>
                 <p>Voting closes at {dateFormat(election.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</p>
                 <table>
                   <thead>

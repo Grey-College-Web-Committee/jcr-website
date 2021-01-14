@@ -4,7 +4,7 @@ const multer = require("multer");
 const fs = require("fs");
 const router = express.Router();
 // The database models
-const { User, Permission, PermissionLink, Election, ElectionCandidate } = require("../database.models.js");
+const { User, Permission, PermissionLink, Election, ElectionCandidate, ElectionVote, ElectionVoteLink } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "manifestos/" });
@@ -213,6 +213,185 @@ router.get("/list", async (req, res) => {
   }
 
   return res.status(200).json({ liveElections, upcomingElections, previousElections });
+});
+
+router.get("/election/:id", async (req, res) => {
+  const { user } = req.session;
+
+  const { id } = req.params;
+  const now = new Date();
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  // Check if the election exists
+  let election;
+
+  try {
+    election = await Election.findOne({
+      where: { id },
+      include: [{
+        model: ElectionCandidate,
+        attributes: [ "id", "name", "manifestoLink" ]
+      }]
+    })
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to load election" });
+  }
+
+  if(election === null) {
+    return res.status(400).json({ error: "Election does not exist" });
+  }
+
+  // Check the election is open for voting
+
+  if(new Date(election.votingOpenTime) > now) {
+    return res.status(400).json({ error: "Voting is not open yet" });
+  }
+
+  if(new Date(election.votingCloseTime) < now) {
+    return res.status(400).json({ error: "Voting has already closed" });
+  }
+
+  // Election exists, so now check if the user has already voted
+
+  let electionVote;
+
+  try {
+    electionVote = await ElectionVote.findOne({
+      where: {
+        electionId: id,
+        userId: user.id
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to verify the user has only voted once" });
+  }
+
+  if(electionVote !== null) {
+    return res.status(403).json({ error: "You have already voted in the election", election });
+  }
+
+  // The user has not voted and the election exists
+
+  return res.status(200).json({ election });
+});
+
+router.post("/vote", async (req, res) => {
+  const { user } = req.session;
+  const { preferences, electionId } = req.body;
+
+  if(preferences === undefined || preferences === null) {
+    return res.status(400).json({ error: "Missing preferences" });
+  }
+
+  if(!Array.isArray(preferences)) {
+    return res.status(400).json({ error: "preferences must be an array" });
+  }
+
+  if(electionId === undefined || electionId === null) {
+    return res.status(400).json({ error: "Missing electionId" });
+  }
+
+  // Get the election and the candidate's ids
+
+  let election;
+
+  try {
+    election = await Election.findOne({
+      where: { id: electionId },
+      include: [{
+        model: ElectionCandidate,
+        attributes: [ "id" ]
+      }]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the election" });
+  }
+
+  if(election === null) {
+    return res.status(400).json({ error: "Election does not exist" });
+  }
+
+  const now = new Date();
+
+  // Check the election is open for voting
+
+  if(new Date(election.votingOpenTime) > now) {
+    return res.status(400).json({ error: "Voting is not open yet" });
+  }
+
+  if(new Date(election.votingCloseTime) < now) {
+    return res.status(400).json({ error: "Voting has already closed" });
+  }
+
+  // Election exists, so now check if the user has already voted
+
+  let electionVote;
+
+  try {
+    electionVote = await ElectionVote.findOne({
+      where: {
+        electionId,
+        userId: user.id
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to verify the user has only voted once" });
+  }
+
+  if(electionVote !== null) {
+    return res.status(403).json({ error: "You have already voted in the election", election });
+  }
+
+  // The user has not voted and the election exists
+  // Now check that the candidates in their preferences are real
+
+  let validCandidateIds = election.ElectionCandidates.map((candidate) => candidate.id);
+
+  for(let entry of preferences) {
+    if(!validCandidateIds.includes(entry.id)) {
+      return res.status(400).json({ error: "Invalid candidate voted for" });
+    }
+
+    validCandidateIds = validCandidateIds.filter(id => id !== entry.id);
+  }
+
+  if(validCandidateIds.length !== 0) {
+    return res.status(400).json({ error: "Not enough candidates voted for" });
+  }
+
+  // Now put the vote in the database
+
+  let voteRecord;
+
+  try {
+    voteRecord = await ElectionVote.create({
+      userId: user.id,
+      electionId
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create a new vote" });
+  }
+
+  const voteId = voteRecord.id;
+
+  for(let entry of preferences) {
+    try {
+      await ElectionVoteLink.create({
+        voteId,
+        candidateId: entry.id,
+        preference: entry.preference
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to place preference on vote" });
+    }
+  }
+
+  // Vote cast!
+
+  return res.status(200).end();
 });
 
 // Set the module export to router so it can be used in server.js
