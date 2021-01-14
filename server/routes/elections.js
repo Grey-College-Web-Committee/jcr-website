@@ -123,8 +123,6 @@ router.delete("/candidate/:candidateId", async (req, res) => {
       }
     });
   } catch (error) {
-    console.log("?");
-    console.log(error);
     return res.status(500).json({ error });
   }
 
@@ -137,16 +135,12 @@ router.delete("/candidate/:candidateId", async (req, res) => {
   try {
     await fs.unlink(`manifestos/${filename}`, (err) => {});
   } catch (error) {
-    console.log("??");
-    console.log(error);
     return res.status(500).json({ error: "Unable to delete manifesto" });
   }
 
   try {
     await candidate.destroy();
   } catch (error) {
-    console.log("???");
-    console.log(error);
     return res.status(500).json({ error: "Unable to delete candidate" });
   }
 
@@ -158,6 +152,10 @@ router.get("/list", async (req, res) => {
   // Voting is open
   // So votingOpenTime < now < votingCloseTime
   const now = new Date();
+
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "Only JCR members can vote" });
+  }
 
   let liveElections;
 
@@ -221,6 +219,10 @@ router.get("/election/:id", async (req, res) => {
   const { id } = req.params;
   const now = new Date();
 
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "Only JCR members can vote" });
+  }
+
   if(id === undefined || id === null) {
     return res.status(400).json({ error: "Missing id" });
   }
@@ -281,6 +283,10 @@ router.get("/election/:id", async (req, res) => {
 router.post("/vote", async (req, res) => {
   const { user } = req.session;
   const { preferences, electionId } = req.body;
+
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "Only JCR members can vote" });
+  }
 
   if(preferences === undefined || preferences === null) {
     return res.status(400).json({ error: "Missing preferences" });
@@ -393,6 +399,395 @@ router.post("/vote", async (req, res) => {
 
   return res.status(200).end();
 });
+
+router.get("/result/:electionId", async (req, res) => {
+  const { user } = req.session;
+
+  // Compares their permissions with your internal permission string
+  if(!hasPermission(req.session, "elections.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { electionId } = req.params;
+
+  if(electionId === undefined || electionId === null) {
+    return res.status(400).json({ error: "Missing the election ID" });
+  }
+
+  // Check the election exists and is finished
+
+  const now = new Date();
+
+  let election;
+
+  try {
+    election = await Election.findOne({
+      where: { id: electionId },
+      include: [{
+        model: ElectionCandidate,
+        attributes: [ "id" ]
+      }]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the election" });
+  }
+
+  if(election === null) {
+    return res.status(400).json({ error: "Election does not exist" });
+  }
+
+  // Check the election is closed
+
+  if(new Date(election.votingCloseTime) > now) {
+    return res.status(400).json({ error: "Voting has not closed yet" });
+  }
+
+  const candidateIds = election.ElectionCandidates.map(candidate => candidate.id);
+  const totalCandidates = candidateIds.length;
+
+  // We now have to work out who wins
+  /*
+  1. Calculate quota (floor(votes / 2) + 1)
+  2. Calculate the first preference votes for each candidate
+  3. If one achieves quota we are done
+  4. If none do then eliminate the lowest
+  --> If we have losers' tie then tally everyones 2nd preference votes that are the two runoff losers
+  --> If we still have a draw then we are going to have to randomly select one
+  5. Repeat from step 1 but using the next preference for those who voted for the loser
+  */
+
+  let voteRecords;
+
+  try {
+    voteRecords = await ElectionVote.findAll({
+      where: { electionId }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the votes from the database" });
+  }
+
+  const totalVotes = voteRecords.length;
+
+  if(totalVotes === 0) {
+    // No votes??
+    return res.status(400).end();
+  }
+
+  // Now lets get each users total preference order
+  let voterPreferences = [];
+  let validVoters = 0;
+  let invalidVoters = 0;
+
+  for(const record of voteRecords) {
+    let individualPreferenceRecords;
+
+    try {
+      individualPreferenceRecords = await ElectionVoteLink.findAll({
+        where: {
+          voteId: record.id
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to get the preferences from the database" });
+    }
+
+    // Shouldn't happen but means they haven't voted enough
+    if(individualPreferenceRecords.length !== totalCandidates) {
+      invalidVoters++;
+      return;
+    }
+
+    const individualPreferences = individualPreferenceRecords.sort((a, b) => {
+      return a.preference < b.preference ? -1 : (a.preference > b.preference ? 1 : 0);
+    }).map(record => record.candidateId);
+
+    // Shouldn't happen but means they haven't voted for every candidate
+    if(candidateIds.filter(id => individualPreferences.includes(id)).length !== candidateIds.length) {
+      invalidVoters++;
+      return;
+    }
+
+    voterPreferences.push(individualPreferences);
+    validVoters++;
+  }
+
+  if(validVoters !== totalVotes) {
+    // Shouldn't happen
+    return res.status(500).json({ error: "Some votes were deemed invalid" });
+  }
+
+  // So we now have everyones preferences
+  const { overallWinner, overallDraw, deepLog, roundSummaries } = findSTVWinner(candidateIds, voterPreferences);
+
+  return res.status(200).json({ overallWinner, overallDraw, deepLog, roundSummaries });
+});
+
+const findSTVWinner = (candidateIds, voterPreferences) => {
+  const deepLog = [];
+  const roundSummaries = [];
+
+  let contenderIds = candidateIds;
+  let loserIds = [];
+  let overallWinner = null;
+  let round = 0;
+  let overallDraw = false;
+
+  while(overallWinner === null && !overallDraw) {
+    const { winner, draw, eliminatedId, roundLog, roundSummaryData } = performSTVRound(contenderIds, voterPreferences);
+
+    deepLog.push({ round, roundLog });
+    roundSummaries.push({ round, roundSummaryData });
+
+    if(eliminatedId !== null) {
+      loserIds.push(eliminatedId);
+      contenderIds = contenderIds.filter(id => id !== eliminatedId);
+    }
+
+    round++;
+    overallWinner = winner;
+    overallDraw = draw;
+  }
+
+  return { overallWinner, overallDraw, deepLog, roundSummaries };
+}
+
+const performSTVRound = (contenderIds, voterPreferences) => {
+  const roundLog = [];
+  const roundSummaryData = {};
+
+  // We will use this to track the votes
+  let talliedVotes = {};
+
+  contenderIds.forEach((id) => {
+    talliedVotes[id] = [];
+  });
+
+  let trueVoterCount = 0;
+
+  for(let voterIndex = 0; voterIndex < voterPreferences.length; voterIndex++) {
+    const preferences = voterPreferences[voterIndex];
+    roundLog.push(preferences);
+    let voted = false;
+
+    // Cast the vote
+    // We look at their nth pref, if they are still in we cast the vote
+    // otherwise we go to the (n + 1)th pref
+    for(let i = 0; i < preferences.length; i++) {
+      const id = preferences[i];
+      if(contenderIds.includes(id)) {
+        talliedVotes[id].push(voterIndex);
+        voted = true;
+        // We will keep a log of what is happening in the vote
+        roundLog.push(`Vote cast for ${id} (preference position: ${i}, voter index: ${voterIndex})`);
+        break;
+      }
+    }
+
+    if(!voted) {
+      roundLog.push(`[ERROR] No vote cast by voter index ${voterIndex}`);
+    } else {
+      trueVoterCount++;
+    }
+  }
+
+  if(trueVoterCount !== voterPreferences.length) {
+    roundLog.push(`[ERROR] Not all voters (${trueVoterCount}/${voterPreferences.length}) cast a vote. This shouldn't happen.`);
+  }
+
+  // The minimum number of votes to win on this round
+  const quota = Math.floor(trueVoterCount / 2) + 1;
+  roundLog.push(`Quota: ${quota}`);
+  roundSummaryData.totalVotes = trueVoterCount;
+  roundSummaryData.quota = quota;
+
+  // Now lets check if anyone has reached quota
+  let winner = null;
+  let lowestVotes = trueVoterCount + 1;
+  let lowestContenderIds = [];
+
+  roundSummaryData.votes = {};
+  for(const contenderId of contenderIds) {
+    const votes = talliedVotes[contenderId].length;
+
+    // Things get more interesting when we have draw for the losers
+    if(votes === lowestVotes) {
+      lowestContenderIds.push(contenderId);
+    }
+
+    if(votes < lowestVotes) {
+      lowestVotes = votes;
+      lowestContenderIds = [contenderId];
+    }
+
+    if(votes >= quota) {
+      winner = contenderId;
+    }
+
+    roundLog.push(`Candidate ${contenderId}: ${votes} votes`);
+    roundSummaryData.votes[contenderId] = votes;
+  }
+
+  // We've found a winner
+  if(winner !== null) {
+    roundLog.push(`Candidate ${winner} achieves quota!`);
+    roundSummaryData.winner = winner;
+    roundSummaryData.tiebreakerDepth = 0;
+    roundSummaryData.eliminated = null;
+    roundSummaryData.overallDraw = false;
+
+    return {
+      winner: winner,
+      draw: false,
+      eliminatedId: null,
+      roundLog,
+      roundSummaryData
+    }
+  }
+
+  roundSummaryData.winner = null;
+
+  // Otherwise lets determine who gets eliminated
+  // Easy when we only have 1 with the lowest
+  if(lowestContenderIds.length === 1) {
+    roundLog.push(`Candidate ${lowestContenderIds[0]} is eliminated with ${lowestVotes} votes`);
+    roundSummaryData.tiebreakerDepth = 0;
+    roundSummaryData.eliminated = lowestContenderIds[0];
+    roundSummaryData.overallDraw = false;
+
+    return {
+      winner: null,
+      draw: false,
+      eliminatedId: Number(lowestContenderIds[0]),
+      roundLog,
+      roundSummaryData
+    }
+  }
+
+  // We have a complete draw
+  if(lowestContenderIds.length === contenderIds.length) {
+    roundLog.push(`Candidates ${lowestContenderIds.join(", ")} have ended in a complete tie. Nobody achieves quota.`);
+    roundSummaryData.tiebreakerDepth = 0;
+    roundSummaryData.eliminated = lowestContenderIds[0];
+    roundSummaryData.overallDraw = true;
+
+    return {
+      winner: null,
+      draw: true,
+      eliminatedId: null,
+      roundLog,
+      roundSummaryData
+    }
+  }
+
+  // We have a loser tie
+  // Have to do a tiebreaker
+  roundLog.push(`Multiple candidates have the lowest number of votes (candidates ${lowestContenderIds.join(", ")}) with ${lowestVotes} votes`);
+
+  // We now look at everyone who didn't voter for any of the candidates in the tiebreaker
+  // We take their choice of losers from their next preferences (e.g. 21, 22 in tiebreaker
+  // and someone voted for 20 with the voting preferences [20, 24, 22, 21] they would put
+  // a tiebreaker vote for 22)
+  // It becomes FPTP instead of STV
+  let tiebreakerVotes = {};
+
+  lowestContenderIds.forEach((id) => {
+    tiebreakerVotes[id] = 0;
+  });
+
+  let tiebreakerVoterIndices = [];
+
+  contenderIds.forEach((id) => {
+    if(lowestContenderIds.includes(id)) {
+      return;
+    }
+
+    // We're only interested in those not in the tiebreaker
+    tiebreakerVoterIndices = tiebreakerVoterIndices.concat(talliedVotes[id]);
+  });
+
+  const totalTiebreakerVotes = tiebreakerVoterIndices.length;
+  roundLog.push(`Total tiebreaker votes: ${totalTiebreakerVotes}`);
+  let validTiebreakerVotes = 0;
+
+  // We now have an array of indices matching to the preferences of the tiebreaker voters
+  for(const voterIndex of tiebreakerVoterIndices) {
+    const preferences = voterPreferences[voterIndex];
+    let voted = false;
+
+    for(let preference = 0; preference < preferences.length; preference++) {
+      const candidateId = preferences[preference];
+
+      if(lowestContenderIds.includes(candidateId)) {
+        tiebreakerVotes[candidateId]++;
+        roundLog.push(`Voter index ${voterIndex} voted for ${candidateId} in the tiebreaker`);
+        voted = true;
+        break;
+      }
+    }
+
+    if(voted) {
+      validTiebreakerVotes++;
+    } else {
+      roundLog.push(`Voter index ${voterIndex} did not vote in the tiebreaker (no candidate found)`);
+    }
+  }
+
+  // We now have the votes
+
+  let lowestTiebreakerVotes = validTiebreakerVotes + 1;
+  let lowestTiebreakerIds = [];
+
+  // I think 'in' should be fine here as it's iterating object keys
+  for(const tiebreakerId in tiebreakerVotes) {
+    const votes = tiebreakerVotes[tiebreakerId];
+
+    // Things get more interesting when we have draw for the losers of the tiebreaker
+    if(votes === lowestTiebreakerVotes) {
+      lowestTiebreakerIds.push(tiebreakerId);
+    }
+
+    if(votes < lowestTiebreakerVotes) {
+      lowestTiebreakerVotes = votes;
+      lowestTiebreakerIds = [tiebreakerId];
+    }
+
+    roundLog.push(`Candidate ${tiebreakerId}: ${votes} tiebreaker votes`);
+  }
+
+  if(lowestTiebreakerIds.length === 1) {
+    roundLog.push(`Candidate ${lowestTiebreakerIds[0]} is eliminated with ${lowestTiebreakerVotes} votes after 1st tiebreaker`);
+    roundSummaryData.tiebreakerDepth = 1;
+    roundSummaryData.eliminated = lowestTiebreakerIds[0];
+    roundSummaryData.overallDraw = false;
+    return {
+      winner: null,
+      draw: false,
+      eliminatedId: Number(lowestContenderIds[0]),
+      roundLog,
+      roundSummaryData
+    }
+  }
+
+  roundLog.push(`Multiple candidates have the lowest number of votes in the 2nd tiebreaker (candidates ${lowestTiebreakerIds.join(", ")}) with ${lowestTiebreakerVotes} votes`);
+
+  // If we end up with another tie then it is luck of the draw who gets eliminated
+  // this is the tiebreaker of the tiebreaker and only involves the losing candidates from
+  // the tiebreaker itself
+  const unluckyTiebreakerId = lowestTiebreakerIds[Math.floor(Math.random() * lowestTiebreakerIds.length)];
+  roundLog.push(`Candidate ${unluckyTiebreakerId} was eliminated with ${lowestTiebreakerVotes} votes after 2nd tiebreaker (randomly eliminated from losers of 2nd tiebreaker)`);
+
+  roundSummaryData.tiebreakerDepth = 2;
+  roundSummaryData.eliminated = unluckyTiebreakerId;
+  roundSummaryData.overallDraw = false;
+
+  return {
+    winner: null,
+    draw: false,
+    eliminatedId: Number(unluckyTiebreakerId),
+    roundLog,
+    roundSummaryData
+  }
+}
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route

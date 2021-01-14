@@ -116,7 +116,10 @@ class ElectionVotingPage extends React.Component {
     try {
       await api.post("/elections/vote", { preferences, electionId: this.state.election.id });
     } catch (error) {
-      console.log(error);
+      if(error.response.status === 400) {
+        alert(error.response.data.error);
+      }
+      
       return;
     }
 
