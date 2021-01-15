@@ -7,7 +7,9 @@ class CandidateRow extends React.Component {
     super(props);
 
     this.state = {
-      disabled: false
+      disabled: false,
+      candidate: this.props.candidate,
+      deleted: false,
     };
   }
 
@@ -15,24 +17,28 @@ class CandidateRow extends React.Component {
     this.setState({ disabled: true });
 
     try {
-      await api.delete(`/elections/candidate/${this.props.candidate.id}`);
+      await api.delete(`/elections/candidate/${this.state.candidate.id}`);
     } catch (error) {
-      console.log(error);
       alert("Unable to delete candidate");
       return;
     }
 
-    this.props.removeCandidate(this.props.candidate.id);
+    this.setState({ deleted: true });
   }
 
   render () {
+    if(this.state.deleted) {
+      return null;
+    }
+
     return (
-      <tr>
-        <td>{this.props.candidate.name}</td>
-        <td><a href={`/elections/manifesto/${this.props.candidate.manifestoLink}`}>View Manifesto</a></td>
-        <td>
+      <tr className="text-center border-b border-gray-400">
+        <td className="p-2 border-r border-gray-400">{this.state.candidate.name}</td>
+        <td className="p-2 border-r border-gray-400 underline"><a target="_blank" href={`/elections/manifesto/${this.state.candidate.manifestoLink}`}>View Manifesto</a></td>
+        <td className="p-2 border-r border-gray-400">
           <button
             onClick={this.removeSelf}
+            className="px-4 py-1 rounded bg-red-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             disabled={this.state.disabled}
           >Remove</button>
         </td>

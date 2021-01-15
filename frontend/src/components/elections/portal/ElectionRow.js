@@ -1,14 +1,36 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import dateFormat from 'dateformat';
+import api from '../../../utils/axiosConfig';
 import { Link } from 'react-router-dom';
 
 class ElectionRow extends React.Component {
-  deleteSelf = () => {
-    
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      disabled: false,
+      deleted: false
+    }
+  }
+
+  deleteSelf = async () => {
+    try {
+      await api.delete(`/elections/${this.props.election.id}`);
+    } catch (error) {
+      alert("Unable to delete the election");
+      return;
+    }
+
+    alert("Election deleted");
+    this.setState({ deleted: true });
   }
 
   render () {
+    if(this.state.deleted) {
+      return null;
+    }
+
     const { election } = this.props;
 
     let status = "Unknown";
@@ -34,6 +56,7 @@ class ElectionRow extends React.Component {
       <Link to={`/elections/results/${election.id}`}>
         <button
           className="px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+          disabled={this.state.disabled}
         >Generate Results</button>
       </Link>
     );
@@ -63,6 +86,7 @@ class ElectionRow extends React.Component {
           <Link to={`/elections/results/${election.id}`}>
             <button
               className="px-4 py-1 rounded bg-blue-700 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              disabled={this.state.disabled}
             >View Results</button>
           </Link>
         ) : "Voting Not Closed"}
@@ -72,6 +96,7 @@ class ElectionRow extends React.Component {
             <button
               onClick={this.deleteSelf}
               className="px-4 py-1 rounded bg-red-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              disabled={this.state.disabled}
             >Delete</button>
           : "Voting Started"}
         </td>

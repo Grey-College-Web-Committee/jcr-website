@@ -8,7 +8,7 @@ import { sortableContainer, sortableElement, sortableHandle } from 'react-sortab
 
 const SortableItem = sortableElement(({candidate, position}) => (
   <li
-    className="border p-4 mr-4 text-xl w-full cursor-move"
+    className="border p-4 mr-4 text-xl w-full cursor-move my-2"
   >
     <span>{position + 1}. {candidate.name}</span>
   </li>
@@ -119,7 +119,7 @@ class ElectionVotingPage extends React.Component {
       if(error.response.status === 400) {
         alert(error.response.data.error);
       }
-      
+
       return;
     }
 
@@ -160,12 +160,12 @@ class ElectionVotingPage extends React.Component {
     }
 
     return (
-      <div className="flex flex-col justify-start">
+      <div className="flex flex-col justify-start text-lg">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Vote: {name}</h1>
-          <p>The JCR uses Single Transferable Vote</p>
+          <p>The JCR uses Single Transferable Vote for elections.</p>
           <p>Drag the candidates in to the order that you wish to vote for them.</p>
-          <p>Your first preference should be at the top and your last preference at the bottom.</p>
+          <p>Your first preference for the role should be at the top and your last preference at the bottom.</p>
           <div>
             <SortableContainer onSortEnd={this.onSortEnd} helperClass="list-none" shouldCancelStart={() => this.state.disabled}>
               {preferences.map((candidate, i) => (
@@ -174,10 +174,11 @@ class ElectionVotingPage extends React.Component {
             </SortableContainer>
           </div>
           <div>
-            <p>Once you have ordered the candidates, press the button below to cast your vote.</p>
-            <p>You will not be able to alter or revoke your vote after casting it.</p>
+            <p className="mb-2">Once you have ordered the candidates, press the button below to cast your vote.</p>
+            <p className="mb-2">You will not be able to alter or revoke your vote after casting it.</p>
             <button
               onClick={this.submitVote}
+              className="px-4 py-1 text-xl rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             >Cast Vote</button>
           </div>
         </div>

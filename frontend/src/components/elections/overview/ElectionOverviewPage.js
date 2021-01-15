@@ -83,14 +83,18 @@ class ElectionOverviewPage extends React.Component {
               <div className="bg-red-900 text-white">
                 <p className="p-2 text-2xl">{election.name}</p>
               </div>
-              <div className="flex flex-col flex-wrap border border-red-900 p-2">
-                <Link to={`/elections/vote/${election.id}`}><button>VOTE NOW!</button></Link>
-                <p>Voting closes at {dateFormat(election.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</p>
-                <table>
-                  <thead>
+              <div className="flex flex-col flex-wrap border border-red-900 p-2 items-center">
+                <Link to={`/elections/vote/${election.id}`}>
+                  <button
+                    className="text-3xl px-4 py-2 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 my-2"
+                  >Click Here to Vote!</button>
+                </Link>
+                <p className="font-semibold text-lg my-2">Voting closes at {dateFormat(election.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</p>
+                <table className="mx-auto border-2 text-left border-red-900 w-auto my-2">
+                  <thead className="bg-red-900 text-white w-auto">
                     <tr>
-                      <td>Name</td>
-                      <td>View manifesto</td>
+                      <td className="p-2 font-semibold w-auto">Name</td>
+                      <td className="p-2 font-semibold w-auto">Manifesto</td>
                     </tr>
                   </thead>
                   <tbody>
@@ -98,11 +102,12 @@ class ElectionOverviewPage extends React.Component {
                       election.ElectionCandidates.sort((a, b) => {
                         return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)
                       }).map((candidate, j) => (
-                        <tr key={j}>
-                          <td>{candidate.name}</td>
-                          <td>
+                        <tr key={j} className="text-center border-b border-gray-400 w-auto">
+                          <td className="p-2 border-r border-gray-400 w-auto">{candidate.name}</td>
+                          <td className="p-2 border-r border-gray-400 w-auto">
                             <a href={`/elections/manifesto/${candidate.manifestoLink}`} target="_blank">
                               <button
+                                className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                               >View Manifesto</button>
                             </a>
                           </td>
@@ -144,13 +149,13 @@ class ElectionOverviewPage extends React.Component {
               <div className="bg-red-900 text-white">
                 <p className="p-2 text-2xl">{election.name}</p>
               </div>
-              <div className="flex flex-col flex-wrap border border-red-900 p-2">
-                <p>Voting opens at {dateFormat(election.votingOpenTime, "dd/mm/yyyy HH:MM:ss")}</p>
-                <table>
-                  <thead>
+              <div className="flex flex-col flex-wrap border border-red-900 p-2 items-center">
+                <p className="font-semibold text-lg my-2">Voting opens at {dateFormat(election.votingOpenTime, "dd/mm/yyyy HH:MM:ss")}</p>
+                <table className="mx-auto border-2 text-left border-red-900 w-auto my-2">
+                  <thead className="bg-red-900 text-white w-auto">
                     <tr>
-                      <td>Name</td>
-                      <td>View manifesto</td>
+                      <td className="p-2 font-semibold w-auto">Name</td>
+                      <td className="p-2 font-semibold w-auto">Manifesto</td>
                     </tr>
                   </thead>
                   <tbody>
@@ -158,11 +163,12 @@ class ElectionOverviewPage extends React.Component {
                       election.ElectionCandidates.sort((a, b) => {
                         return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)
                       }).map((candidate, j) => (
-                        <tr key={j}>
-                          <td>{candidate.name}</td>
-                          <td>
+                        <tr key={j} className="text-center border-b border-gray-400 w-auto">
+                          <td className="p-2 border-r border-gray-400 w-auto">{candidate.name}</td>
+                          <td className="p-2 border-r border-gray-400 w-auto">
                             <a href={`/elections/manifesto/${candidate.manifestoLink}`} target="_blank">
                               <button
+                                className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                               >View Manifesto</button>
                             </a>
                           </td>
@@ -204,9 +210,9 @@ class ElectionOverviewPage extends React.Component {
               <div className="bg-red-900 text-white">
                 <p className="p-2 text-2xl">{election.name}</p>
               </div>
-              <div className="flex flex-col flex-wrap border border-red-900 p-2">
-                <p>Voting closed at {dateFormat(election.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</p>
-                <p>Result: {election.winner === null ? "TBD" : (election.winner === "draw" ? "Under review" : `${election.winner} achieves quota and is duly elected.` )}</p>
+              <div className="flex flex-col flex-wrap border border-red-900 p-2 items-center">
+                <p className="font-semibold text-lg my-2">Voting closed at {dateFormat(election.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</p>
+                <p className="font-semibold text-lg my-2">Result: {election.winner === null ? "TBD" : (election.winner === "draw" ? "Under review" : `${election.winner} achieves quota and is duly elected.` )}</p>
               </div>
             </div>
           ))}

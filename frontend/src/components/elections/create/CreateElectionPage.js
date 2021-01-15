@@ -65,12 +65,6 @@ class CreateElectionPage extends React.Component {
     this.setState({ candidates });
   }
 
-  removeCandidate = (id) => {
-    const { candidates } = this.state;
-    const filtered = candidates.filter(candidate => candidate.id !== id);
-    this.setState({ candidates: filtered });
-  }
-
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -105,21 +99,26 @@ class CreateElectionPage extends React.Component {
                 addCandidate={this.addCandidate}
               />
             </div>
-            <div>
-              <table>
-                <thead>
-                  <tr><th>Name</th><th>Manifesto</th><th>Remove</th></tr>
-                </thead>
-                <tbody>
-                  { this.state.candidates.map((item, i) => (
-                    <CandidateRow
-                      candidate={item}
-                      removeCandidate={this.removeCandidate}
-                    />
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            {this.state.election === null ? null :
+              <div>
+                <table className="mx-auto border-2 text-left border-red-900 w-full">
+                  <thead className="bg-red-900 text-white">
+                    <tr>
+                      <th className="p-2 font-semibold">Name</th>
+                      <th className="p-2 font-semibold">Manifesto</th>
+                      <th className="p-2 font-semibold">Remove</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    { this.state.candidates.map((item, i) => (
+                      <CandidateRow
+                        candidate={item}
+                      />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            }
           </div>
         </div>
       </div>

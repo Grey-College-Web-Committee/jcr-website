@@ -10,6 +10,75 @@ const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "manifestos/" });
 const { Op } = require("sequelize");
 
+router.delete("/:id", async (req, res) => {
+  const { user } = req.session;
+
+  // Compares their permissions with your internal permission string
+  if(!hasPermission(req.session, "elections.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Brief validation
+  const { id } = req.params;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "id is missing" });
+  }
+
+  let election;
+
+  // Create the new election
+  try {
+    election = await Election.findOne({
+      where: { id },
+      include: [{
+        model: ElectionCandidate,
+        attributes: [ "id", "manifestoLink" ]
+      }]
+    });
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+
+  if(election === null) {
+    return res.status(400).json({ error: "Invalid election ID" });
+  }
+
+  // First delete all of the candidates and their manifestos
+  for(candidate of election.ElectionCandidates) {
+    let candidateRecord;
+
+    try {
+      candidateRecord = await ElectionCandidate.findOne({
+        where: { id: candidate.id }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to get individual candidate" });
+    }
+
+    // Delete the manifesto
+    if(candidateRecord !== null) {
+      await fs.unlink(`manifestos/${candidateRecord.manifestoLink}`, (err) => {});
+    }
+
+    // Now delete the candidate
+    try {
+      await candidateRecord.destroy();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to delete individual candidate" });
+    }
+  }
+
+  // Now delete the election
+  try {
+    await election.destroy();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete election" });
+  }
+
+  return res.status(204).end();
+});
+
 router.get("/list/admin/", async (req, res) => {
   const { user } = req.session;
 

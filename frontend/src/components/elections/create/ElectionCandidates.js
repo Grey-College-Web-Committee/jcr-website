@@ -76,6 +76,8 @@ class ElectionCandidates extends React.Component {
 
     return (
       <div className="w-full">
+        <p className="text-xl">Ensure you have added all candidates as these cannot be changed.</p>
+        <p>When you click on 'Add Candidate' they will automatically be added to the election.</p>
         <form onSubmit={this.addCandidate}>
           <fieldset>
             <div className="mx-auto w-full pb-4 border-b-2">

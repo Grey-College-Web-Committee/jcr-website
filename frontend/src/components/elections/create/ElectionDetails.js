@@ -142,12 +142,23 @@ class ElectionDetails extends React.Component {
   getConfirmedDiv = () => {
     return (
       <div>
-        <table>
+        <table className="mx-auto border-2 text-left border-red-900 w-full">
           <tbody>
-            <tr><td>Election Name</td><td>{this.props.electionDetails.name}</td></tr>
-            <tr><td>Manifesto Releases</td><td>{dateFormat(this.props.electionDetails.manifestoReleaseTime, "dd/mm/yyyy HH:MM:ss")}</td></tr>
-            <tr><td>Voting Opens</td><td>{dateFormat(this.props.electionDetails.votingOpenTime, "dd/mm/yyyy HH:MM:ss")}</td></tr>
-            <tr><td>Voting Closes</td><td>{dateFormat(this.props.electionDetails.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</td></tr>
+            <tr className="text-center border-b border-gray-400">
+              <td className="p-2 border-r border-gray-400 font-semibold">Election Name</td>
+              <td className="p-2 border-r border-gray-400">{this.props.electionDetails.name}</td></tr>
+            <tr className="text-center border-b border-gray-400">
+              <td className="p-2 border-r border-gray-400 font-semibold">Manifesto Releases</td>
+              <td className="p-2 border-r border-gray-400">{dateFormat(this.props.electionDetails.manifestoReleaseTime, "dd/mm/yyyy HH:MM:ss")}</td>
+            </tr>
+            <tr className="text-center border-b border-gray-400">
+              <td className="p-2 border-r border-gray-400 font-semibold">Voting Opens</td>
+              <td className="p-2 border-r border-gray-400">{dateFormat(this.props.electionDetails.votingOpenTime, "dd/mm/yyyy HH:MM:ss")}</td>
+            </tr>
+            <tr className="text-center border-b border-gray-400">
+              <td className="p-2 border-r border-gray-400 font-semibold">Voting Closes</td>
+              <td className="p-2 border-r border-gray-400">{dateFormat(this.props.electionDetails.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</td>
+            </tr>
           </tbody>
         </table>
       </div>
