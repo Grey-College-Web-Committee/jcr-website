@@ -896,7 +896,13 @@ router.post("/stock", async (req, res) => {
     try {
       await StashSizeChart.create({ XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 });
     } catch (error) {
-      return res.status(500).json({ error: "Server error creating new item" });
+      return res.status(500).json({
+        error: "Server error creating new item: STASHSIZECHART899",
+        allData: {
+          name, manufacturerCode, description, available, type, customisationsAvailable, price, XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18
+        },
+        sizeChart
+      });
     }
     sizeChart = await StashSizeChart.findOne({ where: { XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18 } });
   }
@@ -907,7 +913,16 @@ router.post("/stock", async (req, res) => {
   try {
     await StashStock.create({ manufacturerCode, name, description, available, type, customisationsAvailable, price, sizeChartId });
   } catch (error) {
-    return res.status(500).json({ error: "Server error creating new item" });
+    return res.status(500).json({
+      error: "Server error creating new item: STASHSTOCK916",
+      allData: {
+        name, manufacturerCode, description, available, type, customisationsAvailable, price, XS, S, M, L, XL, XXL, WS8, WS10, WS12, WS14, WS16, WS18
+      },
+      additional: {
+        sizeChartId,
+        sizeChart
+      }
+    });
   }
   const newItem = await StashStock.findOne({ where: { manufacturerCode, name, description, available, type, customisationsAvailable, price, sizeChartId } });
   return res.status(200).json({ productId: newItem.id }).end();

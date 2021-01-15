@@ -122,3 +122,5 @@ dist
 
 /server/debtors.json
 *.csv
+
+/server/manifestos/*
