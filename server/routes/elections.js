@@ -10,6 +10,31 @@ const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "manifestos/" });
 const { Op } = require("sequelize");
 
+router.get("/list/admin/", async (req, res) => {
+  const { user } = req.session;
+
+  // Compares their permissions with your internal permission string
+  if(!hasPermission(req.session, "elections.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let elections;
+
+  try {
+    elections = await Election.findAll({
+      attributes: [ "id", "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime", "winner" ],
+      include: [{
+        model: ElectionCandidate,
+        attributes: [ "name", "manifestoLink" ]
+      }],
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to load the elections" });
+  }
+
+  return res.status(200).json({ elections });
+});
+
 router.post("/create", async (req, res) => {
   const { user } = req.session;
 
@@ -172,7 +197,8 @@ router.get("/list", async (req, res) => {
       include: [{
         model: ElectionCandidate,
         attributes: [ "name", "manifestoLink" ]
-      }]
+      }],
+      attributes: [ "id", "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime" ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to load live elections" });
@@ -190,7 +216,8 @@ router.get("/list", async (req, res) => {
       include: [{
         model: ElectionCandidate,
         attributes: [ "name", "manifestoLink" ]
-      }]
+      }],
+      attributes: [ "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime" ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to load upcoming elections" });
@@ -204,7 +231,8 @@ router.get("/list", async (req, res) => {
         votingCloseTime: {
           [Op.lt]: now
         }
-      }
+      },
+      attributes: [ "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime", "winner" ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to load previous elections" });
@@ -425,7 +453,7 @@ router.get("/result/:electionId", async (req, res) => {
       where: { id: electionId },
       include: [{
         model: ElectionCandidate,
-        attributes: [ "id" ]
+        attributes: [ "id", "name" ]
       }]
     });
   } catch (error) {
@@ -434,6 +462,18 @@ router.get("/result/:electionId", async (req, res) => {
 
   if(election === null) {
     return res.status(400).json({ error: "Election does not exist" });
+  }
+
+  // We've already generated the results
+  if(election.winner !== null) {
+    return res.status(200).json({
+      election,
+      overallWinner: election.winner !== "draw" ? election.winner : null,
+      overallDraw: election.winner === "draw",
+      deepLog: JSON.parse(election.deepLog),
+      roundSummaries: JSON.parse(election.roundSummaries),
+      fresh: false
+    })
   }
 
   // Check the election is closed
@@ -519,7 +559,44 @@ router.get("/result/:electionId", async (req, res) => {
   // So we now have everyones preferences
   const { overallWinner, overallDraw, deepLog, roundSummaries } = findSTVWinner(candidateIds, voterPreferences);
 
-  return res.status(200).json({ overallWinner, overallDraw, deepLog, roundSummaries });
+  // Change the winner's ID to the winner's name
+  if(overallDraw) {
+    election.winner = "draw";
+  } else {
+    election.winner = election.ElectionCandidates.filter(candidate => candidate.id === Number(overallWinner))[0].name;
+  }
+
+  election.deepLog = JSON.stringify(deepLog);
+
+  // We change the IDs to the actual names here
+  roundSummaries.forEach(round => {
+    if(round.roundSummaryData.eliminated !== null) {
+      round.roundSummaryData.eliminated = election.ElectionCandidates.filter(candidate => candidate.id === Number(round.roundSummaryData.eliminated))[0].dataValues.name;
+    }
+
+    if(round.roundSummaryData.winner !== null) {
+      round.roundSummaryData.winner = election.ElectionCandidates.filter(candidate => candidate.id === Number(round.roundSummaryData.winner))[0].dataValues.name;
+    }
+
+    let votesByCandidate = {};
+
+    Object.keys(round.roundSummaryData.votes).forEach(id => {
+      const candidateName = election.ElectionCandidates.filter(candidate => candidate.id === Number(id))[0].dataValues.name;
+      votesByCandidate[candidateName] = round.roundSummaryData.votes[id];
+    });
+
+    round.roundSummaryData.votes = votesByCandidate;
+  });
+
+  election.roundSummaries = JSON.stringify(roundSummaries);
+
+  try {
+    await election.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the results to the database "});
+  }
+
+  return res.status(200).json({ election, overallWinner, overallDraw, deepLog, roundSummaries, fresh: true });
 });
 
 const findSTVWinner = (candidateIds, voterPreferences) => {
@@ -566,7 +643,6 @@ const performSTVRound = (contenderIds, voterPreferences) => {
 
   for(let voterIndex = 0; voterIndex < voterPreferences.length; voterIndex++) {
     const preferences = voterPreferences[voterIndex];
-    roundLog.push(preferences);
     let voted = false;
 
     // Cast the vote
@@ -762,7 +838,7 @@ const performSTVRound = (contenderIds, voterPreferences) => {
     return {
       winner: null,
       draw: false,
-      eliminatedId: Number(lowestContenderIds[0]),
+      eliminatedId: Number(lowestTiebreakerIds[0]),
       roundLog,
       roundSummaryData
     }

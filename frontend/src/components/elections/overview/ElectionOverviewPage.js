@@ -179,6 +179,43 @@ class ElectionOverviewPage extends React.Component {
     );
   }
 
+  getPreviousElectionDiv = () => {
+    const { previousElections } = this.state;
+
+    if(previousElections.length === 0) {
+      return (
+        <div className="border-b-2 border-red-900 p-4">
+          <h2 className="font-semibold text-2xl pb-4">Previous Elections</h2>
+          <p>No previous elections</p>
+        </div>
+      )
+    }
+
+    return (
+      <div className="border-b-2 border-red-900">
+        <h2 className="font-semibold text-2xl py-4">Previous Elections</h2>
+        <div>
+          { previousElections.sort((a, b) => {
+            const aDate = new Date(a.votingOpenTime);
+            const bDate = new Date(b.votingOpenTime);
+            return aDate < bDate ? -1 : (aDate > bDate ? 1 : 0);
+          }).map((election, i) => (
+            <div className="w-full mb-4 border border-red-900 text-left" key={i}>
+              <div className="bg-red-900 text-white">
+                <p className="p-2 text-2xl">{election.name}</p>
+              </div>
+              <div className="flex flex-col flex-wrap border border-red-900 p-2">
+                <p>Voting closed at {dateFormat(election.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</p>
+                <p>Result: {election.winner === null ? "TBD" : (election.winner === "draw" ? "Under review" : `${election.winner} achieves quota and is duly elected.` )}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -204,10 +241,7 @@ class ElectionOverviewPage extends React.Component {
           <h1 className="font-semibold text-5xl pb-4">JCR Elections</h1>
           { this.getLiveElectionsDiv() }
           { this.getUpcomingElectionsDiv() }
-          <div className="border-b-2 border-red-900 p-4">
-            <h2 className="font-semibold text-2xl pb-4">Previous Elections</h2>
-            <p>Not implemented</p>
-          </div>
+          { this.getPreviousElectionDiv() }
         </div>
       </div>
     );

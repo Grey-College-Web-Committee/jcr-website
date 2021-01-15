@@ -506,8 +506,19 @@ Election.init({
   votingCloseTime: {
     type: DataTypes.DATE,
     allowNull: false
+  },
+  winner: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
+  },
+  deepLog: {
+    type: DataTypes.TEXT("medium")
+  },
+  roundSummaries: {
+    type: DataTypes.TEXT("medium")
   }
-}, { sequelize });
+}, { sequelize }); 
 
 ElectionCandidate.init({
   electionId: {
