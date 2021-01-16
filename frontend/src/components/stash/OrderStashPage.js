@@ -97,6 +97,7 @@ class OrderStashPage extends React.Component {
       window.requestAnimationFrame(() => {
         const y = localStorage.getItem("stash_scroll_position");
         window.scrollTo(0, y);
+        localStorage.setItem("stash_scroll_position", null);
       });
     });
   }
@@ -130,9 +131,11 @@ class OrderStashPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <div className="mb-2 sm:mb-4 font-semibold">
-            <p className="my-2 text-lg sm:text-xl">College Stash Order Window is now Open! (Closes at 23:00 GMT on 31/01/2020)</p>
-            <p className="text-sm">We are unable to offer refunds for items after 31/01/2020, as all products are personalised and custom-made, unless they are faulty.</p>
-          </div>
+            <h1 className="my-2 text-5xl">College Stash</h1>
+            <p className="my-2 text-xl">(Open now! Closes at 23:00 GMT on 31/01/2020)</p>
+            <p className="text-sm">We are unable to offer refunds for items (unless they are faulty) as all products are personalised and custom-made.</p>
+            <p className="text-sm">Garment sizes are approximate and for guidance only. Colour representation tiles are only as accurate as the web design process allows, they may appear differently in the final product.</p>
+        </div>
           <div className="flex flex-row mb-2 sm:mb-4 justify-between flex-wrap">
             <div className="flex flex-row justify-center flex-grow flex-shrink-0 mb-2">
               <figure>
@@ -144,14 +147,14 @@ class OrderStashPage extends React.Component {
                 <figcaption className="font-semibold sm:text-lg mx-auto">Grey College Shield</figcaption>
               </figure>
             </div>
-            <div className="flex flex-row justify-center flex-grow flex-shrink-0 mb-2">
+            <div className="hidden flex-row justify-center flex-grow flex-shrink-0 mb-2 sm:flex">
               <figure>
                 <img
                   src="/images/stash_item_description.png"
                   alt="Stash Item Description"
                   className="sm:h-64 h-32 mx-auto"
                 />
-              <figcaption className="font-semibold sm:text-lg mx-auto">Personalisation Options</figcaption>
+                <figcaption className="font-semibold sm:text-lg mx-auto">Personalisation Options</figcaption>
               </figure>
             </div>
             <div className="flex flex-row justify-center flex-grow flex-shrink-0 mb-2">
@@ -164,6 +167,16 @@ class OrderStashPage extends React.Component {
                 <figcaption className="font-semibold sm:text-lg mx-auto">Grey College Crest</figcaption>
               </figure>
             </div>
+          </div>
+          <div className="sm:hidden flex-row justify-center flex-grow flex-shrink-0 mb-2 flex">
+            <figure>
+              <img
+                src="/images/stash_item_description.png"
+                alt="Stash Item Description"
+                className="w-auto mx-auto"
+              />
+            <figcaption className="font-semibold sm:text-lg mx-auto">Personalisation Options</figcaption>
+            </figure>
           </div>
           <div className="flex flex-row flex-wrap">
             {

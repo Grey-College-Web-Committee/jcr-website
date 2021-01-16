@@ -13,7 +13,6 @@ class ContributorsPage extends React.Component {
                 <li>Finlay Boyle</li>
                 <li>Ben Hacker</li>
                 <li>Will Morrice</li>
-                <li>James Lee</li>
               </ul>
               <a href="https://github.com/Grey-College-Web-Committee/grey-shop" target="_blank" rel="noopener noreferrer">
                 <div className="flex flex-row items-center justify-center lg:justify-start">
