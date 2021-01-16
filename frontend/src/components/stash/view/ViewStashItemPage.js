@@ -497,7 +497,7 @@ class ViewStashItemPage extends React.Component {
               <option value="-1">None (+£0.00)</option>
               {
                 backCustomisations.map((cust, i) => (
-                  <option value={cust.customisationChoice}>{customisationValidChoices[cust.customisationChoice]} (+£{Number(cust.addedPriceForCustomisation).toFixed(2)})</option>
+                  <option key={i} value={cust.customisationChoice}>{customisationValidChoices[cust.customisationChoice]} (+£{Number(cust.addedPriceForCustomisation).toFixed(2)})</option>
                 ))
               }
             </select>

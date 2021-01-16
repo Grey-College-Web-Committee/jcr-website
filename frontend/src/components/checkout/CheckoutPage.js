@@ -28,7 +28,8 @@ class CheckoutPage extends React.Component {
         line2: "",
         city: "",
         postcode: ""
-      }
+      },
+      consent: false
     }
   }
 
@@ -136,15 +137,6 @@ class CheckoutPage extends React.Component {
   }
 
   componentDidMount = async () => {
-    let membershipCheck;
-
-    try {
-      membershipCheck = await api.get("/auth/verify");
-    } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify membership status" });
-      return;
-    }
-
     this.cart = new Cart();
     this.cart.registerCallbackOnSave(this.updateCart);
     this.updateCart();
@@ -405,6 +397,21 @@ class CheckoutPage extends React.Component {
             </div>
           </div>
           <p className="mb-2">By writing your address, you consent to us sharing your data with our supplier "SAGITTARIAN SECURITY LIMITED" for the purpose of order preparation and delivery.</p>
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0 flex flex-col justify-center">
+              <label htmlFor="postcode" className="inline-block font-semibold">I consent to the sharing of my address:</label>
+            </div>
+            <div className="flex-grow flex flex-row justify-center items-center">
+              <input
+                type="checkbox"
+                name="consent"
+                value={this.state.consent}
+                onChange={this.onInputChange}
+                className="p-2 h-6 w-6 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                disabled={this.props.disabled}
+              />
+            </div>
+          </div>
         </fieldset>
       </div>
     )
@@ -425,7 +432,7 @@ class CheckoutPage extends React.Component {
           }
         }
 
-        return true;
+        return this.state.consent;
       case "none":
       default:
         return false;

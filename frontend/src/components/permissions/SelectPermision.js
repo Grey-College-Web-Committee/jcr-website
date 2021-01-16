@@ -195,7 +195,7 @@ class SelectPermission extends React.Component {
       );
     }
 
-    const showErrors = this.state.message.length === 0 ? "hidden" : "block";
+    // const showErrors = this.state.message.length === 0 ? "hidden" : "block";
 
     return (
       <React.Fragment>
