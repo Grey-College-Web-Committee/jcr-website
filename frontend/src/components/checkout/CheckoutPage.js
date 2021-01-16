@@ -198,8 +198,8 @@ class CheckoutPage extends React.Component {
           <div className="flex flex-col flex-grow text-left w-2/3">
             <span className="text-left text-3xl font-semibold">Stash Delivery</span>
             <div className="flex flex-row justify-between">
-              <span>1 x £3.55</span>
-              <span>(£3.55)</span>
+              <span>1 x £3.60</span>
+              <span>(£3.60)</span>
             </div>
             <ul>
               <li>{this.state.address.recipient}</li>
@@ -297,7 +297,7 @@ class CheckoutPage extends React.Component {
             >
               <option value="none" disabled={true} hidden={true}>Please Select...</option>
               <option value="collection">Collect From College (+£0.00)</option>
-              <option value="delivery">Deliver To UK Address (+£3.55)</option>
+              <option value="delivery">Deliver To UK Address (+£3.60)</option>
             </select>
           </div>
         </div>
@@ -465,7 +465,7 @@ class CheckoutPage extends React.Component {
     switch(this.state.pageState) {
       // Confirm the order
       case 0:
-        let subtotal = (this.state.deliveryOption === "delivery" ? 3.55 : 0);
+        let subtotal = (this.state.deliveryOption === "delivery" ? 3.6 : 0);
         const bagEmpty = items.length === 0;
 
         items.forEach((item, i) => {
