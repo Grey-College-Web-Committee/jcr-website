@@ -327,6 +327,8 @@ class CheckoutPage extends React.Component {
                 className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                 placeholder="Recipient Name..."
                 disabled={this.props.disabled}
+                maxLength={255}
+                autoComplete=""
               />
             </div>
           </div>
@@ -343,6 +345,8 @@ class CheckoutPage extends React.Component {
                 className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                 placeholder="Address Line 1..."
                 disabled={this.props.disabled}
+                maxLength={255}
+                autoComplete="address-line1"
               />
             </div>
           </div>
@@ -359,6 +363,8 @@ class CheckoutPage extends React.Component {
                 className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                 placeholder="Address Line 2..."
                 disabled={this.props.disabled}
+                maxLength={255}
+                autoComplete="address-line2"
               />
             </div>
           </div>
@@ -375,6 +381,8 @@ class CheckoutPage extends React.Component {
                 className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                 placeholder="Town/City..."
                 disabled={this.props.disabled}
+                maxLength={255}
+                autoComplete="address-level1"
               />
             </div>
           </div>
@@ -391,6 +399,8 @@ class CheckoutPage extends React.Component {
                 className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                 placeholder="Postcode..."
                 disabled={this.props.disabled}
+                maxLength={255}
+                autoComplete="postal-code"
               />
             </div>
           </div>

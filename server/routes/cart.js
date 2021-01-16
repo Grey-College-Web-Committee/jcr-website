@@ -980,8 +980,13 @@ router.post("/process", async (req, res) => {
     usedShops: JSON.stringify(usedShops)
   };
 
+  const shopCount = Object.keys(totalSpentByShop).length;
+
   Object.keys(totalSpentByShop).forEach(shop => {
-    metadata[shop] = Math.round(totalSpentByShop[shop] * 100);
+    const shopGross = Math.round(totalSpentByShop[shop] * 100);
+    metadata[shop] = shopGross;
+    const shopNet = Math.round(shopGross - ((0.014 * shopGross) + (20 / shopCount)));
+    metadata[`${shop}_net`] = shopNet;
   });
 
   const totalAmount = validatedPrices.reduce((sum, price) => sum + price, 0);

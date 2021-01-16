@@ -268,7 +268,11 @@ router.post("/export", async(req, res) => {
       { id: "rightPrint", title: "Right Breast Print" },
       { id: "paid", title: "Paid" },
       { id: "deliveryOrCollection", title: "Delivery/Collection" },
-      { id: "deliveryAddress", title: "Delivery Address"}
+      { id: "recipient", title: "Delivery Recipient"},
+      { id: "line1", title: "Address Line 1"},
+      { id: "line2", title: "Address Line 2"},
+      { id: "city", title: "City"},
+      { id: "postcode", title: "Postcode"},
     ]
   });
 
@@ -288,7 +292,11 @@ router.post("/export", async(req, res) => {
       { id: "rightPrint", title: "Right Breast Print" },
       { id: "paid", title: "Paid" },
       { id: "deliveryOrCollection", title: "Delivery/Collection" },
-      { id: "deliveryAddress", title: "Delivery Address"}
+      { id: "recipient", title: "Delivery Recipient"},
+      { id: "line1", title: "Address Line 1"},
+      { id: "line2", title: "Address Line 2"},
+      { id: "city", title: "City"},
+      { id: "postcode", title: "Postcode"},
     ]
   });
 
@@ -350,27 +358,19 @@ router.post("/export", async(req, res) => {
     record.paid = item.ShopOrder.paid;
     record.deliveryOrCollection = item.ShopOrder.deliveryOption;
 
-    let address = [];
-
     if(item.ShopOrder.Address !== null) {
-      address.push(item.ShopOrder.Address.recipient);
-      address.push(item.ShopOrder.Address.line1);
-
-      if(item.ShopOrder.Address.line2.length !== 0) {
-        address.push(item.ShopOrder.Address.line2);
-      }
-
-      address.push(item.ShopOrder.Address.city);
-      address.push(item.ShopOrder.Address.postcode);
-    }
-
-    if(address.length === 0) {
-      address = "N/A";
+      record.recipient = item.ShopOrder.Address.recipient;
+      record.line1 = item.ShopOrder.Address.line1;
+      record.line2 = item.ShopOrder.Address.line2;
+      record.city = item.ShopOrder.Address.city;
+      record.postcode = item.ShopOrder.Address.postcode;
     } else {
-      address = address.join(", ");
+      record.recipient = "";
+      record.line1 = "";
+      record.line2 = "";
+      record.city = "";
+      record.postcode = "";
     }
-
-    record.deliveryAddress = address;
 
     if(isJCR) {
       csvRecordsJCR.push(record);
@@ -418,27 +418,19 @@ router.post("/export", async(req, res) => {
     record.paid = item.ShopOrder.paid;
     record.deliveryOrCollection = item.ShopOrder.deliveryOption;
 
-    let address = [];
-
     if(item.ShopOrder.Address !== null) {
-      address.push(item.ShopOrder.Address.recipient);
-      address.push(item.ShopOrder.Address.line1);
-
-      if(item.ShopOrder.Address.line2.length !== 0) {
-        address.push(item.ShopOrder.Address.line2);
-      }
-
-      address.push(item.ShopOrder.Address.city);
-      address.push(item.ShopOrder.Address.postcode);
-    }
-
-    if(address.length === 0) {
-      address = "N/A";
+      record.recipient = item.ShopOrder.Address.recipient;
+      record.line1 = item.ShopOrder.Address.line1;
+      record.line2 = item.ShopOrder.Address.line2;
+      record.city = item.ShopOrder.Address.city;
+      record.postcode = item.ShopOrder.Address.postcode;
     } else {
-      address = address.join(", ");
+      record.recipient = "";
+      record.line1 = "";
+      record.line2 = "";
+      record.city = "";
+      record.postcode = "";
     }
-
-    record.deliveryAddress = address;
 
     item.StashOrderCustomisations.forEach(customisation => {
       record[customisationValidChoiceHeadings[customisation.type]] = customisation.text;
@@ -512,28 +504,6 @@ router.post("/export", async(req, res) => {
 
       record.paid = item.ShopOrder.paid;
       record.deliveryOrCollection = item.ShopOrder.deliveryOption;
-
-      let address = [];
-
-      if(item.ShopOrder.Address !== null) {
-        address.push(item.ShopOrder.Address.recipient);
-        address.push(item.ShopOrder.Address.line1);
-
-        if(item.ShopOrder.Address.line2.length !== 0) {
-          address.push(item.ShopOrder.Address.line2);
-        }
-
-        address.push(item.ShopOrder.Address.city);
-        address.push(item.ShopOrder.Address.postcode);
-      }
-
-      if(address.length === 0) {
-        address = "N/A";
-      } else {
-        address = address.join(", ");
-      }
-
-      record.deliveryAddress = address;
       record.collected = item.ShopOrder.deliveryOption === "delivery" ? "N/A" : "";
 
       csvRecordsChecklist.push(record);
