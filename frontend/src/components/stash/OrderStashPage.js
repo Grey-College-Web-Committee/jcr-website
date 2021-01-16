@@ -97,7 +97,7 @@ class OrderStashPage extends React.Component {
       window.requestAnimationFrame(() => {
         const y = localStorage.getItem("stash_scroll_position");
         window.scrollTo(0, y);
-        localStorage.setItem("stash_scroll_position", null);
+        localStorage.removeItem("stash_scroll_position");
       });
     });
   }
