@@ -160,14 +160,14 @@ router.post("/login", async (req, res) => {
   req.session.permissions = internalPermissionStrings;
 
   const date = new Date();
-  date.setTime(date.getTime() + (2 * 60 * 60 * 1000));
+  date.setTime(date.getTime() + (3 * 60 * 60 * 1000));
 
   res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email }, message: "Successfully authenticated" });
 });
 
 router.post("/logout", async (req, res) => {
   if(req.session.user && req.cookies.user_sid) {
-    req.session.destroy();
+    req.session.destroy(() => {});
     return res.clearCookie("user_sid").status(200).json({ message: "Logged out" });
   }
 

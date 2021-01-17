@@ -518,7 +518,7 @@ Election.init({
   roundSummaries: {
     type: DataTypes.TEXT("medium")
   }
-}, { sequelize }); 
+}, { sequelize });
 
 ElectionCandidate.init({
   electionId: {
@@ -652,4 +652,4 @@ ElectionVoteLink.belongsTo(ElectionCandidate, { foreignKey: 'candidateId' });
 ElectionVote.hasMany(ElectionVoteLink, { foreignKey: 'voteId' });
 ElectionVoteLink.belongsTo(ElectionVote, { foreignKey: 'voteId' });
 
-module.exports = { User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink };
