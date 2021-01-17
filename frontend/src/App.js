@@ -23,6 +23,9 @@ import GymInformationPage from './components/gym/GymInformationPage';
 import GymTermsPage from './components/gym/GymTermsPage';
 import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
 
+import ElectionOverviewPage from './components/elections/overview/ElectionOverviewPage';
+import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
+
 import ContributorsPage from './components/legal/ContributorsPage';
 import CookiesPage from './components/legal/CookiesPage';
 
@@ -39,6 +42,9 @@ import StashExportPage from './components/stash/export/StashExportPage';
 import GymAdminPage from './components/gym/admin/GymAdminPage';
 import ExportMembershipsPage from './components/membership/export/ExportMembershipsPage';
 import ManageMembershipsPage from './components/membership/manage/ManageMembershipsPage';
+import ElectionAdminPortal from './components/elections/portal/ElectionAdminPortal';
+import CreateElectionPage from './components/elections/create/CreateElectionPage';
+import GenerateElectionResultsPage from './components/elections/results/GenerateElectionResultsPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -263,6 +269,21 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/memberships/manage" render={() => (
                       this.hasPermission("jcr.manage") ? ( <ManageMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/elections/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/elections/vote/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionVotingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/elections/admin" render={() => (
+                      this.hasPermission("elections.manage") ? ( <ElectionAdminPortal /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/elections/create" render={() => (
+                      this.hasPermission("elections.manage") ? ( <CreateElectionPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/elections/results/:id" render={(props) => (
+                      this.hasPermission("elections.manage") ? ( <GenerateElectionResultsPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
                     )} />
                     <Route exact path="/stash/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )

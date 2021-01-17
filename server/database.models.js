@@ -34,6 +34,11 @@ class PermissionLink extends Model {}
 
 class GymMembership extends Model {}
 
+class Election extends Model {}
+class ElectionCandidate extends Model {}
+class ElectionVote extends Model {}
+class ElectionVoteLink extends Model {}
+
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
 // No need to store a users email it is simply username@durham.ac.uk
@@ -485,6 +490,97 @@ GymMembership.init({
   }
 }, { sequelize });
 
+Election.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  manifestoReleaseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  votingOpenTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  votingCloseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  winner: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
+  },
+  deepLog: {
+    type: DataTypes.TEXT("medium")
+  },
+  roundSummaries: {
+    type: DataTypes.TEXT("medium")
+  }
+}, { sequelize }); 
+
+ElectionCandidate.init({
+  electionId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Election,
+      key: 'id'
+    }
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  manifestoLink: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, { sequelize });
+
+ElectionVote.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  electionId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Election,
+      key: 'id'
+    }
+  }
+}, { sequelize });
+
+ElectionVoteLink.init({
+  voteId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: ElectionVote,
+      key: 'id'
+    }
+  },
+  candidateId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: ElectionCandidate,
+      key: 'id'
+    }
+  },
+  preference: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  }
+}, { sequelize })
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -541,4 +637,19 @@ GymMembership.belongsTo(ShopOrder, { foreignKey: 'orderId' });
 User.hasMany(GymMembership, { foreignKey: 'userId' });
 GymMembership.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership };
+Election.hasMany(ElectionCandidate, { foreignKey: 'electionId' });
+ElectionCandidate.belongsTo(Election, { foreignKey: 'electionId' });
+
+User.hasMany(ElectionVote, { foreignKey: 'userId' });
+ElectionVote.belongsTo(User, { foreignKey: 'userId' });
+
+Election.hasMany(ElectionVote, { foreignKey: 'electionId' });
+ElectionVote.belongsTo(Election, { foreignKey: 'electionId' });
+
+ElectionCandidate.hasMany(ElectionVoteLink, { foreignKey: 'candidateId' });
+ElectionVoteLink.belongsTo(ElectionCandidate, { foreignKey: 'candidateId' });
+
+ElectionVote.hasMany(ElectionVoteLink, { foreignKey: 'voteId' });
+ElectionVoteLink.belongsTo(ElectionVote, { foreignKey: 'voteId' });
+
+module.exports = { User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink };
