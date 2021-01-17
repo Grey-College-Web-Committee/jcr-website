@@ -8,9 +8,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink } = require("./database.models.js");
-
-const SessionStore = require("express-session-sequelize")(session.Store);
+const { User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink } = require("./database.models.js");
 
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
@@ -46,30 +44,15 @@ app.use(cookieParser());
 // sets the settings for the session
 // Be aware that if you change expires you will need to update ./routes/auth.js in the login function
 // 2 hours * 60 minutes * 60 seconds * 1000 ms
-
-const cookieExpiry = 3 * 60 * 60 * 1000;
-
-const sequelizeSessionStore = new SessionStore({
-  db: sequelize,
-  expiration: cookieExpiry
-})
-
-let sessionConfig = {
+app.use(session({
   key: 'user_sid',
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    expires: cookieExpiry
-  },
-  store: sequelizeSessionStore
-};
-
-if(process.env.NODE_ENV === "production") {
-  sessionConfig.cookie.secure = true;
-}
-
-app.use(session(sessionConfig)); 
+    expires: 2 * 60 * 60 * 1000
+  }
+}));
 
 const requiredPermissions = [
   {

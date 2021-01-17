@@ -172,7 +172,7 @@ class ElectionVotingPage extends React.Component {
                 ))}
               </ol>
             </div>
-            <Link to="/elections">
+            <Link to="/Elections">
               <button
                 className="px-4 py-2 text-3xl w-full sm:w-1/3 text-center rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               >Back To Elections</button>
