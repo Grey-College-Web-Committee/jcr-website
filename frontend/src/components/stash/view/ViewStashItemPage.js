@@ -412,7 +412,9 @@ class ViewStashItemPage extends React.Component {
           disabled={this.state.disabled}
         >
           <option value={-1} disabled={true} hidden={true}>Choose Colour...</option>
-          {StashItemColours.map((colour, i) => (
+          {StashItemColours.sort((a, b) => {
+            return a.StashColour.name < b.StashColour.name ? -1 : (a.StashColour.name > b.StashColour.name ? 1 : 0)
+          }).map((colour, i) => (
             <option key={i} value={colour.colourId}>{colour.StashColour.name}</option>
           ))}
         </select>
@@ -497,7 +499,7 @@ class ViewStashItemPage extends React.Component {
               <option value="-1">None (+£0.00)</option>
               {
                 backCustomisations.map((cust, i) => (
-                  <option value={cust.customisationChoice}>{customisationValidChoices[cust.customisationChoice]} (+£{Number(cust.addedPriceForCustomisation).toFixed(2)})</option>
+                  <option key={i} value={cust.customisationChoice}>{customisationValidChoices[cust.customisationChoice]} (+£{Number(cust.addedPriceForCustomisation).toFixed(2)})</option>
                 ))
               }
             </select>

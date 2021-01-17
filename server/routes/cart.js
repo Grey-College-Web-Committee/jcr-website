@@ -923,9 +923,9 @@ router.post("/process", async (req, res) => {
   // Set the total spent for delivery
   // Will add it to the subtotal and Stripe metadata
   if(delivery.option === "delivery") {
-    totalSpentByShop["delivery"] = 3.55;
+    totalSpentByShop["delivery"] = 3.6;
     usedShops.push("delivery");
-    validatedPrices.push(3.55);
+    validatedPrices.push(3.6);
   }
 
   for(let i = 0; i < submittedCart.items.length; i++) {
@@ -980,8 +980,13 @@ router.post("/process", async (req, res) => {
     usedShops: JSON.stringify(usedShops)
   };
 
+  const shopCount = Object.keys(totalSpentByShop).length;
+
   Object.keys(totalSpentByShop).forEach(shop => {
-    metadata[shop] = Math.round(totalSpentByShop[shop] * 100);
+    const shopGross = Math.round(totalSpentByShop[shop] * 100);
+    metadata[shop] = shopGross;
+    const shopNet = Math.round(shopGross - ((0.014 * shopGross) + (20 / shopCount)));
+    metadata[`${shop}_net`] = shopNet;
   });
 
   const totalAmount = validatedPrices.reduce((sum, price) => sum + price, 0);

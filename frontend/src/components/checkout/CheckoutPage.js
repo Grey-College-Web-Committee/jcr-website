@@ -28,7 +28,8 @@ class CheckoutPage extends React.Component {
         line2: "",
         city: "",
         postcode: ""
-      }
+      },
+      consent: false
     }
   }
 
@@ -136,15 +137,6 @@ class CheckoutPage extends React.Component {
   }
 
   componentDidMount = async () => {
-    let membershipCheck;
-
-    try {
-      membershipCheck = await api.get("/auth/verify");
-    } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify membership status" });
-      return;
-    }
-
     this.cart = new Cart();
     this.cart.registerCallbackOnSave(this.updateCart);
     this.updateCart();
@@ -198,8 +190,8 @@ class CheckoutPage extends React.Component {
           <div className="flex flex-col flex-grow text-left w-2/3">
             <span className="text-left text-3xl font-semibold">Stash Delivery</span>
             <div className="flex flex-row justify-between">
-              <span>1 x £3.55</span>
-              <span>(£3.55)</span>
+              <span>1 x £3.60</span>
+              <span>(£3.60)</span>
             </div>
             <ul>
               <li>{this.state.address.recipient}</li>
@@ -297,7 +289,7 @@ class CheckoutPage extends React.Component {
             >
               <option value="none" disabled={true} hidden={true}>Please Select...</option>
               <option value="collection">Collect From College (+£0.00)</option>
-              <option value="delivery">Deliver To UK Address (+£3.55)</option>
+              <option value="delivery">Deliver To UK Address (+£3.60)</option>
             </select>
           </div>
         </div>
@@ -327,6 +319,8 @@ class CheckoutPage extends React.Component {
                 className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                 placeholder="Recipient Name..."
                 disabled={this.props.disabled}
+                maxLength={255}
+                autoComplete=""
               />
             </div>
           </div>
@@ -343,6 +337,8 @@ class CheckoutPage extends React.Component {
                 className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                 placeholder="Address Line 1..."
                 disabled={this.props.disabled}
+                maxLength={255}
+                autoComplete="address-line1"
               />
             </div>
           </div>
@@ -359,6 +355,8 @@ class CheckoutPage extends React.Component {
                 className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                 placeholder="Address Line 2..."
                 disabled={this.props.disabled}
+                maxLength={255}
+                autoComplete="address-line2"
               />
             </div>
           </div>
@@ -375,6 +373,8 @@ class CheckoutPage extends React.Component {
                 className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                 placeholder="Town/City..."
                 disabled={this.props.disabled}
+                maxLength={255}
+                autoComplete="address-level1"
               />
             </div>
           </div>
@@ -391,10 +391,27 @@ class CheckoutPage extends React.Component {
                 className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                 placeholder="Postcode..."
                 disabled={this.props.disabled}
+                maxLength={255}
+                autoComplete="postal-code"
               />
             </div>
           </div>
           <p className="mb-2">By writing your address, you consent to us sharing your data with our supplier "SAGITTARIAN SECURITY LIMITED" for the purpose of order preparation and delivery.</p>
+          <div className="pb-2 flex flex-row">
+            <div className="flex-shrink-0 flex flex-col justify-center">
+              <label htmlFor="postcode" className="inline-block font-semibold">I consent to the sharing of my address:</label>
+            </div>
+            <div className="flex-grow flex flex-row justify-center items-center">
+              <input
+                type="checkbox"
+                name="consent"
+                value={this.state.consent}
+                onChange={this.onInputChange}
+                className="p-2 h-6 w-6 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                disabled={this.props.disabled}
+              />
+            </div>
+          </div>
         </fieldset>
       </div>
     )
@@ -415,7 +432,7 @@ class CheckoutPage extends React.Component {
           }
         }
 
-        return true;
+        return this.state.consent;
       case "none":
       default:
         return false;
@@ -455,7 +472,7 @@ class CheckoutPage extends React.Component {
     switch(this.state.pageState) {
       // Confirm the order
       case 0:
-        let subtotal = (this.state.deliveryOption === "delivery" ? 3.55 : 0);
+        let subtotal = (this.state.deliveryOption === "delivery" ? 3.6 : 0);
         const bagEmpty = items.length === 0;
 
         items.forEach((item, i) => {

@@ -3,9 +3,13 @@ import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
 class StashSelectable extends React.Component {
+  storePosition = () => {
+    localStorage.setItem("stash_scroll_position", window.pageYOffset);
+  }
+
   render () {
     const viewButton = this.props.available ? (
-      <Link to={`/stash/view/${this.props.id}`}>
+      <Link to={`/stash/view/${this.props.id}`} onClick={this.storePosition}>
         <button
           className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
         >View</button>
