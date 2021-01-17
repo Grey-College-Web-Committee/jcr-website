@@ -119,4 +119,10 @@ class ElectionCandidates extends React.Component {
   }
 }
 
+ElectionCandidates.propTypes = {
+  disabled: PropTypes.bool.isRequired,
+  electionId: PropTypes.number.isRequired,
+  addCandidate: PropTypes.func.isRequired
+}
+
 export default ElectionCandidates;

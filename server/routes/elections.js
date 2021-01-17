@@ -243,6 +243,7 @@ router.delete("/candidate/:candidateId", async (req, res) => {
 });
 
 router.get("/list", async (req, res) => {
+  const { user } = req.session;
   // Voting is open
   // So votingOpenTime < now < votingCloseTime
   const now = new Date();
@@ -266,6 +267,13 @@ router.get("/list", async (req, res) => {
       include: [{
         model: ElectionCandidate,
         attributes: [ "name", "manifestoLink" ]
+      }, {
+        model: ElectionVote,
+        attributes: [ "id" ],
+        where: {
+          userId: user.id
+        },
+        required: false
       }],
       attributes: [ "id", "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime" ]
     });
@@ -579,7 +587,7 @@ router.get("/result/:electionId", async (req, res) => {
 
   if(totalVotes === 0) {
     // No votes??
-    return res.status(400).end();
+    return res.status(400).json({ error: "No votes cast" });
   }
 
   // Now lets get each users total preference order
@@ -643,7 +651,7 @@ router.get("/result/:electionId", async (req, res) => {
       round.roundSummaryData.eliminated = election.ElectionCandidates.filter(candidate => candidate.id === Number(round.roundSummaryData.eliminated))[0].dataValues.name;
     }
 
-    if(round.roundSummaryData.winner !== null) {
+    if(round.roundSummaryData.winner !== null && round.roundSummaryData.winner !== "draw") {
       round.roundSummaryData.winner = election.ElectionCandidates.filter(candidate => candidate.id === Number(round.roundSummaryData.winner))[0].dataValues.name;
     }
 
@@ -812,8 +820,9 @@ const performSTVRound = (contenderIds, voterPreferences) => {
   if(lowestContenderIds.length === contenderIds.length) {
     roundLog.push(`Candidates ${lowestContenderIds.join(", ")} have ended in a complete tie. Nobody achieves quota.`);
     roundSummaryData.tiebreakerDepth = 0;
-    roundSummaryData.eliminated = lowestContenderIds[0];
+    roundSummaryData.eliminated = null;
     roundSummaryData.overallDraw = true;
+    roundSummaryData.winner = "draw";
 
     return {
       winner: null,

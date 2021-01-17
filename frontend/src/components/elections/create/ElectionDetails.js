@@ -174,4 +174,10 @@ class ElectionDetails extends React.Component {
   }
 }
 
+ElectionDetails.propTypes = {
+  confirmed: PropTypes.bool.isRequired,
+  onElectionCreated: PropTypes.func.isRequired,
+  electionDetails: PropTypes.object.isRequired
+}
+
 export default ElectionDetails;

@@ -105,4 +105,8 @@ class ElectionRow extends React.Component {
   }
 }
 
+ElectionRow.propTypes = {
+  election: PropTypes.object.isRequired
+}
+
 export default ElectionRow;

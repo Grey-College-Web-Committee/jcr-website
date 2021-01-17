@@ -34,7 +34,7 @@ class CandidateRow extends React.Component {
     return (
       <tr className="text-center border-b border-gray-400">
         <td className="p-2 border-r border-gray-400">{this.state.candidate.name}</td>
-        <td className="p-2 border-r border-gray-400 underline"><a target="_blank" href={`/elections/manifesto/${this.state.candidate.manifestoLink}`}>View Manifesto</a></td>
+        <td className="p-2 border-r border-gray-400 underline"><a target="_blank" rel="noopener noreferrer" href={`/elections/manifesto/${this.state.candidate.manifestoLink}`}>View Manifesto</a></td>
         <td className="p-2 border-r border-gray-400">
           <button
             onClick={this.removeSelf}
@@ -45,6 +45,10 @@ class CandidateRow extends React.Component {
       </tr>
     );
   }
+}
+
+CandidateRow.propTypes = {
+  candidate: PropTypes.object.isRequired
 }
 
 export default CandidateRow;

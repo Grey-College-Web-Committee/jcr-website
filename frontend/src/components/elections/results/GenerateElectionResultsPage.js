@@ -123,7 +123,7 @@ class GenerateElectionResultsPage extends React.Component {
       );
     }
 
-    const { election, fresh, overallDraw, overallWinner } = this.state.result;
+    const { election } = this.state.result;
     let { roundSummaries, deepLog } = this.state.result;
 
     roundSummaries.sort((a, b) => {
