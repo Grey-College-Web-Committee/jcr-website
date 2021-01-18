@@ -442,7 +442,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
           return res.status(500).json({ error: "Unable to find address" });
         }
 
-        console.log(addressRecord);
         deliveryInformation.address = addressRecord.dataValues;
       }
 
