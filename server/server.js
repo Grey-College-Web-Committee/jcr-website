@@ -74,6 +74,7 @@ let sessionConfig = {
 if(process.env.NODE_ENV === "production") {
   console.log("Production Mode - Setting secure and proxy for the cookie.");
   sessionConfig.cookie.secure = true;
+  sessionConfig.proxy = true;
   // console.log(sessionConfig);
   app.set("trust proxy", 1);
 }
