@@ -187,6 +187,23 @@ class App extends React.Component {
     this.cart.get();
     this.cart.setLocked(false);
     this.cart.clearCart();
+
+    let cookiesApproved = false;
+    const lsCookies = localStorage.getItem("cookiesApproved");
+
+    if(lsCookies !== undefined && lsCookies !== null) {
+      const boolLsCookies = JSON.parse(lsCookies);
+      if(boolLsCookies === true) {
+        cookiesApproved = true;
+      }
+    }
+
+    localStorage.clear();
+
+    if(cookiesApproved === true) {
+      localStorage.setItem("cookiesApproved", cookiesApproved);
+    }
+
     this.setState({ user: null });
   }
 
