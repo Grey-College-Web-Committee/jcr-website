@@ -60,11 +60,11 @@ let sessionConfig = {
   cookie: {
     expires: cookieExpiry
   },
-  store: sequelizeSessionStore,
-  resave: false
+  store: sequelizeSessionStore
 };
 
 if(process.env.NODE_ENV === "production") {
+  console.log("Production Mode - Setting secure and proxy for the cookie.");
   sessionConfig.cookie.secure = true;
   sessionConfig.proxy = true;
   app.set("trust proxy", 1);

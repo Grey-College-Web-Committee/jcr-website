@@ -128,7 +128,7 @@ router.post("/login", async (req, res) => {
     }
 
     try {
-      user.save();
+      await user.save();
     } catch (error) {
       return res.status(500).json({ message: "Server error: Unable to update last login. Database error." });
     }
