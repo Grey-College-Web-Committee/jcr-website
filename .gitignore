@@ -115,6 +115,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+/frontend/src/config.json
+
 /domain_verification/
 /domain_verification/*
 /server/uploads/images/stash/*

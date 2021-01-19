@@ -36,9 +36,6 @@ class OrderStashPage extends React.Component {
         },
         "accessories": {
           title: "Accessories"
-        },
-        "other": {
-          title: "Other"
         }
       },
       hasScrolled: false
