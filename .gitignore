@@ -121,5 +121,6 @@ dist
 /server/uploads/images/toastie_bar/*
 
 /server/debtors.json
+/server/prepaid_memberships.json
 *.csv
 /server/manifestos/*

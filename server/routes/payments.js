@@ -276,6 +276,20 @@ const customerJCRMembershipEmail = (user, orderId, expiresAt) => {
   return message.join("");
 }
 
+const facsoJCRMembershipEmail = (user, orderId, expiresAt) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Email: ${user.email}</p>`);
+  message.push(`<p>Username: ${user.username}</p>`);
+  message.push(`<p>Name: ${firstName} ${lastName}</p>`);
+  message.push(`<p>Expires At: ${dateFormat(expiresAt, "dd/mm/yyyy")}</p>`)
+
+  return message.join("");
+}
+
 const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
   if(relatedOrders.length !== 1) {
     console.log("Many memberships?");
@@ -361,6 +375,9 @@ const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryI
 
   const customerEmail = customerJCRMembershipEmail(user, orderId, currentMembershipOptions[type].expires);
   mailer.sendEmail(user.email, `JCR Membership Confirmation`, customerEmail);
+
+  const facsoEmail = facsoJCRMembershipEmail(user, orderId, currentMembershipOptions[type].expires);
+  mailer.sendEmail("grey.treasurer@durham.ac.uk", `New JCR Membership Purchased (${user.username})`, facsoEmail);
 }
 
 const fulfilOrderProcessors = {

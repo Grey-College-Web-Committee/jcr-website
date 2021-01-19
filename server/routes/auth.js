@@ -3,6 +3,9 @@ const express = require("express");
 const router = express.Router();
 const { User, Permission, PermissionLink } = require("../database.models.js");
 const axios = require("axios");
+// An object consisting of emails and expiry dates
+const prepaidMemberships = require("../prepaid_memberships.json");
+const prepaidEmails = Object.keys(prepaidMemberships);
 
 // Called when a POST request is to be served at /api/authentication/login
 router.post("/login", async (req, res) => {
@@ -105,12 +108,12 @@ router.post("/login", async (req, res) => {
           });
         } catch (error) {
           console.log({error});
-          return;
+          return res.status(500).json({ message: "Server error: Unable to find permission record" });
         }
 
         if(permissionRecord === null) {
           console.log("NULL PR");
-          return;
+          return res.status(500).json({ message: "Server error: Missing permission record" });
         }
 
         try {
@@ -122,7 +125,7 @@ router.post("/login", async (req, res) => {
           });
         } catch (error) {
           console.log({error});
-          return;
+          return res.status(500).json({ message: "Server error: Unable to delete membership." });
         }
       }
     }
@@ -131,6 +134,48 @@ router.post("/login", async (req, res) => {
       await user.save();
     } catch (error) {
       return res.status(500).json({ message: "Server error: Unable to update last login. Database error." });
+    }
+  }
+
+  const lookupEmail = user.dataValues.email.trim().toLowerCase();
+
+  if(prepaidEmails.includes(lookupEmail) && user.membershipExpiresAt === null) {
+    // They have a membership from before. Now grant it.
+
+    const prepaidExpiryDate = new Date(prepaidMemberships[lookupEmail]);
+
+    user.membershipExpiresAt = prepaidExpiryDate;
+
+    try {
+      await user.save();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to grant membership" });
+    }
+
+    let permissionRecord;
+
+    try {
+      permissionRecord = await Permission.findOne({
+        where: {
+          internal: "jcr.member"
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to find membership permission" });
+    }
+
+    if(permissionRecord === null) {
+      return res.status(500).json({ error: "Unable to locate permission" });
+    }
+
+    try {
+      await PermissionLink.create({
+        grantedToId: user.id,
+        permissionId: permissionRecord.id,
+        grantedById: 1
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to link membership" });
     }
   }
 
