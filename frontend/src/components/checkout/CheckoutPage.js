@@ -6,6 +6,8 @@ import CheckoutCartItem from './CheckoutCartItem';
 import api from '../../utils/axiosConfig';
 import CheckoutForm from './CheckoutForm';
 
+const forcedLock = new Date("2021-01-20T08:00:00Z");
+
 class CheckoutPage extends React.Component {
   constructor(props) {
     super(props);
@@ -418,6 +420,12 @@ class CheckoutPage extends React.Component {
   }
 
   isReadyForPayment = () => {
+    const now = new Date();
+
+    if(now < forcedLock) {
+      return false;
+    }
+
     if(!this.state.requiresDeliveryOption) {
       return true;
     }
