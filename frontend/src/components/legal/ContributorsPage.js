@@ -30,6 +30,7 @@ class ContributorsPage extends React.Component {
               <ul className="list-inside list-disc">
                 <li>Assets reused from the <a href="https://github.com/ben-willis/grey-jcr/" target="_blank" rel="noopener noreferrer"><span className="mr-2 underline">existing Grey JCR Website</span></a></li>
                 <li>Grey Crest by AlexD - Own work, CC BY-SA 3.0, <a href="https://commons.wikimedia.org/w/index.php?curid=5147969" target="_blank" rel="noopener noreferrer" className="underline">source</a></li>
+                <li>Stash Personalisation Options Image - Ellen Knight</li>
               </ul>
             </div>
           </div>

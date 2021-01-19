@@ -5,6 +5,14 @@ import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
 import { sortableContainer, sortableElement } from 'react-sortable-hoc';
 
+// https://stackoverflow.com/a/12646864
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
 const SortableItem = sortableElement(({candidate, position}) => (
   <li
     className="border-4 p-4 mr-4 text-3xl w-full cursor-move my-2"
@@ -95,9 +103,7 @@ class ElectionVotingPage extends React.Component {
     const { election } = content.data;
     let preferences = election.ElectionCandidates;
 
-    preferences.sort((a, b) => {
-      return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0);
-    });
+    shuffleArray(preferences);
 
     this.setState({ loaded: true, status: 200, election, preferences });
   }
