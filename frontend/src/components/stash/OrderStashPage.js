@@ -132,10 +132,10 @@ class OrderStashPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <div className="mb-2 sm:mb-4 font-semibold">
             <h1 className="my-2 text-5xl">College Stash</h1>
-            <p className="my-2 text-xl">(Open now! Closes at 23:00 GMT on 31/01/2020)</p>
+            <p className="my-2 text-xl">(Open now! Closes at 23:00 GMT on 31/01/2021)</p>
             <p className="text-sm">We are unable to offer refunds for items (unless they are faulty) as all products are personalised and custom-made.</p>
             <p className="text-sm">Garment sizes are approximate and for guidance only. Colour representation tiles are only as accurate as the web design process allows, they may appear differently in the final product.</p>
-        </div>
+          </div>
           <div className="flex flex-row mb-2 sm:mb-4 justify-between flex-wrap">
             <div className="flex flex-row justify-center flex-grow flex-shrink-0 mb-2">
               <figure>
