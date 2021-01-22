@@ -19,7 +19,7 @@ router.get("/threads", async (req, res) => {
       where: {
         userHash: userIdHash
       },
-      attributes: [ "id", "title", "createdAt" ]
+      attributes: [ "id", "title", "createdAt", "lastUpdate" ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to get the welfare threads" });
@@ -43,10 +43,10 @@ router.post("/thread", async (req, res) => {
   try {
     thread = await WelfareThread.create({
       userHash: userIdHash,
-      title
+      title,
+      lastUpdate: new Date()
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: "Unable to create a new thread" });
   }
 
@@ -71,7 +71,7 @@ router.get("/thread/:threadId", async(req, res) => {
         id: threadId,
         userHash: userIdHash
       },
-      attributes: [ "id", "title", "createdAt", "updatedAt" ]
+      attributes: [ "id", "title", "createdAt", "lastUpdate" ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to get thread" });
@@ -138,11 +138,11 @@ router.post("/message", async (req, res) => {
     return res.status(500).json({ error: "Unable to get the SWOs" });
   }
 
-  let exists;
+  let thread;
   const userIdHash = hash({ username: user.id });
 
   try {
-    exists = await WelfareThread.findOne({
+    thread = await WelfareThread.findOne({
       where: {
         id: threadId,
         userHash: userIdHash
@@ -152,7 +152,7 @@ router.post("/message", async (req, res) => {
     return res.status(500).json({ error: "Unable to get the thread" });
   }
 
-  if(exists === null) {
+  if(thread === null) {
     return res.status(400).json({ error: "Invalid parameters" });
   }
 
@@ -166,6 +166,14 @@ router.post("/message", async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to find messages" });
+  }
+
+  thread.lastUpdate = new Date();
+
+  try {
+    await thread.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the thread" });
   }
 
   let emailNotification = [];
@@ -234,7 +242,7 @@ router.get("/thread/admin/:threadId", async(req, res) => {
       where: {
         id: threadId
       },
-      attributes: [ "id", "title", "createdAt", "updatedAt" ]
+      attributes: [ "id", "title", "createdAt", "lastUpdate"]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to get thread" });
@@ -267,7 +275,7 @@ router.get("/threads/admin", async (req, res) => {
 
   try {
     threads = await WelfareThread.findAll({
-      attributes: [ "id", "title", "createdAt" ]
+      attributes: [ "id", "title", "createdAt", "lastUpdate" ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to find all threads" });
@@ -294,6 +302,22 @@ router.post("/message/admin", async (req, res) => {
     return res.status(400).json({ error: "No message set" });
   }
 
+  let thread;
+
+  try {
+    thread = await WelfareThread.findOne({
+      where: {
+        id: threadId
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the thread" });
+  }
+
+  if(thread === null) {
+    return res.status(400).json({ error: "No thread was found" });
+  }
+
   let result;
 
   try {
@@ -304,6 +328,14 @@ router.post("/message/admin", async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to find messages" });
+  }
+
+  thread.lastUpdate = new Date();
+
+  try {
+    await thread.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the thread" });
   }
 
   // need to email SWOs

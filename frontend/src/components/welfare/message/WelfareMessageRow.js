@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
+import dateFormat from 'dateformat';
 
 class WelfareMessageRow extends React.Component {
   constructor(props) {
@@ -34,7 +35,7 @@ class WelfareMessageRow extends React.Component {
     return (
       <tr className="text-center border-b border-gray-400">
         <td className="p-2 border-r border-gray-400">{this.props.thread.title}</td>
-        <td className="p-2 border-r border-gray-400">TODO</td>
+        <td className="p-2 border-r border-gray-400">{dateFormat(this.props.thread.lastUpdate, "dd/mm/yyyy HH:MM")}</td>
         <td className="p-2 border-r border-gray-400">
           <Link to={`/welfare/message/thread/${this.props.thread.id}`}>
             <button

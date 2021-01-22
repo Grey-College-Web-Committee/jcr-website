@@ -597,8 +597,12 @@ WelfareThread.init({
   title: {
     type: DataTypes.TEXT,
     allowNull: false
+  },
+  lastUpdate: {
+    type: DataTypes.DATE,
+    allowNull: false
   }
-}, { sequelize });
+}, { sequelize, timestamps: true, updatedAt: false });
 
 WelfareThreadMessage.init({
   threadId: {
@@ -617,7 +621,7 @@ WelfareThreadMessage.init({
     type: DataTypes.TEXT,
     allowNull: false
   }
-}, { sequelize }); 
+}, { sequelize });
 
 // Associations are necessary to allow joins between tables
 

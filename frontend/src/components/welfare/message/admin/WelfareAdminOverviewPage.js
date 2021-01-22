@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
+import dateFormat from 'dateformat';
 
 class WelfareAdminOverviewPage extends React.Component {
   constructor(props) {
@@ -80,7 +81,7 @@ class WelfareAdminOverviewPage extends React.Component {
               <thead className="bg-red-900 text-white">
                 <tr>
                   <th className="p-2 font-semibold">Title</th>
-                  <th className="p-2 font-semibold">Last Message</th>
+                  <th className="p-2 font-semibold">Last Message Date</th>
                   <th className="p-2 font-semibold">View Thread</th>
                 </tr>
               </thead>
@@ -88,7 +89,7 @@ class WelfareAdminOverviewPage extends React.Component {
                 {this.state.threads.map((thread, i) => (
                   <tr className="text-center border-b border-gray-400">
                     <td className="p-2 border-r border-gray-400">{thread.title}</td>
-                    <td className="p-2 border-r border-gray-400">TODO</td>
+                    <td className="p-2 border-r border-gray-400">{dateFormat(thread.lastUpdate, "dd/mm/yyyy HH:MM")}</td>
                     <td className="p-2 border-r border-gray-400">
                       <Link to={`/welfare/message/admin/thread/${thread.id}`}>
                         <button
