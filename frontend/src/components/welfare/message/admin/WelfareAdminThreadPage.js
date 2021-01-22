@@ -4,7 +4,7 @@ import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
 import dateFormat from 'dateformat';
 
-class AdminTemplatePage extends React.Component {
+class WelfareAdminThreadPage extends React.Component {
   constructor(props) {
     super(props);
 
@@ -183,4 +183,4 @@ class AdminTemplatePage extends React.Component {
   }
 }
 
-export default AdminTemplatePage;
+export default WelfareAdminThreadPage;

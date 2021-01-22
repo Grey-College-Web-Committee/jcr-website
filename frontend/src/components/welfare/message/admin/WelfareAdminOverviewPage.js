@@ -76,22 +76,23 @@ class WelfareAdminOverviewPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Manage Anonymous Messages</h1>
           <div>
-            <table>
-              <thead>
+            <table className="mx-auto border-2 text-left border-red-900 w-full my-2">
+              <thead className="bg-red-900 text-white">
                 <tr>
-                  <th>Title</th>
-                  <th>Last Message</th>
-                  <th>View Thread</th>
+                  <th className="p-2 font-semibold">Title</th>
+                  <th className="p-2 font-semibold">Last Message</th>
+                  <th className="p-2 font-semibold">View Thread</th>
                 </tr>
               </thead>
               <tbody>
                 {this.state.threads.map((thread, i) => (
-                  <tr>
-                    <td>{thread.title}</td>
-                    <td>TODO</td>
-                    <td>
+                  <tr className="text-center border-b border-gray-400">
+                    <td className="p-2 border-r border-gray-400">{thread.title}</td>
+                    <td className="p-2 border-r border-gray-400">TODO</td>
+                    <td className="p-2 border-r border-gray-400">
                       <Link to={`/welfare/message/admin/thread/${thread.id}`}>
                         <button
+                          className="px-4 py-1 rounded bg-green-700 text-white w-full md:w-48 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                         >View</button>
                       </Link>
                     </td>

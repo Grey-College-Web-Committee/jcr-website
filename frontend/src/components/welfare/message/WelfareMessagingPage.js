@@ -122,7 +122,7 @@ class WelfareMessagingPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Anonymous Messaging</h1>
           <div className="text-justify my-2">
-            <p>You can start a new thread to contact the welfare team anonymously. Although you will be able to come back to your conversations, we <span className="underline font-semibold">will never</span> show any personal details to the Welfare team and your messages will be entirely anonymous and only viewable by the Senior Welfare Officers. None of your messages can be linked back to your account and you can delete threads after you have finished with them at which point they will be entirely deleted from the server and will be unrecoverable. The Senior Welfare Officers will be notified when you contact them. You can opt to receive an email when they respond.</p>
+            <p>You can start a new thread to contact the welfare team anonymously. Although you will be able to come back to your conversations, we <span className="underline font-semibold">will never</span> show any personal details to the Welfare team and your messages will be entirely anonymous and only viewable by the Senior Welfare Officers. None of your messages can be linked back to your account and you can delete threads after you have finished with them at which point they will be entirely deleted from the server and will be unrecoverable. The Senior Welfare Officers will be notified when you contact them.</p>
           </div>
           <div className="text-justify my-2">
             <h2 className="text-left font-semibold text-2xl">Contact Us</h2>
@@ -137,7 +137,7 @@ class WelfareMessagingPage extends React.Component {
                     name="title"
                     value={this.state.title}
                     onChange={this.onInputChange}
-                    className={`w-full rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                    className={`w-full rounded border-2 w-full md:w-1/2 py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
                     placeholder="Title..."
                     disabled={this.state.disabled}
                     maxLength={255}
@@ -158,10 +158,13 @@ class WelfareMessagingPage extends React.Component {
               this.state.threads.length === 0 ? (
                 <p className="my-1 font-semibold">You have no open threads.</p>
               ) : (
-                <table>
-                  <thead>
+                <table className="mx-auto border-2 text-left border-red-900 w-full my-2">
+                  <thead className="bg-red-900 text-white">
                     <tr>
-                      <th>Title</th><th>Last Message Date</th><th>View Thread</th><th>Delete Thread</th>
+                      <th className="p-2 font-semibold">Title</th>
+                      <th className="p-2 font-semibold">Last Message Date</th>
+                      <th className="p-2 font-semibold">View Thread</th>
+                      <th className="p-2 font-semibold">Delete Thread</th>
                     </tr>
                   </thead>
                   <tbody>
