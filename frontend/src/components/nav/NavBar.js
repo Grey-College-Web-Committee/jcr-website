@@ -111,6 +111,25 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Welfare",
+          url: null,
+          requiredPermission: "jcr.member",
+          staticImage: null,
+          dropdown: [
+            {
+              displayName: "About Us",
+              url: "/welfare",
+              requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "Anonymous Messaging",
+              url: "/welfare/message",
+              requiredPermission: "jcr.member"
+            }
+          ],
+          alwaysDisplayed: false
+        },
+        {
           displayName: `${user.username}`,
           url: null,
           requiredPermission: null,

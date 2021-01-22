@@ -22,6 +22,9 @@ import DebtorPage from './components/debtors/DebtorPage';
 import GymInformationPage from './components/gym/GymInformationPage';
 import GymTermsPage from './components/gym/GymTermsPage';
 import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
+import WelfarePage from './components/welfare/WelfarePage';
+import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage';
+import WelfareThreadPage from './components/welfare/message/thread/WelfareThreadPage';
 
 import ElectionOverviewPage from './components/elections/overview/ElectionOverviewPage';
 import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
@@ -301,6 +304,15 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/elections/results/:id" render={(props) => (
                       this.hasPermission("elections.manage") ? ( <GenerateElectionResultsPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/welfare/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfarePage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/welfare/message" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareMessagingPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/welfare/message/thread/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareThreadPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
                     )} />
                     <Route exact path="/stash/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
