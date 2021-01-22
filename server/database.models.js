@@ -585,6 +585,11 @@ ElectionVoteLink.init({
 }, { sequelize });
 
 WelfareThread.init({
+  id: {
+    type: DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4
+  },
   userHash: {
     type: DataTypes.TEXT,
     allowNull: false
@@ -597,7 +602,7 @@ WelfareThread.init({
 
 WelfareThreadMessage.init({
   threadId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: WelfareThread,
@@ -612,7 +617,7 @@ WelfareThreadMessage.init({
     type: DataTypes.TEXT,
     allowNull: false
   }
-}, { sequelize });
+}, { sequelize }); 
 
 // Associations are necessary to allow joins between tables
 

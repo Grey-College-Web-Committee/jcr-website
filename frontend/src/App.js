@@ -48,6 +48,8 @@ import ManageMembershipsPage from './components/membership/manage/ManageMembersh
 import ElectionAdminPortal from './components/elections/portal/ElectionAdminPortal';
 import CreateElectionPage from './components/elections/create/CreateElectionPage';
 import GenerateElectionResultsPage from './components/elections/results/GenerateElectionResultsPage';
+import WelfareAdminOverviewPage from './components/welfare/message/admin/WelfareAdminOverviewPage';
+import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -313,6 +315,12 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/welfare/message/thread/:id" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareThreadPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/welfare/message/admin" render={() => (
+                      this.hasPermission("welfare.anonymous") ? ( <WelfareAdminOverviewPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/welfare/message/admin/thread/:id" render={(props) => (
+                      this.hasPermission("welfare.anonymous") ? ( <WelfareAdminThreadPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
                     )} />
                     <Route exact path="/stash/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )

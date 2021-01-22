@@ -50,7 +50,7 @@ class WelfareMessagingPage extends React.Component {
     let content;
 
     try {
-      content = await api.get("/welfare/messages/threadIds");
+      content = await api.get("/welfare/messages/threads");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
@@ -84,6 +84,12 @@ class WelfareMessagingPage extends React.Component {
 
     const { threadId } = result.data;
     this.setState({ redirect: true, redirectId: threadId });
+  }
+
+  onThreadDelete = (threadId) => {
+    let { threads } = this.state;
+    threads = threads.filter(thread => thread.id !== threadId);
+    this.setState({ threads });
   }
 
   render () {
@@ -162,7 +168,8 @@ class WelfareMessagingPage extends React.Component {
                     { this.state.threads.map((thread, i) => (
                       <WelfareMessageRow
                         key={i}
-                        threadId={thread.id}
+                        thread={thread}
+                        onDelete={this.onThreadDelete}
                       />
                     ))}
                   </tbody>

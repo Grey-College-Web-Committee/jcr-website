@@ -1,17 +1,14 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import api from '../../../../utils/axiosConfig.js';
-import authContext from '../../../../utils/authContext.js';
-import config from '../../../../config.json';
+import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
 import dateFormat from 'dateformat';
 
-class WelfareThreadPage extends React.Component {
+class AdminTemplatePage extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      isMember: true,
       loaded: false,
       status: 0,
       error: "",
@@ -21,27 +18,35 @@ class WelfareThreadPage extends React.Component {
       messages: [],
       thread: {}
     };
+
+    // Change this to your permission
+    this.requiredPermission = "welfare.anonymous";
   }
 
-  // Call the API here initially and then use this.setState to render the content
+  // Load the data once the element is ready
   componentDidMount = async () => {
-    let membershipCheck;
+    let adminCheck;
 
     try {
-      membershipCheck = await api.get("/auth/verify");
+      adminCheck = await api.get("/auth/verify");
     } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
+      this.setState({ status: error.response.status, error: "Unable to verify admin status" });
       return;
     }
 
     // Ensure they are an admin
-    if(membershipCheck.data.user.permissions) {
-      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
-        this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
+    if(adminCheck.data.user.permissions) {
+      if(adminCheck.data.user.permissions.length === 0) {
+        this.setState({ status: 403, error: "You are not an admin" });
+        return;
+      }
+
+      if(!adminCheck.data.user.permissions.includes(this.requiredPermission)) {
+        this.setState({ status: 403, error: "You are not an admin" });
         return;
       }
     } else {
-      this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
+      this.setState({ status: 403, error: "You are not an admin" });
       return;
     }
 
@@ -56,7 +61,7 @@ class WelfareThreadPage extends React.Component {
     let content;
 
     try {
-      content = await api.get(`/welfare/messages/thread/${id}`);
+      content = await api.get(`/welfare/messages/thread/admin/${id}`);
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
@@ -70,6 +75,10 @@ class WelfareThreadPage extends React.Component {
     });
 
     this.setState({ loaded: true, status: 200, messages, thread });
+  }
+
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
   writeMessage = async () => {
@@ -93,7 +102,7 @@ class WelfareThreadPage extends React.Component {
     let result;
 
     try {
-      result = await api.post("/welfare/messages/message", { threadId: this.state.id, message });
+      result = await api.post("/welfare/messages/message/admin", { threadId: this.state.id, message });
     } catch (error) {
       alert("There was an error submitting your message");
       return;
@@ -105,22 +114,12 @@ class WelfareThreadPage extends React.Component {
     this.setState({ disabled: false, message: "" });
   }
 
-  onInputChange = e => {
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
-  }
-
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
         return (
-          <Redirect to={`/errors/${this.state.status}`} />
+         <Redirect to={`/errors/${this.state.status}`} />
         );
-      }
-
-      if(!this.state.isMember) {
-        return (
-          <Redirect to="/membership" />
-        )
       }
 
       return (
@@ -184,6 +183,4 @@ class WelfareThreadPage extends React.Component {
   }
 }
 
-WelfareThreadPage.contextType = authContext;
-
-export default WelfareThreadPage;
+export default AdminTemplatePage;
