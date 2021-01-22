@@ -53,7 +53,75 @@ router.post("/thread", async (req, res) => {
   }
 
   return res.status(200).json({ threadId: thread.id });
-})
+});
+
+router.get("/thread/:threadId", async(req, res) => {
+  const { user } = req.session;
+  const { threadId } = req.params;
+
+  if(threadId === undefined || threadId === null) {
+    return res.status(400).json({ error: "No title set" });
+  }
+
+  const userIdHash = hash({ username: user.id });
+
+  let thread;
+
+  try {
+    thread = await WelfareThread.findOne({
+      where: {
+        id: threadId,
+        userHash: userIdHash
+      },
+      attributes: [ "id", "title", "createdAt", "updatedAt" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get thread" });
+  }
+
+  if(thread === null) {
+    return res.status(500).json({ error: "No thread found" });
+  }
+
+  let messages;
+
+  try {
+    messages = await WelfareThreadMessage.findAll({ where: { threadId } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find messages" });
+  }
+
+  return res.status(200).json({ thread, messages });
+});
+
+router.post("/message", async (req, res) => {
+  const { user } = req.session;
+  const { threadId, message } = req.body;
+
+  if(threadId === undefined || threadId === null) {
+    return res.status(400).json({ error: "No threadId set" });
+  }
+
+  if(message === undefined || message === null || message.length === 0) {
+    return res.status(400).json({ error: "No message set" });
+  }
+
+  let result;
+
+  try {
+    result = await WelfareThreadMessage.create({
+      threadId,
+      from: "user",
+      content: message
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find messages" });
+  }
+
+  // need to email SWOs
+
+  return res.status(200).json({ message: result });
+});
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
