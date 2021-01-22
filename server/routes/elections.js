@@ -288,7 +288,10 @@ router.get("/list", async (req, res) => {
       where: {
         votingOpenTime: {
           [Op.gt]: now
-        }
+        },
+        manifestoReleaseTime: {
+          [Op.lt]: now
+        },
       },
       include: [{
         model: ElectionCandidate,

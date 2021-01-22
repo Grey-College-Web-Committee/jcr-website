@@ -10,8 +10,16 @@ class ElectionRow extends React.Component {
 
     this.state = {
       disabled: false,
-      deleted: false
+      deleted: false,
+      manifestoReleaseTime: this.props.election.manifestoReleaseTime,
+      votingOpenTime: this.props.election.votingOpenTime,
+      votingCloseTime: this.props.election.votingCloseTime,
+      election: this.props.election
     }
+  }
+
+  onInputChange = e => {
+    this.setState({ [e.target.name]: e.target.value });
   }
 
   deleteSelf = async () => {
@@ -24,6 +32,10 @@ class ElectionRow extends React.Component {
 
     alert("Election deleted");
     this.setState({ deleted: true });
+  }
+
+  canEdit = () => {
+    return this.state.election.winner === null;
   }
 
   render () {
@@ -39,13 +51,13 @@ class ElectionRow extends React.Component {
 
     const now = new Date();
 
-    if(now < new Date(election.manifestoReleaseTime)) {
+    if(now < new Date(this.state.manifestoReleaseTime)) {
       status = "Awaiting Manifesto Release";
       canDelete = true;
-    } else if (now < new Date(election.votingOpenTime)) {
+    } else if (now < new Date(this.state.votingOpenTime)) {
       status = "Manifestos Released";
       canDelete = true;
-    } else if (now < new Date(election.votingCloseTime)) {
+    } else if (now < new Date(this.state.votingCloseTime)) {
       status = "Voting In Progress";
     } else {
       status = "Voting Closed";
@@ -78,9 +90,36 @@ class ElectionRow extends React.Component {
           </ul>
         </td>
         <td className="p-2 border-r border-gray-400">{status}</td>
-        <td className="p-2 border-r border-gray-400">{dateFormat(election.manifestoReleaseTime, "dd/mm/yyyy HH:MM:ss")}</td>
-        <td className="p-2 border-r border-gray-400">{dateFormat(election.votingOpenTime, "dd/mm/yyyy HH:MM:ss")}</td>
-        <td className="p-2 border-r border-gray-400">{dateFormat(election.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</td>
+        <td className="p-2 border-r border-gray-400">
+          <input
+            type="datetime-local"
+            value={`${dateFormat(this.state.manifestoReleaseTime, "yyyy-mm-dd")}T${dateFormat(this.state.manifestoReleaseTime, "HH:MM")}`}
+            name="manifestoReleaseTime"
+            className="w-full border-2 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+            onChange={this.onInputChange}
+            disabled={!this.canEdit()}
+          />
+        </td>
+        <td className="p-2 border-r border-gray-400">
+          <input
+            type="datetime-local"
+            value={`${dateFormat(this.state.votingOpenTime, "yyyy-mm-dd")}T${dateFormat(this.state.votingOpenTime, "HH:MM")}`}
+            name="votingOpenTime"
+            className="w-full border-2 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+            onChange={this.onInputChange}
+            disabled={!this.canEdit()}
+          />
+        </td>
+        <td className="p-2 border-r border-gray-400">
+          <input
+            type="datetime-local"
+            value={`${dateFormat(this.state.votingCloseTime, "yyyy-mm-dd")}T${dateFormat(this.state.votingOpenTime, "HH:MM")}`}
+            name="votingCloseTime"
+            className="w-full border-2 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+            onChange={this.onInputChange}
+            disabled={!this.canEdit()}
+          />
+        </td>
         <td className="p-2 border-r border-gray-400">{canGenerateResults ? (election.winner === null ? generateButton : election.winner) : "Voting Not Closed"}</td>
         <td className="p-2 border-r border-gray-400">{canGenerateResults ? (election.winner === null ? generateButton :
           <Link to={`/elections/results/${election.id}`}>
@@ -90,6 +129,13 @@ class ElectionRow extends React.Component {
             >View Results</button>
           </Link>
         ) : "Voting Not Closed"}
+        </td>
+        <td className="p-2 border-r border-gray-400">
+          {election.winner === null ? <p></p> : (
+            <button
+
+            >Publish</button>
+          )}
         </td>
         <td className="p-2 border-r border-gray-400">
           {canDelete ?

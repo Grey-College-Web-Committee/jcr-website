@@ -79,6 +79,7 @@ class ElectionAdminPortal extends React.Component {
               <th className="p-2 font-semibold">Voting Closes</th>
               <th className="p-2 font-semibold">Winner</th>
               <th className="p-2 font-semibold">View In-Depth Results</th>
+              <th className="p-2 font-semibold">Publish</th>
               <th className="p-2 font-semibold">Delete</th>
             </tr>
           </thead>
