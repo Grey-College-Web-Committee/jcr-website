@@ -11,13 +11,15 @@ class HomePage extends React.Component {
           <div className="flex flex-row justify-center">
             <div className="flex flex-col align-middle">
               <div>
-                <h1 className="font-semibold text-5xl pb-4 text-center">Grey College JCR Shop</h1>
+                <h1 className="font-semibold text-5xl pb-4 text-center">Grey College JCR</h1>
               </div>
               <div className="text-2xl">
-                <p>Welcome to the new Grey College JCR Shop!</p>
+                <p>Welcome to the new Grey College JCR website!</p>
               </div>
               {loggedIn ? (
-                <div className="text-xl"></div>
+                <div className="text-xl">
+                  <p>You can now access Welfare services from the navigation bar.</p>
+                </div>
               ) : (
                 <div className="text-xl">
                   <p>To get started, login using your Durham CIS account.</p>

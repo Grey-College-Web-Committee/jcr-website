@@ -10,6 +10,11 @@ const mailer = require("../utils/mailer");
 
 router.get("/threads", async (req, res) => {
   const { user } = req.session;
+
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
   const userIdHash = hash({ username: user.id });
 
   let threads;
@@ -30,6 +35,11 @@ router.get("/threads", async (req, res) => {
 
 router.post("/thread", async (req, res) => {
   const { user } = req.session;
+
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
   const { title, notify } = req.body;
 
   if(title === undefined || title === null) {
@@ -66,6 +76,11 @@ router.post("/thread", async (req, res) => {
 
 router.get("/thread/:threadId", async(req, res) => {
   const { user } = req.session;
+
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
   const { threadId } = req.params;
 
   if(threadId === undefined || threadId === null) {
@@ -105,6 +120,11 @@ router.get("/thread/:threadId", async(req, res) => {
 
 router.post("/message", async (req, res) => {
   const { user } = req.session;
+
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
   const { threadId, message } = req.body;
 
   if(threadId === undefined || threadId === null) {
@@ -202,6 +222,11 @@ router.post("/message", async (req, res) => {
 
 router.delete("/thread/:threadId", async (req, res) => {
   const { user } = req.session;
+
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
   const { threadId } = req.params;
 
   if(threadId === undefined || threadId === null) {
