@@ -121,12 +121,12 @@ class WelfareMessagingPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Anonymous Messaging</h1>
-          <div className="text-justify my-2">
+          <div className="text-justify my-2 border-b-2 border-red-900 md:border-none">
             <p className="mb-1">You can start a new thread to contact the welfare team anonymously. You will be able to come back to your conversations. We <span className="underline font-semibold">will never</span> show any personal details to the Welfare team and your messages will be entirely anonymous and only viewable by the Senior Welfare Officers. None of your messages can be linked back to your account and you can delete threads after you have finished with them at which point they will be entirely deleted from the server and will be unrecoverable.</p>
-            <p className="mb-1">The Senior Welfare Officers will be notified when you contact them. You can also opt in to receive an email notification (sent to your personal Durham account) when they respond but please aware that to make this possible the website will associate your email with your message for the sole purpose of notifying you. <span className="font-semibold">Nobody will be able to see your email address.</span> If you choose to delete your conversation your email will also be removed from association with the conversation. <span className="font-semibold">If you are uncomfortable with this you do not have to receive notifications.</span></p>
+            <p className="mb-1">The Senior Welfare Officers will be notified when you contact them. You can also opt in to receive an email notification (sent to your personal Durham email) when they respond but please be aware that to make this possible the website will associate your email with your message for the sole purpose of notifying you. <span className="font-semibold">Nobody will be able to see your email address.</span> If you choose to delete your conversation your email will also be removed from association with the conversation. <span className="font-semibold">If you are uncomfortable with this you do not have to receive notifications.</span></p>
           </div>
-          <div className="text-justify my-2">
-            <h2 className="text-left font-semibold text-2xl">Contact Us</h2>
+          <div className="text-justify my-2 border-b-2 border-red-900 md:border-none pb-2">
+            <h2 className="text-left font-semibold text-2xl">Start A Conversation</h2>
             <fieldset>
               <div className="pb-2 flex flex-row">
                 <div className="flex-shrink-0 flex flex-col justify-center">
@@ -195,8 +195,6 @@ class WelfareMessagingPage extends React.Component {
                 </table>
               )
             }
-            <table>
-            </table>
           </div>
         </div>
       </div>
