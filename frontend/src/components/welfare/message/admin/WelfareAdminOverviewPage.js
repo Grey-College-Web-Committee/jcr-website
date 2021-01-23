@@ -50,13 +50,19 @@ class WelfareAdminOverviewPage extends React.Component {
     let content;
 
     try {
-      content = await api.get("/welfare/messages/threads");
+      content = await api.get("/welfare/messages/threads/admin");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
     }
 
-    this.setState({ loaded: true, status: 200, threads: content.data.threads });
+    let { threads } = content.data;
+
+    threads.sort((a, b) => {
+      return -(a.lastUpdate < b.lastUpdate ? -1 : (a.lastUpdate > b.lastUpdate ? 1 : 0));
+    });
+
+    this.setState({ loaded: true, status: 200, threads });
   }
 
   render () {

@@ -9,7 +9,8 @@ class WelfareMessageRow extends React.Component {
     super(props);
 
     this.state = {
-      disabled: false
+      disabled: false,
+      deleted: false
     }
   }
 
@@ -26,12 +27,17 @@ class WelfareMessageRow extends React.Component {
       await api.delete(`/welfare/messages/thread/${this.props.thread.id}`);
     } catch (error) {
       alert("Unable to delete the thread");
+      return;
     }
 
-    this.props.onDelete(this.props.thread.id);
+    this.setState({ deleted: true });
   }
 
   render () {
+    if(this.state.deleted) {
+      return null;
+    }
+    
     return (
       <tr className="text-center border-b border-gray-400">
         <td className="p-2 border-r border-gray-400">{this.props.thread.title}</td>

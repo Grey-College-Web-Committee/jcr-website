@@ -30,13 +30,23 @@ router.get("/threads", async (req, res) => {
 
 router.post("/thread", async (req, res) => {
   const { user } = req.session;
-  const { title } = req.body;
+  const { title, notify } = req.body;
 
   if(title === undefined || title === null) {
     return res.status(400).json({ error: "No title set" });
   }
 
+  if(notify === undefined || notify === null) {
+    return res.status(400).json({ error: "No notify set" });
+  }
+
   const userIdHash = hash({ username: user.id });
+
+  let userEmail = null;
+
+  if(notify) {
+    userEmail = user.email;
+  }
 
   let thread;
 
@@ -44,7 +54,8 @@ router.post("/thread", async (req, res) => {
     thread = await WelfareThread.create({
       userHash: userIdHash,
       title,
-      lastUpdate: new Date()
+      lastUpdate: new Date(),
+      userEmail
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to create a new thread" });
@@ -177,7 +188,7 @@ router.post("/message", async (req, res) => {
   }
 
   let emailNotification = [];
-  emailNotification.push("<p>A new message has been received on the anonymous messaging service</p>");
+  emailNotification.push("<p>A new message has been received on the anonymous messaging service.</p>");
   emailNotification.push(`<p>You can <a href="https://shop.greyjcr.com/welfare/message/admin/thread/${threadId}" target="_blank" rel="noopener noreferrer">view the thread by clicking here.</a></p>`);
 
   if(swos.length !== 0) {
@@ -338,7 +349,13 @@ router.post("/message/admin", async (req, res) => {
     return res.status(500).json({ error: "Unable to update the thread" });
   }
 
-  // need to email SWOs
+  if(thread.userEmail !== null) {
+    let emailNotification = [];
+    emailNotification.push("<p>A new reply has been received on the anonymous messaging service.</p>");
+    emailNotification.push(`<p>You can <a href="https://shop.greyjcr.com/welfare/message/thread/${threadId}" target="_blank" rel="noopener noreferrer">view the thread by clicking here.</a></p>`);
+
+    mailer.sendEmail(thread.userEmail, "Website Reply Received", emailNotification.join(""));
+  }
 
   return res.status(200).json({ message: result });
 });

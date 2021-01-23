@@ -601,8 +601,12 @@ WelfareThread.init({
   lastUpdate: {
     type: DataTypes.DATE,
     allowNull: false
+  },
+  userEmail: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
-}, { sequelize, timestamps: true, updatedAt: false });
+}, { sequelize, timestamps: true, updatedAt: false }); 
 
 WelfareThreadMessage.init({
   threadId: {

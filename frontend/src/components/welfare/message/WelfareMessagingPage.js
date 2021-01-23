@@ -20,7 +20,8 @@ class WelfareMessagingPage extends React.Component {
       title: "",
       disabled: false,
       redirect: false,
-      redirectId: null
+      redirectId: null,
+      notify: false
     };
   }
 
@@ -56,7 +57,13 @@ class WelfareMessagingPage extends React.Component {
       return;
     }
 
-    this.setState({ loaded: true, status: 200, threads: content.data.threads });
+    let { threads } = content.data;
+
+    threads.sort((a, b) => {
+      return -(a.lastUpdate < b.lastUpdate ? -1 : (a.lastUpdate > b.lastUpdate ? 1 : 0));
+    });
+
+    this.setState({ loaded: true, status: 200, threads });
   }
 
   onInputChange = e => {
@@ -65,7 +72,7 @@ class WelfareMessagingPage extends React.Component {
 
   makeNewThread = async () => {
     this.setState({ disabled: true });
-    let { title } = this.state;
+    let { title, notify } = this.state;
 
     if(title === null || title === undefined || title.length === 0) {
       title = "(None Set)";
@@ -76,7 +83,7 @@ class WelfareMessagingPage extends React.Component {
     let result;
 
     try {
-      result = await api.post("/welfare/messages/thread", { title });
+      result = await api.post("/welfare/messages/thread", { title, notify });
     } catch (error) {
       alert("Unable to create a new thread at this time. Try again later.");
       return;
@@ -84,12 +91,6 @@ class WelfareMessagingPage extends React.Component {
 
     const { threadId } = result.data;
     this.setState({ redirect: true, redirectId: threadId });
-  }
-
-  onThreadDelete = (threadId) => {
-    let { threads } = this.state;
-    threads = threads.filter(thread => thread.id !== threadId);
-    this.setState({ threads });
   }
 
   render () {
@@ -122,7 +123,8 @@ class WelfareMessagingPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Anonymous Messaging</h1>
           <div className="text-justify my-2">
-            <p>You can start a new thread to contact the welfare team anonymously. Although you will be able to come back to your conversations, we <span className="underline font-semibold">will never</span> show any personal details to the Welfare team and your messages will be entirely anonymous and only viewable by the Senior Welfare Officers. None of your messages can be linked back to your account and you can delete threads after you have finished with them at which point they will be entirely deleted from the server and will be unrecoverable. The Senior Welfare Officers will be notified when you contact them.</p>
+            <p className="mb-1">You can start a new thread to contact the welfare team anonymously. You will be able to come back to your conversations. We <span className="underline font-semibold">will never</span> show any personal details to the Welfare team and your messages will be entirely anonymous and only viewable by the Senior Welfare Officers. None of your messages can be linked back to your account and you can delete threads after you have finished with them at which point they will be entirely deleted from the server and will be unrecoverable.</p>
+            <p className="mb-1">The Senior Welfare Officers will be notified when you contact them. You can also opt in to receive an email notification (sent to your personal Durham account) when they respond but please aware that to make this possible the website will associate your email with your message for the sole purpose of notifying you. <span className="font-semibold">Nobody will be able to see your email address.</span> If you choose to delete your conversation your email will also be removed from association with the conversation. <span className="font-semibold">If you are uncomfortable with this you do not have to receive notifications.</span></p>
           </div>
           <div className="text-justify my-2">
             <h2 className="text-left font-semibold text-2xl">Contact Us</h2>
@@ -145,26 +147,42 @@ class WelfareMessagingPage extends React.Component {
                   />
                 </div>
               </div>
+              <div className="pb-2 flex flex-row">
+                <div className="flex-shrink-0 flex flex-col justify-center">
+                  <label htmlFor="title" className="w-40 inline-block font-semibold">Receive Notifications:</label>
+                </div>
+                <div className="flex-grow">
+                  <input
+                    type="checkbox"
+                    name="notify"
+                    value={this.state.notify}
+                    onChange={this.onInputChange}
+                    className="p-2 h-6 w-6 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    disabled={this.state.disabled}
+                    autoComplete=""
+                  />
+                </div>
+              </div>
             </fieldset>
             <button
               className="px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               onClick={this.makeNewThread}
               disabled={this.state.disabled}
-            >Create A New Thread</button>
+            >Start A Conversation</button>
           </div>
           <div className="text-justify my-2">
-            <h2 className="text-left font-semibold text-2xl">My Threads</h2>
+            <h2 className="text-left font-semibold text-2xl">My Conversations</h2>
             {
               this.state.threads.length === 0 ? (
-                <p className="my-1 font-semibold">You have no open threads.</p>
+                <p className="my-1 font-semibold">You have no open conversations.</p>
               ) : (
                 <table className="mx-auto border-2 text-left border-red-900 w-full my-2">
                   <thead className="bg-red-900 text-white">
                     <tr>
                       <th className="p-2 font-semibold">Title</th>
                       <th className="p-2 font-semibold">Last Message Date</th>
-                      <th className="p-2 font-semibold">View Thread</th>
-                      <th className="p-2 font-semibold">Delete Thread</th>
+                      <th className="p-2 font-semibold">View Conversation</th>
+                      <th className="p-2 font-semibold">Delete Conversation</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -172,7 +190,6 @@ class WelfareMessagingPage extends React.Component {
                       <WelfareMessageRow
                         key={i}
                         thread={thread}
-                        onDelete={this.onThreadDelete}
                       />
                     ))}
                   </tbody>
