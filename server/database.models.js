@@ -39,6 +39,9 @@ class ElectionCandidate extends Model {}
 class ElectionVote extends Model {}
 class ElectionVoteLink extends Model {}
 
+class WelfareThread extends Model {}
+class WelfareThreadMessage extends Model {}
+
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
 // No need to store a users email it is simply username@durham.ac.uk
@@ -579,7 +582,50 @@ ElectionVoteLink.init({
     type: DataTypes.INTEGER,
     allowNull: false
   }
-}, { sequelize })
+}, { sequelize });
+
+WelfareThread.init({
+  id: {
+    type: DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4
+  },
+  userHash: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  title: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  lastUpdate: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  userEmail: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
+}, { sequelize, timestamps: true, updatedAt: false }); 
+
+WelfareThreadMessage.init({
+  threadId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: WelfareThread,
+      key: 'id'
+    }
+  },
+  from: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  content: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
 
 // Associations are necessary to allow joins between tables
 
@@ -652,4 +698,7 @@ ElectionVoteLink.belongsTo(ElectionCandidate, { foreignKey: 'candidateId' });
 ElectionVote.hasMany(ElectionVoteLink, { foreignKey: 'voteId' });
 ElectionVoteLink.belongsTo(ElectionVote, { foreignKey: 'voteId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink };
+WelfareThread.hasMany(WelfareThreadMessage, { foreignKey: 'threadId' });
+WelfareThreadMessage.belongsTo(WelfareThread, { foreignKey: 'threadId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, WelfareThread, WelfareThreadMessage };
