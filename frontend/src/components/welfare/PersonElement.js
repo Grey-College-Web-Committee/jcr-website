@@ -43,4 +43,11 @@ class PersonElement extends React.Component {
   }
 }
 
+PersonElement.propTypes = {
+  name: PropTypes.string.isRequired,
+  role: PropTypes.string.isRequired,
+  image: PropTypes.string.isRequired,
+  bio: PropTypes.string.isRequired,
+}
+
 export default PersonElement;

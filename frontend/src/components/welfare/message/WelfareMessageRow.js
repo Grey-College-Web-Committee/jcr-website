@@ -37,7 +37,7 @@ class WelfareMessageRow extends React.Component {
     if(this.state.deleted) {
       return null;
     }
-    
+
     return (
       <tr className="text-center border-b border-gray-400">
         <td className="p-2 border-r border-gray-400">{this.props.thread.title}</td>
@@ -59,6 +59,10 @@ class WelfareMessageRow extends React.Component {
       </tr>
     );
   }
+}
+
+WelfareMessageRow.propTypes = {
+  thread: PropTypes.object.isRequired
 }
 
 export default WelfareMessageRow;
