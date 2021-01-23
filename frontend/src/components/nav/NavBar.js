@@ -117,7 +117,7 @@ class NavBar extends React.Component {
           staticImage: null,
           dropdown: [
             {
-              displayName: "About Us",
+              displayName: "About",
               url: "/welfare",
               requiredPermission: "jcr.member"
             },
