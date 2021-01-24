@@ -222,7 +222,14 @@ router.post("/export", async(req, res) => {
     }
 
     const { productId, size, colourId, shieldOrCrest, underShieldText, quantity, StashColour, StashStock, ShopOrder } = order;
-    const hashableComparison = { productId, size, colourId, shieldOrCrest, underShieldText };
+
+    let addressId = -1;
+
+    if(ShopOrder.Address !== null) {
+      addressId = ShopOrder.Address.id;
+    }
+
+    const hashableComparison = { productId, size, colourId, shieldOrCrest, underShieldText, addressId };
     const hashedObj = hash(hashableComparison);
 
     if(Object.keys(nonCustomisedHashes).includes(hashedObj)) {
