@@ -40,6 +40,11 @@ class ElectionVote extends Model {}
 class ElectionVoteLink extends Model {}
 class ElectionEditLog extends Model {}
 
+class Media extends Model {}
+
+class WelfareThread extends Model {}
+class WelfareThreadMessage extends Model {}
+
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
 // No need to store a users email it is simply username@durham.ac.uk
@@ -613,6 +618,73 @@ ElectionEditLog.init({
   }
 }, { sequelize });
 
+Media.init({
+  mediaTitle: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  mediaType: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  mediaCategory: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  mediaLink: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  mediaDescription:{
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: ""
+  }
+}, { sequelize });
+
+WelfareThread.init({
+  id: {
+    type: DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4
+  },
+  userHash: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  title: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  lastUpdate: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  userEmail: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
+}, { sequelize, timestamps: true, updatedAt: false }); 
+
+WelfareThreadMessage.init({
+  threadId: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    references: {
+      model: WelfareThread,
+      key: 'id'
+    }
+  },
+  from: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  content: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -690,4 +762,8 @@ ElectionEditLog.belongsTo(User, { foreignKey: 'userId' });
 Election.hasMany(ElectionEditLog, { foreignKey: 'electionId' });
 ElectionEditLog.belongsTo(Election, { foreignKey: 'electionId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog };
+WelfareThread.hasMany(WelfareThreadMessage, { foreignKey: 'threadId' });
+WelfareThreadMessage.belongsTo(WelfareThread, { foreignKey: 'threadId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage };
+

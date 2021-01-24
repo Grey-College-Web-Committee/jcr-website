@@ -22,6 +22,9 @@ import DebtorPage from './components/debtors/DebtorPage';
 import GymInformationPage from './components/gym/GymInformationPage';
 import GymTermsPage from './components/gym/GymTermsPage';
 import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
+import WelfarePage from './components/welfare/WelfarePage';
+import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage';
+import WelfareThreadPage from './components/welfare/message/thread/WelfareThreadPage';
 
 import ElectionOverviewPage from './components/elections/overview/ElectionOverviewPage';
 import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
@@ -46,6 +49,10 @@ import ElectionAdminPortal from './components/elections/portal/ElectionAdminPort
 import CreateElectionPage from './components/elections/create/CreateElectionPage';
 import GenerateElectionResultsPage from './components/elections/results/GenerateElectionResultsPage';
 import ElectionEditPage from './components/elections/portal/ElectionEditPage';
+import WelfareAdminOverviewPage from './components/welfare/message/admin/WelfareAdminOverviewPage';
+import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
+import MediaPage from './components/media/MediaViewPage';
+import MediaAdminPage from './components/media/MediaAdminPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -270,6 +277,12 @@ class App extends React.Component {
                     <Route exact path="/toasties/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
                     )} />
+                    <Route exact path="/media/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/media/admin" render={() => (
+                      this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
                     <Route exact path="/debtors" render={() => (
                       this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )
                     )} />
@@ -305,6 +318,21 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/elections/edit/:id" render={(props) => (
                       this.hasPermission("elections.manage") ? ( <ElectionEditPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
+                    />
+                    <Route exact path="/welfare/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfarePage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/welfare/message" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareMessagingPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/welfare/message/thread/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareThreadPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/welfare/message/admin" render={() => (
+                      this.hasPermission("welfare.anonymous") ? ( <WelfareAdminOverviewPage /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/welfare/message/admin/thread/:id" render={(props) => (
+                      this.hasPermission("welfare.anonymous") ? ( <WelfareAdminThreadPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
                     )} />
                     <Route exact path="/stash/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )

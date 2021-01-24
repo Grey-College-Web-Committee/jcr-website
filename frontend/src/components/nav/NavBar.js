@@ -111,6 +111,33 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Podcast",
+          url: "/media",
+          requiredPermission: "jcr.member",
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
+          displayName: "Welfare",
+          url: null,
+          requiredPermission: "jcr.member",
+          staticImage: null,
+          dropdown: [
+            {
+              displayName: "About",
+              url: "/welfare",
+              requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "Anonymous Messaging",
+              url: "/welfare/message",
+              requiredPermission: "jcr.member"
+            }
+          ],
+          alwaysDisplayed: false
+        },
+        {
           displayName: `${user.username}`,
           url: null,
           requiredPermission: null,
@@ -169,6 +196,16 @@ class NavBar extends React.Component {
               displayName: "Manage Elections",
               url: "/elections/admin",
               requiredPermission: "elections.manage"
+            },
+            {
+              displayName: "Manage Media",
+              url: "/media/admin",
+              requiredPermission: "media.manage"
+            },
+            {
+              displayName: "Welfare Messages",
+              url: "/welfare/message/admin",
+              requiredPermission: "welfare.anonymous"
             }
           ],
           alwaysDisplayed: false
