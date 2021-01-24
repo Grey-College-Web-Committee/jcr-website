@@ -48,6 +48,7 @@ import ManageMembershipsPage from './components/membership/manage/ManageMembersh
 import ElectionAdminPortal from './components/elections/portal/ElectionAdminPortal';
 import CreateElectionPage from './components/elections/create/CreateElectionPage';
 import GenerateElectionResultsPage from './components/elections/results/GenerateElectionResultsPage';
+import ElectionEditPage from './components/elections/portal/ElectionEditPage';
 import WelfareAdminOverviewPage from './components/welfare/message/admin/WelfareAdminOverviewPage';
 import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
 import MediaPage from './components/media/MediaViewPage';
@@ -315,6 +316,9 @@ class App extends React.Component {
                     <Route exact path="/elections/results/:id" render={(props) => (
                       this.hasPermission("elections.manage") ? ( <GenerateElectionResultsPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
                     )} />
+                    <Route exact path="/elections/edit/:id" render={(props) => (
+                      this.hasPermission("elections.manage") ? ( <ElectionEditPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
+                    />
                     <Route exact path="/welfare/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfarePage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
                     )} />

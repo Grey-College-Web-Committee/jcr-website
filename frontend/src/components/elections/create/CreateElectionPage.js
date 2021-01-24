@@ -112,6 +112,7 @@ class CreateElectionPage extends React.Component {
                   <tbody>
                     { this.state.candidates.map((item, i) => (
                       <CandidateRow
+                        key={i}
                         candidate={item}
                       />
                     ))}

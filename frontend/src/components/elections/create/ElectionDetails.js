@@ -76,6 +76,7 @@ class ElectionDetails extends React.Component {
   getInputDiv = () => {
     return (
       <div className="w-full">
+        <p>Important: You must <a className="underline font-semibold" href="https://support.google.com/chrome/answer/95346?co=GENIE.Platform%3DDesktop&hl=en" rel="noopener noreferrer" target="_blank">use Google Chrome</a> or <a className="underline font-semibold" href="https://www.microsoft.com/en-us/edge" rel="noopener noreferrer" target="_blank">Microsoft Edge</a> otherwise the date and time selector will not show up. This is unfortunately caused by other browsers not supporting the feature (support is coming in the next major update to Safari on macOS).</p>
         <form onSubmit={this.createElection}>
           <fieldset>
             <div className="mx-auto">

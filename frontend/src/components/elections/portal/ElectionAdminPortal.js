@@ -79,7 +79,8 @@ class ElectionAdminPortal extends React.Component {
               <th className="p-2 font-semibold">Voting Closes</th>
               <th className="p-2 font-semibold">Winner</th>
               <th className="p-2 font-semibold">View In-Depth Results</th>
-              <th className="p-2 font-semibold">Delete</th>
+              <th className="p-2 font-semibold">Publish</th>
+              <th className="p-2 font-semibold">Edit</th>
             </tr>
           </thead>
           <tbody>
@@ -110,7 +111,7 @@ class ElectionAdminPortal extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
-        <div className="container mx-auto text-center p-4">
+        <div className="mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Manage Elections</h1>
           <div className="flex flex-col items-start mb-2">
             <h2 className="text-left text-3xl font-semibold">Create Election</h2>

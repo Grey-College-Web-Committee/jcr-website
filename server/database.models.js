@@ -38,6 +38,7 @@ class Election extends Model {}
 class ElectionCandidate extends Model {}
 class ElectionVote extends Model {}
 class ElectionVoteLink extends Model {}
+class ElectionEditLog extends Model {}
 
 class Media extends Model {}
 
@@ -522,6 +523,10 @@ Election.init({
   },
   roundSummaries: {
     type: DataTypes.TEXT("medium")
+  },
+  published: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize });
 
@@ -582,6 +587,33 @@ ElectionVoteLink.init({
   },
   preference: {
     type: DataTypes.INTEGER,
+    allowNull: false
+  }
+}, { sequelize });
+
+ElectionEditLog.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  electionId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Election,
+      key: 'id'
+    }
+  },
+  action: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  reason: {
+    type: DataTypes.TEXT,
     allowNull: false
   }
 }, { sequelize });
@@ -724,7 +756,14 @@ ElectionVoteLink.belongsTo(ElectionCandidate, { foreignKey: 'candidateId' });
 ElectionVote.hasMany(ElectionVoteLink, { foreignKey: 'voteId' });
 ElectionVoteLink.belongsTo(ElectionVote, { foreignKey: 'voteId' });
 
+User.hasMany(ElectionEditLog, { foreignKey: 'userId' });
+ElectionEditLog.belongsTo(User, { foreignKey: 'userId' });
+
+Election.hasMany(ElectionEditLog, { foreignKey: 'electionId' });
+ElectionEditLog.belongsTo(Election, { foreignKey: 'electionId' });
+
 WelfareThread.hasMany(WelfareThreadMessage, { foreignKey: 'threadId' });
 WelfareThreadMessage.belongsTo(WelfareThread, { foreignKey: 'threadId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, Media, WelfareThread, WelfareThreadMessage };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage };
+

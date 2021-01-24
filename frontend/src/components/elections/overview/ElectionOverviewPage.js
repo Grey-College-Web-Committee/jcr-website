@@ -83,18 +83,18 @@ class ElectionOverviewPage extends React.Component {
                 <p className="p-2 text-2xl">{election.name}</p>
               </div>
               <div className="flex flex-col flex-wrap border border-red-900 p-2 items-center">
-                <Link to={`/elections/vote/${election.id}`}>
                   {election.ElectionVotes.length === 0 ?
                     (
-                      <button
-                      className="text-3xl px-4 py-2 rounded bg-blue-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 my-2"
-                      >Click Here to Vote!</button>
+                      <Link to={`/elections/vote/${election.id}`}>
+                        <button
+                        className="text-3xl px-4 py-2 rounded bg-blue-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 my-2"
+                        >Click Here to Vote!</button>
+                      </Link>
                     ) :
                     (
                       <p className="font-semibold text-xl">You have already voted in this election</p>
                     )
                   }
-                </Link>
                 <p className="text-lg my-2">Voting closes at {dateFormat(election.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</p>
                 <table className="mx-auto border-2 text-left text-xl border-red-900 w-auto my-2">
                   <tbody>
@@ -196,9 +196,9 @@ class ElectionOverviewPage extends React.Component {
         <h2 className="font-semibold text-2xl py-4">Previous Elections</h2>
         <div>
           { previousElections.sort((a, b) => {
-            const aDate = new Date(a.votingOpenTime);
-            const bDate = new Date(b.votingOpenTime);
-            return aDate < bDate ? -1 : (aDate > bDate ? 1 : 0);
+            const aDate = new Date(a.votingCloseTime);
+            const bDate = new Date(b.votingCloseTime);
+            return -(aDate < bDate ? -1 : (aDate > bDate ? 1 : 0));
           }).map((election, i) => (
             <div className="w-full mb-4 border border-red-900 text-left" key={i}>
               <div className="bg-red-900 text-white">
@@ -206,7 +206,7 @@ class ElectionOverviewPage extends React.Component {
               </div>
               <div className="flex flex-col flex-wrap border border-red-900 p-2 items-center">
                 <p className="text-lg my-2">Voting closed at {dateFormat(election.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</p>
-                <p className="font-semibold text-lg my-2">Result: {election.winner === null ? "TBD" : (election.winner === "draw" ? "Under review" : `${election.winner} achieves quota and is duly elected.` )}</p>
+                <p className="font-semibold text-lg my-2">Result: {election.winner === null ? "Awaiting Publication" : (election.winner === "draw" ? "Under review" : `${election.winner} achieves quota and is duly elected.` )}</p>
               </div>
             </div>
           ))}
