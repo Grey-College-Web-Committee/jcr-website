@@ -318,7 +318,7 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/elections/edit/:id" render={(props) => (
                       this.hasPermission("elections.manage") ? ( <ElectionEditPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
-                    />
+                    )} />
                     <Route exact path="/welfare/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfarePage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
                     )} />
