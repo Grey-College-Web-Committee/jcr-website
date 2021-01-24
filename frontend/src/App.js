@@ -50,6 +50,8 @@ import CreateElectionPage from './components/elections/create/CreateElectionPage
 import GenerateElectionResultsPage from './components/elections/results/GenerateElectionResultsPage';
 import WelfareAdminOverviewPage from './components/welfare/message/admin/WelfareAdminOverviewPage';
 import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
+import MediaPage from './components/media/MediaViewPage';
+import MediaAdminPage from './components/media/MediaAdminPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -273,6 +275,12 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/toasties/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/media/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    )} />
+                    <Route exact path="/media/admin" render={() => (
+                      this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )
                     )} />
                     <Route exact path="/debtors" render={() => (
                       this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )

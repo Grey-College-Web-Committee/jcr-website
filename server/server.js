@@ -8,7 +8,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, WelfareThread, WelfareThreadMessage } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, Media, WelfareThread, WelfareThreadMessage } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store)
 
@@ -21,6 +21,7 @@ const cartRoute = require("./routes/cart");
 const gymRoute = require("./routes/gym");
 const membershipsRoute = require("./routes/memberships");
 const electionsRoute = require("./routes/elections");
+const mediaRoute = require("./routes/media");
 const welfareMessagesRoute = require("./routes/welfare_messages");
 welfareMessagesRoute
 // Required to deploy the static React files for production
@@ -121,6 +122,11 @@ const requiredPermissions = [
     internal: "elections.manage"
   },
   {
+    name: "Manage Media",
+    description: "Allows user to add and remove media items",
+    internal: "media.manage"
+  },
+  {
     name: "View Anonymous Messages",
     description: "Gives access to the anonymous messages received by the welfare team",
     internal: "welfare.anonymous"
@@ -159,6 +165,8 @@ const requiredPermissions = [
   await ElectionCandidate.sync();
   await ElectionVote.sync();
   await ElectionVoteLink.sync();
+
+  await Media.sync();
 
   await WelfareThread.sync();
   await WelfareThreadMessage.sync();
@@ -209,6 +217,7 @@ app.use("/api/cart", isLoggedIn, cartRoute);
 app.use("/api/gym", isLoggedIn, gymRoute);
 app.use("/api/memberships", isLoggedIn, membershipsRoute);
 app.use("/api/elections", isLoggedIn, electionsRoute);
+app.use("/api/media", isLoggedIn, mediaRoute);
 app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/

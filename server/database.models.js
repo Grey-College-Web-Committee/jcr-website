@@ -39,6 +39,8 @@ class ElectionCandidate extends Model {}
 class ElectionVote extends Model {}
 class ElectionVoteLink extends Model {}
 
+class Media extends Model {}
+
 class WelfareThread extends Model {}
 class WelfareThreadMessage extends Model {}
 
@@ -584,6 +586,30 @@ ElectionVoteLink.init({
   }
 }, { sequelize });
 
+Media.init({
+  mediaTitle: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  mediaType: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  mediaCategory: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  mediaLink: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  mediaDescription:{
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: ""
+  }
+}, { sequelize });
+
 WelfareThread.init({
   id: {
     type: DataTypes.UUID,
@@ -701,4 +727,4 @@ ElectionVoteLink.belongsTo(ElectionVote, { foreignKey: 'voteId' });
 WelfareThread.hasMany(WelfareThreadMessage, { foreignKey: 'threadId' });
 WelfareThreadMessage.belongsTo(WelfareThread, { foreignKey: 'threadId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, WelfareThread, WelfareThreadMessage };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, Media, WelfareThread, WelfareThreadMessage };
