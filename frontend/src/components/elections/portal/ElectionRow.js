@@ -14,28 +14,32 @@ class ElectionRow extends React.Component {
       manifestoReleaseTime: this.props.election.manifestoReleaseTime,
       votingOpenTime: this.props.election.votingOpenTime,
       votingCloseTime: this.props.election.votingCloseTime,
-      election: this.props.election
+      name: this.props.election.name,
+      election: this.props.election,
+      published: this.props.election.published
     }
   }
 
   onInputChange = e => {
-    this.setState({ [e.target.name]: e.target.value });
-  }
-
-  deleteSelf = async () => {
-    try {
-      await api.delete(`/elections/${this.props.election.id}`);
-    } catch (error) {
-      alert("Unable to delete the election");
-      return;
-    }
-
-    alert("Election deleted");
-    this.setState({ deleted: true });
+    this.setState({ [e.target.name]: e.target.value, canSave: true });
   }
 
   canEdit = () => {
-    return this.state.election.winner === null;
+    return this.state.election.winner === null && !this.state.disabled;
+  }
+
+  publishResults = async (e) => {
+    e.preventDefault();
+    this.setState({ disabled: true });
+
+    try {
+      await api.post("/elections/election/publish", { id: this.state.election.id });
+    } catch (error) {
+      alert("Unable to publish the results");
+      return;
+    }
+
+    this.setState({ disabled: false, published: true });
   }
 
   render () {
@@ -47,16 +51,13 @@ class ElectionRow extends React.Component {
 
     let status = "Unknown";
     let canGenerateResults = false;
-    let canDelete = false;
 
     const now = new Date();
 
     if(now < new Date(this.state.manifestoReleaseTime)) {
       status = "Awaiting Manifesto Release";
-      canDelete = true;
     } else if (now < new Date(this.state.votingOpenTime)) {
       status = "Manifestos Released";
-      canDelete = true;
     } else if (now < new Date(this.state.votingCloseTime)) {
       status = "Voting In Progress";
     } else {
@@ -90,36 +91,9 @@ class ElectionRow extends React.Component {
           </ul>
         </td>
         <td className="p-2 border-r border-gray-400">{status}</td>
-        <td className="p-2 border-r border-gray-400">
-          <input
-            type="datetime-local"
-            value={`${dateFormat(this.state.manifestoReleaseTime, "yyyy-mm-dd")}T${dateFormat(this.state.manifestoReleaseTime, "HH:MM")}`}
-            name="manifestoReleaseTime"
-            className="w-full border-2 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-            onChange={this.onInputChange}
-            disabled={!this.canEdit()}
-          />
-        </td>
-        <td className="p-2 border-r border-gray-400">
-          <input
-            type="datetime-local"
-            value={`${dateFormat(this.state.votingOpenTime, "yyyy-mm-dd")}T${dateFormat(this.state.votingOpenTime, "HH:MM")}`}
-            name="votingOpenTime"
-            className="w-full border-2 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-            onChange={this.onInputChange}
-            disabled={!this.canEdit()}
-          />
-        </td>
-        <td className="p-2 border-r border-gray-400">
-          <input
-            type="datetime-local"
-            value={`${dateFormat(this.state.votingCloseTime, "yyyy-mm-dd")}T${dateFormat(this.state.votingOpenTime, "HH:MM")}`}
-            name="votingCloseTime"
-            className="w-full border-2 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-            onChange={this.onInputChange}
-            disabled={!this.canEdit()}
-          />
-        </td>
+        <td className="p-2 border-r border-gray-400">{dateFormat(this.state.manifestoReleaseTime, "dd/mm/yyyy HH:MM:ss")}</td>
+        <td className="p-2 border-r border-gray-400">{dateFormat(this.state.votingOpenTime, "dd/mm/yyyy HH:MM:ss")}</td>
+        <td className="p-2 border-r border-gray-400">{dateFormat(this.state.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</td>
         <td className="p-2 border-r border-gray-400">{canGenerateResults ? (election.winner === null ? generateButton : election.winner) : "Voting Not Closed"}</td>
         <td className="p-2 border-r border-gray-400">{canGenerateResults ? (election.winner === null ? generateButton :
           <Link to={`/elections/results/${election.id}`}>
@@ -131,20 +105,26 @@ class ElectionRow extends React.Component {
         ) : "Voting Not Closed"}
         </td>
         <td className="p-2 border-r border-gray-400">
-          {election.winner === null ? <p></p> : (
+          {election.winner === null ? <p>Generate results first</p> : (this.state.published ? (<p>Published</p>) : (
             <button
-
+              className="px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              disabled={this.state.disabled}
+              onClick={this.publishResults}
             >Publish</button>
-          )}
+          ))}
         </td>
         <td className="p-2 border-r border-gray-400">
-          {canDelete ?
-            <button
-              onClick={this.deleteSelf}
-              className="px-4 py-1 rounded bg-red-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-              disabled={this.state.disabled}
-            >Delete</button>
-          : "Voting Started"}
+          {
+            this.canEdit() ?
+            (
+              <Link to={`/elections/edit/${election.id}`}>
+                <button
+                  className="px-4 py-1 rounded bg-blue-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  disabled={this.state.disabled}
+                >Edit</button>
+              </Link>
+            ) : (<p>N/A</p>)
+          }
         </td>
       </tr>
     )

@@ -38,6 +38,7 @@ class Election extends Model {}
 class ElectionCandidate extends Model {}
 class ElectionVote extends Model {}
 class ElectionVoteLink extends Model {}
+class ElectionEditLog extends Model {}
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -517,6 +518,10 @@ Election.init({
   },
   roundSummaries: {
     type: DataTypes.TEXT("medium")
+  },
+  published: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize });
 
@@ -579,7 +584,34 @@ ElectionVoteLink.init({
     type: DataTypes.INTEGER,
     allowNull: false
   }
-}, { sequelize })
+}, { sequelize });
+
+ElectionEditLog.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  electionId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Election,
+      key: 'id'
+    }
+  },
+  action: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  reason: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
 
 // Associations are necessary to allow joins between tables
 
@@ -652,4 +684,10 @@ ElectionVoteLink.belongsTo(ElectionCandidate, { foreignKey: 'candidateId' });
 ElectionVote.hasMany(ElectionVoteLink, { foreignKey: 'voteId' });
 ElectionVoteLink.belongsTo(ElectionVote, { foreignKey: 'voteId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink };
+User.hasMany(ElectionEditLog, { foreignKey: 'userId' });
+ElectionEditLog.belongsTo(User, { foreignKey: 'userId' });
+
+Election.hasMany(ElectionEditLog, { foreignKey: 'electionId' });
+ElectionEditLog.belongsTo(Election, { foreignKey: 'electionId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog };

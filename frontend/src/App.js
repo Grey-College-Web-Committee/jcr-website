@@ -45,6 +45,7 @@ import ManageMembershipsPage from './components/membership/manage/ManageMembersh
 import ElectionAdminPortal from './components/elections/portal/ElectionAdminPortal';
 import CreateElectionPage from './components/elections/create/CreateElectionPage';
 import GenerateElectionResultsPage from './components/elections/results/GenerateElectionResultsPage';
+import ElectionEditPage from './components/elections/portal/ElectionEditPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -301,6 +302,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/elections/results/:id" render={(props) => (
                       this.hasPermission("elections.manage") ? ( <GenerateElectionResultsPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
+                    )} />
+                    <Route exact path="/elections/edit/:id" render={(props) => (
+                      this.hasPermission("elections.manage") ? ( <ElectionEditPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
                     )} />
                     <Route exact path="/stash/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )

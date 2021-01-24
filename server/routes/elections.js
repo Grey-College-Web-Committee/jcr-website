@@ -4,11 +4,196 @@ const multer = require("multer");
 const fs = require("fs");
 const router = express.Router();
 // The database models
-const { User, Permission, PermissionLink, Election, ElectionCandidate, ElectionVote, ElectionVoteLink } = require("../database.models.js");
+const { User, Permission, PermissionLink, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "manifestos/" });
 const { Op } = require("sequelize");
+const mailer = require("../utils/mailer");
+
+router.post("/election/publish/", async (req, res) => {
+  const { user } = req.session;
+
+  // Compares their permissions with your internal permission string
+  if(!hasPermission(req.session, "elections.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "id is missing" });
+  }
+
+  let election;
+
+  try {
+    election = await Election.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the election, db error" });
+  }
+
+  if(election === null) {
+    return res.status(400).json({ error: "No election with that ID" });
+  }
+
+  if(election.winner === null) {
+    return res.status(400).json({ error: "The election results have not been generated" });
+  }
+
+  election.published = true;
+
+  try {
+    await election.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the published state" });
+  }
+
+  return res.status(204).end();
+});
+
+router.get("/election/admin/:id", async (req, res) => {
+  const { user } = req.session;
+
+  // Compares their permissions with your internal permission string
+  if(!hasPermission(req.session, "elections.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.params;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "id is missing" });
+  }
+
+  let election;
+
+  try {
+    election = await Election.findOne({
+      where: { id },
+      include: ElectionCandidate
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the election, db error" });
+  }
+
+  if(election === null) {
+    return res.status(400).json({ error: "No election with that ID" });
+  }
+
+  if(election.winner !== null) {
+    return res.status(400).json({ error: "The election results have already been generated" });
+  }
+
+  let editLog;
+
+  try {
+    editLog = await ElectionEditLog.findAll({
+      where: { electionId: election.id },
+      include: [ User ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the edit log, db error" });
+  }
+
+  return res.status(200).json({ election, editLog });
+})
+
+router.post("/edit", async (req, res) => {
+  const { user } = req.session;
+
+  // Compares their permissions with your internal permission string
+  if(!hasPermission(req.session, "elections.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, manifestoReleaseTime, votingOpenTime, votingCloseTime, reason } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "id is missing" });
+  }
+
+  if(name === undefined || name === null || name.length === 0) {
+    return res.status(400).json({ error: "name is missing" });
+  }
+
+  if(manifestoReleaseTime === undefined || manifestoReleaseTime === null || manifestoReleaseTime.length === 0) {
+    return res.status(400).json({ error: "manifestoReleaseTime is missing" });
+  }
+
+  if(votingOpenTime === undefined || votingOpenTime === null || votingOpenTime.length === 0) {
+    return res.status(400).json({ error: "votingOpenTime is missing" });
+  }
+
+  if(votingCloseTime === undefined || votingCloseTime === null || votingCloseTime.length === 0) {
+    return res.status(400).json({ error: "votingCloseTime is missing" });
+  }
+
+  if(reason === undefined || reason === null || reason.length === 0) {
+    return res.status(400).json({ error: "votingCloseTime is missing" });
+  }
+
+  try {
+    election = await Election.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error trying to find the election" });
+  }
+
+  if(election === null) {
+    return res.status(400).json({ error: "No election found for the id" });
+  }
+
+  let changes = [];
+
+  if(name !== election.name) {
+    changes.push(`name (${election.name} --> ${name})`);
+    election.name = name;
+  }
+
+  if(new Date(manifestoReleaseTime).getTime() !== new Date(election.manifestoReleaseTime).getTime()) {
+    changes.push(`manifestoReleaseTime (${election.manifestoReleaseTime} --> ${manifestoReleaseTime})`);
+    election.manifestoReleaseTime = manifestoReleaseTime;
+  }
+
+  if(new Date(votingOpenTime).getTime() !== new Date(election.votingOpenTime).getTime()) {
+    changes.push(`votingOpenTime (${election.votingOpenTime} --> ${votingOpenTime})`);
+    election.votingOpenTime = votingOpenTime;
+  }
+
+  if(new Date(votingCloseTime).getTime() !== new Date(election.votingCloseTime).getTime()) {
+    changes.push(`votingCloseTime (${election.votingCloseTime} --> ${votingCloseTime})`);
+    election.votingCloseTime = votingCloseTime;
+  }
+
+  if(changes.length === 0) {
+    return res.status(400).json({ error: "No changes made" });
+  }
+
+  const action = changes.join(";");
+
+  try {
+    await ElectionEditLog.create({
+      userId: user.id,
+      electionId: id,
+      action,
+      reason
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to log the change. No changes saved." });
+  }
+
+  try {
+    await election.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the election changes" });
+  }
+
+  return res.status(200).json({ election });
+})
 
 router.delete("/:id", async (req, res) => {
   const { user } = req.session;
@@ -69,6 +254,8 @@ router.delete("/:id", async (req, res) => {
     }
   }
 
+  const { name } = election;
+
   // Now delete the election
   try {
     await election.destroy();
@@ -76,6 +263,10 @@ router.delete("/:id", async (req, res) => {
     return res.status(500).json({ error: "Unable to delete election" });
   }
 
+  let deletionEmail = [];
+  deletionEmail.push(`<p>${user.username} (${user.firstNames} ${user.surname}) has just deleted election ${name}</p>`);
+
+  //mailer.sendEmail("grey.website@durham.ac.uk", `Election Deleted ${name}`, deletionEmail.join(""));
   return res.status(204).end();
 });
 
@@ -91,7 +282,7 @@ router.get("/list/admin/", async (req, res) => {
 
   try {
     elections = await Election.findAll({
-      attributes: [ "id", "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime", "winner" ],
+      attributes: [ "id", "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime", "winner", "published" ],
       include: [{
         model: ElectionCandidate,
         attributes: [ "name", "manifestoLink" ]
@@ -312,11 +503,17 @@ router.get("/list", async (req, res) => {
           [Op.lt]: now
         }
       },
-      attributes: [ "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime", "winner" ]
+      attributes: [ "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime", "winner", "published" ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to load previous elections" });
   }
+
+  previousElections.forEach((election, i) => {
+    if(election.published === false) {
+      election.winner = null;
+    }
+  });
 
   return res.status(200).json({ liveElections, upcomingElections, previousElections });
 });

@@ -15,7 +15,7 @@ function shuffleArray(array) {
 
 const SortableItem = sortableElement(({candidate, position}) => (
   <li
-    className="border-4 p-4 mr-4 text-3xl w-full cursor-move my-2"
+    className={`border-4 p-4 mr-4 text-3xl w-full my-2 cursor-move`}
   >
     <span>{position + 1}. {candidate.name}</span>
   </li>
@@ -187,6 +187,8 @@ class ElectionVotingPage extends React.Component {
         </div>
       )
     }
+
+    const refresh = Math.random();
 
     return (
       <div className="flex flex-col justify-start text-lg">
