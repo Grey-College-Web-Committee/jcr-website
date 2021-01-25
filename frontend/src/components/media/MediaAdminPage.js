@@ -25,20 +25,16 @@ class MediaAdminPage extends React.Component {
   }
 
   onInputChange = e => {
-    if (e.target.name === "link"){
-      if (this.state.type === "Podcast"){
-        const url = this.getPodcastUrlFromiFrameString(e.target.value);
-        this.setState({ link: url });
-        return;
-      }
-    }
     if (e.target.name === "type"){
       if (e.target.value === "Podcast"){
-        const url = this.getPodcastUrlFromiFrameString(this.state.link);
         this.setState({ type: "Podcast", category: "JCR Podcast" });
         return;
       }
-      this.setState({ type: "Video", category: "JCR Events Video" });
+      if (e.target.value === "Video"){
+        this.setState({ type: "Video", category: "JCR Events Video" });
+        return;
+      }
+      this.setState({ type: "Other", category: "Other" });
       return;
     }
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
@@ -46,6 +42,26 @@ class MediaAdminPage extends React.Component {
 
   getPodcastUrlFromiFrameString(iframe){
     const splitbit = iframe.slice(iframe.indexOf("/tracks/")+8, iframe.indexOf("&color="));
+    return splitbit;
+  }
+
+  getVideoUrlFromString(input){
+    let splitbit;
+    if (input.includes("/watch")){
+      splitbit = input.slice(input.indexOf("v=")+2, input.indexOf("v=")+2+11);
+      console.log("Watch", splitbit)
+    }
+    else if (input.includes("youtu.be/")){
+      splitbit = input.slice(input.indexOf("be/")+3, input.indexOf("be/")+3+11);
+      console.log("Share", splitbit)
+    }
+    else if (input.includes("iframe")){
+      splitbit = input.slice(input.indexOf("embed/")+6, input.indexOf("embed/")+6+11);
+      console.log("Embed", splitbit)
+    }
+    else{
+      return input;
+    }
     return splitbit;
   }
 
@@ -106,8 +122,19 @@ class MediaAdminPage extends React.Component {
     // Prevent refresh on button click and prevent resubmission
     e.preventDefault();
     this.setState({ disabled: true });
+
+    let link;
+
+    if (this.state.type === "Podcast"){
+      const url = this.getPodcastUrlFromiFrameString(this.state.link);
+      link = url;
+    }
+    else if (this.state.type === "Video"){
+      const url = this.getVideoUrlFromString(this.state.link);
+      link = url;
+    }
   
-    const { title, type, category, link, description } = this.state;
+    const { title, type, category, description } = this.state;
   
     // Validation checks
     if(title.length === 0) {

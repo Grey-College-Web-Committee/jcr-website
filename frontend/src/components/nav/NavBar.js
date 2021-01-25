@@ -111,7 +111,7 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
-          displayName: "Podcast",
+          displayName: "Media",
           url: "/media",
           requiredPermission: "jcr.member",
           staticImage: null,
