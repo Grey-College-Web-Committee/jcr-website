@@ -14,6 +14,7 @@
     "dateformat": "^3.0.3",
     "postcss": "^8.1.10",
     "postcss-cli": "^8.3.0",
+    "qs": "^6.9.6",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-images-upload": "^1.2.8",

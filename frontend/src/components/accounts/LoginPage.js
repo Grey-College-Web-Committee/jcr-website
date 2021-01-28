@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import qs from 'qs';
 
 import api from '../../utils/axiosConfig';
 import LoginForm from './LoginForm';
@@ -7,9 +8,24 @@ import LoginForm from './LoginForm';
 class LoginPage extends React.Component {
   constructor(props) {
     super(props);
+
+    const queryParams = qs.parse(this.props.location.search, { ignoreQueryPrefix: true });
+    console.log(queryParams)
+    console.log(queryParams.ref)
+
+    let ref = "/";
+
+    if(queryParams.ref !== undefined && queryParams.ref !== null && typeof queryParams.ref === "string") {
+      if(queryParams.ref.startsWith("/")) {
+        ref = queryParams.ref;
+      }
+    }
+
+
     this.state = {
       message: "",
-      disabled: false
+      disabled: false,
+      ref
     };
   }
 
@@ -22,10 +38,10 @@ class LoginPage extends React.Component {
   attemptLogin = async (username, password) => {
     this.setState({ disabled: true });
 
+    let response;
+
     try {
-      const response = await api.post('/auth/login', { username, password });
-      this.setState({ message: "Logged in" });
-      this.props.loginUser(response.data.user);
+      response = await api.post('/auth/login', { username, password });
     } catch (error) {
       // axios will error if we do not get a 2XX code
       let message;
@@ -44,7 +60,11 @@ class LoginPage extends React.Component {
       }
 
       this.setState({ message, disabled: false });
+      return;
     }
+
+    this.setState({ message: "Logged in" });
+    this.props.loginUser(response.data.user, this.state.ref);
   }
 
   render () {

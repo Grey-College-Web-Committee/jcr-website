@@ -126,3 +126,4 @@ dist
 /server/prepaid_memberships.json
 *.csv
 /server/manifestos/*
+/manual/*

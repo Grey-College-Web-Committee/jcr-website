@@ -80,7 +80,8 @@ class App extends React.Component {
 
     this.state = {
       user,
-      hideBody: false
+      hideBody: false,
+      ref: "/"
     };
   }
 
@@ -187,8 +188,8 @@ class App extends React.Component {
     return this.state.user.permissions.includes(permission.toLowerCase());
   }
 
-  loginUser = (user) => {
-    this.setState({ user });
+  loginUser = (user, ref) => {
+    this.setState({ user, ref });
   }
 
   logoutUser = () => {
@@ -225,6 +226,12 @@ class App extends React.Component {
     this.setState({ hideBody: show });
   }
 
+  loginRef = (ref) => {
+    return (
+      <Redirect to={`/accounts/login?ref=${ref}`} />
+    );
+  }
+
   render () {
     const bodyHidden = this.state.hideBody ? "hidden" : "";
 
@@ -249,102 +256,102 @@ class App extends React.Component {
                     <Route exact path="/cookies" render={() => (
                       <CookiesPage />
                     )} />
-                    <Route exact path="/accounts/login" render={() => (
-                      this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <LoginPage loginUser={this.loginUser} /> )
+                  <Route exact path="/accounts/login" render={(props) => (
+                      this.isLoggedIn() ? ( <Redirect to={this.state.ref} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )
                     )} />
                     <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
                     <Route exact path="/memberships/join" render={() => (
-                      this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <LoginPage loginUser={this.loginUser} /> )
+                      this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
                     )} />
                     <Route exact path="/toasties/stock" render={() => (
-                      this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/stock") )
                     )} />
                     <Route exact path="/toasties/images" render={() => (
-                      this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/images") )
                     )} />
                     <Route exact path="/stash/stock" render={() => (
-                      this.hasPermission("stash.stock.edit") ? ( <StashStockPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("stash.stock.edit") ? ( <StashStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/stash/stock") )
                     )} />
                     <Route exact path="/stash/images" render={() => (
-                      this.hasPermission("stash.stock.edit") ? ( <StashImagesPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("stash.stock.edit") ? ( <StashImagesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/stash/images") )
                     )} />
                     <Route exact path="/stash/export" render={() => (
-                      this.hasPermission("stash.export") ? ( <StashExportPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("stash.export") ? ( <StashExportPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/stash/export") )
                     )} />
                     <Route exact path="/permissions" render={() => (
-                      this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/permissions") )
                     )} />
-                    <Route exact path="/toasties/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    <Route exact path="/toasties" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/toasties") )
                     )} />
-                    <Route exact path="/media/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    <Route exact path="/media" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media") )
                     )} />
                     <Route exact path="/media/admin" render={() => (
-                      this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/media/admin") )
                     )} />
                     <Route exact path="/debtors" render={() => (
-                      this.isLoggedIn() ? ( <DebtorPage /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( <DebtorPage /> ) : ( this.loginRef("/debtors") )
                     )} />
                     <Route exact path="/gym" render={() => (
-                      this.isLoggedIn() ? ( <GymInformationPage /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( <GymInformationPage /> ) : ( this.loginRef("/gym") )
                     )} />
                     <Route exact path="/gym/terms" render={() => (
-                      this.isLoggedIn() ? ( <GymTermsPage /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( <GymTermsPage /> ) : ( this.loginRef("/gym/terms") )
                     )} />
                     <Route exact path="/gym/admin" render={() => (
-                      this.hasPermission("gym.export") ? ( <GymAdminPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("gym.export") ? ( <GymAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/gym/admin") )
                     )} />
                     <Route exact path="/memberships/export" render={() => (
-                      this.hasPermission("jcr.export") ? ( <ExportMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.export") ? ( <ExportMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/memberships/export") )
                     )} />
                     <Route exact path="/memberships/manage" render={() => (
-                      this.hasPermission("jcr.manage") ? ( <ManageMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <ManageMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/memberships/manage") )
                     )} />
-                    <Route exact path="/elections/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                    <Route exact path="/elections" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/elections") )
                     )} />
                     <Route exact path="/elections/vote/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionVotingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionVotingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/elections") )
                     )} />
                     <Route exact path="/elections/admin" render={() => (
-                      this.hasPermission("elections.manage") ? ( <ElectionAdminPortal /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? ( <ElectionAdminPortal /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/elections/admin") )
                     )} />
                     <Route exact path="/elections/create" render={() => (
-                      this.hasPermission("elections.manage") ? ( <CreateElectionPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? ( <CreateElectionPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/elections/create") )
                     )} />
                     <Route exact path="/elections/results/:id" render={(props) => (
-                      this.hasPermission("elections.manage") ? ( <GenerateElectionResultsPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? ( <GenerateElectionResultsPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/elections/admin") )
                     )} />
                     <Route exact path="/elections/edit/:id" render={(props) => (
-                      this.hasPermission("elections.manage") ? ( <ElectionEditPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? ( <ElectionEditPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/elections/admin") )
                     )} />
                     <Route exact path="/welfare/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfarePage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfarePage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/welfare") )
                     )} />
                     <Route exact path="/welfare/message" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareMessagingPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareMessagingPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/welfare/message") )
                     )} />
                     <Route exact path="/welfare/message/thread/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareThreadPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareThreadPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/welfare") )
                     )} />
                     <Route exact path="/welfare/message/admin" render={() => (
-                      this.hasPermission("welfare.anonymous") ? ( <WelfareAdminOverviewPage /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("welfare.anonymous") ? ( <WelfareAdminOverviewPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/welfare/message/admin") )
                     )} />
                     <Route exact path="/welfare/message/admin/thread/:id" render={(props) => (
-                      this.hasPermission("welfare.anonymous") ? ( <WelfareAdminThreadPage {...props} /> ) : ( <Redirect to="/errors/403" /> )
+                      this.isLoggedIn() ? (this.hasPermission("welfare.anonymous") ? ( <WelfareAdminThreadPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/welfare/message/admin") )
                     )} />
                     <Route exact path="/stash/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/stash") )
                     )} />
                     <Route exact path="/stash/view/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/stash") )
                     )} />
                     <Route exact path="/spinner/" render={() => (
-                      this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( this.loginRef("/spinner") )
                     )} />
                     <Route exact path="/checkout/" render={() => (
-                      this.isLoggedIn() ? ( <CheckoutPage /> ) : ( <Redirect to="/accounts/login" /> )
+                      this.isLoggedIn() ? ( <CheckoutPage /> ) : ( this.loginRef("/checkout") )
                     )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />
