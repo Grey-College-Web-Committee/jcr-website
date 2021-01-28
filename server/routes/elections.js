@@ -266,7 +266,12 @@ router.delete("/:id", async (req, res) => {
   let deletionEmail = [];
   deletionEmail.push(`<p>${user.username} (${user.firstNames} ${user.surname}) has just deleted election ${name}</p>`);
 
-  //mailer.sendEmail("grey.website@durham.ac.uk", `Election Deleted ${name}`, deletionEmail.join(""));
+  const emailList = ["grey.chair@durham.ac.uk", "grey.president@durham.ac.uk", "grey.treasurer@durham.ac.uk"];
+
+  emailList.forEach((email) => {
+    mailer.sendEmail(email, `Election Deleted ${name}`, deletionEmail.join(""));
+  });
+
   return res.status(204).end();
 });
 

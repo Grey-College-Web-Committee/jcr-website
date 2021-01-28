@@ -9,6 +9,8 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // this is temporary until the debt backlog is sorted
 const debtors = require("../debtors.json");
 
+const stashLock = new Date("2021-02-01T00:00:00Z");
+
 const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
   // A toastie will have no global submission info
   const isToastie = Object.keys(globalSubmissionInfo).length === 0;
@@ -200,6 +202,16 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 };
 
 const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
+  const now = new Date();
+
+  if(now > stashLock) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "Stash window is closed"
+    }
+  }
+
   if(!globalSubmissionInfo.hasOwnProperty("id")) {
     return {
       errorOccurred: true,

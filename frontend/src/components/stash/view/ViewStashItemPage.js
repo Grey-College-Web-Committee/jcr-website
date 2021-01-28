@@ -5,6 +5,8 @@ import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
 import Cart from '../../cart/Cart';
 
+const lock = new Date("2021-01-31T23:00:00Z");
+
 class ViewStashItemPage extends React.Component {
   constructor(props) {
     super(props);
@@ -331,6 +333,21 @@ class ViewStashItemPage extends React.Component {
 
       return (
         <LoadingHolder />
+      );
+    }
+
+    const now = new Date();
+
+    if(now > lock) {
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="container mx-auto text-center p-4">
+            <div className="mb-2 sm:mb-4 font-semibold">
+              <h1 className="my-2 text-5xl">College Stash</h1>
+              <p className="text-xl mb-2">Stash can only be order at certain times. Ordering is currently closed until the next order window.</p>
+            </div>
+          </div>
+        </div>
       );
     }
 

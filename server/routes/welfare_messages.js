@@ -209,7 +209,7 @@ router.post("/message", async (req, res) => {
 
   let emailNotification = [];
   emailNotification.push("<p>A new message has been received on the anonymous messaging service.</p>");
-  emailNotification.push(`<p>You can <a href="https://shop.greyjcr.com/welfare/message/admin/thread/${threadId}" target="_blank" rel="noopener noreferrer">view the thread by clicking here.</a></p>`);
+  emailNotification.push(`<p>You can <a href="https://services.greyjcr.com/welfare/message/admin/thread/${threadId}" target="_blank" rel="noopener noreferrer">view the thread by clicking here.</a></p>`);
 
   if(swos.length !== 0) {
     swos.forEach((person, i) => {
