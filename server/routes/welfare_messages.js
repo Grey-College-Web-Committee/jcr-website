@@ -110,9 +110,28 @@ router.get("/thread/:threadId", async(req, res) => {
   let messages;
 
   try {
-    messages = await WelfareThreadMessage.findAll({ where: { threadId } });
+    messages = await WelfareThreadMessage.findAll({
+      where: { threadId },
+      attributes: {
+        exclude: ["viewedAt"]
+      }
+    });
   } catch (error) {
     return res.status(500).json({ error: "Unable to find messages" });
+  }
+
+  const now = new Date();
+
+  try {
+    await WelfareThreadMessage.update({
+      viewedAt: now
+    }, {
+      where: {
+        threadId
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update message data" });
   }
 
   return res.status(200).json({ thread, messages });
@@ -193,7 +212,8 @@ router.post("/message", async (req, res) => {
     result = await WelfareThreadMessage.create({
       threadId,
       from: "user",
-      content: message
+      content: message,
+      viewedAt: null
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to find messages" });
@@ -360,7 +380,8 @@ router.post("/message/admin", async (req, res) => {
     result = await WelfareThreadMessage.create({
       threadId,
       from: "welfare",
-      content: message
+      content: message,
+      viewedAt: null
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to find messages" });

@@ -161,6 +161,15 @@ class WelfareAdminThreadPage extends React.Component {
               { this.state.messages.map((message, i) => {
                 const clazz = message.from === "user" ? "justify-end text-left ml-auto" : "justify-start text-left mr-auto border-blue-700";
                 const bottomClazz = message.from === "user" ? "text-right" : "text-left";
+                let read = null;
+
+                if(message.from === "welfare") {
+                  if(message.viewedAt === null) {
+                    read = (<p>Not Viewed</p>);
+                  } else {
+                    read = (<p>Viewed at {dateFormat(message.viewedAt, "dd/mm/yyyy HH:MM")}</p>)
+                  }
+                }
 
                 return (
                   <div className={`border-2 flex-col rounded w-full p-2 md:w-1/2 mb-2 ${clazz}`} key={i}>
@@ -171,6 +180,7 @@ class WelfareAdminThreadPage extends React.Component {
                     </div>
                     <div className={`text-sm italic ${bottomClazz}`}>
                       <p>Sent {dateFormat(message.createdAt, "dd/mm/yyyy HH:MM")}</p>
+                      { read }
                     </div>
                   </div>
                 )

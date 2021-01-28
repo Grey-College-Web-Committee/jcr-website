@@ -664,7 +664,7 @@ WelfareThread.init({
     type: DataTypes.TEXT,
     allowNull: true
   }
-}, { sequelize, timestamps: true, updatedAt: false }); 
+}, { sequelize, timestamps: true, updatedAt: false });
 
 WelfareThreadMessage.init({
   threadId: {
@@ -682,6 +682,11 @@ WelfareThreadMessage.init({
   content: {
     type: DataTypes.TEXT,
     allowNull: false
+  },
+  viewedAt: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    defaultValue: null
   }
 }, { sequelize });
 
@@ -766,4 +771,3 @@ WelfareThread.hasMany(WelfareThreadMessage, { foreignKey: 'threadId' });
 WelfareThreadMessage.belongsTo(WelfareThread, { foreignKey: 'threadId' });
 
 module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage };
-
