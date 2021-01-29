@@ -127,7 +127,8 @@ router.get("/thread/:threadId", async(req, res) => {
       viewedAt: now
     }, {
       where: {
-        threadId
+        threadId,
+        viewedAt: null
       }
     });
   } catch (error) {
