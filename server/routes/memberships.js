@@ -137,7 +137,7 @@ router.get("/user/single/:id", async (req, res) => {
   try {
     userRecord = await User.findOne({
       where: { id },
-      attributes: [ "id", "username", "surname", "firstNames", "year", "lastLogin", "membershipExpiresAt", "createdAt" ]
+      attributes: [ "id", "username", "surname", "firstNames", "year", "lastLogin", "membershipExpiresAt", "hlm", "createdAt" ]
     });
   } catch (error) {
     return res.status(500).json({ error });
@@ -196,6 +196,10 @@ router.post("/grant", async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({ error });
+  }
+
+  if(userRecord === null) {
+    return res.status(400).json({ error: "Invalid user ID" });
   }
 
   userRecord.membershipExpiresAt = membershipExpiresAt;
@@ -265,6 +269,10 @@ router.post("/revoke", async (req, res) => {
     return res.status(500).json({ error });
   }
 
+  if(userRecord === null) {
+    return res.status(400).json({ error: "Invalid user ID" });
+  }
+
   userRecord.membershipExpiresAt = null;
 
   try {
@@ -302,6 +310,95 @@ router.post("/revoke", async (req, res) => {
 
   return res.status(204).end();
 });
+
+router.post("/hlm", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "jcr.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { userId, hlm } = req.body;
+
+  if(userId === undefined || userId === null || !Number.isInteger(userId)) {
+    return res.status(400).json({ error: "Missing userId" });
+  }
+
+  if(hlm === undefined || hlm === null) {
+    return res.status(400).json({ error: "Missing HLM status" });
+  }
+
+  let userRecord;
+
+  try {
+    userRecord = await User.findOne({
+      where: {
+        id: userId
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+
+  if(userRecord === null) {
+    return res.status(400).json({ error: "Invalid user ID" });
+  }
+
+  let permissionRecord;
+
+  try {
+    permissionRecord = await Permission.findOne({
+      where: {
+        internal: "jcr.member"
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the permission" });
+  }
+
+  if(permissionRecord === null) {
+    return res.status(500).json({ error: "Unable to locate permission" });
+  }
+
+  // We clear the permission and then grant it if necessary
+  try {
+    await PermissionLink.destroy({
+      where: {
+        grantedToId: userRecord.id,
+        permissionId: permissionRecord.id
+      }
+    })
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to clear permission" });
+  }
+
+  if(hlm) {
+    userRecord.hlm = true;
+    userRecord.membershipExpiresAt = new Date("2100-12-31 00:00:00");
+
+    try {
+      await PermissionLink.create({
+        grantedToId: userRecord.id,
+        permissionId: permissionRecord.id,
+        grantedById: user.id
+      });
+    } catch (error) {
+      return res.status(500).json({ error });
+    }
+  } else {
+    userRecord.hlm = false;
+    userRecord.membershipExpiresAt = null;
+  }
+
+  try {
+    await userRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the user changes" });
+  }
+
+  return res.status(204).end();
+})
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route

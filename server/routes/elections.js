@@ -598,6 +598,10 @@ router.post("/vote", async (req, res) => {
     return res.status(403).json({ error: "Only JCR members can vote" });
   }
 
+  if(req.session.user.hlm) {
+    return res.status(403).json({ error: "Honourary Life Members cannot vote in JCR elections" });
+  }
+
   if(preferences === undefined || preferences === null) {
     return res.status(400).json({ error: "Missing preferences" });
   }

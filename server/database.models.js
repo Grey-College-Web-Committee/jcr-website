@@ -73,6 +73,10 @@ User.init({
   membershipExpiresAt: {
     type: DataTypes.DATE,
     defaultValue: null
+  },
+  hlm: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize });
 

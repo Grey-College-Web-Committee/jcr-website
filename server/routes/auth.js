@@ -207,7 +207,7 @@ router.post("/login", async (req, res) => {
   const date = new Date();
   date.setTime(date.getTime() + (3 * 60 * 60 * 1000));
 
-  res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email }, message: "Successfully authenticated" });
+  res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email, hlm: user.hlm }, message: "Successfully authenticated" });
 });
 
 router.post("/logout", async (req, res) => {

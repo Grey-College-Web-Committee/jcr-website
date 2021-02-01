@@ -11,12 +11,17 @@ class MemberRow extends React.Component {
       loaded: false,
       record: {},
       expiry: "2021-08-01",
-      disabled: false
+      disabled: false,
+      hlm: "no"
     };
   }
 
   onInputChange = e => {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) });
+  }
+
+  onInputChangeHLM = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, this.updateHLMStatus);
   }
 
   componentDidMount = async () => {
@@ -35,7 +40,7 @@ class MemberRow extends React.Component {
       return;
     }
 
-    this.setState({ loaded: true, record: userRecord.data.user, disabled: false });
+    this.setState({ loaded: true, record: userRecord.data.user, disabled: false, hlm: (userRecord.data.user.hlm ? "yes" : "no") });
   }
 
   revokeMembership = async (e) => {
@@ -85,11 +90,26 @@ class MemberRow extends React.Component {
     await this.updateSelf();
   }
 
+  updateHLMStatus = async () => {
+    this.setState({ disabled: true });
+    const hlm = this.state.hlm === "yes";
+    const { id } = this.state.record;
+
+    try {
+      await api.post("/memberships/hlm", { userId: id, hlm });
+    } catch (error) {
+      alert("An error occurred granting HLM");
+      return;
+    }
+
+    await this.updateSelf();
+  }
+
   render () {
     if(!this.state.loaded) return null;
     if(!this.props.displayCondition(this.state.record)) return null;
 
-    const { username, firstNames, surname, createdAt, lastLogin, membershipExpiresAt } = this.state.record;
+    const { username, firstNames, surname, createdAt, lastLogin, hlm, membershipExpiresAt } = this.state.record;
 
     return (
       <tr className="text-center border-b border-gray-400">
@@ -98,6 +118,20 @@ class MemberRow extends React.Component {
         <td className="p-2 border-r border-gray-400">{surname}</td>
         <td className="p-2 border-r border-gray-400 hidden lg:table-cell">{dateFormat(createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
         <td className="border-r border-gray-400 hidden lg:table-cell">{dateFormat(lastLogin, "dd/mm/yyyy HH:MM:ss")}</td>
+        <td className="border-r border-gray-400 hidden lg:table-cell">
+          {
+            <select
+              name="hlm"
+              className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
+              onChange={this.onInputChangeHLM}
+              value={this.state.hlm}
+              disabled={this.state.disabled}
+            >
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          }
+        </td>
         <td className="border-r border-gray-400">{membershipExpiresAt === null ? "N/A" : dateFormat(membershipExpiresAt, "dd/mm/yyyy HH:MM:ss")}</td>
         <td className="p-2 border-r border-gray-400">
           {membershipExpiresAt === null ? (

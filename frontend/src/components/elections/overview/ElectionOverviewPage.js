@@ -83,7 +83,12 @@ class ElectionOverviewPage extends React.Component {
                 <p className="p-2 text-2xl">{election.name}</p>
               </div>
               <div className="flex flex-col flex-wrap border border-red-900 p-2 items-center">
-                  {election.ElectionVotes.length === 0 ?
+                {
+                  this.context.hlm ? (
+                    <p className="text-lg my-2">Honourary Life Members cannot vote in elections</p>
+                  ) :
+                  (
+                    election.ElectionVotes.length === 0 ?
                     (
                       <Link to={`/elections/vote/${election.id}`}>
                         <button
@@ -94,7 +99,8 @@ class ElectionOverviewPage extends React.Component {
                     (
                       <p className="font-semibold text-xl">You have already voted in this election</p>
                     )
-                  }
+                  )
+                }
                 <p className="text-lg my-2">Voting closes at {dateFormat(election.votingCloseTime, "dd/mm/yyyy HH:MM:ss")}</p>
                 <table className="mx-auto border-2 text-left text-xl border-red-900 w-auto my-2">
                   <tbody>

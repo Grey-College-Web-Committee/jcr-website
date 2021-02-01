@@ -130,6 +130,12 @@ class ElectionVotingPage extends React.Component {
   }
 
   render () {
+    if(this.context.hlm) {
+      return (
+        <Redirect to="/errors/403" />
+      );
+    }
+
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
         return (
