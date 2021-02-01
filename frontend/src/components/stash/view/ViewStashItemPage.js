@@ -344,7 +344,7 @@ class ViewStashItemPage extends React.Component {
           <div className="container mx-auto text-center p-4">
             <div className="mb-2 sm:mb-4 font-semibold">
               <h1 className="my-2 text-5xl">College Stash</h1>
-              <p className="text-xl mb-2">Stash can only be order at certain times. Ordering is currently closed until the next order window.</p>
+              <p className="text-xl mb-2">Stash can only be ordered at certain times. Ordering is currently closed until the next order window.</p>
             </div>
           </div>
         </div>
