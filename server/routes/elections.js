@@ -335,7 +335,7 @@ router.post("/create", async (req, res) => {
 
   // Create the new election
   try {
-    result = await Election.create({ name, manifestoReleaseTime, votingOpenTime, votingCloseTime });
+    result = await Election.create({ name, manifestoReleaseTime, votingOpenTime, votingCloseTime, deepLog: "", roundSummaries: "" });
   } catch (error) {
     return res.status(500).json({ error });
   }
