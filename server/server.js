@@ -247,7 +247,7 @@ app.get("/uploads/images/toastie_bar/:image", function(req, res) {
   res.sendFile(path.join(__dirname, `./uploads/images/toastie_bar/${image}`));
 });
 
-app.get("/elections/manifesto/:filename", function(req, res) {
+app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {
   const filename = req.params.filename;
 
   fs.readFile(path.join(__dirname, `./manifestos/${filename}`), (err, data) => {

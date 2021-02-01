@@ -523,10 +523,10 @@ Election.init({
     defaultValue: null
   },
   deepLog: {
-    type: DataTypes.TEXT("medium")
+    type: DataTypes.TEXT("long")
   },
   roundSummaries: {
-    type: DataTypes.TEXT("medium")
+    type: DataTypes.TEXT("long")
   },
   published: {
     type: DataTypes.BOOLEAN,
