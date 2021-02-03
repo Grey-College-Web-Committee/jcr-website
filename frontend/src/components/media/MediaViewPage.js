@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
 
 class MediaPage extends React.Component {
@@ -236,7 +235,7 @@ class MediaPage extends React.Component {
         <div className="mx-0 text-center pt-4">
           <h1 className="font-semibold text-5xl pb-4">Media</h1>
           {this.state.media.length > 0 ? this.getLatestJCRPodcast() : <></>}
-          {this.state.media.length > 0 ? this.getLatestGMPodcast() : <></>}          
+          {this.state.media.length > 0 ? this.getLatestGMPodcast() : <></>}
         </div>
         <div className="text-center flex justify-center w-full px-4">
           {this.state.media.length > 0 ? this.getLatestVideo() : <></>}

@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
 
 class RegularTemplate extends React.Component {

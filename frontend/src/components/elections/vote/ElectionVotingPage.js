@@ -194,8 +194,6 @@ class ElectionVotingPage extends React.Component {
       )
     }
 
-    const refresh = Math.random();
-
     return (
       <div className="flex flex-col justify-start text-lg">
         <div className="container mx-auto text-center p-4">

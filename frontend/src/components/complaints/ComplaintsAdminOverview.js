@@ -65,8 +65,6 @@ class ComplaintsAdminOverview extends React.Component {
       const aDate = new Date(a.createdAt);
       const bDate = new Date(b.createdAt);
 
-      console.log(a, b, aDate, bDate);
-
       return -(aDate < bDate ? -1 : (aDate > bDate ? 1 : 0));
     });
 

@@ -109,7 +109,7 @@ class MemberRow extends React.Component {
     if(!this.state.loaded) return null;
     if(!this.props.displayCondition(this.state.record)) return null;
 
-    const { username, firstNames, surname, createdAt, lastLogin, hlm, membershipExpiresAt } = this.state.record;
+    const { username, firstNames, surname, createdAt, lastLogin, membershipExpiresAt } = this.state.record;
 
     return (
       <tr className="text-center border-b border-gray-400">

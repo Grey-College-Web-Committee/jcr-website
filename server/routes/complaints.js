@@ -8,6 +8,7 @@ const { hasPermission } = require("../utils/permissionUtils.js");
 const { v4: uuidv4 } = require('uuid');
 const fs = require("fs").promises;
 const path = require("path");
+const mailer = require("../utils/mailer");
 
 const uploadPath = path.join(__dirname, "../uploads/complaints/signatures/");
 
@@ -62,6 +63,35 @@ router.post("/", async (req, res) => {
   } catch (error) {
     return res.status(500).json({ error: "Unable to record the complaint" });
   }
+
+  let chairEmail = [];
+
+  chairEmail.push(`<p>A new complaint has been received from ${name} with the subject ${subject} regarding ${complainingAbout}</p>`);
+  chairEmail.push(`<p><a href="https://services.greyjcr.com/complaints/admin" rel="noopener noreferrer" target="_blank">Please click here to go to the complaints management page.</a></p>`);
+
+  mailer.sendEmail("finlay.boyle@durham.ac.uk", `New Complaint Received`, chairEmail.join(""));
+
+  let userEmail = [];
+
+  userEmail.push(`<p>Your complaint has been recorded successfully.</p>`);
+  userEmail.push(`<p>The confirmed details are:</p>`);
+  userEmail.push("");
+  userEmail.push(`<p>Your Name: ${name}</p>`);
+  userEmail.push(`<p>Complaint About: ${complainingAbout}</p>`);
+  userEmail.push(`<p>Subject: ${subject}</p>`);
+  userEmail.push(`<p>Complaint Details:</p>`);
+
+  reason.split("\n").forEach((paragraph) => {
+    if(paragraph.length === 0) {
+      return;
+    }
+
+    userEmail.push(`<p>${paragraph}</p>`);
+  });
+
+  userEmail.push(`<p>The JCR Chair has been notified and will respond in due course in accordance with the JCR's Complaint Procedure.</p>`);
+
+  mailer.sendEmail(user.email, `Complaint Confirmation`, userEmail.join(""));
 
   return res.status(204).end();
 });

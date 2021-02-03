@@ -4,7 +4,6 @@ import authContext from '../../utils/authContext.js';
 
 class CommonFooter extends React.Component {
   render () {
-    console.log(this.context);
     return (
       <footer className="w-full border-red-900 border-t-4 py-4 px-4 text-center justify-between flex-shrink-0 text-white mt-4 flex flex-col sm:text-left sm:py-2 sm:flex-row" style={{backgroundColor: "#1B1C1D", backgroundImage: "url('/images/footer-bg.png')", backgroundPosition: "30% 50%", backgroundRepeat: "no-repeat"}}>
         <div>
