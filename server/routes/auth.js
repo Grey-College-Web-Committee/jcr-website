@@ -202,12 +202,17 @@ router.post("/login", async (req, res) => {
     });
   }
 
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  const displayName = `${firstName} ${lastName}`
+
   req.session.permissions = internalPermissionStrings;
 
   const date = new Date();
   date.setTime(date.getTime() + (3 * 60 * 60 * 1000));
 
-  res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email, hlm: user.hlm }, message: "Successfully authenticated" });
+  res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email, hlm: user.hlm, displayName }, message: "Successfully authenticated" });
 });
 
 router.post("/logout", async (req, res) => {

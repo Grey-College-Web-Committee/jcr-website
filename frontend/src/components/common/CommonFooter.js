@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import authContext from '../../utils/authContext.js';
 
 class CommonFooter extends React.Component {
   render () {
+    console.log(this.context);
     return (
       <footer className="w-full border-red-900 border-t-4 py-4 px-4 text-center justify-between flex-shrink-0 text-white mt-4 flex flex-col sm:text-left sm:py-2 sm:flex-row" style={{backgroundColor: "#1B1C1D", backgroundImage: "url('/images/footer-bg.png')", backgroundPosition: "30% 50%", backgroundRepeat: "no-repeat"}}>
         <div>
@@ -10,6 +12,13 @@ class CommonFooter extends React.Component {
           <a href="https://register-of-charities.charitycommission.gov.uk/charity-search/-/charity-details/5019056/" target="_blank" rel="noopener noreferrer"><p className="underline">Registered Charity Number: 1142887</p></a>
           <Link to="/cookies"><p className="underline">Cookie Policy</p></Link>
         </div>
+        {
+          this.context !== null && this.context.permissions.includes("jcr.member") ? (
+            <div className="sm:text-right flex flex-col sm:items-end justify-end">
+              <Link to="/complaints"><p className="underline">Submit a complaint</p></Link>
+            </div>
+          ) : null
+        }
         <div className="sm:text-right flex flex-col sm:items-end">
           <Link to="/contributors"><p className="underline">Contributors and Image Attributions</p></Link>
           <a href="https://github.com/Grey-College-Web-Committee/grey-shop" target="_blank" rel="noopener noreferrer">
@@ -27,5 +36,7 @@ class CommonFooter extends React.Component {
     )
   }
 }
+
+CommonFooter.contextType = authContext;
 
 export default CommonFooter;

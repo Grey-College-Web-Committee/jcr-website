@@ -25,6 +25,7 @@ import PurchaseMembershipPage from './components/membership/PurchaseMembershipPa
 import WelfarePage from './components/welfare/WelfarePage';
 import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage';
 import WelfareThreadPage from './components/welfare/message/thread/WelfareThreadPage';
+import ComplaintsPage from './components/complaints/ComplaintsPage';
 
 import ElectionOverviewPage from './components/elections/overview/ElectionOverviewPage';
 import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
@@ -349,6 +350,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/spinner/" render={() => (
                       this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( this.loginRef("/spinner") )
+                    )} />
+                  <Route exact path="/complaints" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ComplaintsPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/complaints") )
                     )} />
                     <Route exact path="/checkout/" render={() => (
                       this.isLoggedIn() ? ( <CheckoutPage /> ) : ( this.loginRef("/checkout") )

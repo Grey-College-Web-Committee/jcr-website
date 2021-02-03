@@ -18,6 +18,10 @@ class RegularTemplate extends React.Component {
     };
   }
 
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+  }
+
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
     let membershipCheck;

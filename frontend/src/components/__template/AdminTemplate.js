@@ -17,6 +17,10 @@ class AdminTemplatePage extends React.Component {
     this.requiredPermission = "YourPermissionHere";
   }
 
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+  }
+
   // Load the data once the element is ready
   componentDidMount = async () => {
     let adminCheck;
