@@ -8,7 +8,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Complaint } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store)
 
@@ -23,7 +23,8 @@ const membershipsRoute = require("./routes/memberships");
 const electionsRoute = require("./routes/elections");
 const mediaRoute = require("./routes/media");
 const welfareMessagesRoute = require("./routes/welfare_messages");
-welfareMessagesRoute
+const complaintsRoute = require("./routes/complaints");
+
 // Required to deploy the static React files for production
 const path = require("path");
 const fs = require("fs");
@@ -130,6 +131,10 @@ const requiredPermissions = [
     name: "View Anonymous Messages",
     description: "Gives access to the anonymous messages received by the welfare team",
     internal: "welfare.anonymous"
+  }, {
+    name: "View Complaints",
+    description: "Gives access to view complaints",
+    internal: "complaints.manage"
   }
 ];
 
@@ -171,6 +176,8 @@ const requiredPermissions = [
 
   await WelfareThread.sync();
   await WelfareThreadMessage.sync();
+
+  await Complaint.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
@@ -220,6 +227,7 @@ app.use("/api/memberships", isLoggedIn, membershipsRoute);
 app.use("/api/elections", isLoggedIn, electionsRoute);
 app.use("/api/media", isLoggedIn, mediaRoute);
 app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);
+app.use("/api/complaints", isLoggedIn, complaintsRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

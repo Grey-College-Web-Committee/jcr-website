@@ -22,7 +22,9 @@ class ComplaintsPage extends React.Component {
       subject: "",
       reason: "",
       truth: false,
-      date: dateFormat(new Date(), "yyyy-mm-dd")
+      date: dateFormat(new Date(), "yyyy-mm-dd"),
+      success: false,
+      disabled: false
     };
 
     this.sigPad = {};
@@ -54,31 +56,22 @@ class ComplaintsPage extends React.Component {
       return;
     }
 
-    // Once the component is ready we can query the API
-    let content;
-
-    try {
-      content = await api.get("/some/path");
-    } catch (error) {
-      this.setState({ loaded: false, status: error.response.status });
-      return;
-    }
-
-    this.setState({ loaded: true, status: 200, content: content, name: this.context.displayName.substring(0, 254) });
+    this.setState({ loaded: true, status: 200, name: this.context.displayName.substring(0, 254) });
   }
 
   canSubmit = () => {
-    const { name, complainingAbout, subject, reason, truth } = this.state;
+    const { name, complainingAbout, subject, reason, truth, date } = this.state;
     return (
       (name !== undefined && name !== null && name.length !== 0) &&
       (complainingAbout !== undefined && complainingAbout !== null && complainingAbout.length !== 0) &&
       (subject !== undefined && subject !== null && subject.length !== 0) &&
       (reason !== undefined && reason !== null && reason.length !== 0) &&
+      (date !== undefined && date !== null && date.length !== 0) &&
       truth
     );
   }
 
-  submitComplaint = () => {
+  submitComplaint = async () => {
     if(!this.canSubmit()) {
       alert("You must fill in all the details in the form first.");
       return;
@@ -89,7 +82,21 @@ class ComplaintsPage extends React.Component {
       return;
     }
 
+    this.setState({ disabled: true });
+
     const signature = this.sigPad.toDataURL();
+    const { name, complainingAbout, subject, reason } = this.state;
+
+    try {
+      await api.post("/complaints", {
+        name, complainingAbout, subject, reason, signature
+      });
+    } catch (error) {
+      alert("There was an error processing your complaint. Please try again later.");
+      return;
+    }
+
+    this.setState({ success: true });
   }
 
   render () {
