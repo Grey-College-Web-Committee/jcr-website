@@ -11,12 +11,6 @@ const path = require("path");
 
 const uploadPath = path.join(__dirname, "../uploads/complaints/signatures/");
 
-// Called at the base path of your route with HTTP method GET
-router.get("/", async (req, res) => {
-  // Returns a 200 status code with a short JSON response
-  return res.status(200).json({ success: true });
-});
-
 router.post("/", async (req, res) => {
   const { user } = req.session;
   const { name, complainingAbout, subject, reason, signature } = req.body;
@@ -110,13 +104,14 @@ router.get("/single/:id", async (req, res) => {
 
   try {
     complaint = await Complaint.findOne({
+      where: { id },
       include: [ User ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to query database for the complaint" });
   }
 
-  if(record === null) {
+  if(complaint === null) {
     return res.status(400).json({ error: "No record found" });
   }
 

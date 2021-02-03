@@ -6,6 +6,7 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+const { hasPermission } = require("./utils/permissionUtils.js");
 
 // Routes and database models
 const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Complaint } = require("./database.models.js");
@@ -253,6 +254,17 @@ app.get("/uploads/images/stash/:id/:image", function(req, res) {
 app.get("/uploads/images/toastie_bar/:image", function(req, res) {
   const image = req.params.image;
   res.sendFile(path.join(__dirname, `./uploads/images/toastie_bar/${image}`));
+});
+
+app.get("/uploads/complaints/signatures/:image", isLoggedIn, function(req, res) {
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "complaints.manage")) {
+    return res.status(403).json({ error: "You do not have permission to view this resource" });
+  }
+
+  const image = req.params.image;
+  res.sendFile(path.join(__dirname, `./uploads/complaints/signatures/${image}`));
 });
 
 app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {

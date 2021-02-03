@@ -118,17 +118,30 @@ class ComplaintsPage extends React.Component {
       );
     }
 
+    if(this.state.success) {
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="container mx-auto text-center p-4 w-full md:w-3/5">
+            <h1 className="font-semibold text-5xl pb-4">Complaint Recorded</h1>
+            <p className="text-justify">Your complaint has successfully been recorded. You will receive an email momentarily confirming your complaint. The JCR Chair has been notified and will respond in due course in accordance with the JCR's Complaints Procedure.</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Submit a Complaint</h1>
-          <div>
-            Info about complaining...
-          </div>
           <div className="w-full md:w-3/5 mx-auto">
+            <div>
+              <p className="text-justify">The details of this complaint will initially be sent to the JCR Chair who will deal with the complaint confidentially with the named people in the above complaints procedure. For complaints about the JCR Chair please contact the <a href="mailto:grey.president@durham.ac.uk?subject=Complaint about the JCR Chair" rel="noopener noreferrer" target="_blank" className="font-semibold underline">JCR President directly (grey.president@durham.ac.uk)</a>.</p>
+              <p className="text-justify pt-1">Individuals making a complaint are expected to identify themselves; as complaints raised anonymously can be significantly more difficult to address effectively. The JCR will not normally consider anonymous complaints. This form will identify you to the JCR Chair.</p>
+              <p className="text-justify pt-1">Upon submitting this form you will automatically be sent an email (to your Durham University email address) confirming the details you have submitted.</p>
+            </div>
             <fieldset>
               <div className="pt-2 pb-2 border-b-2">
-                <label htmlFor="name" className="flex flex-row justify-start text-lg font-semibold">Your Name</label>
+                <label htmlFor="name" className="flex flex-row justify-start text-xl font-semibold">Your Name</label>
                 <span className="flex flex-row justify-start text-sm mb-2">({255 - this.state.name.length} characters remaining)</span>
                 <input
                   type="text"
@@ -138,10 +151,11 @@ class ComplaintsPage extends React.Component {
                   className="border w-full rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                   disabled={this.state.disabled}
                   autoComplete=""
+                  maxLength={255}
                 />
               </div>
               <div className="pt-2 pb-2 border-b-2">
-                <label htmlFor="complainingAbout" className="flex flex-row justify-start text-lg font-semibold">Who is the complaint about?</label>
+                <label htmlFor="complainingAbout" className="flex flex-row justify-start text-xl font-semibold">Who is the complaint about?</label>
                 <span className="flex flex-row justify-start text-sm mb-2">({255 - this.state.complainingAbout.length} characters remaining)</span>
                 <input
                   type="text"
@@ -151,10 +165,11 @@ class ComplaintsPage extends React.Component {
                   className="border w-full rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                   disabled={this.state.disabled}
                   autoComplete=""
+                  maxLength={255}
                 />
               </div>
               <div className="pt-2 pb-2 border-b-2">
-                <label htmlFor="date" className="flex flex-row justify-start text-lg font-semibold">Date of Complaint</label>
+                <label htmlFor="date" className="flex flex-row justify-start text-xl font-semibold">Date of Complaint</label>
                 <input
                   type="date"
                   name="date"
@@ -165,7 +180,7 @@ class ComplaintsPage extends React.Component {
                 />
               </div>
               <div className="pt-2 pb-2 border-b-2">
-                <label htmlFor="subject" className="flex flex-row justify-start text-lg font-semibold">Subject of the complaint </label>
+                <label htmlFor="subject" className="flex flex-row justify-start text-xl font-semibold">Subject of the complaint </label>
                 <span className="flex flex-row justify-start text-sm mb-2">({255 - this.state.subject.length} characters remaining)</span>
                 <input
                   type="text"
@@ -179,7 +194,7 @@ class ComplaintsPage extends React.Component {
                 />
               </div>
               <div className="pt-2 pb-2 border-b-2">
-                <label htmlFor="reason" className="flex flex-row justify-start text-lg font-semibold">Complaint details</label>
+                <label htmlFor="reason" className="flex flex-row justify-start text-xl font-semibold">Complaint details</label>
                 <span className="flex flex-row justify-start text-sm mb-2">({30000 - this.state.reason.length} characters remaining)</span>
                 <textarea
                   name="reason"
@@ -192,10 +207,10 @@ class ComplaintsPage extends React.Component {
                 />
               </div>
               <div className="pt-2 pb-2 border-b-2">
-                <label htmlFor="signature" className="flex flex-row justify-start pb-2 text-lg font-semibold">Signature</label>
+                <label htmlFor="signature" className="flex flex-row justify-start pb-2 text-xl font-semibold">Signature</label>
                 <div>
                   <SignaturePad
-                    canvasProps={{ className: "bg-gray-100 border-black border w-full" }}
+                    canvasProps={{ className: "bg-gray-100 border-black border w-full h-48" }}
                     ref={(ref) => { this.sigPad = ref }}
                   />
                 </div>
@@ -205,19 +220,10 @@ class ComplaintsPage extends React.Component {
                     disabled={this.state.disabled}
                     onClick={() => { this.sigPad.clear() }}
                   >Clear</button>
-
-                    <button
-                      className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                      disabled={this.state.disabled}
-                      onClick={() => {
-                        console.log(this.sigPad.toData())
-                        console.log(this.sigPad.toDataURL())
-                      }}
-                    >Test</button>
                 </div>
               </div>
               <div className="pt-2 pb-2 border-b-2 flex flex-row items-center">
-                <label htmlFor="truth" className="flex flex-row justify-start text-lg font-semibold flex-1 items-center">By checking this box I confirm that the complaint is true to my knowledge</label>
+                <label htmlFor="truth" className="flex flex-row justify-start text-xl font-semibold flex-1 items-center">By checking this box I confirm that the complaint is true to my knowledge</label>
                 <div className="flex flex-col items-center justify-center ml-2">
                   <input
                     type="checkbox"
@@ -232,7 +238,7 @@ class ComplaintsPage extends React.Component {
               </div>
               <div className="pt-2 pb-2 border-b-2">
                 <button
-                  className="px-4 py-2 rounded text-lg bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  className="px-4 py-2 rounded text-xl bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                   disabled={this.state.disabled || !this.canSubmit()}
                   onClick={this.submitComplaint}
                 >Submit Complaint</button>
