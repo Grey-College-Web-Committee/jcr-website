@@ -26,6 +26,8 @@ import WelfarePage from './components/welfare/WelfarePage';
 import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage';
 import WelfareThreadPage from './components/welfare/message/thread/WelfareThreadPage';
 
+import CareersPage from './components/careers/CareersPage';
+
 import ElectionOverviewPage from './components/elections/overview/ElectionOverviewPage';
 import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
 
@@ -53,6 +55,7 @@ import WelfareAdminOverviewPage from './components/welfare/message/admin/Welfare
 import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
 import MediaPage from './components/media/MediaViewPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
+import CareersAdminPage from './components/careers/CareersAdminPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -346,6 +349,12 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/stash/view/:id" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/stash") )
+                    )} />
+                    <Route exact path="/careers/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <CareersPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
+                    )} />
+                    <Route exact path="/careers/admin" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <CareersAdminPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers/admin") )
                     )} />
                     <Route exact path="/spinner/" render={() => (
                       this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( this.loginRef("/spinner") )

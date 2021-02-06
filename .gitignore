@@ -127,3 +127,4 @@ dist
 *.csv
 /server/manifestos/*
 /manual/*
+/server/uploads/complaints/*
