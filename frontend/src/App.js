@@ -56,6 +56,7 @@ import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAd
 import MediaPage from './components/media/MediaViewPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
 import CareersAdminPage from './components/careers/CareersAdminPage';
+import CareersEditPost from './components/careers/CareersEditPost';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -354,7 +355,10 @@ class App extends React.Component {
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <CareersPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
                     )} />
                     <Route exact path="/careers/admin" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <CareersAdminPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers/admin") )
+                      this.isLoggedIn() ? ( this.hasPermission("careers.manage") ? <CareersAdminPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers/admin") )
+                    )} />
+                    <Route exact path="/careers/edit/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("careers.manage") ? <CareersEditPost {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
                     )} />
                     <Route exact path="/spinner/" render={() => (
                       this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( this.loginRef("/spinner") )

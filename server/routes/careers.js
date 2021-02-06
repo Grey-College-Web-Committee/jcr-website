@@ -6,6 +6,81 @@ const { User, Permission, PermissionLink, CareersPost } = require("../database.m
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 
+router.get("/blog/single/:id", async (req, res) => {
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "careers.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const idStr = req.params.id;
+
+  if(idStr === undefined || idStr === null) {
+    return res.status(400).json({ error: "id is missing" });
+  }
+
+  const id = parseInt(idStr);
+
+  if(!Number.isInteger(id)) {
+    return res.status(400).json({ error: "id must be an integer" });
+  }
+
+  let post;
+
+  try {
+    post = await CareersPost.findOne({
+      where: { id },
+      include: User
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the post" });
+  }
+
+  if(post === null) {
+    return res.status(400).json({ error: "No post found for the id given" });
+  }
+
+  return res.status(200).json({ post });
+});
+
+router.post("/blog/single", async (req, res) => {
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "careers.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, title, emailSubject, content } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  if(title === undefined || title === null || title.length === 0) {
+    return res.status(400).json({ error: "Missing title" });
+  }
+
+  if(emailSubject === undefined || emailSubject === null || emailSubject.length === 0) {
+    return res.status(400).json({ error: "Missing emailSubject" });
+  }
+
+  if(content === undefined || content === null || content.length === 0) {
+    return res.status(400).json({ error: "Missing content" });
+  }
+
+  try {
+    await CareersPost.update({
+      title, emailSubject, content
+    }, {
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the post" });
+  }
+
+  return res.status(204).end();
+});
+
 // Called at the base path of your route with HTTP method GET
 router.get("/blog/:page", async (req, res) => {
   const { user } = req.session;
@@ -26,7 +101,7 @@ router.get("/blog/:page", async (req, res) => {
     return res.status(400).json({ error: "page must be a positive integer" });
   }
 
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   let posts;
 
@@ -34,7 +109,10 @@ router.get("/blog/:page", async (req, res) => {
     posts = await CareersPost.findAndCountAll({
       offset: itemsPerPage * (page - 1),
       limit: itemsPerPage,
-      include: User
+      include: User,
+      order: [
+        ["id", "DESC"]
+      ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to fetch posts" });

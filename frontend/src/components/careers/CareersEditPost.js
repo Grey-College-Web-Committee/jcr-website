@@ -1,9 +1,9 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig';
 import LoadingHolder from '../common/LoadingHolder';
 
-class CareersAdminPage extends React.Component {
+class CareersEditPost extends React.Component {
   constructor(props) {
     super(props);
 
@@ -11,11 +11,13 @@ class CareersAdminPage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
+      id: this.props.match.params.id,
       title: "",
       emailSubject: "",
       content: "",
       disabled: false,
-      success: false
+      ready: false,
+      updated: false
     };
 
     // Change this to your permission
@@ -49,35 +51,24 @@ class CareersAdminPage extends React.Component {
       return;
     }
 
-    // Load any required data for the page here
+    let result;
 
-    this.setState({ loaded: true });
+    try {
+      result = await api.get(`/careers/blog/single/${this.state.id}`);
+    } catch (error) {
+      alert("An error occurred loading the post.");
+      this.setState({ status: 500, error: "Error loading data" });
+      return;
+    }
+
+    const { post } = result.data;
+    const { title, emailSubject, content } = post;
+
+    this.setState({ loaded: true, post, title, emailSubject, content });
   }
 
   onInputChange = e => {
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
-  }
-
-  submitPost = async () => {
-    if(!this.canSubmit()) {
-      alert("You must fill in all the details in the form first.");
-      return;
-    }
-
-    this.setState({ disabled: true });
-
-    const { title, emailSubject, content } = this.state;
-
-    try {
-      await api.post("/careers/blog", {
-        title, emailSubject, content
-      });
-    } catch (error) {
-      alert("There was an error processing your post. Please try again later.");
-      return;
-    }
-
-    this.setState({ success: true });
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), ready: true })
   }
 
   canSubmit = () => {
@@ -87,6 +78,34 @@ class CareersAdminPage extends React.Component {
       (emailSubject !== undefined && emailSubject !== null && emailSubject.length !== 0) &&
       (content !== undefined && content !== null && content.length !== 0)
     );
+  }
+
+  updatePost = async () => {
+    if(!this.canSubmit()) {
+      alert("You must fill in all the details in the form first.");
+      return;
+    }
+
+    this.setState({ disabled: true });
+
+    const { id, title, emailSubject, content } = this.state;
+
+    try {
+      await api.post("/careers/blog/single", {
+        id, title, emailSubject, content
+      });
+    } catch (error) {
+      alert("There was an error processing your post. Please try again later.");
+      return;
+    }
+
+    this.setState({ updated: true, ready: false, disabled: false });
+
+    setTimeout(() => {
+      this.setState({
+        updated: false
+      });
+    }, 1000);
   }
 
   render () {
@@ -102,25 +121,14 @@ class CareersAdminPage extends React.Component {
       );
     }
 
-    if(this.state.success) {
-      return (
-        <div className="flex flex-col justify-start">
-          <div className="container mx-auto text-center p-4 w-full md:w-3/5">
-            <h1 className="font-semibold text-5xl pb-4">Post Created</h1>
-            <p className="text-justify">Your post has successfully been published to the <Link to="/careers" className="underline font-semibold">Careers page!</Link></p>
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Create Careers Post</h1>
+          <h1 className="font-semibold text-5xl pb-4">Edit Careers Post</h1>
         </div>
         <div className="w-full md:w-3/5 mx-auto">
           <div>
-            <p className="text-justify">You can create a new post by filling in the details below. All fields must be filled in before you can submit it. Each post will automatically have the date and time they were published as well as a link to contact the Careers and Alumni Relations Officer directly via email. The subject of this email will be preset by filling in the email subject field below.</p>
+            <p className="text-justify">You can edit a post that has already been published below. All fields must be filled in before you can submit it. The post will automatically update once you click the button at the bottom.</p>
           </div>
           <fieldset>
             <div className="pt-2 pb-2 border-b-2">
@@ -167,9 +175,9 @@ class CareersAdminPage extends React.Component {
             <div className="pt-2 pb-2 border-b-2">
               <button
                 className="px-4 py-2 rounded text-xl bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                disabled={this.state.disabled || !this.canSubmit()}
-                onClick={this.submitPost}
-              >Create Post</button>
+                disabled={this.state.disabled || !this.canSubmit() || !this.state.ready}
+                onClick={this.updatePost}
+              >{ this.state.updated ? "Updated ✓" : "Update Post" }</button>
             </div>
           </fieldset>
         </div>
@@ -178,4 +186,4 @@ class CareersAdminPage extends React.Component {
   }
 }
 
-export default CareersAdminPage;
+export default CareersEditPost;
