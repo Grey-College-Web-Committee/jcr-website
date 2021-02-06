@@ -10,6 +10,7 @@ const lock = new Date("2021-01-31T23:00:00Z");
 class ViewStashItemPage extends React.Component {
   constructor(props) {
     super(props);
+    const now = new Date();
 
     this.cart = new Cart();
     this.state = {
@@ -36,7 +37,8 @@ class ViewStashItemPage extends React.Component {
       buttonText: "Add To Bag",
       addedCount: 0,
       currentImage: 0,
-      multipleImages: false
+      multipleImages: false,
+      closed: now > lock
     };
   }
 
@@ -336,21 +338,6 @@ class ViewStashItemPage extends React.Component {
       );
     }
 
-    const now = new Date();
-
-    if(now > lock) {
-      return (
-        <div className="flex flex-col justify-start">
-          <div className="container mx-auto text-center p-4">
-            <div className="mb-2 sm:mb-4 font-semibold">
-              <h1 className="my-2 text-5xl">College Stash</h1>
-              <p className="text-xl mb-2">Stash can only be ordered at certain times. Ordering is currently closed until the next order window.</p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     const { name, description, price, available, StashSizeChart, StashItemColours, StashCustomisations } = this.state.item;
 
     delete StashSizeChart.id;
@@ -563,7 +550,7 @@ class ViewStashItemPage extends React.Component {
           when={this.state.size.length !== 0 && this.state.addedCount === 0}
           message="You haven't added this to your bag yet. Are you sure you want to leave?"
         />
-      <div className="md:container mx-auto text-center p-4">
+        <div className="md:container mx-auto text-center p-4">
           <div className="flex flex-col justify-center text-left align-middle w-full md:w-3/4 mx-auto">
             <div className="p-2">
               <Link to="/stash/">
@@ -571,6 +558,9 @@ class ViewStashItemPage extends React.Component {
                   className="px-4 py-2 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                 >← Back to Stash</button>
               </Link>
+            </div>
+            <div className="px-2 pb-2 text-xl font-semibold">
+              <p>The stash shop is currently closed. You can browse the stash but orders cannot be placed at this time.</p>
             </div>
             <div className="flex flex-row justify-center mx-2">
               <div className="w-full flex flex-col-reverse md:flex-row text-lg">
@@ -607,7 +597,7 @@ class ViewStashItemPage extends React.Component {
                     <button
                       className="px-4 py-2 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                       onClick={this.addToBag}
-                      disabled={this.state.disabled || !available}
+                      disabled={this.state.disabled || !available || this.state.closed}
                     >{available ? this.state.buttonText : "Out of Stock"}</button>
                   </div>
                   <div className="text-center p-4 underline">
