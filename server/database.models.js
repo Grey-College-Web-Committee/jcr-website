@@ -725,6 +725,10 @@ Event.init({
   bookingCloseTime: {
     type: DataTypes.DATE,
     allowNull: false
+  },
+  date: {
+    type: DataTypes.DATE,
+    allowNull: false
   }
 }, { sequelize });
 
@@ -742,6 +746,10 @@ EventImage.init({
     allowNull: false
   },
   caption: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  position: {
     type: DataTypes.TEXT,
     allowNull: false
   }
@@ -1001,4 +1009,4 @@ EventTicket.belongsTo(User, { foreignKey: 'bookerId' });
 EventTicketType.hasMany(EventTicket, { foreignKey: 'ticketTypeId' });
 EventTicket.belongsTo(EventTicketType, { foreignKey: 'ticketTypeId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket }; 
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket };
