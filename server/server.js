@@ -8,7 +8,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store)
 
@@ -130,6 +130,11 @@ const requiredPermissions = [
     name: "View Anonymous Messages",
     description: "Gives access to the anonymous messages received by the welfare team",
     internal: "welfare.anonymous"
+  },
+  {
+    name: "Manage Events",
+    description: "Create, edit, delete and view details about events",
+    internal: "events.manage"
   }
 ];
 
@@ -171,6 +176,12 @@ const requiredPermissions = [
 
   await WelfareThread.sync();
   await WelfareThreadMessage.sync();
+
+  await Event.sync();
+  await EventImage.sync();
+  await EventTicketType.sync();
+  await EventGroupBooking.sync();
+  await EventTicket.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({

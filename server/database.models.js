@@ -45,6 +45,17 @@ class Media extends Model {}
 class WelfareThread extends Model {}
 class WelfareThreadMessage extends Model {}
 
+// Represents a single event
+class Event extends Model {}
+// Stores the images for the event gallery
+class EventImage extends Model {}
+// Events may have multiple ticket types
+class EventTicketType extends Model {}
+// The overarching booking for a group (or individual i.e. group of 1)
+class EventGroupBooking extends Model {}
+// The individual record for each member of a group (i.e. to track their Stripe payments)
+class EventTicket extends Model {}
+
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
 // No need to store a users email it is simply username@durham.ac.uk
@@ -694,6 +705,201 @@ WelfareThreadMessage.init({
   }
 }, { sequelize });
 
+Event.init({
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  shortDescription: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  maxIndividuals: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  bookingCloseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  }
+}, { sequelize });
+
+EventImage.init({
+  eventId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Event,
+      key: 'id'
+    }
+  },
+  image: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  caption: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
+EventTicketType.init({
+  eventId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Event,
+      key: 'id'
+    }
+  },
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  maxOfType: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  minPeople: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  maxPeople: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  maxGuests: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  memberPrice: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  },
+  guestPrice: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  },
+  requiredInformationForm: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  firstYearReleaseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  secondYearReleaseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  thirdYearReleaseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  fourthYearReleaseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  olderYearsCanOverride: {
+    type: DataTypes.BOOLEAN,
+    default: true
+  }
+}, { sequelize });
+
+EventGroupBooking.init({
+  eventId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Event,
+      key: 'id'
+    }
+  },
+  leadBookerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  firstHoldTime: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    defaultValue: null
+  },
+  allPaid: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  }
+}, { sequelize });
+
+EventTicket.init({
+  groupId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: EventGroupBooking,
+      key: 'id'
+    }
+  },
+  bookerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  ticketTypeId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: EventTicketType,
+      key: 'id'
+    }
+  },
+  paid: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  stripePaymentId: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
+  },
+  requiredInformation: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
+  },
+  isGuestTicket: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  guestName: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
+  },
+  guestUsername: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
+  }
+}, { sequelize });
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -774,4 +980,25 @@ ElectionEditLog.belongsTo(Election, { foreignKey: 'electionId' });
 WelfareThread.hasMany(WelfareThreadMessage, { foreignKey: 'threadId' });
 WelfareThreadMessage.belongsTo(WelfareThread, { foreignKey: 'threadId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage };
+Event.hasMany(EventImage, { foreignKey: 'eventId' });
+EventImage.belongsTo(Event, { foreignKey: 'eventId' });
+
+Event.hasMany(EventTicketType, { foreignKey: 'eventId' });
+EventTicketType.belongsTo(Event, { foreignKey: 'eventId' });
+
+Event.hasMany(EventGroupBooking, { foreignKey: 'eventId' });
+EventGroupBooking.belongsTo(Event, { foreignKey: 'eventId' });
+
+User.hasMany(EventGroupBooking, { foreignKey: 'leadBookerId' });
+EventGroupBooking.belongsTo(User, { foreignKey: 'leadBookerId' });
+
+EventGroupBooking.hasMany(EventTicket, { foreignKey: 'groupId' });
+EventTicket.belongsTo(EventGroupBooking, { foreignKey: 'groupId' });
+
+User.hasMany(EventTicket, { foreignKey: 'bookerId' });
+EventTicket.belongsTo(User, { foreignKey: 'bookerId' });
+
+EventTicketType.hasMany(EventTicket, { foreignKey: 'ticketTypeId' });
+EventTicket.belongsTo(EventTicketType, { foreignKey: 'ticketTypeId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket }; 

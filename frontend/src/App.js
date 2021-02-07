@@ -54,6 +54,8 @@ import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAd
 import MediaPage from './components/media/MediaViewPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
 
+import CreateNewEventPage from './components/events/admin/CreateNewEventPage';
+
 const stripePromise = loadStripe(config.stripe.publicKey);
 
 class App extends React.Component {
@@ -349,6 +351,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/spinner/" render={() => (
                       this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( this.loginRef("/spinner") )
+                    )} />
+                    <Route exact path="/events/admin/create" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <CreateNewEventPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin/create") )
                     )} />
                     <Route exact path="/checkout/" render={() => (
                       this.isLoggedIn() ? ( <CheckoutPage /> ) : ( this.loginRef("/checkout") )
