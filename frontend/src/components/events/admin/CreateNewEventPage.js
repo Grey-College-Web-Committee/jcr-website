@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
 import CreateTicketComponent from './CreateTicketComponent';
+import ImageUploader from 'react-images-upload';
 
 class CreateNewEventPage extends React.Component {
   constructor(props) {
@@ -16,10 +17,17 @@ class CreateNewEventPage extends React.Component {
       date: null,
       shortDescription: "",
       description: "",
-      maxIndividuals: 1,
+      maxIndividuals: "",
       bookingCloseTime: null,
       disabled: false,
-      ticketTypes: {}
+      ticketTypes: {},
+      images: {},
+      imageCaption: "",
+      imagePosition: "gallery",
+      allowedPositions: [],
+      imageUpload: null,
+      imageDisabled: false,
+      temporaryImageSrcs: {}
     };
 
     // Change this to your permission
@@ -99,6 +107,70 @@ class CreateNewEventPage extends React.Component {
     this.setState({ ticketTypes: newTickets });
   }
 
+  onImageDrop = (image) => {
+    this.setState({ imageUpload: image });
+  }
+
+  uploadImage = () => {
+    this.setState({ imageDisabled: true });
+
+    const { imageCaption, imagePosition } = this.state;
+
+    if(imageCaption === undefined || imageCaption === null || imageCaption.length === 0) {
+      alert("You must set a caption for the image");
+      this.setState({ imageDisabled: false });
+      return;
+    }
+
+    if(imagePosition === undefined || imagePosition === null || imagePosition.length === 0) {
+      alert("You must set a position for the image");
+      this.setState({ imageDisabled: false });
+      return;
+    }
+
+    const image = this.state.imageUpload;
+
+    if(image === undefined || image === null || image.length === 0) {
+      alert("You must upload an image");
+      this.setState({ imageDisabled: false });
+      return;
+    }
+
+    const nextId = Object.keys(this.state.images).length === 0 ? 0 : Math.max(...Object.keys(this.state.images)) + 1;
+
+    let newImages = this.state.images;
+    newImages[nextId] = {
+      image: image[0],
+      caption: this.state.imageCaption,
+      position: this.state.imagePosition
+    };
+
+    let temporaryImageSrcs = this.state.temporaryImageSrcs;
+    temporaryImageSrcs[nextId] = null;
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      let temporaryImageSrcs = this.state.temporaryImageSrcs;
+      temporaryImageSrcs[nextId] = [reader.result];
+      this.setState({ temporaryImageSrcs });
+    }
+
+    reader.readAsDataURL(image[0]);
+
+    this.setState({ temporaryImageSrcs, images: newImages, imageDisabled: false, imageUpload: null, imageCaption: "", imagePosition: "gallery" });
+  }
+
+  deleteImage = (id) => {
+    let newImages = this.state.images;
+    let temporaryImageSrcs = this.state.temporaryImageSrcs;
+
+    delete newImages[id];
+    delete temporaryImageSrcs[id];
+
+    this.setState({ images: newImages, temporaryImageSrcs });
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -119,7 +191,7 @@ class CreateNewEventPage extends React.Component {
           <p className="text-justify pb-2">Important: You must <a className="underline font-semibold" href="https://support.google.com/chrome/answer/95346?co=GENIE.Platform%3DDesktop&hl=en" rel="noopener noreferrer" target="_blank">use Google Chrome</a> or <a className="underline font-semibold" href="https://www.microsoft.com/en-us/edge" rel="noopener noreferrer" target="_blank">Microsoft Edge</a> otherwise the date and time selector will not show up. This is unfortunately caused by other browsers not supporting the feature (support is coming in the next major update to Safari on macOS). This page will not be easy to use on mobile devices due to the large amount of content that is needed.</p>
           <div className="flex flex-col items-center w-3/5 mx-auto">
             <div className="w-full">
-              <h2 className="font-semibold text-5xl pb-2">Event Details</h2>
+              <h2 className="font-semibold text-5xl pb-2">Details</h2>
               <fieldset>
                 <div className="pb-2 border-b-2">
                   <label htmlFor="name" className="flex flex-row justify-start text-xl font-semibold">Event Name</label>
@@ -205,7 +277,110 @@ class CreateNewEventPage extends React.Component {
               </fieldset>
             </div>
             <div className="w-full mt-6">
-              <h2 className="font-semibold text-5xl pb-2">Event Tickets</h2>
+              <h2 className="font-semibold text-5xl pb-2">Images</h2>
+              <div>
+                <p>Upload Image</p>
+                <div className="pb-2 border-b-2">
+                  <label htmlFor="imageCaption" className="flex flex-row justify-start text-xl font-semibold">Image Caption</label>
+                  <span className="flex flex-row justify-start text-sm mb-2">({255 - this.state.imageCaption.length} characters remaining)</span>
+                  <input
+                    type="text"
+                    name="imageCaption"
+                    value={this.state.imageCaption}
+                    onChange={this.onInputChange}
+                    className="border w-full rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                    disabled={this.state.disabled || this.state.imageDisabled}
+                    autoComplete=""
+                    maxLength={255}
+                  />
+                </div>
+                <div className="pb-2 border-b-2">
+                  <label htmlFor="imagePosition" className="flex flex-row justify-start text-xl font-semibold">Image Position</label>
+                  <select
+                    name="imagePosition"
+                    className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
+                    onChange={this.onInputChange}
+                    value={this.state.imagePosition}
+                    disabled={this.state.disabled || this.state.imageDisabled}
+                  >
+                    <option value="overview" disabled={this.state.allowedPositions.includes("overview")}>Overview Icon</option>
+                    <option value="banner" disabled={this.state.allowedPositions.includes("banner")}>Banner</option>
+                    <option value="gallery">Gallery</option>
+                  </select>
+                </div>
+                <div className="pb-2 border-b-2">
+                  <label htmlFor="imagePostion" className="flex flex-row justify-start text-xl font-semibold">Image</label>
+                  <ImageUploader
+                    withIcon={false}
+                    buttonText={"Choose Image"}
+                    imgExtension={['.jpg', '.gif', '.png', '.gif']}
+                    singleImage={true}
+                    onChange={this.onImageDrop}
+                    disabled={this.state.disabled || this.state.imageDisabled}
+                  />
+                  {
+                    this.state.imageUpload === null ? (
+                      <p>No image selected</p>
+                    ) : (
+                      <p>Image {this.state.imageUpload[0].name} selected</p>
+                    )
+                  }
+                </div>
+                <div className="pt-2 pb-2 border-b-2">
+                  <button
+                    className="px-4 py-2 rounded text-xl bg-green-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    disabled={this.state.disabled || this.state.imageDisabled}
+                    onClick={this.uploadImage}
+                  >Upload Image</button>
+                </div>
+              </div>
+              <div>
+                <h3>Uploaded Images</h3>
+                {
+                  Object.keys(this.state.images).length === 0 ? (
+                    <p>No images uploaded</p>
+                  ) : (
+                    <table className="mx-auto border-2 text-left border-red-900 w-full">
+                      <thead className="bg-red-900 text-white">
+                        <tr>
+                          <th className="p-2 font-semibold">Image</th>
+                          <th className="p-2 font-semibold">Caption</th>
+                          <th className="p-2 font-semibold">Position</th>
+                          <th className="p-2 font-semibold">Remove</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          Object.keys(this.state.images).map((id, i) => {
+                            return (
+                              <tr className="text-center border-b border-gray-400">
+                                <td className="p-2 border-r border-gray-400 flex flex-row justify-center">
+                                  <img
+                                    src={this.state.temporaryImageSrcs[id]}
+                                    alt={this.state.images[id].caption}
+                                    className="h-auto w-48"
+                                  />
+                                </td>
+                                <td className="p-2 border-r border-gray-400">{this.state.images[id].caption}</td>
+                                <td className="p-2 border-r border-gray-400">{this.state.images[id].position}</td>
+                                <td className="p-2 border-r border-gray-400">
+                                  <button
+                                    className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                                    onClick={() => { this.deleteImage(id) }}
+                                  >Remove</button>
+                                </td>
+                              </tr>
+                            )
+                          })
+                        }
+                      </tbody>
+                    </table>
+                  )
+                }
+              </div>
+            </div>
+            <div className="w-full mt-6">
+              <h2 className="font-semibold text-5xl pb-2">Tickets</h2>
               <div className="flex flex-col">
                 <div className="flex flex-row justify-start pb-4">
                   <button
