@@ -128,3 +128,4 @@ dist
 /server/manifestos/*
 /manual/*
 /server/uploads/*
+/server/events/*

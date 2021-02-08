@@ -23,7 +23,7 @@ const membershipsRoute = require("./routes/memberships");
 const electionsRoute = require("./routes/elections");
 const mediaRoute = require("./routes/media");
 const welfareMessagesRoute = require("./routes/welfare_messages");
-welfareMessagesRoute
+const eventsRoute = require("./routes/events");
 // Required to deploy the static React files for production
 const path = require("path");
 const fs = require("fs");
@@ -230,7 +230,8 @@ app.use("/api/gym", isLoggedIn, gymRoute);
 app.use("/api/memberships", isLoggedIn, membershipsRoute);
 app.use("/api/elections", isLoggedIn, electionsRoute);
 app.use("/api/media", isLoggedIn, mediaRoute);
-app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);
+app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);eventsRoute
+app.use("/api/events", isLoggedIn, eventsRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

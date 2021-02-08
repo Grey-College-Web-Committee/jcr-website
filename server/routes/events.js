@@ -1,36 +1,37 @@
 // Get express
 const express = require("express");
+const multer = require("multer");
 const router = express.Router();
 // The database models
 const { User, Permission, PermissionLink, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
+const upload = multer({ dest: "events/" });
 
-// Called at the base path of your route with HTTP method GET
 router.get("/", async (req, res) => {
-  // Returns a 200 status code with a short JSON response
   return res.status(200).json({ success: true });
 });
 
-// Called at the base path of your route with HTTP method POST
-router.post("/", async (req, res) => {
-  // Must put .end() if not using .json() otherwise it will timeout
-  // and you'll get unexpected behaviour. 204 is success but no content
-  return res.status(204).end();
-});
-
-// Called at the /admin of your route with HTTP method GET
-// Requires your specified permission to access
-router.get("/admin", async (req, res) => {
+router.post("/create", upload.array("images"), async (req, res) => {
   const { user } = req.session;
 
-  // Compares their permissions with your internal permission string
   if(!hasPermission(req.session, "events.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  // Returns a 200 status code with a short JSON response
-  return res.status(200).json({ userHadPermission: true });
+  const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, imageData } = JSON.parse(req.body.packaged);
+
+  console.log(req.files);
+  console.log(name);
+  console.log(date);
+  console.log(shortDescription);
+  console.log(description);
+  console.log(maxIndividuals);
+  console.log(bookingCloseTime);
+  console.log(JSON.stringify(ticketTypes, null, 2));
+  console.log(JSON.stringify(imageData, null, 2));
+
+  return res.status(200).json({ success: true });
 });
 
 // Set the module export to router so it can be used in server.js

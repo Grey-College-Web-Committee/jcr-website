@@ -310,17 +310,23 @@ class CreateNewEventPage extends React.Component {
       }
     });
 
+
+
+
     packaged.ticketTypes = ticketTypeData;
     packaged.imageData = imageData;
 
-    const postObject = {
-      packaged, imageFiles
-    };
+    const formData = new FormData();
 
-    return postObject;
+    formData.append("packaged", JSON.stringify(packaged));
+    Object.keys(images).map(id => {
+      formData.append("images", images[id].image);
+    });
+
+    return formData;
   }
 
-  createEvent = () => {
+  createEvent = async () => {
     this.setState({ disabled: true });
     const validated = this.validateSubmission();
 
@@ -330,8 +336,15 @@ class CreateNewEventPage extends React.Component {
       return;
     }
 
-    const submission = this.packageSubmission();
-    console.log(submission);
+    const formData = this.packageSubmission();
+
+    try {
+      await api.post("/events/create", formData, {
+        headers: { "content-type": "multipart/form-data" }
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   render () {
