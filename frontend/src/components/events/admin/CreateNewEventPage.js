@@ -14,17 +14,17 @@ class CreateNewEventPage extends React.Component {
       status: 0,
       error: "",
       name: "",
-      date: null,
+      date: "",
       shortDescription: "",
       description: "",
       maxIndividuals: "",
-      bookingCloseTime: null,
+      bookingCloseTime: "",
       disabled: false,
       ticketTypes: {},
       images: {},
       imageCaption: "",
       imagePosition: "gallery",
-      allowedPositions: [],
+      disabledPositions: [],
       imageUpload: null,
       imageDisabled: false,
       temporaryImageSrcs: {}
@@ -32,7 +32,6 @@ class CreateNewEventPage extends React.Component {
 
     // Change this to your permission
     this.requiredPermission = "events.manage";
-    this.createNewTicketType();
   }
 
   onInputChange = e => {
@@ -68,7 +67,7 @@ class CreateNewEventPage extends React.Component {
 
     // Load any required data for the page here
 
-    this.setState({ loaded: true });
+    this.setState({ loaded: true }, this.createNewTicketType);
   }
 
   createNewTicketType = () => {
@@ -81,10 +80,10 @@ class CreateNewEventPage extends React.Component {
       maxGuests: "",
       memberPrice: "",
       guestPrice: "",
-      firstYearReleaseTime: null,
-      secondYearReleaseTime: null,
-      thirdYearReleaseTime: null,
-      fourthYearReleaseTime: null,
+      firstYearReleaseTime: "",
+      secondYearReleaseTime: "",
+      thirdYearReleaseTime: "",
+      fourthYearReleaseTime: "",
       olderYearsCanOverride: true
     };
 
@@ -145,6 +144,12 @@ class CreateNewEventPage extends React.Component {
       position: this.state.imagePosition
     };
 
+    let { disabledPositions } = this.state;
+
+    if(this.state.imagePosition === "overview" || this.state.imagePosition === "banner") {
+      disabledPositions.push(this.state.imagePosition);
+    }
+
     let temporaryImageSrcs = this.state.temporaryImageSrcs;
     temporaryImageSrcs[nextId] = null;
 
@@ -158,17 +163,175 @@ class CreateNewEventPage extends React.Component {
 
     reader.readAsDataURL(image[0]);
 
-    this.setState({ temporaryImageSrcs, images: newImages, imageDisabled: false, imageUpload: null, imageCaption: "", imagePosition: "gallery" });
+    this.setState({ disabledPositions, temporaryImageSrcs, images: newImages, imageDisabled: false, imageUpload: null, imageCaption: "", imagePosition: "gallery" });
   }
 
   deleteImage = (id) => {
     let newImages = this.state.images;
     let temporaryImageSrcs = this.state.temporaryImageSrcs;
 
+    const { position } = newImages[id];
+    let { disabledPositions } = this.state;
+
+    if(disabledPositions.includes(position)) {
+      disabledPositions = disabledPositions.filter(x => x !== position);
+    }
+
     delete newImages[id];
     delete temporaryImageSrcs[id];
 
-    this.setState({ images: newImages, temporaryImageSrcs });
+    this.setState({ disabledPositions, images: newImages, temporaryImageSrcs });
+  }
+
+  validateSubmission = () => {
+    const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images } = this.state;
+
+    if(name === undefined || name === null || name.length === 0) {
+      return [false, "You must set the event name"];
+    }
+
+    if(date === undefined || date === null || date.length === 0) {
+      return [false, "You must set the event date"];
+    }
+
+    if(shortDescription === undefined || shortDescription === null || shortDescription.length === 0) {
+      return [false, "You must set the event short description"];
+    }
+
+    if(description === undefined || description === null || description.length === 0) {
+      return [false, "You must set the event description"];
+    }
+
+    if(maxIndividuals === undefined || maxIndividuals === null || maxIndividuals.length === 0) {
+      return [false, "You must set the event maximum individuals"];
+    }
+
+    if(bookingCloseTime === undefined || bookingCloseTime === null || bookingCloseTime.length === 0) {
+      return [false, "You must set the event booking close time"];
+    }
+
+    if(ticketTypes === undefined || ticketTypes === null || ticketTypes.length === 0) {
+      return [false, "You must set at least one ticket type"];
+    }
+
+    if(images === undefined || images === null || images.length === 0) {
+      return [false, "You must set at least 1 gallery image, an overview icon and a banner"];
+    }
+
+    // Now validate the ticket types
+
+    const ticketTypeStringProps = [
+      "name",
+      "description",
+      "firstYearReleaseTime",
+      "secondYearReleaseTime",
+      "thirdYearReleaseTime",
+      "fourthYearReleaseTime"
+    ];
+
+    const ticketTypeIntegerProps = [
+      "maxOfType",
+      "maxPeople",
+      "maxGuests",
+      "minPeople"
+    ];
+
+    const ticketTypeFloatProps = [
+      "memberPrice",
+      "guestPrice"
+    ];
+
+    const ticketTypeBooleanProps = [
+      "olderYearsCanOverride"
+    ];
+
+    for(const ticketTypeId in Object.keys(ticketTypes)) {
+      const ticketType = ticketTypes[ticketTypeId];
+      for(const property in ticketType) {
+        if(ticketTypeStringProps.includes(property) || ticketTypeBooleanProps.includes(property)) {
+          if(ticketType[property] === undefined || ticketType[property] === null || ticketType[property].length === 0) {
+            return [false, `Missing ${property} in ticket type ${ticketType["name"]}`];
+          }
+        } else if (ticketTypeIntegerProps.includes(property)) {
+          if(ticketType[property] === undefined || ticketType[property] === null || ticketType[property].length === 0) {
+            return [false, `Missing ${property} in ticket type ${ticketType["name"]}`];
+          }
+
+          const asInt = parseInt(ticketType[property]);
+
+          if(isNaN(asInt)) {
+            return [false, `${property} must be a number`];
+          }
+
+          if(asInt < 0) {
+            return [false, `Missing ${property} must be a non-negative value`];
+          }
+        } else if (ticketTypeFloatProps.includes(property)) {
+          if(ticketType[property] === undefined || ticketType[property] === null || ticketType[property].length === 0) {
+            return [false, `Missing ${property} in ticket type ${ticketType["name"]}`];
+          }
+
+          const asFloat = parseFloat(ticketType[property]);
+
+          if(isNaN(asFloat)) {
+            return [false, `${property} must be a number`];
+          }
+
+          if(asFloat < 0) {
+            return [false, `Missing ${property} must be a non-negative value`];
+          }
+        } else {
+          return [false, `Unknown property ${property}`];
+        }
+      }
+    }
+
+    // Finally validated images
+
+    const types = Object.keys(images).map(id => images[id].position);
+
+    if(!types.includes("overview") || !types.includes("banner") || !types.includes("gallery")) {
+      return [false, "You must set at least 1 gallery image, an overview icon and a banner"];
+    }
+
+    return [true, "Validated"];
+  }
+
+  packageSubmission = () => {
+    const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images } = this.state;
+
+    let packaged = { name, date, shortDescription, description, maxIndividuals, bookingCloseTime };
+    let ticketTypeData = Object.keys(ticketTypes).map(id => ticketTypes[id]);
+    let imageFiles = Object.keys(images).map(id => images[id].image);
+    let imageData = Object.keys(images).map(id => {
+      return {
+        caption: images[id].caption,
+        position: images[id].position
+      }
+    });
+
+    packaged.ticketTypes = ticketTypeData;
+    packaged.imageData = imageData;
+
+    const postObject = {
+      packaged, imageFiles
+    };
+
+    return postObject;
+  }
+
+  createEvent = () => {
+    this.setState({ disabled: true });
+    const validated = this.validateSubmission();
+
+    if(!validated[0]) {
+      alert(validated[1]);
+      this.setState({ disabled: false });
+      return;
+    }
+
+    const submission = this.packageSubmission();
+    console.log(submission);
   }
 
   render () {
@@ -303,13 +466,13 @@ class CreateNewEventPage extends React.Component {
                     value={this.state.imagePosition}
                     disabled={this.state.disabled || this.state.imageDisabled}
                   >
-                    <option value="overview" disabled={this.state.allowedPositions.includes("overview")}>Overview Icon</option>
-                    <option value="banner" disabled={this.state.allowedPositions.includes("banner")}>Banner</option>
+                    <option value="overview" disabled={this.state.disabledPositions.includes("overview")}>Overview Icon</option>
+                    <option value="banner" disabled={this.state.disabledPositions.includes("banner")}>Banner</option>
                     <option value="gallery">Gallery</option>
                   </select>
                 </div>
                 <div className="pb-2 border-b-2">
-                  <label htmlFor="imagePostion" className="flex flex-row justify-start text-xl font-semibold">Image</label>
+                  <label htmlFor="imagePosition" className="flex flex-row justify-start text-xl font-semibold">Image</label>
                   <ImageUploader
                     withIcon={false}
                     buttonText={"Choose Image"}
@@ -429,6 +592,12 @@ class CreateNewEventPage extends React.Component {
                   )
                 }
               </div>
+            </div>
+            <div className="w-full">
+              <button
+                onClick={this.createEvent}
+                className="px-4 py-1 text-2xl rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              >Create Event</button>
             </div>
           </div>
         </div>
