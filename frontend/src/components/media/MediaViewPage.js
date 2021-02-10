@@ -2,7 +2,6 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
 
 class MediaPage extends React.Component {
@@ -69,13 +68,12 @@ class MediaPage extends React.Component {
   }
 
   getiFrameFromPartialUrl(partialUrl){
-    return (<iframe className="rounded-lg w-full h-32" align="center" scrolling="no" frameBorder="no" allow="autoplay" title='podcast' src={'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/'+partialUrl+'&color=%23990000&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true'}></iframe>)
+    return (<iframe className="rounded-lg w-full h-32" align="center" scrolling="no" frameBorder="no" title='podcast' src={'https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/'+partialUrl+'&color=%23990000&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true'}></iframe>)
   }
 
   getVideoiFrameFromPartialUrl(partialUrl){
-    return(<iframe src={'https://www.youtube.com/embed/'+partialUrl} className="sm:w-96 sm:h-52 w-64 h-32" frameBorder='no' allow='autoplay; encrypted-media' allowFullScreen title='video'/>)
+    return(<iframe src={'https://www.youtube.com/embed/'+partialUrl} className="sm:w-96 sm:h-52 w-64 h-32" frameBorder='no' allowFullScreen title='video'/>)
   }
-  //https://www.youtube.com/watch?v=mYUcJ0goABM
 
   getLatestJCRPodcast(){
     let latestPodcastID = null;
@@ -97,7 +95,16 @@ class MediaPage extends React.Component {
         </div>
       );
     }
-    else { return <></> }
+    else { 
+      return ( 
+        <div className="xl:w-8/12 w-11/12 md:rounded-r-full rounded-r-lg bg-red-900 bg-opacity-90 my-3 py-3 px-5 flex float-left text-left justify-start">
+          <div className="text-left w-11/12 float-left">
+            <h2 className="self-center font-semibold text-3xl py-3 text-white">JCR Podcast - Coming Soon!</h2>
+            <p className="self-center w-auto font-light pb-3 pt-1 text-white flex-shrink">At least, I hope it's coming soon as that's the only reason I created this page...</p>
+          </div>
+        </div>
+      );
+    }
   }
 
   getLatestGMPodcast(){
@@ -120,7 +127,16 @@ class MediaPage extends React.Component {
         </div>
       );
     }
-    else { return <></> }
+    else { 
+      return ( 
+        <div className="xl:w-8/12 w-11/12 md:rounded-l-full rounded-l-lg bg-gray-400 my-3 py-3 px-5 flex float-right text-right justify-end">
+          <div className="text-right w-11/12 float-right">
+            <h2 className="font-semibold text-3xl py-3 text-gray-900">Grey Matter Podcast - Coming Soon!</h2>
+            <p className="w-auto font-light pb-3 pt-1 text-gray-900 flex-shrink">Keep your eyes peeled and your ears ready to be blessed by the sweet sound of satirical sarcasm. </p>
+          </div>
+        </div>
+      );
+    }
   }
 
   getLatestVideo(){
@@ -193,20 +209,22 @@ class MediaPage extends React.Component {
   getMediaList(){
     return(
       <div>
-        <div className="flex flex-col items-center w-full">
+        <div className="flex flex-col justify-center text-center items-center w-full">
           <h2 className="font-semibold text-4xl pt-3">All Media</h2>
-          <p className="pb-4 font-light text-l">"More media", you say? Click an item from the list below:</p>
-          {this.state.media.map((media, i) => (
-            <button
-              onClick={() => this.selectItem(i)}
-              className="md:w-8/12 w-11/12 mb-3 px-1 py-1 rounded-lg hover:bg-red-900 hover:text-white"
-            >
-              <div className="p-2 border-b border-red-900 flex flex-row justify-evenly items-center">
-                <h2 className="w-80 font-semibold text-3xl">{media.mediaTitle}</h2>
-                <p className="w-48 font-light text-xl">{media.mediaCategory}</p>
-              </div>
-            </button>
-          ))}
+          <p className="pb-4 font-light text-l">And there's more! Why not click an item below to enjoy more from our media selection?</p>
+          <div className="w-full flex flex-row flex-wrap justify-center items-end">
+            {this.state.media.map((media, i) => (
+              <button
+                onClick={() => this.selectItem(i)}
+                className="md:w-4/12 w-11/12 h-full flex-auto mb-3 px-1 pb-1 pt-auto rounded-lg hover:bg-red-900 hover:text-white"
+              >
+                <div className="p-2 pt-auto border-b border-red-900 flex flex-col justify-evenly items-center">
+                  <h2 className="w-auto font-semibold text-3xl">{media.mediaTitle}</h2>
+                  <p className="w-auto font-light text-xl">{media.mediaCategory}</p>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -242,7 +260,7 @@ class MediaPage extends React.Component {
           {this.state.media.length > 0 ? this.getLatestVideo() : <></>}
         </div>
         <div className="text-center flex flex-col justify-center items-center w-full px-4">
-          {this.state.media.length > 0 ? this.getMediaList() : <p>No Media</p>}
+          {this.state.media.length > 0 ? this.getMediaList() : <p>No Media to Show Yet!</p>}
           {this.showSelectedItem()}
         </div>
       </div>
@@ -252,4 +270,3 @@ class MediaPage extends React.Component {
 
 MediaPage.contextType = authContext;
 export default MediaPage;
-//{this.getiFrameFromPartialUrl(this.state.media[0].link)}
