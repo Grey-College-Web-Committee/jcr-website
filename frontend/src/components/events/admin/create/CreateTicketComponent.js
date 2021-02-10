@@ -6,6 +6,7 @@ class CreateTicketComponent extends React.Component {
   constructor(props) {
     super(props);
 
+    // Default ticket properties
     this.state = {
       name: "",
       description: "",
@@ -26,6 +27,8 @@ class CreateTicketComponent extends React.Component {
   }
 
   onInputChange = e => {
+    // Standard input updater
+    // But we also pass up to the parent everytime
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, () => {
       const { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData } = this.state;
 
@@ -34,6 +37,7 @@ class CreateTicketComponent extends React.Component {
   }
 
   passUpCustomData = (id, data) => {
+    // Update the field and then update the parent as usual
     let { customData } = this.state;
     customData[id] = data;
     this.setState({ customData }, () => {
@@ -44,6 +48,7 @@ class CreateTicketComponent extends React.Component {
   }
 
   addCustomDataRow = () => {
+    // Creates a new custom data row and updates the parent
     let { customData } = this.state;
     const nextId = Object.keys(this.state.customData).length === 0 ? 0 : Math.max(...Object.keys(this.state.customData)) + 1;
     customData[nextId] = {
@@ -60,6 +65,7 @@ class CreateTicketComponent extends React.Component {
   }
 
   deleteCustomDataRow = (id) => {
+    // Removes a custom data row and updates the parent
     let { customData } = this.state;
     delete customData[id];
     this.setState({ customData }, () => {
@@ -254,7 +260,6 @@ class CreateTicketComponent extends React.Component {
                       onClick={() => this.deleteCustomDataRow(id)}
                     >Remove Field</button>
                     <CreateTicketCustomRow
-                      key={id}
                       id={id}
                       passUp={this.passUpCustomData}
                       data={this.state.customData[id]}
@@ -269,5 +274,11 @@ class CreateTicketComponent extends React.Component {
     )
   }
 }
+
+CreateTicketComponent.propTypes = {
+  id: PropTypes.string.isRequired,
+  passUp: PropTypes.func.isRequired
+};
+
 
 export default CreateTicketComponent;

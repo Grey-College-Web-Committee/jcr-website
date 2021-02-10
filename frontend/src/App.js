@@ -54,7 +54,7 @@ import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAd
 import MediaPage from './components/media/MediaViewPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
 
-import CreateNewEventPage from './components/events/admin/CreateNewEventPage';
+import CreateNewEventPage from './components/events/admin/create/CreateNewEventPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 

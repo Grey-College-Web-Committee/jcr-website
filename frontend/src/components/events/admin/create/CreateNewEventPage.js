@@ -1,7 +1,7 @@
 import React from 'react';
 import { Redirect } from 'react-router-dom';
-import api from '../../../utils/axiosConfig';
-import LoadingHolder from '../../common/LoadingHolder';
+import api from '../../../../utils/axiosConfig';
+import LoadingHolder from '../../../common/LoadingHolder';
 import CreateTicketComponent from './CreateTicketComponent';
 import ImageUploader from 'react-images-upload';
 
@@ -27,7 +27,8 @@ class CreateNewEventPage extends React.Component {
       disabledPositions: [],
       imageUpload: null,
       imageDisabled: false,
-      temporaryImageSrcs: {}
+      temporaryImageSrcs: {},
+      success: false
     };
 
     // Change this to your permission
@@ -71,6 +72,7 @@ class CreateNewEventPage extends React.Component {
   }
 
   createNewTicketType = () => {
+    // Blank data for a new ticket type
     const ticket = {
       name: "",
       description: "",
@@ -88,7 +90,9 @@ class CreateNewEventPage extends React.Component {
       customData: {}
     };
 
+    // Get the next key, either 0 or one greater than the maximum
     const nextId = Object.keys(this.state.ticketTypes).length === 0 ? 0 : Math.max(...Object.keys(this.state.ticketTypes)) + 1;
+    // Assign a blank ticket type and save to the state
     let newTickets = this.state.ticketTypes;
     newTickets[nextId] = ticket;
 
@@ -96,24 +100,28 @@ class CreateNewEventPage extends React.Component {
   }
 
   updateTicketType = (id, data) => {
+    // Updates the data from a ticket type
     let newTickets = this.state.ticketTypes;
     newTickets[id] = data;
     this.setState({ ticketTypes: newTickets });
   }
 
   deleteTicketType = (id) => {
+    // Remove a ticket type
     let newTickets = this.state.ticketTypes;
     delete newTickets[id];
     this.setState({ ticketTypes: newTickets });
   }
 
   onImageDrop = (image) => {
+    // Set the current image when they select one
     this.setState({ imageUpload: image });
   }
 
   uploadImage = () => {
     this.setState({ imageDisabled: true });
 
+    // Process the image data and check it is as expected
     const { imageCaption, imagePosition } = this.state;
 
     if(imageCaption === undefined || imageCaption === null || imageCaption.length === 0) {
@@ -128,6 +136,7 @@ class CreateNewEventPage extends React.Component {
       return;
     }
 
+    // Checks the image was actually uploaded
     const image = this.state.imageUpload;
 
     if(image === undefined || image === null || image.length === 0) {
@@ -136,8 +145,10 @@ class CreateNewEventPage extends React.Component {
       return;
     }
 
+    // Get the next idea, either 0 or max + 1
     const nextId = Object.keys(this.state.images).length === 0 ? 0 : Math.max(...Object.keys(this.state.images)) + 1;
 
+    // Store the image and its related data
     let newImages = this.state.images;
     newImages[nextId] = {
       image: image[0],
@@ -145,39 +156,50 @@ class CreateNewEventPage extends React.Component {
       position: this.state.imagePosition
     };
 
+    // We only allow one overview and one banner image
     let { disabledPositions } = this.state;
 
     if(this.state.imagePosition === "overview" || this.state.imagePosition === "banner") {
       disabledPositions.push(this.state.imagePosition);
     }
 
+    // This is used to preview the image that was uploaded
     let temporaryImageSrcs = this.state.temporaryImageSrcs;
     temporaryImageSrcs[nextId] = null;
 
+    // Use FileReader to generate the base64 data source
     const reader = new FileReader();
 
+    // Problem is it is async and we don't want to wait for it load before rendering the page
+    // So we just re-render once it is ready
     reader.onloadend = () => {
       let temporaryImageSrcs = this.state.temporaryImageSrcs;
       temporaryImageSrcs[nextId] = [reader.result];
       this.setState({ temporaryImageSrcs });
     }
 
+    // Read the image
     reader.readAsDataURL(image[0]);
 
+    // Reset the image upload form
     this.setState({ disabledPositions, temporaryImageSrcs, images: newImages, imageDisabled: false, imageUpload: null, imageCaption: "", imagePosition: "gallery" });
   }
 
   deleteImage = (id) => {
+    // Deletes an already locally-uploaded image
     let newImages = this.state.images;
     let temporaryImageSrcs = this.state.temporaryImageSrcs;
 
+    // We also have to re-enable uploading if it was for the overview icon or banner
     const { position } = newImages[id];
     let { disabledPositions } = this.state;
 
+    // Filter it out of the disabled positions
     if(disabledPositions.includes(position)) {
       disabledPositions = disabledPositions.filter(x => x !== position);
     }
 
+    // Remove the image, image data and base64 representation
     delete newImages[id];
     delete temporaryImageSrcs[id];
 
@@ -185,8 +207,10 @@ class CreateNewEventPage extends React.Component {
   }
 
   validateSubmission = () => {
+    // Pretty basic but lots of checks to be done
     const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images } = this.state;
 
+    // Verify that each field has at least 1 item
     if(name === undefined || name === null || name.length === 0) {
       return [false, "You must set the event name"];
     }
@@ -246,9 +270,12 @@ class CreateNewEventPage extends React.Component {
       "olderYearsCanOverride"
     ];
 
+    // Loop over each ticket type
     for(const ticketTypeId in Object.keys(ticketTypes)) {
       const ticketType = ticketTypes[ticketTypeId];
+      // Then over each property of each
       for(const property in ticketType) {
+        // Perform checks depending on the expected data type
         if(ticketTypeStringProps.includes(property) || ticketTypeBooleanProps.includes(property)) {
           if(ticketType[property] === undefined || ticketType[property] === null || ticketType[property].length === 0) {
             return [false, `Missing ${property} in ticket type ${ticketType["name"]}`];
@@ -282,15 +309,19 @@ class CreateNewEventPage extends React.Component {
             return [false, `Missing ${property} must be a non-negative value`];
           }
         } else if (property === "customData") {
+          // Have to do quite a bit of checking of the custom data too
           const customData = ticketType[property];
 
+          // If there isn't any custom data just skip it
           if(Object.keys(customData).length === 0) {
             continue;
           }
 
+          // Loop each custom field
           for(const customFieldId in Object.keys(customData)) {
             const customField = customData[customFieldId];
 
+            // Check the name and type are set
             if(customField.name.length === 0) {
               return [false, `Custom field name missing in ${ticketType.name}`];
             }
@@ -299,17 +330,22 @@ class CreateNewEventPage extends React.Component {
               return [false, `Custom field type missing in ${ticketType.name}`];
             }
 
+            // Check if there are any dropdown values
             if(Object.keys(customField.dropdownValues).length === 0) {
+              // If there aren't and we are expecting some then it's an issue
               if(customField.type === "dropdown") {
                 return [false, `Custom dropdown ${customField.name} in ${ticketType.name} is empty`];
               }
 
+              // Not expecting any so continue
               continue;
             }
 
+            // Loop over each value in the dropdown
             for(const customDropdownRowId in Object.keys(customField.dropdownValues)) {
               const customDropdownRow = customField.dropdownValues[customDropdownRowId];
 
+              // Just check that each one has a value
               if(customDropdownRow.value.length === 0) {
                 return [false, `Custom dropdown value is empty in ticket type ${ticketType.name}, custom field ${customField.name}`];
               }
@@ -322,22 +358,26 @@ class CreateNewEventPage extends React.Component {
     }
 
     // Validate images
-
     const types = Object.keys(images).map(id => images[id].position);
 
+    // Require at least one of each type
     if(!types.includes("overview") || !types.includes("banner") || !types.includes("gallery")) {
       return [false, "You must set at least 1 gallery image, an overview icon and a banner"];
     }
 
+    // All good
     return [true, "Validated"];
   }
 
   packageSubmission = () => {
+    // Package into a FormData object so we can submit it and use multer
     const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images } = this.state;
 
     let packaged = { name, date, shortDescription, description, maxIndividuals, bookingCloseTime };
+    // Map the object to an array instead
     let ticketTypeData = Object.keys(ticketTypes).map(id => ticketTypes[id]);
-    let imageFiles = Object.keys(images).map(id => images[id].image);
+
+    // Separate out the data from the images
     let imageData = Object.keys(images).map(id => {
       return {
         caption: images[id].caption,
@@ -351,7 +391,8 @@ class CreateNewEventPage extends React.Component {
     const formData = new FormData();
     formData.append("packaged", JSON.stringify(packaged));
 
-    Object.keys(images).map(id => {
+    // Put the images in, multer expects them all in one field
+    Object.keys(images).forEach(id => {
       formData.append("images", images[id].image);
     });
 
@@ -359,9 +400,11 @@ class CreateNewEventPage extends React.Component {
   }
 
   createEvent = async () => {
+    // Called when we want to submit it to the server
     this.setState({ disabled: true });
     const validated = this.validateSubmission();
 
+    // Validation failed
     if(!validated[0]) {
       alert(validated[1]);
       this.setState({ disabled: false });
@@ -370,13 +413,20 @@ class CreateNewEventPage extends React.Component {
 
     const formData = this.packageSubmission();
 
+    // Send it to the server, set the content type so multer will intercept
     try {
       await api.post("/events/create", formData, {
         headers: { "content-type": "multipart/form-data" }
       });
     } catch (error) {
-      console.log(error);
+      // TODO: Handle the errors
+      alert(error.response.data.error);
+      this.setState({ disabled: false });
+      return;
     }
+
+    // All done so show the success message
+    this.setState({ success: true });
   }
 
   render () {
@@ -389,6 +439,17 @@ class CreateNewEventPage extends React.Component {
 
       return (
         <LoadingHolder />
+      );
+    }
+
+    if(this.state.success) {
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-4">Event Created</h1>
+            <p>Your event has been created. It can now be viewed and edited from the admin overview.</p>
+          </div>
+        </div>
       );
     }
 
@@ -603,10 +664,7 @@ class CreateNewEventPage extends React.Component {
                       <p className="font-semibold text-xl">No ticket types added.</p>
                     </div>
                   ) : (
-                    Object.keys(this.state.ticketTypes).map((id) => {
-                      const ticketType = this.state.ticketTypes[id];
-
-                      return (
+                    Object.keys(this.state.ticketTypes).map((id) => (
                         <div className="flex flex-col border-2 border-black" key={id}>
                           <CreateTicketComponent
                             id={id}
@@ -622,7 +680,7 @@ class CreateNewEventPage extends React.Component {
                           </div>
                         </div>
                       )
-                    })
+                    )
                   )
                 }
                 {

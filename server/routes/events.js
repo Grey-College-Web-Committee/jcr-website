@@ -15,12 +15,18 @@ router.get("/", async (req, res) => {
 router.post("/create", upload.array("images"), async (req, res) => {
   const { user } = req.session;
 
+  // Must be an admin to create events
   if(!hasPermission(req.session, "events.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
+  // TODO: Should check that these properties actually exist
+  // Get the data and images from multer
   const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, imageData } = JSON.parse(req.body.packaged);
   const images = req.files;
+
+  // This is all very similar to the validateSubmission on the frontend
+  // Check the values are defined
 
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
@@ -88,6 +94,8 @@ router.post("/create", upload.array("images"), async (req, res) => {
   const ticketTypeBooleanProps = [
     "olderYearsCanOverride"
   ];
+
+  // For all of this, refer to the validateSubmission() in /frontend/src/components/events/admin/create/CreateNewEventPage.js
 
   for(const ticketTypeId in Object.keys(ticketTypes)) {
     const ticketType = ticketTypes[ticketTypeId];
@@ -184,7 +192,6 @@ router.post("/create", upload.array("images"), async (req, res) => {
   }
 
   // Now add the images
-
   for(let i = 0; i < imageData.length; i++) {
     const imageFileData = images[i];
     const { caption, position } = imageData[i];
@@ -202,11 +209,12 @@ router.post("/create", upload.array("images"), async (req, res) => {
   }
 
   // Now add the event ticket types
-
   for(let i = 0; i < ticketTypes.length; i++) {
+    // Stringify the JSON object and remove from the ticketType so we can use the spread operator
     const customData = JSON.stringify(ticketTypes[i].customData);
     delete ticketTypes[i].customData;
 
+    // Create the record
     try {
       await EventTicketType.create({
         eventId: eventRecord.id,
@@ -218,7 +226,8 @@ router.post("/create", upload.array("images"), async (req, res) => {
     }
   }
 
-  return res.status(200).json({ success: true });
+  // All done
+  return res.status(200).json({ id: eventRecord.id });
 });
 
 // Set the module export to router so it can be used in server.js

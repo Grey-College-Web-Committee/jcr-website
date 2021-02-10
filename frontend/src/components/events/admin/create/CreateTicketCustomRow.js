@@ -5,6 +5,7 @@ class CreateTicketCustomRow extends React.Component {
   constructor(props) {
     super(props);
 
+    // Default comes from the parent as sometimes we refresh
     this.state = {
       name: this.props.data.name,
       required: this.props.data.required,
@@ -14,6 +15,7 @@ class CreateTicketCustomRow extends React.Component {
   }
 
   onInputChange = e => {
+    // Standard input updater, pass up to parent
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, () => {
       const { name, required, type, dropdownValues } = this.state;
       this.props.passUp(this.props.id, { name, required, type, dropdownValues });
@@ -21,6 +23,8 @@ class CreateTicketCustomRow extends React.Component {
   }
 
   onDropdownValueChange = e => {
+    // Update the individual dropdown value based on attributes
+    // Also pass up to the parent
     const key = e.target.getAttribute("data-key");
     let { dropdownValues } = this.state;
 
@@ -33,23 +37,29 @@ class CreateTicketCustomRow extends React.Component {
   }
 
   onDropdownDefaultChange = e => {
+    // Only 1 value can be the default
     const key = e.target.getAttribute("data-key");
     let { dropdownValues } = this.state;
 
+    // If it was the only field, refuse to make the change
     if(Object.keys(dropdownValues).length === 1) {
       return;
     }
 
+    // Can't remove the default, only assign it to another one
     if(dropdownValues[key].is_default) {
       return;
     }
 
+    // Set all the others to non-defaults
     Object.keys(dropdownValues).forEach(id => {
       dropdownValues[id].is_default = false;
     });
 
+    // Set this element to the default
     dropdownValues[`${key}`].is_default = e.target.checked;
 
+    // Save the changes and update the parent
     this.setState({ dropdownValues }, () => {
       const { name, required, type, dropdownValues } = this.state;
       this.props.passUp(this.props.id, { name, required, type, dropdownValues });
@@ -57,14 +67,17 @@ class CreateTicketCustomRow extends React.Component {
   }
 
   addDropdownValue = () => {
+    // Create a new dropdown value
     const nextId = Object.keys(this.state.dropdownValues).length === 0 ? 0 : Math.max(...Object.keys(this.state.dropdownValues)) + 1;
     let { dropdownValues } = this.state;
 
+    // Default values for the dropdown
     dropdownValues[`${nextId}`] = {
       value: "",
       is_default: Object.keys(this.state.dropdownValues).length === 0
     };
 
+    // Update and pass up to the parent
     this.setState({ dropdownValues }, () => {
       const { name, required, type, dropdownValues } = this.state;
       this.props.passUp(this.props.id, { name, required, type, dropdownValues });
@@ -72,14 +85,19 @@ class CreateTicketCustomRow extends React.Component {
   }
 
   removeDropdownValue = (id) => {
+    // Deletes a value from the dropdown
     let { dropdownValues } = this.state;
+    // We also need to check if it was the default so we can pass it to another
     const wasDefault = dropdownValues[id].is_default;
     delete dropdownValues[id];
 
+    // If it was the default and there are still values left
     if(wasDefault && Object.keys(dropdownValues).length !== 0) {
+      // Set the first one to be the default
       dropdownValues[Object.keys(dropdownValues)[0]].is_default = true;
     }
 
+    // Update and pass up to the parent
     this.setState({ dropdownValues }, () => {
       const { name, required, type, dropdownValues } = this.state;
       this.props.passUp(this.props.id, { name, required, type, dropdownValues });
@@ -191,6 +209,12 @@ class CreateTicketCustomRow extends React.Component {
       </div>
     )
   }
+}
+
+CreateTicketCustomRow.propTypes = {
+  id: PropTypes.string.isRequired,
+  passUp: PropTypes.func.isRequired,
+  data: PropTypes.object.isRequired
 }
 
 export default CreateTicketCustomRow;
