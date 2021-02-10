@@ -22,16 +22,6 @@ router.post("/create", upload.array("images"), async (req, res) => {
   const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, imageData } = JSON.parse(req.body.packaged);
   const images = req.files;
 
-  console.log(images);
-  console.log(name);
-  console.log(date);
-  console.log(shortDescription);
-  console.log(description);
-  console.log(maxIndividuals);
-  console.log(bookingCloseTime);
-  console.log(JSON.stringify(ticketTypes, null, 2));
-  console.log(JSON.stringify(imageData, null, 2));
-
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
   }
@@ -134,6 +124,40 @@ router.post("/create", upload.array("images"), async (req, res) => {
         if(asFloat < 0) {
           return res.status(400).json({ error: `Missing ${property} must be a non-negative value` });
         }
+      } else if (property === "customData") {
+        const customData = ticketType[property];
+
+        if(Object.keys(customData).length === 0) {
+          continue;
+        }
+
+        for(const customFieldId in Object.keys(customData)) {
+          const customField = customData[customFieldId];
+
+          if(customField.name.length === 0) {
+            return res.status(400).json({ error: `Custom field name missing in ${ticketType.name}` });
+          }
+
+          if(customField.type.length === 0) {
+            return res.status(400).json({ error: `Custom field type missing in ${ticketType.name}` });
+          }
+
+          if(Object.keys(customField.dropdownValues).length === 0) {
+            if(customField.type === "dropdown") {
+              return res.status(400).json({ error: `Custom dropdown ${customField.name} in ${ticketType.name} is empty` });
+            }
+
+            continue;
+          }
+
+          for(const customDropdownRowId in Object.keys(customField.dropdownValues)) {
+            const customDropdownRow = customField.dropdownValues[customDropdownRowId];
+
+            if(customDropdownRow.value.length === 0) {
+              return res.status(400).json({ error: `Custom dropdown value is empty in ticket type ${ticketType.name}, custom field ${customField.name}` });
+            }
+          }
+        }
       } else {
         return res.status(400).json({ error: `Unknown property ${property}` });
       }
@@ -180,13 +204,16 @@ router.post("/create", upload.array("images"), async (req, res) => {
   // Now add the event ticket types
 
   for(let i = 0; i < ticketTypes.length; i++) {
+    const customData = JSON.stringify(ticketTypes[i].customData);
+    delete ticketTypes[i].customData;
+
     try {
       await EventTicketType.create({
         eventId: eventRecord.id,
-        ...ticketTypes[i]
+        ...ticketTypes[i],
+        requiredInformationForm: customData
       });
     } catch (error) {
-      console.log(error);
       return res.status(500).json({ error: `Unable to create event ticket type with name ${ticketTypes[i].name}`})
     }
   }

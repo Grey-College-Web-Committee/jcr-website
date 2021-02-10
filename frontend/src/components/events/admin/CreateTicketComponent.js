@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import CreateTicketCustomRow from './CreateTicketCustomRow';
 
 class CreateTicketComponent extends React.Component {
   constructor(props) {
@@ -20,14 +21,51 @@ class CreateTicketComponent extends React.Component {
       fourthYearReleaseTime: "",
       olderYearsCanOverride: true,
       disabled: false,
+      customData: {}
     };
   }
 
   onInputChange = e => {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, () => {
-      const { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride } = this.state;
+      const { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData } = this.state;
 
-      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride });
+      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData });
+    });
+  }
+
+  passUpCustomData = (id, data) => {
+    let { customData } = this.state;
+    customData[id] = data;
+    this.setState({ customData }, () => {
+      const { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData } = this.state;
+
+      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData });
+    });
+  }
+
+  addCustomDataRow = () => {
+    let { customData } = this.state;
+    const nextId = Object.keys(this.state.customData).length === 0 ? 0 : Math.max(...Object.keys(this.state.customData)) + 1;
+    customData[nextId] = {
+      name: "",
+      required: true,
+      type: "dropdown",
+      dropdownValues: {}
+    };
+    this.setState({ customData }, () => {
+      const { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData } = this.state;
+
+      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData });
+    });
+  }
+
+  deleteCustomDataRow = (id) => {
+    let { customData } = this.state;
+    delete customData[id];
+    this.setState({ customData }, () => {
+      const { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData } = this.state;
+
+      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData });
     });
   }
 
@@ -197,6 +235,34 @@ class CreateTicketComponent extends React.Component {
               onChange={this.onInputChange}
               autoComplete=""
             />
+          </div>
+          <div className="pt-2 pb-2 border-b-2">
+            <span htmlFor="olderYearsCanOverride" className="flex flex-row justify-start text-xl font-semibold">Custom Data</span>
+            <span className="flex flex-row justify-start text-sm pb-2">This will create a form (per individual in the group) where they can submit additional information (e.g. dietary requirements)</span>
+            <div className="flex flex-row justify-start">
+              <button
+                className="px-4 py-1 rounded bg-green-900 text-white w-48 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                onClick={this.addCustomDataRow}
+              >Add Custom Field</button>
+            </div>
+            <div>
+              {
+                Object.keys(this.state.customData).map(id => (
+                  <div className="flex flex-col border-2 border-black p-2 mt-2" key={id}>
+                    <button
+                      className="px-4 py-1 rounded bg-red-900 text-white w-48 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                      onClick={() => this.deleteCustomDataRow(id)}
+                    >Remove Field</button>
+                    <CreateTicketCustomRow
+                      key={id}
+                      id={id}
+                      passUp={this.passUpCustomData}
+                      data={this.state.customData[id]}
+                    />
+                  </div>
+                ))
+              }
+            </div>
           </div>
         </fieldset>
       </div>

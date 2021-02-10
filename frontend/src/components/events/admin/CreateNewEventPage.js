@@ -13,12 +13,12 @@ class CreateNewEventPage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      name: "",
-      date: "",
-      shortDescription: "",
-      description: "",
-      maxIndividuals: "",
-      bookingCloseTime: "",
+      name: "Test Event",
+      date: "2021-02-23T20:00",
+      shortDescription: "This is the short description",
+      description: "Long description goes here",
+      maxIndividuals: "30",
+      bookingCloseTime: "2021-02-20T20:00",
       disabled: false,
       ticketTypes: {},
       images: {},
@@ -84,7 +84,8 @@ class CreateNewEventPage extends React.Component {
       secondYearReleaseTime: "",
       thirdYearReleaseTime: "",
       fourthYearReleaseTime: "",
-      olderYearsCanOverride: true
+      olderYearsCanOverride: true,
+      customData: {}
     };
 
     const nextId = Object.keys(this.state.ticketTypes).length === 0 ? 0 : Math.max(...Object.keys(this.state.ticketTypes)) + 1;
@@ -280,13 +281,47 @@ class CreateNewEventPage extends React.Component {
           if(asFloat < 0) {
             return [false, `Missing ${property} must be a non-negative value`];
           }
+        } else if (property === "customData") {
+          const customData = ticketType[property];
+
+          if(Object.keys(customData).length === 0) {
+            continue;
+          }
+
+          for(const customFieldId in Object.keys(customData)) {
+            const customField = customData[customFieldId];
+
+            if(customField.name.length === 0) {
+              return [false, `Custom field name missing in ${ticketType.name}`];
+            }
+
+            if(customField.type.length === 0) {
+              return [false, `Custom field type missing in ${ticketType.name}`];
+            }
+
+            if(Object.keys(customField.dropdownValues).length === 0) {
+              if(customField.type === "dropdown") {
+                return [false, `Custom dropdown ${customField.name} in ${ticketType.name} is empty`];
+              }
+
+              continue;
+            }
+
+            for(const customDropdownRowId in Object.keys(customField.dropdownValues)) {
+              const customDropdownRow = customField.dropdownValues[customDropdownRowId];
+
+              if(customDropdownRow.value.length === 0) {
+                return [false, `Custom dropdown value is empty in ticket type ${ticketType.name}, custom field ${customField.name}`];
+              }
+            }
+          }
         } else {
           return [false, `Unknown property ${property}`];
         }
       }
     }
 
-    // Finally validated images
+    // Validate images
 
     const types = Object.keys(images).map(id => images[id].position);
 
@@ -310,15 +345,12 @@ class CreateNewEventPage extends React.Component {
       }
     });
 
-
-
-
     packaged.ticketTypes = ticketTypeData;
     packaged.imageData = imageData;
 
     const formData = new FormData();
-
     formData.append("packaged", JSON.stringify(packaged));
+
     Object.keys(images).map(id => {
       formData.append("images", images[id].image);
     });
@@ -529,7 +561,7 @@ class CreateNewEventPage extends React.Component {
                         {
                           Object.keys(this.state.images).map((id, i) => {
                             return (
-                              <tr className="text-center border-b border-gray-400">
+                              <tr className="text-center border-b border-gray-400" key={id}>
                                 <td className="p-2 border-r border-gray-400 flex flex-row justify-center">
                                   <img
                                     src={this.state.temporaryImageSrcs[id]}
