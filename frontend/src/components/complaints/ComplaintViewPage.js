@@ -8,6 +8,7 @@ class ComplaintViewPage extends React.Component {
   constructor(props) {
     super(props);
 
+    // Gets the id from the URL bar
     this.state = {
       loaded: false,
       status: 0,
@@ -53,6 +54,7 @@ class ComplaintViewPage extends React.Component {
     // Load any required data for the page here
     let contents;
 
+    // Gets the details of the complaint
     try {
       contents = await api.get(`/complaints/single/${this.state.id}`);
     } catch (error) {

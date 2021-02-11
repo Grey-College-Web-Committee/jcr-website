@@ -256,6 +256,7 @@ app.get("/uploads/images/toastie_bar/:image", function(req, res) {
   res.sendFile(path.join(__dirname, `./uploads/images/toastie_bar/${image}`));
 });
 
+// Make sure they have permission before they view the signature
 app.get("/uploads/complaints/signatures/:image", isLoggedIn, function(req, res) {
   const { user } = req.session;
 

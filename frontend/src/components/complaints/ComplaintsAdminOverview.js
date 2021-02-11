@@ -52,6 +52,7 @@ class ComplaintsAdminOverview extends React.Component {
     // Load any required data for the page here
     let contents;
 
+    // Loads the complaints
     try {
       contents = await api.get("/complaints");
     } catch (error) {
@@ -61,6 +62,7 @@ class ComplaintsAdminOverview extends React.Component {
 
     let { complaints } = contents.data;
 
+    // Sorts them so the newest is at the top
     complaints = complaints.sort((a, b) => {
       const aDate = new Date(a.createdAt);
       const bDate = new Date(b.createdAt);

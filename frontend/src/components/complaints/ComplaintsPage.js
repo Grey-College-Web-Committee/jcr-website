@@ -10,6 +10,7 @@ class ComplaintsPage extends React.Component {
   constructor(props) {
     super(props);
 
+    // Default values for the complaints form
     this.state = {
       isMember: true,
       loaded: false,
@@ -26,10 +27,12 @@ class ComplaintsPage extends React.Component {
       disabled: false
     };
 
+    // Ref for the signature pad
     this.sigPad = {};
   }
 
   onInputChange = e => {
+    // Standard input change
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
@@ -59,6 +62,7 @@ class ComplaintsPage extends React.Component {
   }
 
   canSubmit = () => {
+    // Validates the submission
     const { name, complainingAbout, subject, reason, truth, date } = this.state;
     return (
       (name !== undefined && name !== null && name.length !== 0) &&
@@ -76,6 +80,7 @@ class ComplaintsPage extends React.Component {
       return;
     }
 
+    // Makes sure it has been signed
     if(this.sigPad.isEmpty()) {
       alert("You must sign the complaint.");
       return;
@@ -83,9 +88,11 @@ class ComplaintsPage extends React.Component {
 
     this.setState({ disabled: true });
 
+    // Convert the signature to a string to be transmitted to the server
     const signature = this.sigPad.toDataURL();
     const { name, complainingAbout, subject, reason } = this.state;
 
+    // Send it all to the server
     try {
       await api.post("/complaints", {
         name, complainingAbout, subject, reason, signature
@@ -95,6 +102,7 @@ class ComplaintsPage extends React.Component {
       return;
     }
 
+    // We'll change the content once it has been successfully sent
     this.setState({ success: true });
   }
 
