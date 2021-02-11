@@ -6,7 +6,7 @@ const router = express.Router();
 const { User, Permission, PermissionLink, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
-const upload = multer({ dest: "events/" });
+const upload = multer({ dest: "uploads/images/events/" });
 
 router.get("/", async (req, res) => {
   return res.status(200).json({ success: true });
