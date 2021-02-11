@@ -138,6 +138,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Events",
+          url: "/events",
+          requiredPermission: "jcr.member",
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
           displayName: `${user.username}`,
           url: null,
           requiredPermission: null,

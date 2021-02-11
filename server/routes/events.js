@@ -9,7 +9,43 @@ const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/events/" });
 
 router.get("/", async (req, res) => {
-  return res.status(200).json({ success: true });
+  // Loads the 10 most recent events
+  const { user } = req.session;
+
+  // Must be an admin to create events
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let records;
+
+  // List the 10 most recent events
+  // Exclude the long description
+  // Include only the overview icon
+  try {
+    records = await Event.findAll({
+      attributes: {
+        exclude: [ "description", "maxIndividuals", "bookingCloseTime", "createdAt", "updatedAt" ]
+      },
+      limit: 10,
+      include: [
+        {
+          model: EventImage,
+          where: {
+            position: "overview"
+          },
+          attributes: {
+            exclude: [ "id", "eventId", "createdAt", "updatedAt" ]
+          }
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to load events from the database" });
+  }
+
+  // Send them back to the client
+  return res.status(200).json({ records });
 });
 
 router.post("/create", upload.array("images"), async (req, res) => {
@@ -229,6 +265,42 @@ router.post("/create", upload.array("images"), async (req, res) => {
   // All done
   return res.status(200).json({ id: eventRecord.id });
 });
+
+router.get("/single/:id", async (req, res) => {
+  // Gets the details about a single event
+  const { user } = req.session;
+
+  // Must be an admin to create events
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const id = req.params.id;
+
+  // Validate the id briefly
+  if(!id || id === null || id === undefined) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let record;
+
+  // Find the record by the id
+  try {
+    record = await Event.findOne({
+      where: { id },
+      include: [ EventImage, EventTicketType ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the event from the database" });
+  }
+
+  if(record === null) {
+    return res.status(400).json({ error: "Invalid id, no record found" });
+  }
+
+  // Send it to the client
+  return res.status(200).json({ record });
+})
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route

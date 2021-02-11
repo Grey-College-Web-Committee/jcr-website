@@ -32,6 +32,9 @@ import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
 import ContributorsPage from './components/legal/ContributorsPage';
 import CookiesPage from './components/legal/CookiesPage';
 
+import EventsOverviewPage from './components/events/overview/EventsOverviewPage';
+import EventsInfoPage from './components/events/info/EventsInfoPage';
+
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
 // To add a new page import it like above
@@ -354,6 +357,12 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/events/admin/create" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <CreateNewEventPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin/create") )
+                    )} />
+                    <Route exact path="/events/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events") )
+                    )} />
+                    <Route exact path="/events/event/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsInfoPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/event/${props.match.params.id}`) )
                     )} />
                     <Route exact path="/checkout/" render={() => (
                       this.isLoggedIn() ? ( <CheckoutPage /> ) : ( this.loginRef("/checkout") )
