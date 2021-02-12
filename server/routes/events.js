@@ -302,6 +302,146 @@ router.get("/single/:id", async (req, res) => {
   return res.status(200).json({ record });
 })
 
+router.get("/ticketType/:id", async (req, res) => {
+  // Gets the details about a single ticket type and if it is available (to this user)
+  // If it is not available then it will also give information about why
+  const { user } = req.session;
+
+  // Must be an admin to create events
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const id = req.params.id;
+
+  // Validate the id briefly
+  if(!id || id === null || id === undefined) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let record;
+
+  // Find the record by the id
+  try {
+    record = await EventTicketType.findOne({
+      where: { id },
+      include: [
+        {
+          model: Event,
+          attributes: [ "maxIndividuals", "bookingCloseTime" ]
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the event from the database" });
+  }
+
+  if(record === null) {
+    return res.status(400).json({ error: "Invalid ID, no record found" });
+  }
+
+  // TODO: MUST REFINE THE RECORD BEFORE SENDING
+
+  // First we need to check that booking hasn't closed
+  const now = new Date();
+
+  if(now > new Date(record.Event.bookingCloseTime)) {
+    return res.status(200).json({
+      available: false,
+      reason: "closed",
+      release,
+      record
+    });
+  }
+
+  // Then lets check if it has been released for this year
+  const { year } = user;
+  let release = null;
+
+  if(year === "1" || year === 1) {
+    release = new Date(record.firstYearReleaseTime);
+  } else if (year === "2" || year === 2) {
+    release = new Date(record.secondYearReleaseTime);
+  } else if (year === "3" || year === 3) {
+    release = new Date(record.thirdYearReleaseTime);
+  } else {
+    release = new Date(record.fourthYearReleaseTime);
+  }
+
+  // If it releases for them after now then tell them
+  if(release > now) {
+    return res.status(200).json({
+      available: false,
+      reason: "unreleased",
+      release,
+      record
+    });
+  }
+
+  // We now know that booking is open and released for this user
+  // Now lets check if the event is already full
+
+  let allBookingCounts;
+
+  try {
+    allBookingCounts = await EventGroupBooking.findAll({
+      where: { eventId: record.eventId },
+      attributes: [ "totalMembers", "ticketTypeId" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to load the event bookings" });
+  }
+
+  // Map to the total members per group and then sum the result
+  const totalTicketsOfAllTypes = allBookingCounts.map(booking => booking.totalMembers).reduce((acc, value) => acc + value, 0);
+
+  // The event is sold out entirely
+  if(totalTicketsOfAllTypes >= record.Event.maxIndividuals) {
+    return res.status(200).json({
+      available: false,
+      reason: "full:all",
+      release,
+      record
+    });
+  }
+
+  // There is limited space but not enough for this type of ticket
+  const remainingIndividualSpaces = record.Event.maxIndividuals - totalTicketsOfAllTypes;
+  if(remainingIndividualSpaces < record.minPeople) {
+    return res.status(200).json({
+      available: false,
+      reason: "full:limited",
+      release,
+      record
+    });
+  }
+
+  // Filter to this ticket type only then count how many there are
+  const totalBookingsOfThisType = allBookingCounts.filter(booking => booking.ticketTypeId === record.id).length;
+  const remainingSpacesOfType = record.maxOfType - totalBookingsOfThisType;
+
+  // The ticket is sold entirely
+  if(remainingSpacesOfType <= 0) {
+    return res.status(200).json({
+      available: false,
+      reason: "full:type",
+      release,
+      record
+    });
+  }
+
+  return res.status(200).json({
+    available: true,
+    reason: "N/A",
+    capacity: {
+      remainingIndividualSpaces,
+      remainingSpacesOfType
+    },
+    release,
+    record
+  });
+});
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;

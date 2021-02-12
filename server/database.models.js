@@ -839,6 +839,18 @@ EventGroupBooking.init({
       key: 'id'
     }
   },
+  ticketTypeId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: EventTicketType,
+      key: 'id'
+    }
+  },
+  totalMembers: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   firstHoldTime: {
     type: DataTypes.DATE,
     allowNull: true,
@@ -865,14 +877,6 @@ EventTicket.init({
     allowNull: false,
     references: {
       model: User,
-      key: 'id'
-    }
-  },
-  ticketTypeId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: EventTicketType,
       key: 'id'
     }
   },
@@ -1006,7 +1010,7 @@ EventTicket.belongsTo(EventGroupBooking, { foreignKey: 'groupId' });
 User.hasMany(EventTicket, { foreignKey: 'bookerId' });
 EventTicket.belongsTo(User, { foreignKey: 'bookerId' });
 
-EventTicketType.hasMany(EventTicket, { foreignKey: 'ticketTypeId' });
-EventTicket.belongsTo(EventTicketType, { foreignKey: 'ticketTypeId' });
+EventTicketType.hasMany(EventGroupBooking, { foreignKey: 'ticketTypeId' });
+EventGroupBooking.belongsTo(EventTicketType, { foreignKey: 'ticketTypeId' }); 
 
 module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket };
