@@ -44,8 +44,10 @@ class CareersPage extends React.Component {
       return;
     }
 
+    // Default is to load the first page
     const posts = await this.loadPage(1);
 
+    // No posts, invalid page
     if(posts === false) {
       this.setState({ loaded: false, status: 400 });
       return;
@@ -57,6 +59,7 @@ class CareersPage extends React.Component {
   loadPage = async (page) => {
     let contents;
 
+    // Gets the data from the server based on the page
     try {
       contents = await api.get(`/careers/blog/${page}`);
     } catch (error) {
@@ -73,6 +76,8 @@ class CareersPage extends React.Component {
   }
 
   changePage = async (direction) => {
+    // Changes the page and reloads the data
+    // Also verifies that the page number is valid
     const newPage = this.state.page + direction;
 
     if(newPage <= 0 || newPage > this.state.maxPage) {
@@ -95,6 +100,7 @@ class CareersPage extends React.Component {
       return;
     }
 
+    // Update the data and set the maximum page count
     this.setState({ page: newPage, posts: posts.rows, count: posts.count, maxPage: Math.ceil(posts.count / 5), disabled: false, postLoadState: "loaded" });
   }
 
@@ -117,6 +123,7 @@ class CareersPage extends React.Component {
       );
     }
 
+    // With the pages we need to wait for the content to be downloaded
     let postDiv = (
       <div>
         <LoadingHolder />
@@ -182,6 +189,7 @@ class CareersPage extends React.Component {
         </div>
       );
     } else if (this.state.postLoadState === "error") {
+      // Usually occurs if they try and load an invalid page number
       postDiv = (
         <div className="pb-2 text-left">
           <p>There was an error loading the posts. Please try again later.</p>

@@ -55,10 +55,12 @@ class CareersAdminPage extends React.Component {
   }
 
   onInputChange = e => {
+    // Standard input change
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
   submitPost = async () => {
+    // Checks everything is filled in
     if(!this.canSubmit()) {
       alert("You must fill in all the details in the form first.");
       return;
@@ -66,6 +68,7 @@ class CareersAdminPage extends React.Component {
 
     this.setState({ disabled: true });
 
+    // Submit the data
     const { title, emailSubject, content } = this.state;
 
     try {
@@ -81,6 +84,7 @@ class CareersAdminPage extends React.Component {
   }
 
   canSubmit = () => {
+    // Validates the data
     const { title, emailSubject, content } = this.state;
     return (
       (title !== undefined && title !== null && title.length !== 0) &&
@@ -102,6 +106,7 @@ class CareersAdminPage extends React.Component {
       );
     }
 
+    // Displayed once it has been successfully uploaded
     if(this.state.success) {
       return (
         <div className="flex flex-col justify-start">

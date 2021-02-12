@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Prompt, Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig';
 import LoadingHolder from '../common/LoadingHolder';
 
@@ -17,7 +17,8 @@ class CareersEditPost extends React.Component {
       content: "",
       disabled: false,
       ready: false,
-      updated: false
+      updated: false,
+      deleted: false
     };
 
     // Change this to your permission
@@ -53,14 +54,15 @@ class CareersEditPost extends React.Component {
 
     let result;
 
+    // Load the details
     try {
       result = await api.get(`/careers/blog/single/${this.state.id}`);
     } catch (error) {
-      alert("An error occurred loading the post.");
-      this.setState({ status: 500, error: "Error loading data" });
+      this.setState({ status: error.response.status, error: error.response.data.error});
       return;
     }
 
+    // Unpack them for easier access
     const { post } = result.data;
     const { title, emailSubject, content } = post;
 
@@ -68,10 +70,12 @@ class CareersEditPost extends React.Component {
   }
 
   onInputChange = e => {
+    // Standard input change
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), ready: true })
   }
 
   canSubmit = () => {
+    // Checks that all fields are set
     const { title, emailSubject, content } = this.state;
     return (
       (title !== undefined && title !== null && title.length !== 0) &&
@@ -81,6 +85,8 @@ class CareersEditPost extends React.Component {
   }
 
   updatePost = async () => {
+    // Submits the changes to the post
+    // Make sure the fields are all set
     if(!this.canSubmit()) {
       alert("You must fill in all the details in the form first.");
       return;
@@ -90,6 +96,7 @@ class CareersEditPost extends React.Component {
 
     const { id, title, emailSubject, content } = this.state;
 
+    // Post the contents
     try {
       await api.post("/careers/blog/single", {
         id, title, emailSubject, content
@@ -99,6 +106,7 @@ class CareersEditPost extends React.Component {
       return;
     }
 
+    // Briefly show a message saying it has been updated
     this.setState({ updated: true, ready: false, disabled: false });
 
     setTimeout(() => {
@@ -106,6 +114,33 @@ class CareersEditPost extends React.Component {
         updated: false
       });
     }, 1000);
+  }
+
+  deletePost = async () => {
+    // Removes the post
+    this.setState({ disabled: true });
+
+    // Use the browser's confirm window to double check
+    const certain = window.confirm("Are you sure you want to permanently delete this post?");
+
+    // If they don't want to then abort
+    if(!certain) {
+      this.setState({ disabled: false });
+      return;
+    }
+
+    const { id } = this.state;
+
+    // Delete from the server
+    try {
+      await api.delete(`/careers/blog/single/${id}`);
+    } catch (error) {
+      alert("There was an error deleting this post. Please try again later.");
+      return;
+    }
+
+    // Used to changed the page to tell them it was successful
+    this.setState({ deleted: true });
   }
 
   render () {
@@ -121,12 +156,34 @@ class CareersEditPost extends React.Component {
       );
     }
 
+    // Shown after a successful deletion
+    if(this.state.deleted) {
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-2">Post Deleted</h1>
+            <p className="text-center">The post has successfully been deleted.</p>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="flex flex-col justify-start">
+        <Prompt
+          when={this.state.ready}
+          message="Are you sure you want to leave? You may have unsaved changes. Press 'Cancel' to go back or 'OK' to exit anyway."
+        />
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Edit Careers Post</h1>
+          <h1 className="font-semibold text-5xl pb-2">Edit Careers Post</h1>
         </div>
         <div className="w-full md:w-3/5 mx-auto">
+          <div className="pb-2">
+            <button
+              className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              onClick={this.deletePost}
+            >Permanently Delete Post</button>
+          </div>
           <div>
             <p className="text-justify">You can edit a post that has already been published below. All fields must be filled in before you can submit it. The post will automatically update once you click the button at the bottom.</p>
           </div>
@@ -179,6 +236,12 @@ class CareersEditPost extends React.Component {
                 onClick={this.updatePost}
               >{ this.state.updated ? "Updated ✓" : "Update Post" }</button>
             </div>
+            { this.state.updated ? (
+                <div className="pt-2 pb-2 border-b-2">
+                  <p>Post successfully updated!</p>
+                </div>
+              ) : null
+            }
           </fieldset>
         </div>
       </div>
