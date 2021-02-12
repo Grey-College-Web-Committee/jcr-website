@@ -45,8 +45,50 @@ router.get("/", async (req, res) => {
   }
 
   // Send them back to the client
-  return res.status(200).json({ records });
+  return res.status(200).json({ consented: user.eventConsent, records });
 });
+
+router.post("/consent", async (req, res) => {
+  // Grants and revokes consent for the events data sharing
+  const { user } = req.session;
+
+  // Must be an admin to create events
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Briefly validate
+  const { consented } = req.body;
+
+  if(consented === null || consented === undefined) {
+    return res.status(400).json({ error: "Missing consented" });
+  }
+
+  // Update the record
+  try {
+    await User.update({ eventConsent: consented }, {
+      where: { id: user.id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the user record" });
+  }
+
+  user.eventConsent = consented;
+
+  // Success
+  return res.status(204).end();
+});
+
+router.get("/consent", async (req, res) => {
+  const { user } = req.session;
+
+  // Must be an admin to create events
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  return res.status(200).json({ consent: user.eventConsent });
+})
 
 router.post("/create", upload.array("images"), async (req, res) => {
   const { user } = req.session;

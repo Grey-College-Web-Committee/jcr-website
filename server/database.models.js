@@ -88,6 +88,10 @@ User.init({
   hlm: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  eventConsent: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize });
 
@@ -1011,6 +1015,6 @@ User.hasMany(EventTicket, { foreignKey: 'bookerId' });
 EventTicket.belongsTo(User, { foreignKey: 'bookerId' });
 
 EventTicketType.hasMany(EventGroupBooking, { foreignKey: 'ticketTypeId' });
-EventGroupBooking.belongsTo(EventTicketType, { foreignKey: 'ticketTypeId' }); 
+EventGroupBooking.belongsTo(EventTicketType, { foreignKey: 'ticketTypeId' });
 
 module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket };

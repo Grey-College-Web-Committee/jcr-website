@@ -211,7 +211,8 @@ class EventsInfoPage extends React.Component {
 
                     if(type.record.maxPeople > 1) {
                       const guestNote = type.record.maxGuests === 0 ? "" : ` including up to ${type.record.maxGuests} guest${type.record.maxGuests === 1 ? "" : "s"}`;
-                      peopleDescription = `You can book up to (and including) ${type.record.maxPeople} people per group (minimum of ${type.record.minPeople} per group)${guestNote}.`;
+                      const minNote = type.record.minPeople === 1 ? "person" : "people";
+                      peopleDescription = `You can book up to (and including) ${type.record.maxPeople} people per group (minimum of ${type.record.minPeople} ${minNote} per group)${guestNote}.`;
                     }
 
                     return (
