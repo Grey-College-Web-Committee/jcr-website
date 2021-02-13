@@ -125,10 +125,12 @@ class EventsTermsPage extends React.Component {
                 <li>Your Durham University Email Address</li>
                 <li>The status of your payment (this excludes any information about recipients of the JCR's Hardship Fund)</li>
                 <li>Your year of study</li>
+                <li>If you have outstanding debt owed to the JCR</li>
                 <li>Any additional information provided during use of the booking system including, but not limited to, dietary requirements</li>
                 <li>The name of any guests you have provided during use of the booking system</li>
                 <li>The Durham University Computing and Information Services username of any guests you have provided during use of the booking system</li>
                 <li>Any additional information requested about any guests you have provided during use of the booking system including, but not limited to, dietary requirements</li>
+                <li>If your guests have outstanding debt owed to the JCR</li>
               </ul>
               <p className="py-1">These details will also be shared confidentially with the relevant JCR committees (including, but not limited to, the JCR's Events Committee, the JCR's Bar Committee and the JCR's Executive Committee) and relevant event providers for the purpose of providing the event that your group has booked on to. They may also be shared with other Grey College Staff for the purposes of providing any catering included with your booking as well as any person providing security for the event.</p>
               <p className="py-1">You also consent to the JCR providing search functionality within the booking system to allow other members of the JCR to form a group with you. The personal details that will be visible using this functionality will include:</p>

@@ -45,6 +45,9 @@ class Media extends Model {}
 class WelfareThread extends Model {}
 class WelfareThreadMessage extends Model {}
 
+// Any historical debt from the old website
+class Debt extends Model {}
+
 // Represents a single event
 class Event extends Model {}
 // Stores the images for the event gallery
@@ -709,6 +712,21 @@ WelfareThreadMessage.init({
   }
 }, { sequelize });
 
+Debt.init({
+  username: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  debt: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
 Event.init({
   name: {
     type: DataTypes.TEXT,
@@ -1017,4 +1035,4 @@ EventTicket.belongsTo(User, { foreignKey: 'bookerId' });
 EventTicketType.hasMany(EventGroupBooking, { foreignKey: 'ticketTypeId' });
 EventGroupBooking.belongsTo(EventTicketType, { foreignKey: 'ticketTypeId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket };

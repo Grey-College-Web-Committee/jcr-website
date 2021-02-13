@@ -3,7 +3,7 @@ const express = require("express");
 const multer = require("multer");
 const router = express.Router();
 // The database models
-const { User, Permission, PermissionLink, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("../database.models.js");
+const { User, Permission, PermissionLink, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/events/" });
@@ -370,7 +370,7 @@ router.get("/ticketType/:id", async (req, res) => {
       include: [
         {
           model: Event,
-          attributes: [ "maxIndividuals", "bookingCloseTime" ]
+          attributes: [ "name", "maxIndividuals", "bookingCloseTime" ]
         }
       ]
     });
@@ -482,6 +482,119 @@ router.get("/ticketType/:id", async (req, res) => {
     release,
     record
   });
+});
+
+router.get("/search/member/:ticketTypeId/:username", async (req, res) => {
+  // Gets the details about a single event
+  const { user } = req.session;
+
+  // Must be an admin to create events
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { username, ticketTypeId } = req.params;
+
+  // Validate the username briefly
+  if(!username || username === null || username === undefined) {
+    return res.status(400).json({ error: "You must enter a username to search" });
+  }
+
+  if(username.length !== 6) {
+    return res.status(400).json({ error: "The username must be exactly 6 characters" });
+  }
+
+  // Validate the ticketTypeId briefly
+  if(ticketTypeId === null || ticketTypeId === undefined) {
+    return res.status(400).json({ error: "Missing ticketTypeId" });
+  }
+
+  let member;
+
+  try {
+    member = await User.findOne({
+      where: { username },
+      attributes: [ "id", "username", "surname", "firstNames", "year", "membershipExpiresAt", "eventConsent" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "An error occurred completing this request, please try again later (#1)" });
+  }
+
+  if(member === null) {
+    return res.status(400).json({ error: "The username entered does not match any user. Please check that the username is correct and that the person you are trying to find has logged in to the new website at least once" });
+  }
+
+  const now = new Date();
+
+  if(member.membershipExpiresAt === null || now > new Date(member.membershipExpiresAt)) {
+    return res.status(400).json({ error: "The user you are trying to find does not have a JCR membership. You may still be able to bring them as a guest (if the ticket type allows)." });
+  }
+
+  let debt;
+
+  try {
+    debt = await Debt.findOne({
+      where: { username: member.username }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "An error occurred completing this request, please try again later (#2)" });
+  }
+
+  if(debt !== null) {
+    return res.status(400).json({ error: "The user you are trying to find has an outstanding debt owed to the JCR. They are not allowed to be booked on to events until this is cleared" });
+  }
+
+  // Now check if they already have a ticket for the event
+  let ticket;
+
+  try {
+    ticket = await EventTicket.findOne({
+      where: { bookerId: member.id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "An error occurred completing this request, please try again later (#3)" });
+  }
+
+  if(ticket !== null) {
+    return res.status(400).json({ error: "The user you are trying to find is already part of a group for this event." });
+  }
+
+  // We also need to check that the tickets have released for this year group
+
+  let ticketType;
+
+  try {
+    ticketType = await EventTicketType.findOne({
+      where: { id: ticketTypeId }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "An error occurred completing this request, please try again later (#4)" });
+  }
+
+  if(ticketType === null) {
+    return res.status(400).json({ error: "The ticket type you are trying to search with respect to does not exist" });
+  }
+
+  if(!ticketType.olderYearsCanOverride) {
+    const { year } = member;
+    let release = null;
+
+    if(year === "1" || year === 1) {
+      release = new Date(ticketType.firstYearReleaseTime);
+    } else if (year === "2" || year === 2) {
+      release = new Date(ticketType.secondYearReleaseTime);
+    } else if (year === "3" || year === 3) {
+      release = new Date(ticketType.thirdYearReleaseTime);
+    } else {
+      release = new Date(ticketType.fourthYearReleaseTime);
+    }
+
+    if(release > now) {
+      return res.status(400).json({ error: `This ticket type has not yet released for those in year ${year} yet.` })
+    }
+  }
+
+  return res.status(200).json({ member });
 });
 
 // Set the module export to router so it can be used in server.js

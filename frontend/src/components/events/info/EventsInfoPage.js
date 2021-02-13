@@ -186,7 +186,7 @@ class EventsInfoPage extends React.Component {
               <div className="text-justify">
                 <h2>Tickets</h2>
                 {
-                  this.state.ticketTypes.map((type, id) => {
+                  this.state.ticketTypes.map((type, i) => {
                     let bookingUnavailable = null;
 
                     if(type.reason === "closed") {
@@ -202,7 +202,11 @@ class EventsInfoPage extends React.Component {
                     }
 
                     const bookButton = type.available ? (
-                      <button>Book Now</button>
+                      <Link to={`/events/event/${type.record.eventId}/book/${type.record.id}`}>
+                        <button
+
+                        >Book Now</button>
+                      </Link>
                     ) : (
                       <p>{bookingUnavailable}</p>
                     );
@@ -216,7 +220,7 @@ class EventsInfoPage extends React.Component {
                     }
 
                     return (
-                      <div className="border-2 border-black">
+                      <div className="border-2 border-black" key={i}>
                         <h3>{type.record.name}</h3>
                         <p>{type.record.description}</p>
                         <p>{peopleDescription}</p>
