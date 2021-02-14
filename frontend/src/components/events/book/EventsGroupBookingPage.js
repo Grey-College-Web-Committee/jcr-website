@@ -24,7 +24,9 @@ class EventsGroupBookingPage extends React.Component {
       maxGuests: 0,
       disabled: false,
       memberDisabled: false,
-      guestDisabled: false
+      guestDisabled: false,
+      unavailable: null,
+      booked: false
     };
   }
 
@@ -57,6 +59,11 @@ class EventsGroupBookingPage extends React.Component {
       ticketType = await api.get(`/events/ticketType/${this.state.type}`);
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
+      return;
+    }
+
+    if(!ticketType.data.available) {
+      this.setState({ loaded: true, status: 200, unavailable: ticketType.data.reason });
       return;
     }
 
@@ -134,18 +141,17 @@ class EventsGroupBookingPage extends React.Component {
     }
 
     const packaged = Object.keys(group).map(k => group[k]);
-    console.log(packaged)
 
     let result;
 
     try {
       result = await api.post("/events/booking", { group: packaged, ticketTypeId: type });
     } catch (error) {
-      console.log(error);
+      alert(error.response.data.error);
+      return;
     }
 
-    console.log("s", result);
-    this.setState({ disabled: false });
+    this.setState({ disabled: true, booked: true });
   }
 
   render () {
@@ -167,12 +173,63 @@ class EventsGroupBookingPage extends React.Component {
       );
     }
 
-    if(!this.state.ticketType.available) {
+    if(this.state.booked) {
       return (
-        <div>
-          Unavailable
+        <div className="flex flex-col justify-start">
+          <div className="container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-4">Booking Successful!</h1>
+            <div className="py-1">
+              <p className="py-1">Your group has been successfully booked on to the event. Please check your Durham University email address for more details on how to complete this booking and pay. Each member of your group has 24 hours to pay for their ticket and enter any additional details required for this ticket (e.g. dietary requirements).</p>
+              <p className="py-1">Your confirmed group is as follows:</p>
+            </div>
+            <div className="py-1">
+              <table className="mx-auto border-2 text-left border-red-900 w-full">
+                <thead className="bg-red-900 text-white">
+                  <tr>
+                    <th className="p-2 font-semibold">Username</th>
+                    <th className="p-2 font-semibold">Name</th>
+                    <th className="p-2 font-semibold">Guest?</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {
+                    Object.keys(this.state.group).map(key => {
+                      const entry = this.state.group[key];
+
+                      return (
+                        <tr
+                          className="text-center border-b border-gray-400"
+                          key={key}
+                        >
+                          <td className="p-2 border-r border-gray-400">
+                            {entry.username}
+                          </td>
+                          <td className="p-2 border-r border-gray-400">
+                            {entry.displayName}
+                          </td>
+                          <td className="p-2 border-r border-gray-400">
+                            {entry.guest ? "Yes" : "No"}
+                          </td>
+                        </tr>
+                      )
+                    })
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
-      )
+      );
+    }
+
+    if(this.state.unavailable !== null) {
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-4">Ticket Unavailable</h1>
+          </div>
+        </div>
+      );
     }
 
     const ticketType = this.state.ticketType.record;

@@ -189,16 +189,22 @@ class EventsInfoPage extends React.Component {
                   this.state.ticketTypes.map((type, i) => {
                     let bookingUnavailable = null;
 
-                    if(type.reason === "closed") {
-                      bookingUnavailable = "Booking has already closed!";
-                    } else if (type.reason === "unreleased") {
-                      bookingUnavailable = `These tickets are not available yet! They release at ${dateFormat(type.release, "dd/mm/yyyy HH:MM")}`;
-                    } else if (type.reason === "full:all") {
-                      bookingUnavailable = "The event is fully booked!";
-                    } else if (type.reason === "full:limited") {
-                      bookingUnavailable = "There is limited capacity left for the event. Other tickets may be available.";
-                    } else if (type.reason === "full:type") {
-                      bookingUnavailable = "There are no more tickets of this type available!";
+                    if(!type.available) {
+                      if(type.reason === "closed") {
+                        bookingUnavailable = "Booking has already closed!";
+                      } else if (type.reason === "unreleased") {
+                        bookingUnavailable = `These tickets are not available yet! They release at ${dateFormat(type.release, "dd/mm/yyyy HH:MM")}`;
+                      } else if (type.reason === "full:all") {
+                        bookingUnavailable = "The event is fully booked!";
+                      } else if (type.reason === "full:limited") {
+                        bookingUnavailable = "There is limited capacity left for the event. Other tickets may be available.";
+                      } else if (type.reason === "full:type") {
+                        bookingUnavailable = "There are no more tickets of this type available!";
+                      } else if (type.reason === "already_booked") {
+                        bookingUnavailable = "You already have a ticket to this event.";
+                      } else {
+                        bookingUnavailable = "Unavailable";
+                      }
                     }
 
                     const bookButton = type.available ? (

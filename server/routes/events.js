@@ -383,6 +383,35 @@ router.get("/ticketType/:id", async (req, res) => {
     return res.status(400).json({ error: "Invalid ID, no record found" });
   }
 
+  // Check if they already have a ticket
+
+  let ticket;
+
+  try {
+    ticket = await EventTicket.findOne({
+      where: {
+        bookerId: user.id
+      },
+      include: [
+        {
+          model: EventGroupBooking,
+          eventId: record.Event.id
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get event ticket from database" });
+  }
+
+  if(ticket !== null) {
+    return res.status(200).json({
+      available: false,
+      reason: "already_booked",
+      release: null,
+      record
+    });
+  }
+
   // TODO: MUST REFINE THE RECORD BEFORE SENDING
 
   // First we need to check that booking hasn't closed
@@ -881,7 +910,7 @@ router.post("/booking", async (req, res) => {
     mailer.sendEmail(emailData.email, `${record.Event.name} Ticket`, emailContent);
   }
 
-  return res.status(200).json({ jcrMembers, guestList });
+  return res.status(204).end();
 });
 
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
@@ -892,7 +921,7 @@ const createPaymentEmail = (event, ticketType, booker, ticket) => {
   contents.push(`<p>Ticket Type: ${ticketType.name}</p>`);
   contents.push(`<p>${ticketType.description}</p>`);
   contents.push(`<p>You now have 24 hours to make payment for this ticket otherwise the group's booking will be cancelled</p>`);
-  contents.push(`<a href="${process.env.WEB_ADDRESS}/events/bookings/payment/${ticket.id}"><p>To make payment, please click here.</p></a>`);
+  contents.push(`<a href="${process.env.WEB_ADDRESS}/events/bookings/payment/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>To make payment, please click here.</p></a>`);
 
   return contents.join("");
 }

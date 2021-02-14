@@ -36,6 +36,7 @@ import EventsOverviewPage from './components/events/overview/EventsOverviewPage'
 import EventsInfoPage from './components/events/info/EventsInfoPage';
 import EventsTermsPage from './components/events/disclaimer/EventsTermsPage';
 import EventsGroupBookingPage from './components/events/book/EventsGroupBookingPage';
+import EventsPaymentPage from './components/events/payment/EventsPaymentPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
@@ -371,6 +372,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/events/event/:id" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsInfoPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/event/${props.match.params.id}`) )
+                    )} />
+                    <Route exact path="/events/bookings/payment/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsPaymentPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/bookings/payment/${props.match.params.id}`) )
                     )} />
                     <Route exact path="/checkout/" render={() => (
                       this.isLoggedIn() ? ( <CheckoutPage /> ) : ( this.loginRef("/checkout") )
