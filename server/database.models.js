@@ -886,6 +886,11 @@ EventGroupBooking.init({
 }, { sequelize });
 
 EventTicket.init({
+  id: { 
+    type: DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4
+  },
   groupId: {
     type: DataTypes.INTEGER,
     allowNull: false,

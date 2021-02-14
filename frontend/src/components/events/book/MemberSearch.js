@@ -15,15 +15,21 @@ class MemberSearch extends React.Component {
   }
 
   onInputChange = e => {
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), error: null });
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), error: null, result: null });
   }
 
   searchForUser = async () => {
-    this.setState({ disabled: true });
+    this.setState({ disabled: true, error: null, result: null });
     const { username } = this.state;
 
     if(username === undefined || username === null || username.length !== 6) {
-      this.setState({ error: "You must enter a username consisting of 6 characters" });
+      this.setState({ error: "You must enter a username consisting of 6 characters", disabled: false });
+      return;
+    }
+
+    if(this.props.rejectIf(username.toLowerCase())) {
+      this.setState({ error: "This person is already part of your group.", disabled: false });
+      return;
     }
 
     let result;
@@ -35,7 +41,11 @@ class MemberSearch extends React.Component {
       return;
     }
 
-    this.setState({ result: result.data.member, disabled: false });
+    const success = this.props.addMember(result.data.member);
+
+    if(success) {
+      this.setState({ username: "", result: result.data.member, disabled: false });
+    }
   }
 
   makeDisplayName = (result) => {
@@ -81,7 +91,7 @@ class MemberSearch extends React.Component {
               onClick={this.searchForUser}
               disabled={this.props.disabled || this.state.disabled || this.state.username.length !== 6}
               className="px-4 py-1 rounded bg-blue-900 text-white md:w-auto w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-            >Find User</button>
+            >Add User</button>
           </div>
           {
             this.state.error === null ? null : (
@@ -90,9 +100,7 @@ class MemberSearch extends React.Component {
           }
           {
             this.state.result === null ? null : (
-              <div>
-                <p>Please confirm that you wish to add {this.makeDisplayName(this.state.result)} to your group.</p>
-              </div>
+              <p className="py-1">Added {this.makeDisplayName(this.state.result)} to your group!</p>
             )
           }
         </fieldset>

@@ -207,7 +207,7 @@ router.post("/login", async (req, res) => {
   const date = new Date();
   date.setTime(date.getTime() + (3 * 60 * 60 * 1000));
 
-  res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email, hlm: user.hlm }, message: "Successfully authenticated" });
+  res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email, hlm: user.hlm, firstNames: user.firstNames, surname: user.surname }, message: "Successfully authenticated" });
 });
 
 router.post("/logout", async (req, res) => {
@@ -222,7 +222,7 @@ router.post("/logout", async (req, res) => {
 router.get("/verify", async (req, res) => {
   if(req.session.user && req.cookies.user_sid && req.session.permissions) {
     const { user, permissions } = req.session;
-    return res.status(200).json({ user: { username: user.username, permissions: permissions } });
+    return res.status(200).json({ user: { userId: user.id, username: user.username, permissions: permissions } });
   }
 
   return res.status(401).end();
