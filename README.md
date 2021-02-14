@@ -1,4 +1,4 @@
-# Grey Payments
+# Grey College JCR - New Website
 ## Setup
 1. Download and install Node.js (includes npm) https://nodejs.org/en/download/
 2. Download and install MySQL https://www.mysql.com/downloads/
