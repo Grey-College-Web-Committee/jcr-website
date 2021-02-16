@@ -8,6 +8,7 @@ const { User, Permission, PermissionLink, Debt, Event, EventImage, EventTicketTy
 const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/events/" });
 const mailer = require("../utils/mailer");
+const { Op } = require("sequelize");
 
 router.get("/", async (req, res) => {
   // Loads the 10 most recent events
@@ -912,6 +913,77 @@ router.post("/booking", async (req, res) => {
 
   return res.status(204).end();
 });
+
+router.get("/booking/:id", async (req, res) => {
+  // Get the information about the booking using the ticket ID
+  const { user } = req.session;
+
+  // Must be a member to get the ticket type
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const id = req.params.id;
+
+  // Validate the id briefly
+  if(!id || id === null || id === undefined) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let ticket;
+
+  try {
+    ticket = await EventTicket.findOne({
+      where: {
+        id,
+        bookerId: user.id
+      },
+      include: [{
+        model: EventGroupBooking,
+        include: [{
+          model: Event,
+          attributes: [ "name" ]
+        }, {
+          model: EventTicket,
+          attributes: [ "paid", "isGuestTicket", "guestName", "guestUsername" ],
+          include: [{
+            model: User,
+            attributes: [ "username", "surname", "firstNames" ]
+          }]
+        }, {
+          model: EventTicketType,
+          attributes: [ "name", "memberPrice", "guestPrice", "requiredInformationForm" ]
+        }]
+      }]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to contact the database to get the ticket information" });
+  }
+
+  if(ticket === null) {
+    return res.status(400).json({ error: "Ticket does not exist or is not linked to this account" });
+  }
+
+  // Now check for any guest tickets
+
+  let guestTickets;
+
+  try {
+    guestTickets = await EventTicket.findAll({
+      where: {
+        bookerId: user.id,
+        id: {
+          [Op.ne]: ticket.id
+        },
+        groupId: ticket.groupId
+      }
+    })
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to contact the database to get the guest ticket information" });
+  }
+
+  return res.status(200).json({ ticket, guestTickets });
+})
 
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
   let contents = [];
