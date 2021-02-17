@@ -88,7 +88,6 @@ class EventsOverviewPage extends React.Component {
               </div>
             )
           }
-          <Link to="/events/terms"><p className="font-semibold underline">You can review the events terms and conditions here</p></Link>
           <p>Put some text here about Grey Events...</p>
           <div className="flex flex-col pt-4">
             {
@@ -97,7 +96,7 @@ class EventsOverviewPage extends React.Component {
                   <div className="flex flex-col md:flex-row">
                     {
                       record.EventImages.length === 0 ? null : (
-                        <div className="border flex flex-row justify-center">
+                        <div className="flex flex-row justify-center">
                           <img
                             src={`/uploads/images/events/${record.EventImages[0].image}`}
                             alt={record.EventImages[0].caption}
@@ -106,16 +105,16 @@ class EventsOverviewPage extends React.Component {
                         </div>
                       )
                     }
-                    <div className="flex flex-col justify-between border mt-2 md:ml-2 md:mt-0 flex-grow">
+                    <div className="flex flex-col justify-between mt-2 md:ml-2 md:mt-0 flex-grow">
                       <div>
-                        <h2 className="font-semibold text-3xl text-left">{record.name}</h2>
-                        <p className="pb-2">Starts at {dateFormat(record.date, "dd/mm/yyyy HH:MM")}</p>
+                        <h2 className="font-semibold text-3xl text-center md:text-left">{record.name}</h2>
+                        <p className="pb-2 text-center md:text-left">{dateFormat(record.date, "dd/mm/yyyy HH:MM")}</p>
                         <p>{record.shortDescription}</p>
                       </div>
-                      <div className="flex flex-row justify-end">
+                      <div className="flex flex-row justify-start">
                         {
                           this.state.consented ? (
-                            <Link to={`/events/event/${record.id}`}>
+                            <Link to={`/events/event/${record.id}`} className="w-full md:w-auto">
                               <button
                                 className="px-4 py-1 rounded text-lg bg-green-900 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                               >See More!</button>
@@ -134,6 +133,9 @@ class EventsOverviewPage extends React.Component {
                 </div>
               ))
             }
+          </div>
+          <div className="py-2">
+            <Link to="/events/terms"><p className="font-semibold underline">You can review the events terms and conditions here</p></Link>
           </div>
         </div>
       </div>

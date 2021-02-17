@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import dateFormat from 'dateformat';
 
+// Keeping it here for reference
+// Seems to have a *major* memory leak
 class CountdownClock extends React.Component {
   constructor(props) {
     super(props);

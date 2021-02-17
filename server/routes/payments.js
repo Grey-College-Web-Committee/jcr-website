@@ -421,6 +421,7 @@ const awaitingEventPaymentsEmail = (user, notPaid, groupCreatedAtDate) => {
 const processEventHold = async (ticketId) => {
   let purchasedTicket;
 
+  // Get the ticket related to the ticketId
   try {
     purchasedTicket = await EventTicket.findOne({
       where: { id: ticketId },
@@ -433,6 +434,8 @@ const processEventHold = async (ticketId) => {
     };
   }
 
+  // Make sure it was valid
+  // Don't see how this could happen but just in case
   if(purchasedTicket === null) {
     return {
       status: 400,
@@ -489,6 +492,8 @@ const processEventHold = async (ticketId) => {
   let allPaid = true;
   let notPaid = [];
 
+  // Start by assuming they all have then loop and change it if necessary
+  // Also collect everyone who hasn't paid so we can put it in the email
   for(let ticket of groupTickets) {
     if(!ticket.paid) {
       allPaid = false;
@@ -500,6 +505,7 @@ const processEventHold = async (ticketId) => {
   if(allPaid) {
     for(let ticket of groupTickets) {
       // Capture each payment
+      // https://stripe.com/docs/payments/capture-later
       try {
         await stripe.paymentIntents.capture(ticket.stripePaymentId);
       } catch (error) {
@@ -511,7 +517,7 @@ const processEventHold = async (ticketId) => {
     }
 
     // All captured so update the group
-
+    // Will prevent the booking from being deleted
     try {
       await EventGroupBooking.update({ allPaid: true }, {
         where: { id: purchasedTicket.groupId }
@@ -524,12 +530,12 @@ const processEventHold = async (ticketId) => {
     }
 
     // This will have triggered the payment_intent.captured event from Stripe
-    // we send the emails there instead
+    // we send the emails there instead --> go back to the webhook function
   } else {
     // Send them an email confirming their hold
     // And list who hasn't paid and how long they have left
     const notPaidEmail = awaitingEventPaymentsEmail(purchasedTicket.User, notPaid, purchasedTicket.createdAt);
-    mailer.sendEmail(purchasedTicket.User.email, `Grey JCR - Hold Authorised`, notPaidEmail);
+    mailer.sendEmail(purchasedTicket.User.email, `Event Ticket Hold Authorised`, notPaidEmail);
   }
 
   return {
@@ -539,6 +545,7 @@ const processEventHold = async (ticketId) => {
 }
 
 const createCompletedEventPaymentEmail = (ticket) => {
+  // This email will be sent once we capture the hold amount
   let firstName = ticket.User.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = ticket.User.surname.charAt(0).toUpperCase() + ticket.User.surname.substr(1).toLowerCase();
@@ -555,6 +562,7 @@ const createCompletedEventPaymentEmail = (ticket) => {
 const sendCompletedEventPaymentEmail = async (ticketId) => {
   let purchasedTicket;
 
+  // Get their ticket
   try {
     purchasedTicket = await EventTicket.findOne({
       where: { id: ticketId },
@@ -574,8 +582,9 @@ const sendCompletedEventPaymentEmail = async (ticketId) => {
     };
   }
 
+  // Send them the email to confirm everyone has paid
   const completedEmail = createCompletedEventPaymentEmail(purchasedTicket);
-  mailer.sendEmail(purchasedTicket.User.email, `Grey JCR - Event Payment Complete`, completedEmail);
+  mailer.sendEmail(purchasedTicket.User.email, `Event Booking Confirmation`, completedEmail);
 
   return {
     status: 200,
@@ -594,7 +603,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
     return res.status(400).json({ error: "Webhook signature verification failed "});
   }
 
-  console.log(event.type)
   const paymentIntent = event.data.object;
 
   switch(event.type) {
@@ -745,6 +753,7 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
         return res.status(400).end();
       }
 
+      // Make sure we have a ticketId
       if(!paymentIntent.metadata.hasOwnProperty("ticketId")) {
         return res.status(400).end();
       }
@@ -753,7 +762,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
       const result = await processEventHold(ticketId);
 
       if(result.status !== 200 || result.status !== 204) {
-        console.log(result);
         return res.status(result.status).json({ error: result.error });
       }
 

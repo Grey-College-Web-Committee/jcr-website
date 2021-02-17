@@ -70,22 +70,6 @@ class EventsTermsPage extends React.Component {
     this.setState({ consent: true, disabled: false, changed: true });
   }
 
-  revokeConsent = async () => {
-    this.setState({ disabled: true });
-
-    // Update the user record
-    try {
-      await api.post("/events/consent", {
-        consented: false
-      });
-    } catch (error) {
-      alert("An error occurred revoking consent. Please try again later.");
-      return;
-    }
-
-    this.setState({ consent: false, disabled: false, changed: true });
-  }
-
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -144,13 +128,8 @@ class EventsTermsPage extends React.Component {
             </div>
             {
               this.state.consent ? (
-                <div className="flex flex-col w-full font-semibold">
-                  <p className="py-1">You have already consented. By clicking the button below you will revoke your consent to the processing of your data in accordance with the terms and conditions set out above.</p>
-                  <button
-                    disabled={this.state.disabled}
-                    onClick={this.revokeConsent}
-                    className="mt-1 px-4 py-2 rounded text-lg bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                  >Revoke Consent</button>
+                <div className="flex flex-col w-full">
+                  <p className="py-1">You have already consented. Please contact the FACSO <a href="mailto:grey.treasurer@durham.ac.uk?subject=Revoke Event Consent" target="_blank" rel="noopener noreferrer" className="font-semibold underline">by clicking here</a> to revoke your consent.</p>
                 </div>
               ) : (
                 <div className="flex flex-col w-full font-semibold">

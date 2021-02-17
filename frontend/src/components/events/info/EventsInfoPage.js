@@ -144,48 +144,39 @@ class EventsInfoPage extends React.Component {
             />
           </div>
           <div className="flex flex-col md:flex-row">
-            <div className="w-full md:w-2/5 border-2 flex flex-col justify-between">
-              <div className="flex flex-row justify-center p-2">
-                <img
-                  src={`/uploads/images/events/${galleryImages[currentGalleryImage].image}`}
-                  alt={galleryImages[currentGalleryImage].caption}
-                  className="h-full"
-                />
-              </div>
-              <div>
-                <p className="py-2 text-lg">{galleryImages[currentGalleryImage].caption}</p>
-                <div className="flex flex-row justify-between text-2xl align-middle">
-                  <button
-                    onClick={() => this.changeImage(-1)}
-                    disabled={currentGalleryImage === 0}
-                    className="h-full px-12 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
-                  >&lt;</button>
-                  <p>{currentGalleryImage + 1}/{galleryImages.length}</p>
-                  <button
-                    onClick={() => this.changeImage(1)}
-                    disabled={currentGalleryImage === galleryImages.length - 1}
-                    className="h-full px-12 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
-                  >&gt;</button>
+            <div className="w-full md:w-2/5">
+              <div className="flex flex-col h-auto justify-between">
+                <div className="flex flex-row justify-center p-2">
+                  <img
+                    src={`/uploads/images/events/${galleryImages[currentGalleryImage].image}`}
+                    alt={galleryImages[currentGalleryImage].caption}
+                    className="h-full"
+                  />
+                </div>
+                <div>
+                  <p className="py-2 text-lg">{galleryImages[currentGalleryImage].caption}</p>
+                  <div className="flex flex-row justify-between text-2xl align-middle">
+                    <button
+                      onClick={() => this.changeImage(-1)}
+                      disabled={currentGalleryImage === 0}
+                      className="h-full px-12 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
+                    >&lt;</button>
+                    <p>{currentGalleryImage + 1}/{galleryImages.length}</p>
+                    <button
+                      onClick={() => this.changeImage(1)}
+                      disabled={currentGalleryImage === galleryImages.length - 1}
+                      className="h-full px-12 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
+                    >&gt;</button>
+                  </div>
                 </div>
               </div>
             </div>
-            <div className="w-full md:w-3/5 border-2 p-4 flex flex-col">
-              <div>
-                {
-                  description.split("\n").map((paragraph, i) => {
-                    if(paragraph.length === 0) {
-                      return null;
-                    }
-
-                    return (
-                      <p className="pt-1 text-justify" key={i}>{paragraph}</p>
-                    );
-                  })
-                }
-              </div>
+            <div className="w-full md:w-3/5 p-4 flex flex-col">
               <div className="text-justify">
-                <h2>Tickets</h2>
+                <h2 className="text-3xl font-semibold">Tickets</h2>
+                <p>You can only book one type of ticket.</p>
                 {
+                  this.state.ticketTypes.length === 0 ? ( <LoadingHolder /> ) :
                   this.state.ticketTypes.map((type, i) => {
                     let bookingUnavailable = null;
 
@@ -210,7 +201,7 @@ class EventsInfoPage extends React.Component {
                     const bookButton = type.available ? (
                       <Link to={`/events/event/${type.record.eventId}/book/${type.record.id}`}>
                         <button
-
+                          className="px-4 py-1 rounded text-lg bg-green-900 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-2"
                         >Book Now</button>
                       </Link>
                     ) : (
@@ -226,14 +217,27 @@ class EventsInfoPage extends React.Component {
                     }
 
                     return (
-                      <div className="border-2 border-black" key={i}>
-                        <h3>{type.record.name}</h3>
+                      <div className="p-2 my-1 border border-black" key={i}>
+                        <h3 className="font-semibold text-xl">{type.record.name}</h3>
                         <p>{type.record.description}</p>
                         <p>{peopleDescription}</p>
                         <p>JCR Member Price: £{type.record.memberPrice}{ type.record.maxGuests === 0 ? null : `, Guest Price: £${type.record.guestPrice}` }</p>
                         {bookButton}
                       </div>
                     )
+                  })
+                }
+              </div>
+              <div>
+                {
+                  description.split("\n").map((paragraph, i) => {
+                    if(paragraph.length === 0) {
+                      return null;
+                    }
+
+                    return (
+                      <p className="pt-1 text-justify" key={i}>{paragraph}</p>
+                    );
                   })
                 }
               </div>

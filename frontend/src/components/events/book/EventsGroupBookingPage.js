@@ -183,7 +183,7 @@ class EventsGroupBookingPage extends React.Component {
               <p className="py-1">Your confirmed group is as follows:</p>
             </div>
             <div className="py-1">
-              <table className="mx-auto border-2 text-left border-red-900 w-full">
+              <table className="mx-auto border-2 text-left border-red-900 w-full md:w-3/5">
                 <thead className="bg-red-900 text-white">
                   <tr>
                     <th className="p-2 font-semibold">Username</th>
