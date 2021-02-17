@@ -311,6 +311,8 @@ router.post("/export", async(req, res) => {
     path: `${csvPath}Checklist-${fileLocation}.csv`,
     header: [
       { id: "username", title: "Username" },
+      { id: "email", title: "Email" },
+      { id: "firstName", title: "First Name" },
       { id: "surname", title: "Surname" },
       { id: "name", title: "Item Name" },
       { id: "code", title: "Code" },
@@ -465,7 +467,9 @@ router.post("/export", async(req, res) => {
     } else {
       ordersByUser[username] = {
         items: [order],
-        surname: order.ShopOrder.User.surname
+        surname: order.ShopOrder.User.surname,
+        email: order.ShopOrder.User.email,
+        firstNames: order.ShopOrder.User.firstNames
       };
     }
   });
@@ -482,7 +486,11 @@ router.post("/export", async(req, res) => {
       let record = {};
 
       record.username = username;
-      record.surname = item.ShopOrder.User.surname;
+      record.email = ordersByUser[username].email;
+      const firstName = ordersByUser[username].firstNames.split(",")[0];
+      record.firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
+      const surname = ordersByUser[username].surname;
+      record.surname = surname.substring(0, 1).toUpperCase() + surname.substring(1).toLowerCase();
 
       record.name = item.StashStock.name;
       record.code = item.StashStock.manufacturerCode;
