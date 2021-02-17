@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink } = require("../database.models.js");
+const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
@@ -270,7 +270,7 @@ const customerJCRMembershipEmail = (user, orderId, expiresAt) => {
   message.push(`<p>Your membership has been confirmed and registered with the JCR.</p>`);
   message.push(`<p>Please logout and back into the website to gain access to the JCR services!</p>`);
   message.push(`<p>Your membership will expire on ${dateFormat(expiresAt, "dd/mm/yyyy")}</p>`);
-  message.push(`<p>You will receive a receipt from Stripe confirming your payment.</p>`)
+  message.push(`<p>You will receive a receipt from Stripe confirming your payment.</p>`);
   message.push(`<p><strong>Thank you!</strong></p>`);
 
   return message.join("");
@@ -387,6 +387,202 @@ const fulfilOrderProcessors = {
   "jcr_membership": fulfilJCRMembershipOrders
 }
 
+const awaitingEventPaymentsEmail = (user, notPaid, groupCreatedAtDate) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  const paymentClose = new Date(new Date(groupCreatedAtDate).getTime() + 1000 * 60 * 60 * 24)
+
+  message.push(`<p>Hello ${firstName} ${lastName},`);
+  message.push(`<p>Your payment has been authorised successfully and a hold has been placed on your card.</p>`);
+  message.push(`<p>Once all of your group has authorised their payments we will take the held amount from your account.</p>`);
+  message.push(`<p>Not everyone in the group has done this yet and <strong>they have until ${dateFormat(paymentClose, "dd/mm/yyyy HH:MM")} to do this otherwise your booking will be cancelled</strong>. If this happens the hold will be released from your card and you will not be charged.<p>`);
+  message.push(`<p>The remaining members of your group who have not paid are:</p>`);
+  message.push(`<ul>`);
+
+  notPaid.forEach((record, i) => {
+    let firstNameNotPaid = record.User.firstNames.split(",")[0];
+    firstNameNotPaid = firstNameNotPaid.charAt(0).toUpperCase() + firstNameNotPaid.substr(1).toLowerCase();
+    const lastNameNotPaid = record.User.surname.charAt(0).toUpperCase() + record.User.surname.substr(1).toLowerCase();
+
+    message.push(`<li>${firstNameNotPaid} ${lastNameNotPaid} ${record.isGuestTicket ? "(Guest)" : ""}`);
+  });
+
+
+  message.push(`</ul>`);
+  message.push(`<p>Please encourage them to authorise their payment before the deadline!</p>`);
+  message.push(`<p><strong>Thank you!</strong></p>`);
+
+  return message.join("");
+}
+
+const processEventHold = async (ticketId) => {
+  let purchasedTicket;
+
+  try {
+    purchasedTicket = await EventTicket.findOne({
+      where: { id: ticketId },
+      include: [ User, EventGroupBooking ]
+    });
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Unable to contact the database for the event ticket"
+    };
+  }
+
+  if(purchasedTicket === null) {
+    return {
+      status: 400,
+      error: "Invalid ticket ID"
+    };
+  }
+
+  // So they have successfully paid (not captured yet though)
+  purchasedTicket.paid = true;
+
+  try {
+    await purchasedTicket.save();
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Unable to contact the database to update the event ticket"
+    };
+  }
+
+  // Now we need to update the guests as well if they have some
+
+  try {
+    await EventTicket.update({ paid: true }, {
+      where: {
+        bookerId: purchasedTicket.User.id,
+        isGuestTicket: true
+      }
+    });
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Unable to contact the database to update the event tickets for the guests"
+    };
+  }
+
+  // Now lets check if everyone in the group has placed a hold (if so we can capture the payments)
+
+  let groupsTickets;
+
+  try {
+    groupTickets = await EventTicket.findAll({
+      where: {
+        groupId: purchasedTicket.groupId
+      },
+      include: [ User ]
+    });
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Unable to contact the database to get all the tickets in the group"
+    };
+  }
+
+  let allPaid = true;
+  let notPaid = [];
+
+  for(let ticket of groupTickets) {
+    if(!ticket.paid) {
+      allPaid = false;
+      notPaid.push(ticket);
+    }
+  }
+
+  // Now we can capture
+  if(allPaid) {
+    for(let ticket of groupTickets) {
+      // Capture each payment
+      try {
+        await stripe.paymentIntents.capture(ticket.stripePaymentId);
+      } catch (error) {
+        return {
+          status: 500,
+          error: `Unable to capture the payment for ticket ${ticket.id}`
+        };
+      }
+    }
+
+    // All captured so update the group
+
+    try {
+      await EventGroupBooking.update({ allPaid: true }, {
+        where: { id: purchasedTicket.groupId }
+      });
+    } catch (error) {
+      return {
+        status: 500,
+        error: "Unable to update the group's payment status"
+      };
+    }
+
+    // This will have triggered the payment_intent.captured event from Stripe
+    // we send the emails there instead
+  } else {
+    // Send them an email confirming their hold
+    // And list who hasn't paid and how long they have left
+    const notPaidEmail = awaitingEventPaymentsEmail(purchasedTicket.User, notPaid, purchasedTicket.createdAt);
+    mailer.sendEmail(purchasedTicket.User.email, `Grey JCR - Hold Authorised`, notPaidEmail);
+  }
+
+  return {
+    status: 204,
+    error: ""
+  };
+}
+
+const createCompletedEventPaymentEmail = (ticket) => {
+  let firstName = ticket.User.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = ticket.User.surname.charAt(0).toUpperCase() + ticket.User.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Hello ${firstName} ${lastName},`);
+  message.push(`<p>Everybody in your group has successfully paid for their ticket!</p>`);
+  message.push(`<p>This email is confirmation of your booking.</p>`);
+  message.push(`<p><strong>Thank you!</strong></p>`);
+
+  return message.join("");
+}
+
+const sendCompletedEventPaymentEmail = async (ticketId) => {
+  let purchasedTicket;
+
+  try {
+    purchasedTicket = await EventTicket.findOne({
+      where: { id: ticketId },
+      include: [ User ]
+    });
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Unable to contact the database for the event ticket"
+    };
+  }
+
+  if(purchasedTicket === null) {
+    return {
+      status: 400,
+      error: "Invalid ticket ID"
+    };
+  }
+
+  const completedEmail = createCompletedEventPaymentEmail(purchasedTicket);
+  mailer.sendEmail(purchasedTicket.User.email, `Grey JCR - Event Payment Complete`, completedEmail);
+
+  return {
+    status: 200,
+    error: ""
+  }
+}
+
 router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
@@ -398,12 +594,32 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
     return res.status(400).json({ error: "Webhook signature verification failed "});
   }
 
+  console.log(event.type)
+  const paymentIntent = event.data.object;
+
   switch(event.type) {
     case "payment_intent.succeeded":
-      const paymentIntent = event.data.object;
-
       if(!paymentIntent.metadata) {
         return res.status(400).end();
+      }
+
+      // Happens for the GCCFS donations from SquareSpace
+      // We don't want to handle these but 400 is an error
+      // and Stripe will eventually shut down the endpoint
+      if(paymentIntent.metadata.hasOwnProperty("websiteId")) {
+        return res.status(204).end();
+      }
+
+      // This is for the events
+      // Occurs when they all have placed their holds
+      if(paymentIntent.metadata.hasOwnProperty("ticketId")) {
+        const emailResult = await sendCompletedEventPaymentEmail(paymentIntent.metadata.ticketId);
+
+        if(emailResult.status !== 200 || emailResult.status !== 204) {
+          return res.status(emailResult.status).json({ error: emailResult.error });
+        }
+
+        return res.status(204).end();
       }
 
       if(!paymentIntent.metadata.hasOwnProperty("orderId")) {
@@ -522,13 +738,32 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
       }
 
       break;
+    case "payment_intent.amount_capturable_updated":
+      // This is called when a hold is placed on the card i.e. an event ticket
+
+      if(!paymentIntent.metadata) {
+        return res.status(400).end();
+      }
+
+      if(!paymentIntent.metadata.hasOwnProperty("ticketId")) {
+        return res.status(400).end();
+      }
+
+      const { ticketId } = paymentIntent.metadata;
+      const result = await processEventHold(ticketId);
+
+      if(result.status !== 200 || result.status !== 204) {
+        console.log(result);
+        return res.status(result.status).json({ error: result.error });
+      }
+
+      break;
     default:
       break;
   }
 
   return res.status(204).end();
 });
-
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route

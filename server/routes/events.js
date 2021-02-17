@@ -9,6 +9,7 @@ const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/events/" });
 const mailer = require("../utils/mailer");
 const { Op } = require("sequelize");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 router.get("/", async (req, res) => {
   // Loads the 10 most recent events
@@ -914,7 +915,7 @@ router.post("/booking", async (req, res) => {
   return res.status(204).end();
 });
 
-router.get("/booking/:id", async (req, res) => {
+router.get("/booking/payment/:id", async (req, res) => {
   // Get the information about the booking using the ticket ID
   const { user } = req.session;
 
@@ -936,7 +937,8 @@ router.get("/booking/:id", async (req, res) => {
     ticket = await EventTicket.findOne({
       where: {
         id,
-        bookerId: user.id
+        bookerId: user.id,
+        isGuestTicket: false
       },
       include: [{
         model: EventGroupBooking,
@@ -964,6 +966,10 @@ router.get("/booking/:id", async (req, res) => {
     return res.status(400).json({ error: "Ticket does not exist or is not linked to this account" });
   }
 
+  if(ticket.paid) {
+    return res.status(200).json({ paid: true });
+  }
+
   // Now check for any guest tickets
 
   let guestTickets;
@@ -982,7 +988,52 @@ router.get("/booking/:id", async (req, res) => {
     return res.status(500).json({ error: "Unable to contact the database to get the guest ticket information" });
   }
 
-  return res.status(200).json({ ticket, guestTickets });
+  // Calculate the price to pay
+
+  const { memberPrice, guestPrice } = ticket.EventGroupBooking.EventTicketType;
+
+  const memberPricePence = Number(memberPrice) * 100;
+  const guestPricePence = Number(guestPrice) * 100;
+
+  const totalCost = Math.round(memberPricePence + guestPricePence * guestTickets.length);
+
+  // We need to make the reset the stripePaymentId and save it
+
+  let metadata = {
+    ticketId: ticket.id,
+    events: totalCost,
+    events_net: Math.round(totalCost - ((0.014 * totalCost) + 20))
+  }
+
+  // We make a fresh payment intent each time they load the page
+  // Probably safest to avoid the payment intent expiring
+  // and then we don't have to store the client secret
+  // Could potentially run into a double pay problem if they have
+  // two pages open but hopefully they will remember they already paid
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: totalCost,
+    currency: "gbp",
+    payment_method_types: ["card"],
+    capture_method: "manual",
+    receipt_email: user.email,
+    metadata,
+    description: `${ticket.EventGroupBooking.Event.name} Event Ticket`
+  });
+
+  const clientSecret = paymentIntent.client_secret;
+  ticket.stripePaymentId = paymentIntent.id;
+
+  try {
+    await ticket.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the payment intent ID" });
+  }
+
+  return res.status(200).json({ ticket, guestTickets, totalCost, paid: false, clientSecret });
+})
+
+router.post("/booking/pay", async (req, res) => {
+  return res.status(204).end();
 })
 
 const createPaymentEmail = (event, ticketType, booker, ticket) => {

@@ -4,6 +4,7 @@ import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
 import CountdownClock from '../../common/CountdownClock';
+import CheckoutForm from '../../checkout/CheckoutForm';
 
 class EventsPaymentPage extends React.Component {
   constructor(props) {
@@ -15,7 +16,15 @@ class EventsPaymentPage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      content: []
+      content: [],
+      ticket: null,
+      guestTickets: null,
+      event: null,
+      group: null,
+      type: null,
+      bookingCloses: null,
+      totalCost: null,
+      clientSecret: null
     };
   }
 
@@ -45,18 +54,25 @@ class EventsPaymentPage extends React.Component {
     let content;
 
     try {
-      content = await api.get(`/events/booking/${this.state.id}`);
+      content = await api.get(`/events/booking/payment/${this.state.id}`);
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
     }
 
-    const { ticket, guestTickets } = content.data;
+    const { paid } = content.data;
+
+    if(paid) {
+      this.setState({ loaded: true, status: 200, paid });
+      return;
+    }
+
+    const { ticket, guestTickets, totalCost, clientSecret } = content.data;
     const { EventGroupBooking } = ticket;
     const { Event, EventTicketType } = EventGroupBooking;
     const bookingCloses = new Date(new Date(EventGroupBooking.createdAt).getTime() + 60 * 60 * 24 * 1000);
 
-    this.setState({ loaded: true, status: 200, ticket, guestTickets, event: Event, group: EventGroupBooking, type: EventTicketType, bookingCloses });
+    this.setState({ loaded: true, status: 200, ticket, guestTickets, event: Event, group: EventGroupBooking, type: EventTicketType, bookingCloses, totalCost, paid, clientSecret });
   }
 
   makeDisplayName = (result) => {
@@ -67,6 +83,10 @@ class EventsPaymentPage extends React.Component {
     surname = surname.substring(0, 1).toUpperCase() + surname.substring(1).toLowerCase();
 
     return `${firstName} ${surname}`;
+  }
+
+  onPaymentSuccess = () => {
+
   }
 
   render () {
@@ -88,9 +108,15 @@ class EventsPaymentPage extends React.Component {
       );
     }
 
-    const { event, group, guestTickets, ticket, type, bookingCloses } = this.state;
+    if(this.state.paid) {
+      return (
+        <div>
+          Paid
+        </div>
+      )
+    }
 
-    const amountToPay = 0;
+    const { event, group, guestTickets, ticket, type, bookingCloses, totalCost, clientSecret } = this.state;
 
     // <CountdownClock
     //   until={bookingCloses}
@@ -108,6 +134,15 @@ class EventsPaymentPage extends React.Component {
             <div className="flex-1 border-2 mr-0 md:mr-2 p-2">
               <h2 className="font-semibold text-2xl pb-2">Your Payment</h2>
               <p>{type.name}</p>
+              <p>Probably add something here to say what they are paying for e.g. guests</p>
+              <p>Total: £{(totalCost / 100).toFixed(2)}</p>
+              <div className="w-full text-base py-4 align-middle">
+                <CheckoutForm
+                  clientSecret={clientSecret}
+                  onSuccess={this.onPaymentSuccess}
+                  totalAmountInPence={totalCost}
+                />
+              </div>
             </div>
             <div className="flex-1 border-2 mt-2 md:mt-0 p-2">
               <h2 className="font-semibold text-2xl pb-2">Your Group</h2>
