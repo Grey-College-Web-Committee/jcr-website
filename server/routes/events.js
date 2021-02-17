@@ -385,6 +385,27 @@ router.get("/ticketType/:id", async (req, res) => {
     return res.status(400).json({ error: "Invalid ID, no record found" });
   }
 
+  // Check for a debt
+
+  let debt;
+
+  try {
+    debt = await Debt.findOne({
+      where: { username: user.username }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the debt from the database" });
+  }
+
+  if(debt !== null) {
+    return res.status(200).json({
+      available: false,
+      reason: "in_debt",
+      release: null,
+      record
+    });
+  }
+
   // Check if they already have a ticket
 
   let ticket;

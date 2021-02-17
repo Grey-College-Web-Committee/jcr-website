@@ -873,11 +873,6 @@ EventGroupBooking.init({
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  firstHoldTime: {
-    type: DataTypes.DATE,
-    allowNull: true,
-    defaultValue: null
-  },
   allPaid: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
@@ -886,7 +881,7 @@ EventGroupBooking.init({
 }, { sequelize });
 
 EventTicket.init({
-  id: { 
+  id: {
     type: DataTypes.UUID,
     primaryKey: true,
     defaultValue: DataTypes.UUIDV4

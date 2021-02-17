@@ -403,11 +403,16 @@ const awaitingEventPaymentsEmail = (user, notPaid, groupCreatedAtDate) => {
   message.push(`<ul>`);
 
   notPaid.forEach((record, i) => {
+    if(record.isGuestTicket) {
+      message.push(`<li>${record.guestName} (Guest)</li>`);
+      return;
+    }
+
     let firstNameNotPaid = record.User.firstNames.split(",")[0];
     firstNameNotPaid = firstNameNotPaid.charAt(0).toUpperCase() + firstNameNotPaid.substr(1).toLowerCase();
     const lastNameNotPaid = record.User.surname.charAt(0).toUpperCase() + record.User.surname.substr(1).toLowerCase();
 
-    message.push(`<li>${firstNameNotPaid} ${lastNameNotPaid} ${record.isGuestTicket ? "(Guest)" : ""}`);
+    message.push(`<li>${firstNameNotPaid} ${lastNameNotPaid}`);
   });
 
 
@@ -580,6 +585,14 @@ const sendCompletedEventPaymentEmail = async (ticketId) => {
       status: 400,
       error: "Invalid ticket ID"
     };
+  }
+
+  // Won't email guests
+  if(purchasedTicket.isGuestTicket) {
+    return {
+      status: 200,
+      error: ""
+    }
   }
 
   // Send them the email to confirm everyone has paid

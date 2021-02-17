@@ -193,6 +193,8 @@ class EventsInfoPage extends React.Component {
                         bookingUnavailable = "There are no more tickets of this type available!";
                       } else if (type.reason === "already_booked") {
                         bookingUnavailable = "You already have a ticket to this event.";
+                      } else if (type.reason === "in_debt") {
+                        bookingUnavailable = "You have debt owed to the JCR.";
                       } else {
                         bookingUnavailable = "Unavailable";
                       }
