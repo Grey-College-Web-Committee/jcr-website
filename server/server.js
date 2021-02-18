@@ -24,6 +24,7 @@ const electionsRoute = require("./routes/elections");
 const mediaRoute = require("./routes/media");
 const welfareMessagesRoute = require("./routes/welfare_messages");
 const eventsRoute = require("./routes/events");
+const debtRoute = require("./routes/debt");
 // Required to deploy the static React files for production
 const path = require("path");
 const fs = require("fs");
@@ -135,6 +136,16 @@ const requiredPermissions = [
     name: "Manage Events",
     description: "Create, edit, delete and view details about events",
     internal: "events.manage"
+  },
+  {
+    name: "Has Debt",
+    description: "Denotes a user who owes a debt to the JCR",
+    internal: "debt.has"
+  },
+  {
+    name: "Manage Debt",
+    description: "View and manage debt owed to the JCR",
+    internal: "debt.manage"
   }
 ];
 
@@ -232,8 +243,9 @@ app.use("/api/gym", isLoggedIn, gymRoute);
 app.use("/api/memberships", isLoggedIn, membershipsRoute);
 app.use("/api/elections", isLoggedIn, electionsRoute);
 app.use("/api/media", isLoggedIn, mediaRoute);
-app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);eventsRoute
+app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);
 app.use("/api/events", isLoggedIn, eventsRoute);
+app.use("/api/debt", isLoggedIn, debtRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

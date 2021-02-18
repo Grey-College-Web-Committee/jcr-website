@@ -655,10 +655,10 @@ router.get("/search/member/:ticketTypeId/:username", async (req, res) => {
 });
 
 router.post("/booking", async (req, res) => {
-  // Gets the details about a single event
+  // Creates a booking
   const { user } = req.session;
 
-  // Must be an admin to create events
+  // Must be a member to create a booking
   if(!hasPermission(req.session, "jcr.member")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -819,7 +819,6 @@ router.post("/booking", async (req, res) => {
   }
 
   let realJCRMembers = [];
-  let realGuests = [];
 
   for(const jcrMember of jcrMembers) {
     let givenData = group.filter(m => m.id === jcrMember.id);
@@ -835,14 +834,31 @@ router.post("/booking", async (req, res) => {
       return res.status(400).json({ error: "Inconsistent username submitted" });
     }
 
+    // Check their debt status
+    let debtRecord;
+
+    try {
+      debtRecord = await Debt.findOne({ where: { username: givenData.username }});
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to check the debt status" });
+    }
+
+    // If they have a debt record then prevent them booking
+    if(debtRecord !== null) {
+      return res.status(400).json({ error: `${username} has a debt owed to the JCR` });
+    }
+
+    // Check they don't already have a ticket
     if(jcrMember.EventGroupBookings.length !== 0) {
       return res.status(400).json({ error: `${username} already has a ticket for this event` });
     }
 
+    // Make sure they have a valid membership
     if(membershipExpiresAt === null || now > new Date(membershipExpiresAt)) {
       return res.status(400).json({ error: `${username} does not have a JCR membership and must be booked on as a guest instead` });
     }
 
+    // Check for whether older years can book younger years regardless of the release time
     if(!record.olderYearsCanOverride) {
       const { year } = jcrMember;
       let release = null;
@@ -884,7 +900,6 @@ router.post("/booking", async (req, res) => {
       totalMembers
     });
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: "Unable to create the booking in the database" });
   }
 

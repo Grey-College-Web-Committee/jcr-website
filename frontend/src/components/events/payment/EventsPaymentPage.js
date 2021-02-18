@@ -141,19 +141,7 @@ class EventsPaymentPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">{event.name} - Payment</h1>
-          <div className="flex flex-col md:flex-row text-justify">
-            <div className="flex-1 mr-0 md:mr-2 p-2">
-              <h2 className="font-semibold text-3xl pb-2">Your Payment</h2>
-              <p className="py-1">{type.name}</p>
-              <p className="py-1">This will place a hold on your card for the amount of £{(totalCost / 100).toFixed(2)} which will be taken from your account once all members of your group have authorised their cards. If your booking is cancelled then the hold will be released and no funds will be taken.</p>
-              <div className="w-full text-base py-4 align-middle">
-                <CheckoutForm
-                  clientSecret={clientSecret}
-                  onSuccess={this.onPaymentSuccess}
-                  totalAmountInPence={totalCost}
-                />
-              </div>
-            </div>
+          <div className="flex flex-col-reverse md:flex-row text-justify">
             <div className="flex-1 mt-2 md:mt-0 p-2">
               <h2 className="font-semibold text-3xl pb-2">Your Group</h2>
               <p className="py-1">Everybody in your group must have authorised their payment by <span className="font-semibold">{dateFormat(bookingCloses, "dd/mm/yyyy HH:MM")}</span> otherwise you're group's booking will be cancelled and you may be unable to get a place on the event.</p>
@@ -187,6 +175,18 @@ class EventsPaymentPage extends React.Component {
                   }
                 </tbody>
               </table>
+            </div>
+            <div className="flex-1 mr-0 md:mr-2 p-2">
+              <h2 className="font-semibold text-3xl pb-2">Your Payment</h2>
+              <p className="py-1">{type.name}</p>
+              <p className="py-1">This will place a hold on your card for the amount of £{(totalCost / 100).toFixed(2)} which will be taken from your account once all members of your group have authorised their cards. If your booking is cancelled then the hold will be released and no funds will be taken.</p>
+              <div className="w-full text-base py-4 align-middle">
+                <CheckoutForm
+                  clientSecret={clientSecret}
+                  onSuccess={this.onPaymentSuccess}
+                  totalAmountInPence={totalCost}
+                />
+              </div>
             </div>
           </div>
         </div>

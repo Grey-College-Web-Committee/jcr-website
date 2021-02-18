@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking } = require("../database.models.js");
+const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking, Debt } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
@@ -380,11 +380,46 @@ const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryI
   mailer.sendEmail("grey.treasurer@durham.ac.uk", `New JCR Membership Purchased (${user.username})`, facsoEmail);
 }
 
-const fulfilOrderProcessors = {
-  "toastie": fulfilToastieOrders,
-  "stash": fulfilStashOrders,
-  "gym": fulfilGymOrders,
-  "jcr_membership": fulfilJCRMembershipOrders
+const fulfilDebtOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
+  // Remove the debt record and the debt permission
+
+  let debtPermission;
+
+  // Get the permission so we can have the ID of it
+  try {
+    debtPermission = await Permission.findOne({ where: { internal: "debt.has" } });
+  } catch (error) {
+    return;
+  }
+
+  if(debtPermission === null) {
+    return;
+  }
+
+  // Remove the permission link
+  try {
+    await PermissionLink.destroy({
+      where: {
+        permissionId: debtPermission.id,
+        grantedToId: user.id
+      }
+    });
+  } catch (error) {
+    return;
+  }
+
+  // Remove the debt
+  try {
+    await Debt.destroy({
+      where: {
+        username: user.username
+      }
+    });
+  } catch (error) {
+    return;
+  }
+
+  // Could maybe send emails??
 }
 
 const awaitingEventPaymentsEmail = (user, notPaid, groupCreatedAtDate) => {
@@ -603,6 +638,14 @@ const sendCompletedEventPaymentEmail = async (ticketId) => {
     status: 200,
     error: ""
   }
+}
+
+const fulfilOrderProcessors = {
+  "toastie": fulfilToastieOrders,
+  "stash": fulfilStashOrders,
+  "gym": fulfilGymOrders,
+  "jcr_membership": fulfilJCRMembershipOrders,
+  "debt": fulfilDebtOrders
 }
 
 router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {

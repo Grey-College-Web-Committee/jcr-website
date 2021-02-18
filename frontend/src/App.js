@@ -18,7 +18,7 @@ import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
 import CheckoutPage from './components/checkout/CheckoutPage';
 import OrderStashPage from './components/stash/OrderStashPage';
 import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
-import DebtorPage from './components/debtors/DebtorPage';
+import DebtPage from './components/debt/DebtPage';
 import GymInformationPage from './components/gym/GymInformationPage';
 import GymTermsPage from './components/gym/GymTermsPage';
 import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
@@ -59,6 +59,7 @@ import WelfareAdminOverviewPage from './components/welfare/message/admin/Welfare
 import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
 import MediaPage from './components/media/MediaViewPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
+import ManageDebtPage from './components/debt/admin/ManageDebtPage';
 
 import CreateNewEventPage from './components/events/admin/create/CreateNewEventPage';
 
@@ -264,7 +265,7 @@ class App extends React.Component {
                     <Route exact path="/cookies" render={() => (
                       <CookiesPage />
                     )} />
-                  <Route exact path="/accounts/login" render={(props) => (
+                    <Route exact path="/accounts/login" render={(props) => (
                       this.isLoggedIn() ? ( <Redirect to={this.state.ref} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )
                     )} />
                     <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
@@ -298,8 +299,11 @@ class App extends React.Component {
                     <Route exact path="/media/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/media/admin") )
                     )} />
-                    <Route exact path="/debtors" render={() => (
-                      this.isLoggedIn() ? ( <DebtorPage /> ) : ( this.loginRef("/debtors") )
+                    <Route exact path="/debt" render={() => (
+                      this.isLoggedIn() ? ( <DebtPage /> ) : ( this.loginRef("/debt") )
+                    )} />
+                    <Route exact path="/debt/manage" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("debt.manage") ? ( <ManageDebtPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/debt/manage") )
                     )} />
                     <Route exact path="/gym" render={() => (
                       this.isLoggedIn() ? ( <GymInformationPage /> ) : ( this.loginRef("/gym") )

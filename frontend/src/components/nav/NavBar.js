@@ -146,6 +146,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: null
         },
         {
+          displayName: "Your Debt",
+          url: "/debt",
+          requiredPermission: "debt.has",
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
           displayName: `${user.username}`,
           url: null,
           requiredPermission: null,
@@ -219,6 +227,11 @@ class NavBar extends React.Component {
               displayName: "Manage Events",
               url: "/events/admin/create",
               requiredPermission: "events.manage"
+            },
+            {
+              displayName: "Manage Debts",
+              url: "/debt/manage",
+              requiredPermission: "debt.manage"
             }
           ],
           alwaysDisplayed: false

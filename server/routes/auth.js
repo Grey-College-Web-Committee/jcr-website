@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, Permission, PermissionLink } = require("../database.models.js");
+const { User, Permission, PermissionLink, Debt } = require("../database.models.js");
 const axios = require("axios");
 // An object consisting of emails and expiry dates
 const prepaidMemberships = require("../prepaid_memberships.json");
@@ -180,6 +180,44 @@ router.post("/login", async (req, res) => {
       });
     } catch (error) {
       return res.status(500).json({ error: "Unable to link membership" });
+    }
+  }
+
+  let debtRecord;
+
+  try {
+    debtRecord = await Debt.findOne({ where: { username: user.username }});
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check the debt status" });
+  }
+
+  if(debtRecord !== null) {
+    let debtPermission;
+
+    try {
+      debtPermission = await Permission.findOne({ where: { internal: "debt.has" } });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to get the debt permission" });
+    }
+
+    if(debtPermission === null) {
+      return res.status(500).json({ error: "Unable to get the debt permission, was null" });
+    }
+
+    try {
+      await PermissionLink.findOrCreate({
+        where: {
+          permissionId: debtPermission.id,
+          grantedToId: user.id
+        },
+        defaults: {
+          permissionId: debtPermission.id,
+          grantedToId: user.id,
+          grantedById: 1
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to set the debt permission" });
     }
   }
 

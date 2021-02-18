@@ -2,12 +2,9 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address } = require("../database.models.js");
+const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address, Debt } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-// Array of debtors who are prohibited from buying from the store
-// this is temporary until the debt backlog is sorted
-const debtors = require("../debtors.json");
 
 const stashLock = new Date("2021-02-01T00:00:00Z");
 
@@ -698,12 +695,54 @@ const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, 
   };
 }
 
+const debtProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
+  let debtRecord;
+
+  try {
+    debtRecord = await Debt.findOne({ where: { username: user.username }});
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to get the debt record"
+    };
+  }
+
+  if(debtRecord === null) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "User doesn't have debt"
+    };
+  }
+
+  try {
+    await ShopOrderContent.create({
+      orderId,
+      shop: "debt"
+    });
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to create new sub order for debt"
+    };
+  }
+
+  return {
+    price: debtRecord.debt,
+    globalSubmissionInfo: globalSubmissionInfo,
+    globalOrderParameters: globalOrderParameters
+  };
+}
+
 // Required
 const shopProcessors = {
   "toastie": toastieProcessor,
   "stash": stashProcessor,
   "gym": gymProcessor,
-  "jcr_membership": jcrMembershipProcessor
+  "jcr_membership": jcrMembershipProcessor,
+  "debt": debtProcessor
 };
 
 // Optional
@@ -723,7 +762,17 @@ router.post("/process", async (req, res) => {
   const isMember = user.membershipExpiresAt !== null && new Date(user.membershipExpiresAt) > new Date();
   const submittedCart = req.body.submissionCart;
 
-  if(debtors.includes(user.username.toLowerCase())) {
+  // Check if they are a debtor
+
+  let debtRecord;
+
+  try {
+    debtRecord = await Debt.findOne({ where: { username: user.username.toLowerCase() }});
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check debtor status" });
+  }
+
+  if(debtRecord !== null) {
     return res.status(402).json({ error: "Debtor" });
   }
 
