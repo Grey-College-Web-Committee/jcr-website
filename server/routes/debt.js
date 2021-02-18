@@ -56,11 +56,114 @@ router.get("/all", async (req, res) => {
   }
 
   return res.status(200).json({ debts });
-
 })
 
 router.post("/", async (req, res) => {
+  // Create a new debt entry
+  const { user } = req.session;
 
+  // Check permissions
+  if(!hasPermission(req.session, "debt.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { username, description, amount } = req.body;
+
+  if(username === undefined || username === null || username.length !== 6) {
+    return res.status(400).json({ error: "username error" });
+  }
+
+  if(description === undefined || description === null || description.length === 0) {
+    return res.status(400).json({ error: "description error" });
+  }
+
+  if(amount === undefined || amount === null || amount.length === 0) {
+    return res.status(400).json({ error: "amount error" });
+  }
+
+  // Check for existing records
+
+  let existingDebtRecord;
+
+  try {
+    existingDebtRecord = await Debt.findOne({ where: { username } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check for existing debt" });
+  }
+
+  if(existingDebtRecord !== null) {
+    return res.status(400).json({ error: `${username} already has a debt, edit their debt instead` });
+  }
+
+  // Find the user if they have an account
+
+  let debtUser = null;
+
+  try {
+    debtUser = await User.findOne({ where: { username } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check for the user" });
+  }
+
+  if(debtUser !== null) {
+    // We have a user so need to add the permission
+    let debtPermission;
+
+    // Get the permission so we can have the ID of it
+    try {
+      debtPermission = await Permission.findOne({ where: { internal: "debt.has" } });
+    } catch (error) {
+      return;
+    }
+
+    // Shouldn't happen
+    if(debtPermission === null) {
+      return res.status(500).json({ error: "Unable to get the debt permission" });
+    }
+
+    // Create the permission link
+    try {
+      await PermissionLink.create({
+        permissionId: debtPermission.id,
+        grantedToId: debtUser.id,
+        grantedById: user.id
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to create the debt permission link" });
+    }
+  }
+
+  let debtRecord;
+
+  // Create the debt record
+  try {
+    debtRecord = await Debt.create({
+      username, debt: amount, description
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the debt record" });
+  }
+
+  if(debtRecord === null) {
+    return res.status(500).json({ error: "Unable to create the debt record, was null" });
+  }
+
+  // Construct the debt record in the same way as the fetch
+
+  // Optional chaining operator would be nicer to use
+  // but it complains of syntax errors at the time of writing :(
+  // replace with email: debtUser?.email || null or similar
+  const debtObj = {
+    debtId: debtRecord.id,
+    description,
+    amount,
+    username,
+    email: debtUser ? debtUser.email : null,
+    firstNames: debtUser ? debtUser.firstNames : null,
+    surname: debtUser ? debtUser.surname : null
+  };
+
+  return res.status(200).json({ debt: debtObj });
 });
 
 router.delete("/:id", async (req, res) => {

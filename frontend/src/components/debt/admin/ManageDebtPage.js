@@ -16,7 +16,8 @@ class ManageDebtPage extends React.Component {
       username: "",
       amount: 0,
       description: "",
-      addDisabled: false
+      addDisabled: false,
+      total: 0
     };
 
     // Change this to your permission
@@ -60,7 +61,10 @@ class ManageDebtPage extends React.Component {
       return;
     }
 
-    this.setState({ loaded: true, ...content.data });
+    const { debts } = content.data;
+    const total = debts.map(record => Number(record.amount)).reduce((acc, value) => acc + value, 0);
+
+    this.setState({ loaded: true, debts, total });
   }
 
   onInputChange = e => {
@@ -81,9 +85,32 @@ class ManageDebtPage extends React.Component {
     this.setState({ addDisabled: true });
     const { username, amount, description } = this.state;
 
-    // TODO
+    let result;
 
-    this.setState({ addDisabled: false });
+    try {
+      result = await api.post("/debt", {
+        username, amount, description
+      });
+    } catch (error) {
+      alert(error.response.data.error)
+      this.setState({ addDisabled: false });
+      return;
+    }
+
+    let { debts } = this.state;
+
+    debts.push(result.data.debt);
+    const total = debts.map(record => Number(record.amount)).reduce((acc, value) => acc + value, 0);
+
+    this.setState({ addDisabled: false, username: "", amount: 0, description: "", debts, total });
+  }
+
+  onRowDelete = (debt) => {
+    const { debtId } = debt;
+    let { debts } = this.state;
+    debts = debts.filter(debt => debt.debtId !== debtId);
+    const total = debts.map(record => Number(record.amount)).reduce((acc, value) => acc + value, 0);
+    this.setState({ debts, total });
   }
 
   render () {
@@ -157,6 +184,7 @@ class ManageDebtPage extends React.Component {
           </div>
           <div>
             <h2 className="text-left font-semibold text-2xl">Existing Debt</h2>
+            <p className="py-1 font-semibold text-lg text-left">Total outstanding: £{this.state.total.toFixed(2)}</p>
             <table className="mx-auto border-2 text-left border-red-900 w-full">
               <thead className="bg-red-900 text-white">
                 <tr>
@@ -174,6 +202,7 @@ class ManageDebtPage extends React.Component {
                     <DebtRow
                       debt={debt}
                       key={i}
+                      onDelete={(debt) => this.onRowDelete(debt)}
                     />
                   ))
                 }

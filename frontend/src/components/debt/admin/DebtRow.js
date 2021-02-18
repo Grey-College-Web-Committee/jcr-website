@@ -28,6 +28,7 @@ class DebtRow extends React.Component {
 
     // Set itself to be invisible until the data refreshes
     this.setState({ deleted: true });
+    this.props.onDelete(this.state.debt);
   }
 
   render () {
