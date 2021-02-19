@@ -447,7 +447,7 @@ const awaitingEventPaymentsEmail = (user, notPaid, groupCreatedAtDate) => {
     firstNameNotPaid = firstNameNotPaid.charAt(0).toUpperCase() + firstNameNotPaid.substr(1).toLowerCase();
     const lastNameNotPaid = record.User.surname.charAt(0).toUpperCase() + record.User.surname.substr(1).toLowerCase();
 
-    message.push(`<li>${firstNameNotPaid} ${lastNameNotPaid}`);
+    message.push(`<li>${firstNameNotPaid} ${lastNameNotPaid}</li>`);
   });
 
 

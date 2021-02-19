@@ -135,6 +135,7 @@ class EventsInfoPage extends React.Component {
         <div className="text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">{name}</h1>
           <p className="pb-2 text-xl">Event starts at {dateFormat(this.state.event.date, "dd/mm/yyyy HH:MM")}</p>
+          <p className="pb-2 text-xl">Booking closes at {dateFormat(this.state.event.bookingCloseTime, "dd/mm/yyyy HH:MM")}</p>
           <p className="pb-4 text-xl">Please check for emails from the Events Manager for details!</p>
           <div>
             <img

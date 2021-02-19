@@ -444,7 +444,6 @@ router.get("/ticketType/:id", async (req, res) => {
     return res.status(200).json({
       available: false,
       reason: "closed",
-      release,
       record
     });
   }

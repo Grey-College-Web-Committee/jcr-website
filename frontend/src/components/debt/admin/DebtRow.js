@@ -7,7 +7,6 @@ class DebtRow extends React.Component {
     super(props);
 
     this.state = {
-      deleted: false,
       debt: this.props.debt,
       disabled: false
     }
@@ -26,25 +25,34 @@ class DebtRow extends React.Component {
       return;
     }
 
-    // Set itself to be invisible until the data refreshes
-    this.setState({ deleted: true });
     this.props.onDelete(this.state.debt);
   }
 
-  render () {
-    const { debt, deleted, disabled } = this.state;
-
-    if(deleted) {
-      return null;
+  makeDisplayName = (result) => {
+    if(!result.firstNames) {
+      return "Not Signed Up";
     }
+
+    // Converts the firstNames and surname into a suitable display format
+    const split = result.firstNames.split(",");
+    let firstName = split[0];
+    firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
+    let surname = result.surname;
+    surname = surname.substring(0, 1).toUpperCase() + surname.substring(1).toLowerCase();
+
+    return `${firstName} ${surname}`;
+  }
+
+  render () {
+    const { debt, disabled } = this.state;
 
     return (
       <tr className="text-center border-b border-gray-400">
-        <td className="p-2 border-r border-gray-400">{debt.firstNames || "Not Signed Up"}</td>
+        <td className="p-2 border-r border-gray-400">{this.makeDisplayName(debt)}</td>
         <td className="p-2 border-r border-gray-400">{debt.username}</td>
         <td className="p-2 border-r border-gray-400">{debt.email || "Not Signed Up"}</td>
         <td className="p-2 border-r border-gray-400">{debt.description}</td>
-        <td className="p-2 border-r border-gray-400">{debt.amount}</td>
+        <td className="p-2 border-r border-gray-400">{Number(debt.amount).toFixed(2)}</td>
         <td className="p-2 border-r border-gray-400">
           <button
             onClick={this.deleteSelf}

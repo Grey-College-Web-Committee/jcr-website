@@ -76,7 +76,7 @@ class ManageDebtPage extends React.Component {
 
     return (
       (username !== undefined && username !== null && username.length === 6) &&
-      (amount !== undefined && amount !== null && amount.length !== 0) &&
+      (amount !== undefined && amount !== null && amount.length !== 0 && Number(amount) > 0) &&
       (description !== undefined && description !== null && description.length !== 0 && description.length < 10000)
     );
   }
@@ -84,6 +84,11 @@ class ManageDebtPage extends React.Component {
   createDebt = async () => {
     this.setState({ addDisabled: true });
     const { username, amount, description } = this.state;
+
+    if(!this.canCreateDebt()) {
+      alert("Please check the data entered");
+      return;
+    }
 
     let result;
 
@@ -201,7 +206,7 @@ class ManageDebtPage extends React.Component {
                   this.state.debts.map((debt, i) => (
                     <DebtRow
                       debt={debt}
-                      key={i}
+                      key={`${Math.random()}`}
                       onDelete={(debt) => this.onRowDelete(debt)}
                     />
                   ))

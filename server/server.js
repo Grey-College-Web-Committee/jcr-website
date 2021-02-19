@@ -6,6 +6,8 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+// Used to schedule jobs
+const CronJob = require("cron").CronJob;
 
 // Routes and database models
 const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("./database.models.js");
@@ -25,9 +27,13 @@ const mediaRoute = require("./routes/media");
 const welfareMessagesRoute = require("./routes/welfare_messages");
 const eventsRoute = require("./routes/events");
 const debtRoute = require("./routes/debt");
+
 // Required to deploy the static React files for production
 const path = require("path");
 const fs = require("fs");
+
+// The cron jobs for the events system
+const eventsCron = require("./cron/events_cron.js");
 
 // Load express
 const app = express();
@@ -209,6 +215,15 @@ const requiredPermissions = [
     });
   });
 })();
+
+// ("* * * * *") runs every minute
+// TODO Figure out what every hour is shouldn't be too bad
+const eventsCronJob = new CronJob("* * * * *", eventsCron.cancelExpiredBookings);
+
+// Running in cluster mode we want to only run this on one of the instances
+if(process.env.WITH_SCHEDULE) {
+  eventsCronJob.start();
+}
 
 // This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.
 // This usually happens when you stop your express server after login, your cookie still remains saved in the browser.
