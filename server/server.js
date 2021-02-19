@@ -8,7 +8,7 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Feedback } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store)
 
@@ -23,7 +23,7 @@ const membershipsRoute = require("./routes/memberships");
 const electionsRoute = require("./routes/elections");
 const mediaRoute = require("./routes/media");
 const welfareMessagesRoute = require("./routes/welfare_messages");
-welfareMessagesRoute
+const feedbackRoute = require("./routes/feedback");
 // Required to deploy the static React files for production
 const path = require("path");
 const fs = require("fs");
@@ -123,13 +123,18 @@ const requiredPermissions = [
   },
   {
     name: "Manage Media",
-    description: "Allows user to add and remove media items",
+    description: "Allows a user to add and remove media items",
     internal: "media.manage"
   },
   {
     name: "View Anonymous Messages",
     description: "Gives access to the anonymous messages received by the welfare team",
     internal: "welfare.anonymous"
+  },
+  {
+    name: "Manage Feedback",
+    description: "Allows a user to view the feedback submitted",
+    internal: "feedback.manage"
   }
 ];
 
@@ -171,6 +176,8 @@ const requiredPermissions = [
 
   await WelfareThread.sync();
   await WelfareThreadMessage.sync();
+
+  await Feedback.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
@@ -220,6 +227,7 @@ app.use("/api/memberships", isLoggedIn, membershipsRoute);
 app.use("/api/elections", isLoggedIn, electionsRoute);
 app.use("/api/media", isLoggedIn, mediaRoute);
 app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);
+app.use("/api/feedback", isLoggedIn, feedbackRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

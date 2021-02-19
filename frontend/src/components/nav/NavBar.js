@@ -138,6 +138,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Feedback",
+          url: "/feedback",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
           displayName: `${user.username}`,
           url: null,
           requiredPermission: null,
@@ -206,7 +214,12 @@ class NavBar extends React.Component {
               displayName: "Welfare Messages",
               url: "/welfare/message/admin",
               requiredPermission: "welfare.anonymous"
-            }
+            },
+            {
+              displayName: "Manage Feedback",
+              url: "/feedback/admin",
+              requiredPermission: "feedback.manage"
+            },
           ],
           alwaysDisplayed: false
         }
