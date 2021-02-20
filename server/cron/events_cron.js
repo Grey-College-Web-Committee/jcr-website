@@ -14,7 +14,7 @@ const forcedCancellationEmail = (group, ticket, notPaid) => {
   message.push(`<p>Your group's booking for ${group.Event.name} has been cancelled due to a lack of payment.</p>`);
 
   if(ticket.paid) {
-    message.push(`<p>The hold on your card has been released.</p>`);
+    message.push(`<p>The hold on your card has been released. This can take up to 7 days depending on your bank.</p>`);
     message.push(`<p>The members of your group who had not authorised their card holds were:</p>`);
     message.push(`<ul>`);
 

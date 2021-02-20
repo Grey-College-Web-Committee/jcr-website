@@ -1065,9 +1065,60 @@ router.get("/booking/payment/:id", async (req, res) => {
   }
 
   return res.status(200).json({ ticket, guestTickets, totalCost, paid: false, clientSecret });
-})
+});
 
-router.post("/booking/pay", async (req, res) => {
+router.post("/booking/forms", async (req, res) => {
+  // Sets the required information requested for a ticket type
+  const { user } = req.session;
+
+  // Must be a member
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Do a small validation
+  const { providedInfo } = req.body;
+
+  if(providedInfo === undefined || providedInfo === null || Object.keys(providedInfo).length === 0) {
+    return res.status(400).json({ error: "Missing providedInfo" });
+  }
+
+  // TODO: Could definitely improve this by making sure they update all of their tickets
+  // And validating the providedInfo
+
+  // Loop over the keys
+  for(const ticketId in providedInfo) {
+    let ticketRecord;
+
+    // Get the ticket matching the ID but only if they are the booker
+    try {
+      ticketRecord = await EventTicket.findOne({
+        where: {
+          bookerId: user.id,
+          id: ticketId
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to contact the database to get the ticket record" });
+    }
+
+    // Either they weren't the booker or the ID was invalid
+    if(ticketRecord === null) {
+      return res.status(400).json({ error: "Invalid ticket ID" });
+    }
+
+    // Update the requiredInformation field
+    ticketRecord.requiredInformation = JSON.stringify(providedInfo[ticketId]);
+
+    // Save the record
+    try {
+      ticketRecord.save();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to contact the database to update the ticket record" });
+    }
+  }
+
+  // No content but successful
   return res.status(204).end();
 })
 

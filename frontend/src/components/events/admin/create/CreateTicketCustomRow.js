@@ -109,7 +109,7 @@ class CreateTicketCustomRow extends React.Component {
       <div className="flex flex-col">
         <fieldset>
           <div className="pt-2 pb-2 border-b-2">
-            <label htmlFor="olderYearsCanOverride" className="flex flex-row justify-start text-lg font-semibold">Field Name</label>
+            <label htmlFor="name" className="flex flex-row justify-start text-lg font-semibold">Field Name</label>
             <span className="flex flex-row justify-start text-sm mb-2">({255 - this.state.name.length} characters remaining)</span>
             <input
               name="name"
@@ -121,7 +121,7 @@ class CreateTicketCustomRow extends React.Component {
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
-            <label htmlFor="olderYearsCanOverride" className="flex flex-row justify-start text-lg font-semibold">Field Required?</label>
+            <label htmlFor="required" className="flex flex-row justify-start text-lg font-semibold">Field Required?</label>
             <span className="flex flex-row justify-start text-sm mb-2">Forces the individual to fill in this field</span>
             <input
               name="required"
@@ -132,7 +132,7 @@ class CreateTicketCustomRow extends React.Component {
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
-            <label htmlFor="olderYearsCanOverride" className="flex flex-row justify-start text-lg font-semibold">Field Type</label>
+            <label htmlFor="type" className="flex flex-row justify-start text-lg font-semibold">Field Type</label>
             <div className="flex flex-row justify-start">
               <select
                 name="type"
