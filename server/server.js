@@ -216,13 +216,14 @@ const requiredPermissions = [
   });
 })();
 
-// ("* * * * *") runs every minute
-// TODO Figure out what every hour is shouldn't be too bad
-const eventsCronJob = new CronJob("* * * * *", eventsCron.cancelExpiredBookings);
-
 // Running in cluster mode we want to only run this on one of the instances
 if(process.env.WITH_SCHEDULE) {
-  eventsCronJob.start();
+  // ("* * * * *") runs every minute
+  // TODO Figure out what every hour is shouldn't be too bad
+  const cancellationCronJob = new CronJob("* * * * *", eventsCron.cancelExpiredBookings);
+  const reminderCronJob = new CronJob("* * * * *", eventsCron.reminderEmailsForBookings);
+  //cancellationCronJob.start();
+  //reminderCronJob.start();
 }
 
 // This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.

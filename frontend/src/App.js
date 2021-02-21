@@ -62,6 +62,7 @@ import MediaAdminPage from './components/media/MediaAdminPage';
 import ManageDebtPage from './components/debt/admin/ManageDebtPage';
 
 import CreateNewEventPage from './components/events/admin/create/CreateNewEventPage';
+import EventsGroupManagePage from './components/events/admin/groups/EventsGroupManagePage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -364,6 +365,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/events/admin/create" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <CreateNewEventPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin/create") )
+                    )} />
+                    <Route exact path="/events/admin/groups/:eventId" render={(props) => (
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsGroupManagePage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/events/admin/groups/${props.match.params.eventId}`) )
                     )} />
                     <Route exact path="/events/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events") )

@@ -8,6 +8,7 @@ const { User, Permission, PermissionLink, Debt, Event, EventImage, EventTicketTy
 const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/events/" });
 const mailer = require("../utils/mailer");
+const dateFormat = require("dateformat");
 const { Op } = require("sequelize");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -1122,6 +1123,212 @@ router.post("/booking/forms", async (req, res) => {
   return res.status(204).end();
 })
 
+router.get("/groups/:eventId", async (req, res) => {
+  const { user } = req.session;
+
+  // Must be an admin to create events
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { eventId } = req.params;
+
+  // Check the eventId was set
+  if(eventId === undefined || eventId === null) {
+    return res.status(400).json({ error: "Missing eventId" });
+  }
+
+  let eventRecord;
+
+  // Select the event
+  try {
+    eventRecord = await Event.findOne({
+      where: { id: eventId }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to select the event" });
+  }
+
+  // Makes sure the event is real
+  if(eventRecord === null) {
+    return res.status(400).json({ error: "Invalid eventId" });
+  }
+
+  let groups;
+
+  // Find all of the groups
+  try {
+    groups = await EventGroupBooking.findAll({
+      where: { eventId },
+      include: [
+        {
+          model: EventTicket,
+          include: [ User ]
+        },
+        {
+          model: User
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to select the bookings" });
+  }
+
+  let ticketTypes;
+
+  // Inner joining the ticket types might be needlessly expensive
+  // We can just look them up instead
+  try {
+    ticketTypes = await EventTicketType.findAll({
+      where: { eventId }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to select the ticket types" });
+  }
+
+  // Send it all back to the client
+  return res.status(200).json({ event: eventRecord, groups, ticketTypes });
+});
+
+router.post("/booking/override", async (req, res) => {
+  const { user } = req.session;
+
+  // Must be an admin to create events
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { ticketId } = req.body;
+
+  if(ticketId === undefined || ticketId === null) {
+    return res.status(400).json({ error: "No ticketId" });
+  }
+
+  let purchasedTicket;
+
+  try {
+    purchasedTicket = await EventTicket.findOne({
+      where: { id: ticketId },
+      include: [ User, EventGroupBooking ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to select the event ticket" });
+  }
+
+  if(purchasedTicket === null) {
+    return res.status(400).json({ error: "Invalid ticketID" });
+  }
+
+  purchasedTicket.paid = true;
+  purchasedTicket.stripePaymentId = "overridden";
+
+  try {
+    await purchasedTicket.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the ticket changes" });
+  }
+
+  // Now we need to update the guests as well if they have some
+
+  try {
+    await EventTicket.update({ paid: true }, {
+      where: {
+        bookerId: purchasedTicket.User.id,
+        isGuestTicket: true
+      }
+    });
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Unable to contact the database to update the event tickets for the guests"
+    };
+  }
+
+  // Now lets check if everyone in the group has placed a hold (if so we can capture the payments)
+
+  let groupsTickets;
+
+  try {
+    groupTickets = await EventTicket.findAll({
+      where: {
+        groupId: purchasedTicket.groupId
+      },
+      include: [ User ]
+    });
+  } catch (error) {
+    return {
+      status: 500,
+      error: "Unable to contact the database to get all the tickets in the group"
+    };
+  }
+
+  let allPaid = true;
+  let notPaid = [];
+
+  // Start by assuming they all have then loop and change it if necessary
+  // Also collect everyone who hasn't paid so we can put it in the email
+  for(let ticket of groupTickets) {
+    if(!ticket.paid) {
+      allPaid = false;
+      notPaid.push(ticket);
+    }
+  }
+
+  // Now we can capture
+  if(allPaid) {
+    for(let ticket of groupTickets) {
+      // We will capture the guests via the lead booker
+      if(ticket.isGuestTicket) {
+        continue;
+      }
+
+      // Can't capture this as this is overridden by the FACSO
+      if(ticket.stripePaymentId === "overridden") {
+        continue;
+      }
+
+      // Capture each payment
+      // https://stripe.com/docs/payments/capture-later
+      try {
+        await stripe.paymentIntents.capture(ticket.stripePaymentId);
+      } catch (error) {
+        return {
+          status: 500,
+          error: `Unable to capture the payment for ticket ${ticket.id}`
+        };
+      }
+    }
+
+    // All captured so update the group
+    // Will prevent the booking from being deleted
+    try {
+      await EventGroupBooking.update({ allPaid: true }, {
+        where: { id: purchasedTicket.groupId }
+      });
+    } catch (error) {
+      return {
+        status: 500,
+        error: "Unable to update the group's payment status"
+      };
+    }
+
+    // This will have triggered the payment_intent.captured event from Stripe
+    // we send the emails there instead --> go back to the webhook function
+    // However, those with an overridden paymentId won't receive the email
+    // so we need some way to handle those since this won't necessarily be the last
+    // payment complete so we will need to handle it in the captured event instead
+
+    // TODO !!!
+  } else {
+    // Send them an email confirming their hold
+    // And list who hasn't paid and how long they have left
+    const notPaidEmail = overriddenEmail(purchasedTicket.User, notPaid, purchasedTicket.createdAt);
+    mailer.sendEmail(purchasedTicket.User.email, `Event Ticket Hold Authorised`, notPaidEmail);
+  }
+
+  return res.status(204).end();
+});
+
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
   let contents = [];
 
@@ -1133,6 +1340,41 @@ const createPaymentEmail = (event, ticketType, booker, ticket) => {
   contents.push(`<a href="${process.env.WEB_ADDRESS}/events/bookings/payment/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>To make payment, please click here.</p></a>`);
 
   return contents.join("");
+}
+
+const overriddenEmail = (user, notPaid, groupCreatedAtDate) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  const paymentClose = new Date(new Date(groupCreatedAtDate).getTime() + 1000 * 60 * 60 * 24);
+
+  message.push(`<p>Hello ${firstName} ${lastName},`);
+  message.push(`<p>Your payment has been authorised in line with an agreement you have with the JCR.</p>`);
+  message.push(`<p>Not everyone in your group has authorised their payment yet and <strong>they have until ${dateFormat(paymentClose, "dd/mm/yyyy HH:MM")} to do this otherwise your booking will be cancelled</strong>.<p>`);
+  message.push(`<p>The remaining members of your group who have not paid are:</p>`);
+  message.push(`<ul>`);
+
+  notPaid.forEach((record, i) => {
+    if(record.isGuestTicket) {
+      message.push(`<li>${record.guestName} (Guest)</li>`);
+      return;
+    }
+
+    let firstNameNotPaid = record.User.firstNames.split(",")[0];
+    firstNameNotPaid = firstNameNotPaid.charAt(0).toUpperCase() + firstNameNotPaid.substr(1).toLowerCase();
+    const lastNameNotPaid = record.User.surname.charAt(0).toUpperCase() + record.User.surname.substr(1).toLowerCase();
+
+    message.push(`<li>${firstNameNotPaid} ${lastNameNotPaid}</li>`);
+  });
+
+
+  message.push(`</ul>`);
+  message.push(`<p>Please encourage them to authorise their payment before the deadline!</p>`);
+  message.push(`<p><strong>Thank you!</strong></p>`);
+
+  return message.join("");
 }
 
 // Set the module export to router so it can be used in server.js

@@ -544,6 +544,15 @@ const processEventHold = async (ticketId) => {
   // Now we can capture
   if(allPaid) {
     for(let ticket of groupTickets) {
+      // We will capture the guests via the lead booker
+      if(ticket.isGuestTicket) {
+        continue;
+      }
+
+      // Can't capture this as this is overridden by the FACSO
+      if(ticket.stripePaymentId === "overridden") {
+        continue;
+      }
       // Capture each payment
       // https://stripe.com/docs/payments/capture-later
       try {
