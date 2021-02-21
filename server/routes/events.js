@@ -1,5 +1,6 @@
 // Get express
 const express = require("express");
+const path = require("path");
 const multer = require("multer");
 const router = express.Router();
 // The database models
@@ -11,6 +12,9 @@ const mailer = require("../utils/mailer");
 const dateFormat = require("dateformat");
 const { Op } = require("sequelize");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
+const createCsvWriter = require("csv-writer").createObjectCsvWriter;
+const csvPath = path.join(__dirname, "../exports/events/");
 
 router.get("/", async (req, res) => {
   // Loads the 10 most recent events
@@ -1327,6 +1331,208 @@ router.post("/booking/override", async (req, res) => {
   }
 
   return res.status(204).end();
+});
+
+router.get("/export/:eventId", async (req, res) => {
+  // Admin only, generates the export list of the people attending
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "events.export")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { eventId } = req.params;
+
+  if(eventId === undefined || eventId === null) {
+    return res.status(400).json({ error: "No eventId" });
+  }
+
+  let eventRecord;
+
+  // Get the event
+  try {
+    eventRecord = await Event.findOne({ where: { id: eventId } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the event record" });
+  }
+
+  if(eventRecord === null) {
+    return res.status(400).json({ error: "Invalid eventId" });
+  }
+
+  let groups;
+
+  // Get the groups
+  try {
+    groups = await EventGroupBooking.findAll({
+      where: {
+        eventId: eventRecord.id,
+        allPaid: true
+      },
+      include: [{
+        model: EventTicket,
+        include: [ User ]
+      }]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the event group bookings" });
+  }
+
+  let ticketTypes;
+
+  // Get the ticket types
+  try {
+    ticketTypes = await EventTicketType.findAll({
+      where: {
+        eventId: eventRecord.id
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the ticket types" });
+  }
+
+  // Want to map the ticketTypes to an object with the key as the ticket type ID
+  const ticketTypesByID = ticketTypes.reduce((obj, ticketType) => {
+    obj[ticketType.id] = ticketType;
+    return obj;
+  }, {});
+
+  // This will be used to construct the file name
+  const eventNameNoWS = eventRecord.name.replace(/\s/g, "");
+  const time = new Date().getTime();
+
+  // Header for the CSV file
+  let header = [
+    { id: "name", title: "Name" },
+    { id: "username", title: "Username" },
+    { id: "ticketType", title: "Ticket Type" },
+    { id: "guest", title: "Is Guest?" },
+    { id: "groupId", title: "Group ID" },
+    { id: "paid", title: "Paid" }
+  ];
+
+  let usedIds = [];
+
+  // Loop over the ticketTypes
+  // This is to build the extra headers for the ticket type's extra information
+  ticketTypes.forEach(type => {
+    const { requiredInformationForm } = type;
+    const parsedForm = JSON.parse(requiredInformationForm);
+    const fieldNames = Object.keys(parsedForm).map(key => parsedForm[key].name);
+
+    fieldNames.forEach(name => {
+      if(usedIds.includes(name)) {
+        return;
+      }
+
+      usedIds.push(name);
+      header.push({ id: name, title: name });
+    });
+  });
+
+  // Create the CSV writer
+  const fileLocation = `${eventNameNoWS}-${time}`;
+  const csvTicketWriter = createCsvWriter({
+    path: `${csvPath}Tickets-${fileLocation}.csv`,
+    header
+  });
+
+  let ticketCSVRecords = [];
+
+  // Now create the records
+  groups.forEach(group => {
+    // Each group has tickets
+    group.EventTickets.forEach(ticket => {
+      // The record that will be put in the CSV file
+      let record = {};
+
+      if(ticket.isGuestTicket) {
+        // Guests have their fields in a different place
+        record.name = ticket.guestName;
+        record.username = ticket.guestUsername;
+        record.guest = "Yes";
+      } else {
+        // Normalise the name for displaying
+        const split = ticket.User.firstNames.split(",");
+        let firstName = split[0];
+        firstName = firstName.substring(0, 1).toUpperCase() + firstName.substring(1).toLowerCase();
+        let surname = ticket.User.surname;
+        surname = surname.substring(0, 1).toUpperCase() + surname.substring(1).toLowerCase();
+
+        record.name = `${firstName} ${surname}`;
+        record.username = ticket.User.username;
+        record.guest = "No";
+      }
+
+      // Store some extra basic details
+      record.ticketType = ticketTypesByID[group.ticketTypeId].name;
+      record.groupId = group.id;
+      record.paid = ticket.paid ? "Yes" : "No";
+
+      const { requiredInformation } = ticket;
+
+      // If they have provided extra info then set it in the record
+      if(requiredInformation !== null) {
+        const parsedInfo = JSON.parse(requiredInformation);
+
+        Object.keys(parsedInfo).forEach(key => {
+          // Shouldn't happen but just in case
+          if(!usedIds.includes(key)) {
+            return;
+          }
+
+          record[key] = parsedInfo[key];
+        });
+      }
+
+      // Put it in the CSV writer
+      ticketCSVRecords.push(record);
+    });
+  });
+
+  // Now write it all to the file
+  try {
+    await csvTicketWriter.writeRecords(ticketCSVRecords);
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the CSV file" });
+  }
+
+  // Return the file name
+  return res.status(200).json({ fileLocation });
+});
+
+router.get("/download/:file", async (req, res) => {
+  // Only admins can download the file
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "events.export")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { file } = req.params;
+
+  // Validate the file parameter
+  if(file === undefined || file === null) {
+    return res.status(400).json({ error: "Missing file" });
+  }
+
+  // File location consists of eventNameNoWS-time
+  // Use split.length - 1 in case the event name has dashes in it (rather than split[1])
+  const split = file.split("-");
+  const millisecondsStr = split[split.length - 1];
+
+  // If it has been more than hour then the file has expired (410 = Gone)
+  if(new Date().getTime() > Number(millisecondsStr) + 1000 * 60 * 60) {
+    return res.status(410).end();
+  }
+
+  // Construct the path to the file
+  const pathName = path.join(csvPath, `Tickets-${file}.csv`);
+
+  // Finally download the file, if there is an error then 404 it
+  return res.download(pathName, `Tickets-${file}.csv`, () => {
+    res.status(404).end();
+  });
 });
 
 const createPaymentEmail = (event, ticketType, booker, ticket) => {

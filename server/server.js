@@ -144,6 +144,11 @@ const requiredPermissions = [
     internal: "events.manage"
   },
   {
+    name: "Export Events",
+    description: "Export the data for events",
+    internal: "events.export"
+  },
+  {
     name: "Has Debt",
     description: "Denotes a user who owes a debt to the JCR",
     internal: "debt.has"
