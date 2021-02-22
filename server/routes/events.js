@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
   try {
     records = await Event.findAll({
       attributes: {
-        exclude: [ "description", "maxIndividuals", "bookingCloseTime", "createdAt", "updatedAt" ]
+        exclude: [ "description", "maxIndividuals", "createdAt", "updatedAt" ]
       },
       limit: 10,
       include: [

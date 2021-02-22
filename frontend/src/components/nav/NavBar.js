@@ -225,8 +225,13 @@ class NavBar extends React.Component {
             },
             {
               displayName: "Manage Events",
-              url: "/events/admin/create",
+              url: "/events/admin",
               requiredPermission: "events.manage"
+            },
+            {
+              displayName: "Export Events",
+              url: "/events/admin/export",
+              requiredPermission: "events.export"
             },
             {
               displayName: "Manage Debts",

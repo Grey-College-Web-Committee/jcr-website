@@ -63,6 +63,9 @@ import ManageDebtPage from './components/debt/admin/ManageDebtPage';
 
 import CreateNewEventPage from './components/events/admin/create/CreateNewEventPage';
 import EventsGroupManagePage from './components/events/admin/groups/EventsGroupManagePage';
+import EventsExportPage from './components/events/admin/export/EventsExportPage';
+import EventsExportOverview from './components/events/admin/export/EventsExportOverview';
+import EventsManagePage from './components/events/admin/overview/EventsManagePage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -363,11 +366,20 @@ class App extends React.Component {
                     <Route exact path="/spinner/" render={() => (
                       this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( this.loginRef("/spinner") )
                     )} />
+                    <Route exact path="/events/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsManagePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin") )
+                    )} />
                     <Route exact path="/events/admin/create" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <CreateNewEventPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin/create") )
                     )} />
                     <Route exact path="/events/admin/groups/:eventId" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsGroupManagePage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/events/admin/groups/${props.match.params.eventId}`) )
+                    )} />
+                    <Route exact path="/events/admin/export" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("events.export") ? ( <EventsExportOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin/export") )
+                    )} />
+                    <Route exact path="/events/admin/export/:eventId" render={(props) => (
+                      this.isLoggedIn() ? (this.hasPermission("events.export") ? ( <EventsExportPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/events/admin/export/${props.match.params.eventId}`) )
                     )} />
                     <Route exact path="/events/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events") )
