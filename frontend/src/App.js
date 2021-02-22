@@ -37,6 +37,8 @@ import EventsInfoPage from './components/events/info/EventsInfoPage';
 import EventsTermsPage from './components/events/disclaimer/EventsTermsPage';
 import EventsGroupBookingPage from './components/events/book/EventsGroupBookingPage';
 import EventsPaymentPage from './components/events/payment/EventsPaymentPage';
+import EventsMyBookingsOverview from './components/events/my/EventsMyBookingsOverview';
+import EventsMyBookingPage from './components/events/my/EventsMyBookingPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
@@ -383,6 +385,12 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/events/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events") )
+                    )} />
+                    <Route exact path="/my/bookings" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsMyBookingsOverview /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/my/bookings") )
+                    )} />
+                    <Route exact path="/my/ticket/:ticketId" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsMyBookingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/my/ticket/${props.ticketId}`) )
                     )} />
                     <Route exact path="/events/terms" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsTermsPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/terms") )

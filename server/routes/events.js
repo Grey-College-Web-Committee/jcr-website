@@ -1535,6 +1535,125 @@ router.get("/download/:file", async (req, res) => {
   });
 });
 
+router.get("/bookings/my", async (req, res) => {
+  // Gets all of the user's bookings
+  const { user } = req.session;
+
+  // Must be a member to create a booking
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let tickets;
+
+  // Select all of their tickets, the corresponding group, event and lead booker
+  try {
+    tickets = await EventTicket.findAll({
+      where: {
+        bookerId: user.id,
+        isGuestTicket: false
+      },
+      attributes: [ "id", "paid" ],
+      include: [
+        {
+          model: EventGroupBooking,
+          attributes: [ "leadBookerId", "ticketTypeId", "allPaid", "createdAt" ],
+          include: [
+            {
+              model: Event,
+              attributes: [ "id", "name", "date" ]
+            },
+            {
+              model: User,
+              attributes: [ "surname", "firstNames" ]
+            },
+            {
+              model: EventTicketType,
+              attributes: [ "name" ]
+            }
+          ]
+        }
+      ]
+    })
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the tickets" });
+  }
+
+  // Send it back to the client
+  return res.status(200).json({ tickets });
+});
+
+router.get("/ticket/my/:ticketId", async (req, res) => {
+  // Gets a specific ticket for the user
+  const { user } = req.session;
+
+  // Must be a member to create a booking
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { ticketId } = req.params;
+
+  if(ticketId === undefined || ticketId === null || ticketId.length === 0) {
+    return res.status(400).json({ error: "Missing ticketId" });
+  }
+
+  let ticket;
+
+  // Get the ticket and basically everything important about it
+  try {
+    ticket = await EventTicket.findOne({
+      where: {
+        bookerId: user.id,
+        isGuestTicket: false,
+        id: ticketId
+      },
+      attributes: [ "id", "requiredInformation", "paid" ],
+      include: [
+        {
+          model: EventGroupBooking,
+          attributes: [ "leadBookerId", "ticketTypeId", "allPaid", "createdAt" ],
+          include: [
+            {
+              model: Event,
+              attributes: [ "id", "name", "date" ]
+            },
+            {
+              model: User,
+              attributes: [ "surname", "firstNames" ]
+            },
+            {
+              model: EventTicketType,
+              attributes: [ "name", "description" ]
+            },
+            {
+              model: EventTicket,
+              attributes: [ "bookerId", "isGuestTicket", "guestName", "guestUsername", "requiredInformation" ],
+              include: [
+                {
+                  model: User,
+                  attributes: [ "surname", "firstNames", "username" ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Unable to load the ticket" });
+  }
+
+  // If the ticketId was wrong it is not owned by the user
+  if(ticket === null) {
+    return res.status(400).json({ error: "Invalid ticketId" });
+  }
+
+  // Send the ticket to the client
+  return res.status(200).json({ ticket });
+})
+
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
   let contents = [];
 

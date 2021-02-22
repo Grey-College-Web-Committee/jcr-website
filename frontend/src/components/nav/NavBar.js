@@ -160,6 +160,11 @@ class NavBar extends React.Component {
           staticImage: null,
           dropdown: [
             {
+              displayName: "My Bookings",
+              url: "/my/bookings",
+              requiredPermission: "jcr.member"
+            },
+            {
               displayName: "Logout",
               url: "/accounts/logout",
               requiredPermission: null
