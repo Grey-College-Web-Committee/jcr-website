@@ -69,6 +69,7 @@ class EventsManagePage extends React.Component {
               <th className="p-2 font-semibold">Description</th>
               <th className="p-2 font-semibold">Event Date</th>
               <th className="p-2 font-semibold">Booking Closes</th>
+              <th className="p-2 font-semibold">Groups and Payment</th>
               <th className="p-2 font-semibold">Export</th>
               <th className="p-2 font-semibold">Edit</th>
             </tr>
@@ -80,6 +81,13 @@ class EventsManagePage extends React.Component {
                 <td className="p-2 border-r border-gray-400">{record.shortDescription}</td>
                 <td className="p-2 border-r border-gray-400">{dateFormat(record.date, "dd/mm/yyyy HH:MM")}</td>
                 <td className="p-2 border-r border-gray-400">{dateFormat(record.bookingCloseTime, "dd/mm/yyyy HH:MM")}</td>
+                <td className="p-2 border-r border-gray-400">
+                  <Link to={`/events/admin/groups/${record.id}`}>
+                    <button
+                      className="px-4 py-1 rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    >Groups</button>
+                  </Link>
+                </td>
                 <td className="p-2 border-r border-gray-400">
                   <Link to={`/events/admin/export/${record.id}`}>
                     <button

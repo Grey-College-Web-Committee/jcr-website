@@ -380,8 +380,8 @@ class EventsPaymentPage extends React.Component {
                 <div className="w-full p-2">
                   {this.renderExtraDetailsForms()}
                 </div>
-                <div className="w-full p-2 flex flex-col">
-                  <p className="font-semibold">Once you save these details, they cannot be altered.</p>
+                <div className="w-full px-2 flex flex-col">
+                  <p className="font-semibold py-1">Once you save these details, they cannot be altered.</p>
                   <button
                     onClick={this.saveRequiredInformation}
                     className="px-4 py-1 text-xl rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
@@ -401,7 +401,7 @@ class EventsPaymentPage extends React.Component {
           <div className="flex flex-col-reverse md:flex-row text-justify">
             <div className="flex-1 md:mt-0 p-2">
               <h2 className="font-semibold text-3xl pb-2">Your Group</h2>
-              <p className="py-1">Everybody in your group must have authorised their payment by <span className="font-semibold">{dateFormat(bookingCloses, "dd/mm/yyyy HH:MM")}</span> otherwise you're group's booking will be cancelled and you may be unable to get a place on the event.</p>
+              <p className="py-1">Everybody in your group must have authorised their payment by <span className="font-semibold">{dateFormat(bookingCloses, "dd/mm/yyyy HH:MM")}</span> otherwise your group's booking will be cancelled and you may be unable to get a place on the event.</p>
               <table className="mx-auto border-2 text-left border-red-900 w-full mt-2">
                 <thead className="bg-red-900 text-white">
                   <tr>

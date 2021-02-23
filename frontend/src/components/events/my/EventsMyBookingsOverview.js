@@ -89,7 +89,7 @@ class EventsMyBookingsOverview extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">My Event Bookings</h1>
           {
-            tickets.length === 0 ? (<p>No bookings yet!</p>) : (
+            tickets.length === 0 ? (<p className="text-2xl">No bookings yet!</p>) : (
               <table className="mx-auto border-2 text-left border-red-900 w-full">
                 <thead className="bg-red-900 text-white">
                   <tr>

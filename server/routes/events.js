@@ -1242,10 +1242,7 @@ router.post("/booking/override", async (req, res) => {
       }
     });
   } catch (error) {
-    return {
-      status: 500,
-      error: "Unable to contact the database to update the event tickets for the guests"
-    };
+    return res.status(500).json({ error: "Unable to contact the database to update the event tickets for the guests" });
   }
 
   // Now lets check if everyone in the group has placed a hold (if so we can capture the payments)
@@ -1260,10 +1257,7 @@ router.post("/booking/override", async (req, res) => {
       include: [ User ]
     });
   } catch (error) {
-    return {
-      status: 500,
-      error: "Unable to contact the database to get all the tickets in the group"
-    };
+    return res.status(500).json({ error: "Unable to contact the database to get all the tickets in the group" });
   }
 
   let allPaid = true;
@@ -1296,10 +1290,8 @@ router.post("/booking/override", async (req, res) => {
       try {
         await stripe.paymentIntents.capture(ticket.stripePaymentId);
       } catch (error) {
-        return {
-          status: 500,
-          error: `Unable to capture the payment for ticket ${ticket.id}`
-        };
+        console.log(error);
+        return res.status(500).json({ error: `Unable to capture the payment for ticket ${ticket.id}` });
       }
     }
 
@@ -1310,10 +1302,7 @@ router.post("/booking/override", async (req, res) => {
         where: { id: purchasedTicket.groupId }
       });
     } catch (error) {
-      return {
-        status: 500,
-        error: "Unable to update the group's payment status"
-      };
+      return res.status(500).json({ error: "Unable to update the group's payment status" });
     }
 
     // This will have triggered the payment_intent.captured event from Stripe
@@ -1628,7 +1617,7 @@ router.get("/ticket/my/:ticketId", async (req, res) => {
             },
             {
               model: EventTicket,
-              attributes: [ "bookerId", "isGuestTicket", "guestName", "guestUsername", "requiredInformation" ],
+              attributes: [ "bookerId", "isGuestTicket", "guestName", "guestUsername", "requiredInformation", "paid" ],
               include: [
                 {
                   model: User,
