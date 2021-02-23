@@ -1045,29 +1045,49 @@ router.get("/booking/payment/:id", async (req, res) => {
     events_net: Math.round(totalCost - ((0.014 * totalCost) + 20))
   }
 
-  // We make a fresh payment intent each time they load the page
-  // Probably safest to avoid the payment intent expiring
-  // and then we don't have to store the client secret
-  // Could potentially run into a double pay problem if they have
-  // two pages open but hopefully they will remember they already paid
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: totalCost,
-    currency: "gbp",
-    payment_method_types: ["card"],
-    capture_method: "manual",
-    receipt_email: user.email,
-    metadata,
-    description: `${ticket.EventGroupBooking.Event.name} Event Ticket`
-  });
+  const { stripePaymentId } = ticket;
+  let paymentIntent = null;
+
+  if(stripePaymentId === null) {
+    // We make a new payment intent on the first time only
+    // This is to avoid the overwriting of the payment intent ID
+    // and causing a crash when trying to capture it
+    try {
+      paymentIntent = await stripe.paymentIntents.create({
+        amount: totalCost,
+        currency: "gbp",
+        payment_method_types: ["card"],
+        capture_method: "manual",
+        receipt_email: user.email,
+        metadata,
+        description: `${ticket.EventGroupBooking.Event.name} Event Ticket`
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to create the payment intent" });
+    }
+
+    ticket.stripePaymentId = paymentIntent.id;
+
+    try {
+      await ticket.save();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to save the payment intent ID" });
+    }
+  } else if (stripePaymentId === "overridden") {
+    return res.status(400).json({ error: "Payment overridden" });
+  } else {
+    try {
+      paymentIntent = await stripe.paymentIntents.retrieve(stripePaymentId);
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to retrieve the payment intent" });
+    }
+  }
+
+  if(paymentIntent.status !== "requires_payment_method") {
+    return res.status(400).json({ error: `Your payment intent status is incorrect ${paymentIntent.status}` });
+  }
 
   const clientSecret = paymentIntent.client_secret;
-  ticket.stripePaymentId = paymentIntent.id;
-
-  try {
-    await ticket.save();
-  } catch (error) {
-    return res.status(500).json({ error: "Unable to save the payment intent ID" });
-  }
 
   return res.status(200).json({ ticket, guestTickets, totalCost, paid: false, clientSecret });
 });
