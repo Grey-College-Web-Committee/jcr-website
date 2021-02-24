@@ -103,6 +103,107 @@ class CareersPage extends React.Component {
     this.setState({ page: newPage, posts: posts.rows, count: posts.count, maxPage: Math.ceil(posts.count / 5), disabled: false, postLoadState: "loaded" });
   }
 
+  replaceLinks = (line) => {
+    // To make links presentable we need to convert them into a tags
+    // The URL syntax is [TEXT HERE](URL HERE)
+    // This is the parsed line up to the link
+    let nonLink = "";
+    // This is the text to display for the link
+    let currentLinkText = "";
+    // This is the actual link
+    let currentLink = "";
+    // Determines what part we are at in capturing the link
+    let captureMode = "normal";
+    // This will be used as a fall back in case we accidentally capture something that isn't a link
+    let tempFakeCapture = "";
+
+    let components = [];
+
+    // Loop over each character
+    for(const char of line) {
+      // We will use a switch to determine what to do with each character
+      switch(captureMode) {
+        // Just capturing characters
+        case "normal":
+          // If we encounter a [ start trying to the link text
+          if(char === "[") {
+            tempFakeCapture = char;
+            // Move on to finding the link text
+            captureMode = "link-text"
+            currentLinkText = "";
+            break;
+          }
+
+          // Otherwise just append the normal character to the string
+          nonLink += char;
+          break;
+        case "link":
+          // We have found the end of the link
+          if(char === ")") {
+            // URLs must start with https:// otherwise refuse to make it into a link
+            if(currentLink.substring(0, 8).toLowerCase() !== "https://") {
+              // If this is the case then just put the captured input back on the string
+              nonLink += tempFakeCapture + ")"
+            } else {
+              // Otherwise actually make the link and put it in the text
+              components.push(<span>{nonLink}</span>);
+              components.push(<a href={currentLink} target="_blank" class="underline font-semibold" rel="noopener noreferrer">{currentLinkText}</a>);
+              nonLink = "";
+            }
+
+            // Reset to normal
+            captureMode = "normal";
+            currentLinkText = "";
+            currentLink = "";
+            tempFakeCapture = "";
+            break;
+          }
+
+          // Otherwise keep building the link
+          tempFakeCapture += char;
+          currentLink += char;
+          break;
+        case "transition":
+          // Start capturing the link
+          if(char === "(") {
+            tempFakeCapture += char;
+            captureMode = "link";
+            currentLink = "";
+            break;
+          }
+
+          // If we didn't find a ( then we just have a [...] so put it back on the string
+          nonLink += tempFakeCapture + char;
+          // Revert back to normal
+          currentLinkText = "";
+          currentLink = "";
+          tempFakeCapture = "";
+          captureMode = "normal";
+          break;
+        case "link-text":
+          // If we find the end bracket then we have the end of our text
+          if(char === "]") {
+            tempFakeCapture += char;
+            // Move over to finding the (
+            captureMode = "transition";
+            break;
+          }
+
+          // Keep maintaining both the fallback and the link override
+          tempFakeCapture += char;
+          currentLinkText += char;
+          break;
+        default:
+          break;
+      }
+    }
+
+    // If we have anything left over then put it on the end
+    nonLink += tempFakeCapture;
+    components.push(<span>{nonLink}</span>);
+    return components;
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -164,7 +265,9 @@ class CareersPage extends React.Component {
                     return null;
                   }
 
-                  return <p className="pt-1 text-justify" key={j}>{paragraph}</p>
+                  const parsed = this.replaceLinks(paragraph);
+
+                  return <p className="pt-1 text-left" key={j}>{parsed}</p>
                 }) }
               </div>
               <div className="border-t-2 px-2 py-1">
@@ -210,7 +313,7 @@ class CareersPage extends React.Component {
               <p className="py-1">For more information, or any queries, please don’t hesitate to email <a className="font-semibold underline" href="mailto:grey.careersalumni@durham.ac.uk" rel="noopener noreferrer" target="_blank">grey.careersalumni@durham.ac.uk</a></p>
               <p className="py-1">This year we’ve been working hard to form stronger ties with our Grey alumni, all of whom are very enthusiastic about helping current JCR members on their way to their dream job.</p>
               <p className="py-1">Don’t forget about the fantastic Career Angels service we have at our fingertips! It’s as easy as sending an email before gaining insights and advice on pursuing your career path. <a className="font-semibold underline" href="https://www.greyassociation.co.uk/angels" rel="noopener noreferrer" target="_blank">https://www.greyassociation.co.uk/angels</a>. If you’re looking for more general advice, just send your query to <a className="font-semibold underline" href="mailto:grey.careersalumni@durham.ac.uk" rel="noopener noreferrer" target="_blank">grey.careersalumni@durham.ac.uk</a> and we’ll try and match you to someone best suited to answering your question.</p>
-            <a href="https://www.greyassociation.co.uk/angels" rel="noopener noreferrer" target="_blank">
+              <a href="https://www.greyassociation.co.uk/angels" rel="noopener noreferrer" target="_blank">
                 <button
                   className="my-1 px-4 py-1 rounded bg-green-900 text-white text-xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                 >Careers Angels</button>

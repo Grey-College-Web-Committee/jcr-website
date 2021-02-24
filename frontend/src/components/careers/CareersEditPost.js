@@ -185,7 +185,12 @@ class CareersEditPost extends React.Component {
             >Permanently Delete Post</button>
           </div>
           <div>
-            <p className="text-justify">You can edit a post that has already been published below. All fields must be filled in before you can submit it. The post will automatically update once you click the button at the bottom.</p>
+            <p className="text-justify py-1">You can edit a post that has already been published below. All fields must be filled in before you can submit it. The post will automatically update once you click the button at the bottom.</p>
+            <p className="text-justify py-1">If you want to create a link then use the following syntax in the body:</p>
+            <pre className="py-1">[Text to display here](url here)</pre>
+            <p className="text-justify py-1">The URL must start with https:// otherwise it will be ignored intentionally!</p>
+            <p className="text-justify py-1">For example: [Google](https://www.google.com) will produce <a href="https://www.google.com" className="underline font-semibold" target="_blank" rel="noopener noreferrer">Google</a></p>
+            <p className="text-justify py-1">Please ensure all links are appropriate as they will be accessible by any JCR member.</p>
           </div>
           <fieldset>
             <div className="pt-2 pb-2 border-b-2">
