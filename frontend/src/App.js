@@ -260,7 +260,7 @@ class App extends React.Component {
                     <Route exact path="/cookies" render={() => (
                       <CookiesPage />
                     )} />
-                  <Route exact path="/accounts/login" render={(props) => (
+                    <Route exact path="/accounts/login" render={(props) => (
                       this.isLoggedIn() ? ( <Redirect to={this.state.ref} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )
                     )} />
                     <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
