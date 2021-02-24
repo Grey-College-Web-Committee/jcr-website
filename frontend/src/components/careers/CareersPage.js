@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
 import dateFormat from 'dateformat';
 
@@ -137,13 +136,13 @@ class CareersPage extends React.Component {
             <button
               onClick={() => this.changePage(-1)}
               className="px-3 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-              disabled={this.state.disabled || this.state.page == 1}
+              disabled={this.state.disabled || this.state.page === 1}
             >←</button>
             <span className="px-2 font-semibold">Page {this.state.page} / {this.state.maxPage}</span>
             <button
               onClick={() => this.changePage(1)}
               className="px-3 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-              disabled={this.state.disabled || this.state.page == this.state.maxPage}
+              disabled={this.state.disabled || this.state.page === this.state.maxPage}
             >→</button>
           </div>
           { this.state.posts.map((post, i) => (
@@ -177,13 +176,13 @@ class CareersPage extends React.Component {
             <button
               onClick={() => this.changePage(-1)}
               className="px-3 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-              disabled={this.state.disabled || this.state.page == 1}
+              disabled={this.state.disabled || this.state.page === 1}
             >←</button>
             <span className="px-2 font-semibold">Page {this.state.page} / {this.state.maxPage}</span>
             <button
               onClick={() => this.changePage(1)}
               className="px-3 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-              disabled={this.state.disabled || this.state.page == this.state.maxPage}
+              disabled={this.state.disabled || this.state.page === this.state.maxPage}
             >→</button>
           </div>
         </div>
@@ -200,14 +199,22 @@ class CareersPage extends React.Component {
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Careers</h1>
           <div className="flex flex-col-reverse md:flex-row">
             <div className="w-full md:w-3/5 md:mt-0 mt-4">
               <h2 className="font-semibold text-3xl text-left pb-2">Latest Opportunities and Information</h2>
               { postDiv }
             </div>
-            <div className="w-full md:w-2/5 border md:ml-2 px-2">
-              <h2 className="font-semibold text-3xl text-left pb-4">More Information</h2>
+            <div className="w-full md:w-2/5 md:ml-2 md:px-2 text-justify">
+              <h2 className="font-semibold text-3xl text-left pb-2">Welcome to the Career and Opportunities Information Board!</h2>
+              <p className="py-1">This page is where information for upcoming careers events and other opportunities will be posted, whether this be our fortnightly Career Workshop, University-run talks, or job and internship postings.</p>
+              <p className="py-1">For more information, or any queries, please don’t hesitate to email <a className="font-semibold underline" href="mailto:grey.careersalumni@durham.ac.uk" rel="noopener noreferrer" target="_blank">grey.careersalumni@durham.ac.uk</a></p>
+              <p className="py-1">This year we’ve been working hard to form stronger ties with our Grey alumni, all of whom are very enthusiastic about helping current JCR members on their way to their dream job.</p>
+              <p className="py-1">Don’t forget about the fantastic Career Angels service we have at our fingertips! It’s as easy as sending an email before gaining insights and advice on pursuing your career path. <a className="font-semibold underline" href="https://www.greyassociation.co.uk/angels" rel="noopener noreferrer" target="_blank">https://www.greyassociation.co.uk/angels</a>. If you’re looking for more general advice, just send your query to <a className="font-semibold underline" href="mailto:grey.careersalumni@durham.ac.uk" rel="noopener noreferrer" target="_blank">grey.careersalumni@durham.ac.uk</a> and we’ll try and match you to someone best suited to answering your question.</p>
+            <a href="https://www.greyassociation.co.uk/angels" rel="noopener noreferrer" target="_blank">
+                <button
+                  className="my-1 px-4 py-1 rounded bg-green-900 text-white text-xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >Careers Angels</button>
+              </a>
             </div>
           </div>
         </div>
