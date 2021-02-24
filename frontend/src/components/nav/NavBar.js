@@ -138,6 +138,13 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Careers",
+          url: "/careers",
+          requiredPermission: "jcr.member",
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
           displayName: "Feedback",
           url: "/feedback",
           requiredPermission: null,
@@ -214,6 +221,11 @@ class NavBar extends React.Component {
               displayName: "Welfare Messages",
               url: "/welfare/message/admin",
               requiredPermission: "welfare.anonymous"
+            },
+            {
+              displayName: "Manage Careers",
+              url: "/careers/admin",
+              requiredPermission: "careers.manage"
             },
             {
               displayName: "Manage Feedback",

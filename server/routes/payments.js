@@ -406,6 +406,13 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
         return res.status(400).end();
       }
 
+      // Happens for the GCCFS donations from SquareSpace
+      // We don't want to handle these but 400 is an error
+      // and Stripe will eventually shut down the endpoint
+      if(paymentIntent.metadata.hasOwnProperty("websiteId")) {
+        return res.status(204).end();
+      }
+
       if(!paymentIntent.metadata.hasOwnProperty("orderId")) {
         return res.status(400).end();
       }

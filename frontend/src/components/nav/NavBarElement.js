@@ -10,7 +10,7 @@ class NavBarElement extends React.Component {
 
   render () {
     const { displayName, url, requiredPermission, staticImage, dropdown, alwaysDisplayed, user } = this.props;
-    const screenSizeClasses = alwaysDisplayed ? "" : "hidden sm:block";
+    const screenSizeClasses = alwaysDisplayed ? "" : "hidden lg:block";
     const classes = `${this.getClasses()} ${screenSizeClasses}`;
 
     if(requiredPermission !== null) {

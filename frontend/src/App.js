@@ -26,6 +26,8 @@ import WelfarePage from './components/welfare/WelfarePage';
 import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage';
 import WelfareThreadPage from './components/welfare/message/thread/WelfareThreadPage';
 
+import CareersPage from './components/careers/CareersPage';
+
 import ElectionOverviewPage from './components/elections/overview/ElectionOverviewPage';
 import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
 
@@ -55,6 +57,8 @@ import WelfareAdminOverviewPage from './components/welfare/message/admin/Welfare
 import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
 import MediaPage from './components/media/MediaViewPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
+import CareersAdminPage from './components/careers/CareersAdminPage';
+import CareersEditPost from './components/careers/CareersEditPost';
 import FeedbackAdminOverview from './components/feedback/FeedbackAdminOverview';
 import FeedbackViewPage from './components/feedback/FeedbackViewPage';
 
@@ -260,7 +264,7 @@ class App extends React.Component {
                     <Route exact path="/cookies" render={() => (
                       <CookiesPage />
                     )} />
-                  <Route exact path="/accounts/login" render={(props) => (
+                    <Route exact path="/accounts/login" render={(props) => (
                       this.isLoggedIn() ? ( <Redirect to={this.state.ref} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )
                     )} />
                     <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
@@ -350,6 +354,15 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/stash/view/:id" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/stash") )
+                    )} />
+                    <Route exact path="/careers/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <CareersPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
+                    )} />
+                    <Route exact path="/careers/admin" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("careers.manage") ? <CareersAdminPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers/admin") )
+                    )} />
+                    <Route exact path="/careers/edit/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("careers.manage") ? <CareersEditPost {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
                     )} />
                     <Route exact path="/spinner/" render={() => (
                       this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( this.loginRef("/spinner") )

@@ -45,6 +45,8 @@ class Media extends Model {}
 class WelfareThread extends Model {}
 class WelfareThreadMessage extends Model {}
 
+class CareersPost extends Model {}
+
 class Feedback extends Model {}
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
@@ -696,12 +698,7 @@ WelfareThreadMessage.init({
   }
 }, { sequelize });
 
-Feedback.init({
-  id: {
-    type: DataTypes.UUID,
-    primaryKey: true,
-    defaultValue: DataTypes.UUIDV4
-  },
+CareersPost.init({
   userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -709,6 +706,26 @@ Feedback.init({
       model: User,
       key: 'id'
     }
+  },
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  content: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  emailSubject: {
+    type: DataTypes.STRING,
+    allowNull: true
+  }
+}, { sequelize });
+  
+Feedback.init({
+  id: {
+    type: DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4
   },
   type: {
     type: DataTypes.TEXT,
@@ -812,7 +829,10 @@ ElectionEditLog.belongsTo(Election, { foreignKey: 'electionId' });
 WelfareThread.hasMany(WelfareThreadMessage, { foreignKey: 'threadId' });
 WelfareThreadMessage.belongsTo(WelfareThread, { foreignKey: 'threadId' });
 
+User.hasMany(CareersPost, { foreignKey: 'userId' });
+CareersPost.belongsTo(User, { foreignKey: 'userId' });
+
 User.hasMany(Feedback, { foreignKey: 'userId' });
 Feedback.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Feedback };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback };
