@@ -9,7 +9,7 @@ class HamburgerSubMenu extends React.Component {
     }
 
     return (
-      <div className="w-screen h-screen top-0 left-0 fixed bg-red-900 text-white block z-20">
+      <div className="w-screen h-full top-0 left-0 fixed overflow-y-auto overflow-x-hidden bg-red-900 text-white block z-20">
         <ul className="flex flex-col text-center justify-center">
           <li className="flex justify-center border-b border-gray-200 pt-4 pb-4">
             <img
