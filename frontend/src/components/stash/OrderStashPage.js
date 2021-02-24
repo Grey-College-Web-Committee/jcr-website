@@ -129,27 +129,13 @@ class OrderStashPage extends React.Component {
 
     const now = new Date();
 
-    if(now > lock) {
-      return (
-        <div className="flex flex-col justify-start">
-          <div className="container mx-auto text-center p-4">
-            <div className="mb-2 sm:mb-4 font-semibold">
-              <h1 className="my-2 text-5xl">College Stash</h1>
-              <p className="text-xl mb-2">Stash can only be ordered at certain times. Ordering is currently closed until the next order window.</p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
-          <div className="mb-2 sm:mb-4 font-semibold">
+          <div className="mb-2 sm:mb-4 font-semibold text-xl">
             <h1 className="my-2 text-5xl">College Stash</h1>
-            { now < release ? <p className="my-2 text-5xl font-bold text-blue-700">The stash window is not yet open. It will open shortly. Please do not attempt to checkout as your order will be removed.</p> : <p className="my-2 text-xl">(Open now! Closes at 23:00 GMT on 31/01/2021)</p> }
-            <p className="text-sm">We are unable to offer refunds for items (unless they are faulty) as all products are personalised and custom-made.</p>
-            <p className="text-sm">Garment sizes are approximate and for guidance only. Colour representation tiles are only as accurate as the web design process allows, they may appear differently in the final product.</p>
+            <p className="py-1">The ordering window is currently closed for stash.</p>
+            <p className="py-1">You can browse the stash shop but orders cannot be placed.</p>
           </div>
           <div className="flex flex-row mb-2 sm:mb-4 justify-between flex-wrap">
             <div className="flex flex-row justify-center flex-grow flex-shrink-0 mb-2">

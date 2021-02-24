@@ -47,6 +47,8 @@ class WelfareThreadMessage extends Model {}
 
 class CareersPost extends Model {}
 
+class Feedback extends Model {}
+
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
 // No need to store a users email it is simply username@durham.ac.uk
@@ -718,6 +720,34 @@ CareersPost.init({
     allowNull: true
   }
 }, { sequelize });
+  
+Feedback.init({
+  id: {
+    type: DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4
+  },
+  type: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  subject: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  details: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  anonymous: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  agreement: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  }
+}, { sequelize, freezeTableName: true });
 
 // Associations are necessary to allow joins between tables
 
@@ -802,4 +832,7 @@ WelfareThreadMessage.belongsTo(WelfareThread, { foreignKey: 'threadId' });
 User.hasMany(CareersPost, { foreignKey: 'userId' });
 CareersPost.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost };
+User.hasMany(Feedback, { foreignKey: 'userId' });
+Feedback.belongsTo(User, { foreignKey: 'userId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback };

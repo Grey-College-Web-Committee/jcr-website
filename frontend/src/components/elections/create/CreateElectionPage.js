@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Prompt, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
 
@@ -77,9 +77,12 @@ class CreateElectionPage extends React.Component {
         <LoadingHolder />
       );
     }
-
     return (
       <div className="flex flex-col justify-start">
+        <Prompt
+          when={this.state.election !== null}
+          message="Have you added RON? Click 'Cancel' if you still need to add candidates. Otherwise press 'OK' to leave the page."
+        />
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Create New Election</h1>
           <div className="flex flex-col md:w-1/2 mx-auto w-full">

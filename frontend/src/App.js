@@ -34,6 +34,8 @@ import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
 import ContributorsPage from './components/legal/ContributorsPage';
 import CookiesPage from './components/legal/CookiesPage';
 
+import FeedbackPage from './components/feedback/FeedbackPage';
+
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
 // To add a new page import it like above
@@ -57,6 +59,8 @@ import MediaPage from './components/media/MediaViewPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
 import CareersAdminPage from './components/careers/CareersAdminPage';
 import CareersEditPost from './components/careers/CareersEditPost';
+import FeedbackAdminOverview from './components/feedback/FeedbackAdminOverview';
+import FeedbackViewPage from './components/feedback/FeedbackViewPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -365,6 +369,15 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/checkout/" render={() => (
                       this.isLoggedIn() ? ( <CheckoutPage /> ) : ( this.loginRef("/checkout") )
+                    )} />
+                    <Route exact path="/feedback" render={() => (
+                      this.isLoggedIn() ? ( <FeedbackPage /> ) : ( this.loginRef("/feedback") )
+                    )} />
+                    <Route exact path="/feedback/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/feedback/admin") )
+                    )} />
+                    <Route exact path="/feedback/view/:id" render={(props) => (
+                      this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/feedback/view/${props.id}`) )
                     )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />
