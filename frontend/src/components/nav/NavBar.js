@@ -145,6 +145,7 @@ class NavBar extends React.Component {
           dropdown: null,
           alwaysDisplayed: null
         },
+        {
           displayName: "Feedback",
           url: "/feedback",
           requiredPermission: null,

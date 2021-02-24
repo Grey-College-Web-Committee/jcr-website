@@ -5,9 +5,6 @@ import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
 import StashDropdown from './StashDropdown';
 
-const release = new Date("2021-01-20T08:00:00Z");
-const lock = new Date("2021-01-31T23:00:00Z");
-
 class OrderStashPage extends React.Component {
   constructor(props) {
     super(props);
@@ -126,8 +123,6 @@ class OrderStashPage extends React.Component {
         <LoadingHolder />
       );
     }
-
-    const now = new Date();
 
     return (
       <div className="flex flex-col justify-start">

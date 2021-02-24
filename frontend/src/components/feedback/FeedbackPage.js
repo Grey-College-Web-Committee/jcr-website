@@ -3,7 +3,6 @@ import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
-import dateFormat from 'dateformat';
 
 class FeedbackPage extends React.Component {
   constructor(props) {
@@ -35,23 +34,13 @@ class FeedbackPage extends React.Component {
 
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
-    let membershipCheck;
-    let isMember = true;
-
+    // We don't need to care if they are member
+    
     try {
-      membershipCheck = await api.get("/auth/verify");
+      await api.get("/auth/verify");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
-    }
-
-    // Ensure they are a member
-    if(membershipCheck.data.user.permissions) {
-      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
-        isMember = false;
-      }
-    } else {
-      isMember = false;
     }
 
     this.setState({ loaded: true, status: 200 });
