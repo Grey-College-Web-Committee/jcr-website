@@ -54,7 +54,7 @@ class EventsExportPage extends React.Component {
     try {
       content = await api.get(`/events/single/${this.state.eventId}`);
     } catch (error) {
-      this.setState({ loaded: true, status: error.response.status, error: error.response.data.error });
+      this.setState({ status: error.response.status, error: error.response.data.error });
       return;
     }
 

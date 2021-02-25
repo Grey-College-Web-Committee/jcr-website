@@ -46,7 +46,7 @@ class EventsMyBookingsOverview extends React.Component {
     try {
       content = await api.get("/events/bookings/my");
     } catch (error) {
-      this.setState({ loaded: false, status: error.response.status });
+      this.setState({ status: error.response.status, error: error.response.data.error });
       return;
     }
 

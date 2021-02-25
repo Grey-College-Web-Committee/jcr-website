@@ -51,7 +51,7 @@ class EventsExportOverview extends React.Component {
     try {
       content = await api.get("/events");
     } catch (error) {
-      this.setState({ loaded: true, status: error.response.status, error: error.response.data.error });
+      this.setState({ status: error.response.status, error: error.response.data.error });
       return;
     }
 

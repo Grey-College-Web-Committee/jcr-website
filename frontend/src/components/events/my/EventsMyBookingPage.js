@@ -57,7 +57,7 @@ class EventsMyBookingPage extends React.Component {
     try {
       content = await api.get(`/events/ticket/my/${this.state.ticketId}`);
     } catch (error) {
-      this.setState({ loaded: false, status: error.response.status });
+      this.setState({ status: error.response.status, error: error.response.data.error });
       return;
     }
 
