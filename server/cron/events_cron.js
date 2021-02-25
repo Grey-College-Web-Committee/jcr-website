@@ -44,7 +44,8 @@ const forcedCancellationEmail = (group, ticket, notPaid) => {
 
 const cancelExpiredBookings = async () => {
   const now = new Date();
-  const dayBefore = new Date(now.getTime() - 1000 * 60 * 60 * 24);
+  console.log(`Running cancelExpiredBookings ${now}`);
+  const dayBefore = new Date(now.getTime() - 1000 * 60 * 60 * 3);
   // Say a group books on at 13:01 on 19/02/2021 then they have until 14:00 20/02/2021
   // At 13:00 20/02/2021 we look at all groups made before 13:00 19/02/2021
   // They should not get caught in the cron job running at 13:00 but rather than one at 14:00
@@ -72,6 +73,9 @@ const cancelExpiredBookings = async () => {
     console.log("No groups");
     return;
   }
+
+  console.log("Cancelling Bookings");
+  console.log({ now, dayBefore });
 
   // Then get each group individually
   for(const group of expiredGroups) {
@@ -120,6 +124,10 @@ const cancelExpiredBookings = async () => {
 
     // We now need to send them an email telling them we have cancelled their group
     for(const ticket of tickets) {
+      if(ticket.isGuestTicket) {
+        continue;
+      }
+
       const cancellationEmail = forcedCancellationEmail(group, ticket, notPaid);
       mailer.sendEmail(ticket.User.email, `Event Booking Cancelled`, cancellationEmail);
     }
@@ -128,12 +136,12 @@ const cancelExpiredBookings = async () => {
     // Now we delete the booking
 
     // Commented out for testing
-    // try {
-    //   await group.destroy();
-    // } catch (error) {
-    //   console.log(error);
-    //   break;
-    // }
+    try {
+      await group.destroy();
+    } catch (error) {
+      console.log(error);
+      break;
+    }
   }
 }
 
@@ -173,8 +181,9 @@ const makeReminderEmail = (group, ticket, notPaid) => {
 
 const reminderEmailsForBookings = async () => {
   const now = new Date();
+  console.log(`Running reminderEmailsForBookings ${now}`);
   // 22 hours ago, send an email 2 hours before the deadline
-  const twoHoursToGo = new Date(now.getTime() - 1000 * 60 * 60 * 24);
+  const twoHoursToGo = new Date(now.getTime() - 1000 * 60 * 60 * 2);
 
   let groups;
 
@@ -198,6 +207,9 @@ const reminderEmailsForBookings = async () => {
     console.log("No groups");
     return;
   }
+
+  console.log("Sending reminder emails");
+  console.log({ now, twoHoursToGo });
 
   // Then get each group individually
   for(const group of groups) {

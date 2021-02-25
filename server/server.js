@@ -225,10 +225,10 @@ const requiredPermissions = [
 if(process.env.WITH_SCHEDULE) {
   // ("* * * * *") runs every minute
   // TODO Figure out what every hour is shouldn't be too bad
-  const cancellationCronJob = new CronJob("* * * * *", eventsCron.cancelExpiredBookings);
-  const reminderCronJob = new CronJob("* * * * *", eventsCron.reminderEmailsForBookings);
-  //cancellationCronJob.start();
-  //reminderCronJob.start();
+  const cancellationCronJob = new CronJob("0 * * * *", eventsCron.cancelExpiredBookings);
+  const reminderCronJob = new CronJob("0 * * * *", eventsCron.reminderEmailsForBookings);
+  cancellationCronJob.start();
+  reminderCronJob.start();
 }
 
 // This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.

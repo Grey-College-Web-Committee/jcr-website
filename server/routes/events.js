@@ -1661,7 +1661,7 @@ router.get("/ticket/my/:ticketId", async (req, res) => {
 
   // Send the ticket to the client
   return res.status(200).json({ ticket });
-})
+});
 
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
   let contents = [];

@@ -68,6 +68,7 @@ import EventsGroupManagePage from './components/events/admin/groups/EventsGroupM
 import EventsExportPage from './components/events/admin/export/EventsExportPage';
 import EventsExportOverview from './components/events/admin/export/EventsExportOverview';
 import EventsManagePage from './components/events/admin/overview/EventsManagePage';
+import EditEventDetails from './components/events/admin/edit/EditEventDetails';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -373,6 +374,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/events/admin/create" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <CreateNewEventPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin/create") )
+                    )} />
+                    <Route exact path="/events/admin/edit/:eventId" render={(props) => (
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EditEventDetails {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/events/admin/edit/${props.match.params.eventId}`) )
                     )} />
                     <Route exact path="/events/admin/groups/:eventId" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsGroupManagePage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/events/admin/groups/${props.match.params.eventId}`) )

@@ -51,7 +51,7 @@ class EventsManagePage extends React.Component {
     try {
       content = await api.get("/events");
     } catch (error) {
-      this.setState({ loaded: true, status: error.response.status, error: error.response.data.error });
+      this.setState({ status: error.response.status, error: error.response.data.error });
       return;
     }
 
@@ -95,7 +95,13 @@ class EventsManagePage extends React.Component {
                     >Export</button>
                   </Link>
                 </td>
-                <td className="p-2 border-r border-gray-400">TODO</td>
+                <td className="p-2 border-r border-gray-400">
+                  <Link to={`/events/admin/edit/${record.id}`}>
+                    <button
+                      className="px-4 py-1 rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    >Edit Details</button>
+                  </Link>
+                </td>
               </tr>
             ))}
           </tbody>

@@ -8,21 +8,21 @@ class CreateTicketComponent extends React.Component {
 
     // Default ticket properties
     this.state = {
-      name: "",
-      description: "",
-      maxOfType: "",
-      minPeople: "",
-      maxPeople: "",
-      maxGuests: "",
-      memberPrice: "",
-      guestPrice: "",
-      firstYearReleaseTime: "",
-      secondYearReleaseTime: "",
-      thirdYearReleaseTime: "",
-      fourthYearReleaseTime: "",
-      olderYearsCanOverride: true,
+      name: props.defaults.name ? props.defaults.name : "",
+      description: props.defaults.description ? props.defaults.description : "",
+      maxOfType: props.defaults.maxOfType ? props.defaults.maxOfType : "",
+      minPeople: props.defaults.minPeople ? props.defaults.minPeople : "",
+      maxPeople: props.defaults.maxPeople ? props.defaults.maxPeople : "",
+      maxGuests: props.defaults.maxGuests ? props.defaults.maxGuests : "",
+      memberPrice: props.defaults.memberPrice ? props.defaults.memberPrice : "",
+      guestPrice: props.defaults.guestPrice ? props.defaults.guestPrice : "",
+      firstYearReleaseTime: props.defaults.firstYearReleaseTime ? props.defaults.firstYearReleaseTime : "",
+      secondYearReleaseTime: props.defaults.secondYearReleaseTime ? props.defaults.secondYearReleaseTime : "",
+      thirdYearReleaseTime: props.defaults.thirdYearReleaseTime ? props.defaults.thirdYearReleaseTime : "",
+      fourthYearReleaseTime: props.defaults.fourthYearReleaseTime ? props.defaults.fourthYearReleaseTime : "",
+      olderYearsCanOverride: props.defaults.olderYearsCanOverride ? props.defaults.olderYearsCanOverride : true,
       disabled: false,
-      customData: {}
+      customData: props.defaults.customData ? props.defaults.customData : {}
     };
   }
 

@@ -58,7 +58,7 @@ class EventsGroupBookingPage extends React.Component {
     try {
       ticketType = await api.get(`/events/ticketType/${this.state.type}`);
     } catch (error) {
-      this.setState({ loaded: false, status: error.response.status });
+      this.setState({ loaded: false, status: error.response.status, error: error.response.data.error });
       return;
     }
 
