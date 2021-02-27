@@ -146,6 +146,7 @@ class EventsGroupManagePage extends React.Component {
                               ticket={ticket}
                               requiresInformation={requiresInformation}
                               key={j}
+                              leadBooker={group.User}
                             />
                           ))
                         }

@@ -235,7 +235,7 @@ class EventsPaymentPage extends React.Component {
               name={name}
               data-ticket={ticketId}
               onChange={this.onExtraDetailChange}
-              value={this.state.providedInfo[ticketId][name]}
+              checked={this.state.providedInfo[ticketId][name]}
               className="p-2 h-6 w-6 align-middle mx-2 rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             />
           )

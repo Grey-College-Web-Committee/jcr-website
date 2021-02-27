@@ -762,20 +762,6 @@ router.post("/process", async (req, res) => {
   const isMember = user.membershipExpiresAt !== null && new Date(user.membershipExpiresAt) > new Date();
   const submittedCart = req.body.submissionCart;
 
-  // Check if they are a debtor
-
-  let debtRecord;
-
-  try {
-    debtRecord = await Debt.findOne({ where: { username: user.username.toLowerCase() }});
-  } catch (error) {
-    return res.status(500).json({ error: "Unable to check debtor status" });
-  }
-
-  if(debtRecord !== null) {
-    return res.status(402).json({ error: "Debtor" });
-  }
-
   if(!submittedCart.hasOwnProperty("items")) {
     return res.status(400).json({ error: "Missing items (no property)" });
   }
@@ -879,6 +865,22 @@ router.post("/process", async (req, res) => {
     if(!Array.isArray(item.componentSubmissionInfo)) {
       return res.status(400).json({ error: `${i} missing componentSubmissionInfo (non-array)` });
     }
+  }
+
+  // Check if they are a debtor
+
+  let debtRecord;
+
+  try {
+    debtRecord = await Debt.findOne({ where: { username: user.username.toLowerCase() }});
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check debtor status" });
+  }
+
+  const debtInCart = submittedCart.items.filter(item => item.shop === "debt").length !== 0;
+
+  if(debtRecord !== null && !debtInCart) {
+    return res.status(402).json({ error: "Debtor" });
   }
 
   // Now we check the delivery addres

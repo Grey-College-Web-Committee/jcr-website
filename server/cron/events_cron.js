@@ -34,6 +34,23 @@ const forcedCancellationEmail = (group, ticket, notPaid) => {
     message.push(`</ul>`);
   } else {
     message.push(`<p>A hold was never authorised on your card and as such there is no funds to release.</p>`);
+    message.push(`<p>The members of your group who had not authorised their card holds were:</p>`);
+    message.push(`<ul>`);
+
+    notPaid.forEach((record, i) => {
+      if(record.isGuestTicket) {
+        message.push(`<li>${record.guestName} (Guest)</li>`);
+        return;
+      }
+
+      let firstNameNotPaid = record.User.firstNames.split(",")[0];
+      firstNameNotPaid = firstNameNotPaid.charAt(0).toUpperCase() + firstNameNotPaid.substr(1).toLowerCase();
+      const lastNameNotPaid = record.User.surname.charAt(0).toUpperCase() + record.User.surname.substr(1).toLowerCase();
+
+      message.push(`<li>${firstNameNotPaid} ${lastNameNotPaid}</li>`);
+    });
+
+    message.push(`</ul>`);
   }
 
   message.push(`<p>You may still be able to book on to the event.</p>`);

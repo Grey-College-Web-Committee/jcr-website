@@ -114,16 +114,15 @@ class EventsTermsPage extends React.Component {
                 <li>The name of any guests you have provided during use of the booking system</li>
                 <li>The Durham University Computing and Information Services username of any guests you have provided during use of the booking system</li>
                 <li>Any additional information requested about any guests you have provided during use of the booking system including, but not limited to, dietary requirements</li>
-                <li>If your guests have outstanding debt owed to the JCR</li>
               </ul>
-              <p className="py-1">These details will also be shared confidentially with the relevant JCR committees (including, but not limited to, the JCR's Events Committee, the JCR's Bar Committee and the JCR's Executive Committee) and relevant event providers for the purpose of providing the event that your group has booked on to. They may also be shared with other Grey College Staff for the purposes of providing any catering included with your booking as well as any person providing security for the event.</p>
+              <p className="py-1">These details will also be shared confidentially with the relevant JCR committees (including, but not limited to, the JCR's Events Committee and members of the JCR's Executive Committee) and relevant event providers for the purpose of providing the event that your group has booked on to. They may also be shared with other Grey College Staff for the purposes of providing any catering included with your booking as well as any person providing security for the event.</p>
               <p className="py-1">You also consent to the JCR providing search functionality within the booking system to allow other members of the JCR to form a group with you. The personal details that will be visible using this functionality will include:</p>
               <ul className="list-inside list-disc py-2">
                 <li>Your full name</li>
                 <li>Your Durham University Computing and Information Services username</li>
                 <li>Your year of study</li>
               </ul>
-              <p className="py-1">The JCR also reserves to the right to cancel any booking for any reason deemed suitable by the JCR's President or the JCR's Finance and Commercial Services Officer including, but not limited to, bookings that have not been paid in full by all members of your group within 24 hours of the booking being confirmed.</p>
+              <p className="py-1">The JCR also reserves to the right to cancel any booking for any reason deemed suitable by the JCR's President or the JCR's Finance and Commercial Services Officer including, but not limited to, bookings that have not been paid in full by all members of your group within 24 hours of the booking being placed.</p>
               <p className="py-1">This consent is required for any JCR member to attend events. However, you may withdraw your consent at any time but in doing so you acknowledge that you, and any member in your group(s) within the booking system, are not entitled to any refund for any amount previously paid and that you will not be able to attend any events you have already booked on to.</p>
             </div>
             {

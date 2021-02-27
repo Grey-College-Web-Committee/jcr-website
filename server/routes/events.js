@@ -390,6 +390,15 @@ router.get("/ticketType/:id", async (req, res) => {
     return res.status(400).json({ error: "Invalid ID, no record found" });
   }
 
+  if(!user.eventConsent) {
+    return res.status(200).json({
+      available: false,
+      reason: "not_consented",
+      release: null,
+      record
+    });
+  }
+
   // Check for a debt
 
   let debt;
@@ -908,6 +917,7 @@ router.post("/booking", async (req, res) => {
   }
 
   let emails = [];
+  let leadTicketId = null;
 
   // Have the booking so now we create the tickets for the members first
   for(const jcrGroupMember of realJCRMembers) {
@@ -920,6 +930,10 @@ router.post("/booking", async (req, res) => {
       });
     } catch (error) {
       return res.status(500).json({ error: "Unable to create the ticket for a member of the group" });
+    }
+
+    if(jcrGroupMember.id === user.id) {
+      leadTicketId = ticket.id;
     }
 
     emails.push({
@@ -952,7 +966,7 @@ router.post("/booking", async (req, res) => {
     mailer.sendEmail(emailData.email, `${record.Event.name} Ticket`, emailContent);
   }
 
-  return res.status(204).end();
+  return res.status(200).json({ leadTicketId });
 });
 
 router.get("/booking/payment/:id", async (req, res) => {
@@ -1664,10 +1678,15 @@ router.get("/ticket/my/:ticketId", async (req, res) => {
 });
 
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
+  let firstName = booker.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = booker.surname.charAt(0).toUpperCase() + booker.surname.substr(1).toLowerCase();
+  let message = [];
+
   let contents = [];
 
   contents.push(`<h1>${event.name} Ticket</h1>`);
-  contents.push(`<p>You have been booked onto this event by ${booker.firstNames} ${booker.surname}.</p>`);
+  contents.push(`<p>You have been booked onto this event by ${firstName} ${lastName}.</p>`);
   contents.push(`<p>Ticket Type: ${ticketType.name}</p>`);
   contents.push(`<p>${ticketType.description}</p>`);
   contents.push(`<p>You now have 24 hours to make payment for this ticket otherwise the group's booking will be cancelled</p>`);

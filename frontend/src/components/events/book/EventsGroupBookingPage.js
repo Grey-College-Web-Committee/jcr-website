@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
@@ -26,7 +26,9 @@ class EventsGroupBookingPage extends React.Component {
       memberDisabled: false,
       guestDisabled: false,
       unavailable: null,
-      booked: false
+      booked: false,
+      agreedGuests: false,
+      leadTicketId: null
     };
   }
 
@@ -151,7 +153,16 @@ class EventsGroupBookingPage extends React.Component {
       return;
     }
 
-    this.setState({ disabled: true, booked: true });
+    this.setState({ disabled: true, booked: true, leadTicketId: result.data.leadTicketId });
+  }
+
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+  }
+
+  canSubmit = () => {
+    const noGuests = Object.keys(this.state.group).map(key => this.state.group[key].guest).filter(guest => guest === true).length === 0;
+    return !(noGuests || this.state.agreedGuests);
   }
 
   render () {
@@ -174,15 +185,27 @@ class EventsGroupBookingPage extends React.Component {
     }
 
     if(this.state.booked) {
+      // Single person booking
+      if(Object.keys(this.state.group).length === 1) {
+        return (
+          <Redirect to={`/events/bookings/payment/${this.state.leadTicketId}`} />
+        );
+      }
+
       return (
         <div className="flex flex-col justify-start">
           <div className="container mx-auto text-center p-4">
             <h1 className="font-semibold text-5xl pb-4">Booking Successful!</h1>
             <div className="py-1">
               <p className="py-1">Your group has been successfully booked on to the event. Please check your Durham University email address for more details on how to complete this booking and pay. Each member of your group has 24 hours to pay for their ticket and enter any additional details required for this ticket (e.g. dietary requirements).</p>
-              <p className="py-1">Your confirmed group is as follows:</p>
             </div>
             <div className="py-1">
+              <Link to={`/events/bookings/payment/${this.state.leadTicketId}`}>
+                <p className="font-semibold underline text-xl">To pay for your ticket please click here!</p>
+              </Link>
+            </div>
+            <div className="py-1">
+            <p className="py-1">Your confirmed group is as follows:</p>
               <table className="mx-auto border-2 text-left border-red-900 w-full md:w-3/5">
                 <thead className="bg-red-900 text-white">
                   <tr>
@@ -308,7 +331,19 @@ class EventsGroupBookingPage extends React.Component {
               <p className="py-1 font-semibold">Please note that you cannot change your group once you have submitted it so please double check the details are entered correctly!</p>
               <p className="py-1">Each member of your group will receive an email to pay and collect any additional details needed for the event. This must be completed within 24 hours otherwise your booking will be cancelled and we cannot guarantee that you will be able to rebook on to the event.</p>
               { Object.keys(this.state.group).map(key => this.state.group[key].guest).filter(guest => guest === true).length === 0 ? null : (
-                <p className="py-1">As you have guests in your group, the lead booker ({this.state.group[0].displayName}) will be responsible for all guests in this group and will be expected to pay on behalf of all of the guests for the event tickets as well as fill out any additional details required for the event.</p>
+                <div>
+                  <p className="py-1">As you have guests in your group, the lead booker ({this.state.group[0].displayName}) will be responsible for all guests in this group and will be expected to pay on behalf of all of the guests for the event tickets as well as fill out any additional details required for the event.</p>
+                  <div className="flex flex-row justify-start my-2 items-center">
+                    <p className="text-lg font-semibold">I agree that I, the lead booker, am responsible for my guests.</p>
+                    <input
+                      type="checkbox"
+                      name="agreedGuests"
+                      onChange={this.onInputChange}
+                      checked={this.state.agreedGuests}
+                      className="p-2 h-6 w-6 align-middle mx-2 rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    />
+                  </div>
+                </div>
               )}
               { Object.keys(this.state.group).length < this.state.ticketType.record.minPeople ? (
                 <p className="py-1">This ticket type requires a minimum of {this.state.ticketType.record.minPeople} person before you can book.</p>
@@ -316,6 +351,7 @@ class EventsGroupBookingPage extends React.Component {
                 <button
                   onClick={this.submitGroup}
                   className="px-4 py-2 text-lg rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  disabled={this.canSubmit() || this.state.disabled}
                 >Confirm Booking</button>
               ) }
             </div>

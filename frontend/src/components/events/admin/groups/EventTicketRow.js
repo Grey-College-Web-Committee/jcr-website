@@ -12,7 +12,7 @@ class EventTicketRow extends React.Component {
       disabled: false
     };
   }
-  
+
   makeDisplayName = (result) => {
     const split = result.firstNames.split(",");
     let firstName = split[0];
@@ -76,10 +76,15 @@ class EventTicketRow extends React.Component {
       );
     }
 
+    const isLeadBooker = this.props.leadBooker.id === ticket.User.id;
+    const additionalClasses = isLeadBooker ? "bg-red-100 font-semibold" : "";
+
     return (
-      <tr className="text-center border-b border-gray-400">
+      <tr className={`text-center border-b border-gray-400 ${additionalClasses}`}>
         <td className="p-2 border-r border-gray-400">{ticket.id}</td>
-        <td className="p-2 border-r border-gray-400">{this.makeDisplayName(ticket.User)}</td>
+        <td className="p-2 border-r border-gray-400">
+          {this.makeDisplayName(ticket.User)} {isLeadBooker ? "(Lead)" : ""}
+        </td>
         <td className="p-2 border-r border-gray-400">{ticket.User.username}</td>
         <td className="p-2 border-r border-gray-400">No</td>
         <td className="p-2 border-r border-gray-400">{paid ? "Yes" : "No"}</td>

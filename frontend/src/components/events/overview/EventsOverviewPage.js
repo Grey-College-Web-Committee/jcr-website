@@ -121,9 +121,11 @@ class EventsOverviewPage extends React.Component {
                             </Link>
                           ) : (
                             <div className="w-full md:w-auto">
-                              <button
-                                className="px-4 py-1 rounded text-lg bg-blue-900 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                              >Event's T&Cs</button>
+                              <Link to="/events/terms" className="w-full md:w-auto">
+                                <button
+                                  className="px-4 py-1 rounded text-lg bg-blue-900 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                                >Event's T&Cs</button>
+                            </Link>
                             </div>
                           )
                         }
