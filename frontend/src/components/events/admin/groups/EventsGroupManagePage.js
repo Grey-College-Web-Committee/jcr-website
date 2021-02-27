@@ -13,7 +13,8 @@ class EventsGroupManagePage extends React.Component {
       eventId: this.props.match.params.eventId,
       loaded: false,
       status: 0,
-      error: ""
+      error: "",
+      disabled: false
     };
 
     // Change this to your permission
@@ -78,6 +79,27 @@ class EventsGroupManagePage extends React.Component {
     return `${firstName} ${surname}`;
   }
 
+  deleteGroup = async (id) => {
+    this.setState({ disabled: true });
+    const confirmed = window.confirm("Are you sure want to delete this booking? This will NOT refund the people in the group.");
+
+    if(!confirmed) {
+      this.setState({ disabled: false });
+      return;
+    }
+
+    try {
+      await api.delete(`/events/group/${id}`);
+    } catch (error) {
+      alert(error.response.data.error);
+      return;
+    }
+
+    let { groups } = this.state;
+    groups = groups.filter(group => group.id !== id);
+    this.setState({ disabled: false, groups });
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -128,6 +150,13 @@ class EventsGroupManagePage extends React.Component {
                       <p>{prices}</p>
                       <p>Booking Placed: {dateFormat(group.createdAt, "dd/mm/yyyy HH:MM")}</p>
                       <p>Payment Closes: {dateFormat(paymentClose, "dd/mm/yyyy HH:MM")}</p>
+                    </div>
+                    <div className="mb-2">
+                      <p className="py-1">This will delete the group booking. Please note that this will not cancel any holds or refund any payments. This must be done manually on Stripe instead - this is intentional to allow flexibility in case you do not want to refund the payment for any reason.</p>
+                      <button
+                        className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                        onClick={() => this.deleteGroup(group.id)}
+                      >Delete Booking</button>
                     </div>
                     <table className="mx-auto border-2 text-left border-red-900 w-full">
                       <thead className="bg-red-900 text-white">

@@ -1677,6 +1677,66 @@ router.get("/ticket/my/:ticketId", async (req, res) => {
   return res.status(200).json({ ticket });
 });
 
+router.delete("/group/:id", async (req, res) => {
+  const { user } = req.session;
+
+  // Must be an admin to create events
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.params;
+
+  // Check the eventId was set
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let group;
+
+  // Get the group
+  try {
+    group = await EventGroupBooking.findOne({
+      where: { id },
+      include: [
+        {
+          model: EventTicket,
+          include: [ User ]
+        },
+        {
+          model: Event
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to search for the group" });
+  }
+
+  // No group then the ID was wrong
+  if(group === null) {
+    return res.status(400).json({ error: "Invalid group ID" });
+  }
+
+  // Email each non-guest
+  group.EventTickets.forEach(ticket => {
+    if(ticket.isGuestTicket) {
+      return;
+    }
+
+    const emailContent = deletedEmail(ticket.User, group.Event);
+    mailer.sendEmail(ticket.User.email, `${group.Event.name} Booking Cancelled`, emailContent);
+  });
+
+  // Delete the group
+  try {
+    await group.destroy();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the booking - user's have already been emailed about the cancellation."});
+  }
+
+  return res.status(204).end();
+})
+
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
   let firstName = booker.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -1726,6 +1786,19 @@ const overriddenEmail = (user, notPaid, groupCreatedAtDate) => {
   message.push(`</ul>`);
   message.push(`<p>Please encourage them to authorise their payment before the deadline!</p>`);
   message.push(`<p><strong>Thank you!</strong></p>`);
+
+  return message.join("");
+}
+
+const deletedEmail = (user, event) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Hello ${firstName} ${lastName},`);
+  message.push(`<p>Your group's booking for ${event.name} has been cancelled.</p>`);
+  message.push(`<p>Please contact the FACSO to discuss any refunds that may be necessary.</p>`);
 
   return message.join("");
 }
