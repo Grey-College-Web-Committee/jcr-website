@@ -1,5 +1,6 @@
 // Get express
 const express = require("express");
+const fs = require("fs").promises;
 const path = require("path");
 const multer = require("multer");
 const router = express.Router();
@@ -1678,6 +1679,7 @@ router.get("/ticket/my/:ticketId", async (req, res) => {
 });
 
 router.delete("/group/:id", async (req, res) => {
+  // Deletes the specified group
   const { user } = req.session;
 
   // Must be an admin to create events
@@ -1736,6 +1738,257 @@ router.delete("/group/:id", async (req, res) => {
 
   return res.status(204).end();
 })
+
+router.post("/update", upload.array("images"), async (req, res) => {
+  const { user } = req.session;
+
+  // Must be an admin to create events
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { eventId } = req.body;
+
+  if(eventId === undefined || eventId === null) {
+    return res.status(400).json({ error: "No eventId" });
+  }
+
+  // First find the event
+  let eventRecord;
+
+  try {
+    eventRecord = await Event.findOne({ where: { id: eventId } });
+  } catch (error) {
+    return res.status({ error: "Unable to create the event - database error" });
+  }
+
+  if(eventRecord === null) {
+    return res.status(400).json({ error: "Invalid eventId" });
+  }
+
+  // TODO: Should check that these properties actually exist
+  // Get the data and images from multer
+  const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, imageData } = JSON.parse(req.body.packaged);
+  const images = req.files;
+
+  // This is all very similar to the validateSubmission on the frontend
+  // Check the values are defined
+
+  if(name === undefined || name === null || name.length === 0) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(date === undefined || date === null || date.length === 0) {
+    return res.status(400).json({ error: "Missing date" });
+  }
+
+  if(shortDescription === undefined || shortDescription === null || shortDescription.length === 0) {
+    return res.status(400).json({ error: "Missing shortDescription" });
+  }
+
+  if(description === undefined || description === null || description.length === 0) {
+    return res.status(400).json({ error: "Missing description" });
+  }
+
+  if(maxIndividuals === undefined || maxIndividuals === null || maxIndividuals.length === 0) {
+    return res.status(400).json({ error: "Missing maxIndividuals" });
+  }
+
+  if(bookingCloseTime === undefined || bookingCloseTime === null || bookingCloseTime.length === 0) {
+    return res.status(400).json({ error: "Missing bookingCloseTime" });
+  }
+
+  if(ticketTypes === undefined || ticketTypes === null || ticketTypes.length === 0) {
+    return res.status(400).json({ error: "Missing ticketTypes" });
+  }
+
+  if(imageData === undefined || imageData === null || imageData.length === 0) {
+    return res.status(400).json({ error: "Missing image data" });
+  }
+
+  // Now validate the ticket types
+
+  const ticketTypeStringProps = [
+    "name",
+    "description",
+    "firstYearReleaseTime",
+    "secondYearReleaseTime",
+    "thirdYearReleaseTime",
+    "fourthYearReleaseTime"
+  ];
+
+  const ticketTypeIntegerProps = [
+    "maxOfType",
+    "maxPeople",
+    "maxGuests",
+    "minPeople"
+  ];
+
+  const ticketTypeFloatProps = [
+    "memberPrice",
+    "guestPrice"
+  ];
+
+  const ticketTypeBooleanProps = [
+    "olderYearsCanOverride"
+  ];
+
+  console.log("hereXX")
+  // For all of this, refer to the validateSubmission() in /frontend/src/components/events/admin/create/CreateNewEventPage.js
+
+  for(const ticketTypeId in Object.keys(ticketTypes)) {
+    const ticketType = ticketTypes[ticketTypeId];
+    for(const property in ticketType) {
+      if(ticketTypeStringProps.includes(property) || ticketTypeBooleanProps.includes(property)) {
+        if(ticketType[property] === undefined || ticketType[property] === null || ticketType[property].length === 0) {
+          return res.status(400).json({ error: `Missing ${property} in ticket type ${ticketType["name"]}` });
+        }
+      } else if (ticketTypeIntegerProps.includes(property)) {
+        if(ticketType[property] === undefined || ticketType[property] === null || ticketType[property].length === 0) {
+          return res.status(400).json({ error: `Missing ${property} in ticket type ${ticketType["name"]}` });
+        }
+
+        const asInt = parseInt(ticketType[property]);
+
+        if(isNaN(asInt)) {
+          return res.status(400).json({ error: `${property} must be a number` });
+        }
+
+        if(asInt < 0) {
+          return res.status(400).json({ error: `Missing ${property} must be a non-negative value` });
+        }
+      } else if (ticketTypeFloatProps.includes(property)) {
+        if(ticketType[property] === undefined || ticketType[property] === null || ticketType[property].length === 0) {
+          return res.status(400).json({ error: `Missing ${property} in ticket type ${ticketType["name"]}` });
+        }
+
+        const asFloat = parseFloat(ticketType[property]);
+
+        if(isNaN(asFloat)) {
+          return res.status(400).json({ error: `${property} must be a number` });
+        }
+
+        if(asFloat < 0) {
+          return res.status(400).json({ error: `Missing ${property} must be a non-negative value` });
+        }
+      } else if (property === "customData") {
+        const customData = ticketType[property];
+
+        if(Object.keys(customData).length === 0) {
+          continue;
+        }
+
+        for(const customFieldId in Object.keys(customData)) {
+          const customField = customData[customFieldId];
+
+          if(customField.name.length === 0) {
+            return res.status(400).json({ error: `Custom field name missing in ${ticketType.name}` });
+          }
+
+          if(customField.type.length === 0) {
+            return res.status(400).json({ error: `Custom field type missing in ${ticketType.name}` });
+          }
+
+          if(Object.keys(customField.dropdownValues).length === 0) {
+            if(customField.type === "dropdown") {
+              return res.status(400).json({ error: `Custom dropdown ${customField.name} in ${ticketType.name} is empty` });
+            }
+
+            continue;
+          }
+
+          for(const customDropdownRowId in Object.keys(customField.dropdownValues)) {
+            const customDropdownRow = customField.dropdownValues[customDropdownRowId];
+
+            if(customDropdownRow.value.length === 0) {
+              return res.status(400).json({ error: `Custom dropdown value is empty in ticket type ${ticketType.name}, custom field ${customField.name}` });
+            }
+          }
+        }
+      } else {
+        return res.status(400).json({ error: `Unknown property ${property}` });
+      }
+    }
+  }
+
+  // Finally validate the images
+
+  const types = imageData.map(image => image.position);
+
+  if(!types.includes("overview") || !types.includes("banner") || !types.includes("gallery")) {
+    return res.status(400).json({ error: "Must set at least 1 image of each type" });
+  }
+
+  // Everything is validated
+  // Update the event details
+
+  try {
+    await eventRecord.update({ name, shortDescription, description, maxIndividuals, bookingCloseTime, date });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the event record" });
+  }
+
+  const alreadyUploadedImages = imageData.filter(img => img.alreadyUploaded === true);
+  let knownImages;
+
+  try {
+    knownImages = await EventImage.findAll({
+      where: { eventId: eventRecord.id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the images for the event" });
+  }
+
+  // Delete any images they no longer want
+  for(const knownImage of knownImages) {
+    // Deleted the image
+    if(alreadyUploadedImages.filter(img => img.id === knownImage.id).length === 0) {
+      // Need to unlink from file system first
+      try {
+        await fs.unlink(`uploads/images/events/${knownImage.image}`, (err) => {});
+      } catch (error) {
+        return res.status(500).json({ error: "Unable to delete an image from the file system" });
+      }
+
+      // Delete from the database
+      try {
+        knownImage.destroy();
+      } catch (error) {
+        return res.status(500).json({ error: "Unable to delete the image record" });
+      }
+
+      continue;
+    }
+  }
+
+  let offset = 0;
+
+  // Now add the images that didn't already exist
+  for(let i = 0; i < imageData.length; i++) {
+    const imageFileData = images[i - offset];
+    const { caption, position, alreadyUploaded } = imageData[i];
+
+    // Don't reupload images
+    if(alreadyUploaded || imageFileData === null) {
+      offset++;
+      continue;
+    }
+
+    try {
+      await EventImage.create({
+        eventId: eventRecord.id,
+        image: imageFileData.filename,
+        caption,
+        position
+      });
+    } catch (error) {
+      return res.status(500).json({ error: `Unable to upload an image (${imageFileData.originalname})` });
+    }
+  }
+
+  // All done
+  return res.status(200).json({ id: eventRecord.id });
+});
 
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
   let firstName = booker.firstNames.split(",")[0];

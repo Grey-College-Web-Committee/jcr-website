@@ -89,6 +89,7 @@ class EditEventDetails extends React.Component {
 
       // need to handle those that are uploaded slightly differently
       trueImages[i] = {
+        id: img.id,
         image: img.image,
         alreadyUploaded: true,
         caption: img.caption,
@@ -124,23 +125,6 @@ class EditEventDetails extends React.Component {
         customData
       }
     });
-
-    const ticket = {
-      name: "",
-      description: "",
-      maxOfType: "",
-      minPeople: "",
-      maxPeople: "",
-      maxGuests: "",
-      memberPrice: "",
-      guestPrice: "",
-      firstYearReleaseTime: "",
-      secondYearReleaseTime: "",
-      thirdYearReleaseTime: "",
-      fourthYearReleaseTime: "",
-      olderYearsCanOverride: true,
-      customData: {}
-    };
 
     this.setState({ loaded: true, original: content.data.record, bookingCloseTime: fixedCloseTime, createdAt, date: fixedDate, description, maxIndividuals, name, shortDescription, images: trueImages, temporaryImageSrcs, disabledPositions, ticketTypes: trueTicketTypes });
   }
@@ -283,6 +267,240 @@ class EditEventDetails extends React.Component {
     delete temporaryImageSrcs[id];
 
     this.setState({ disabledPositions, images: newImages, temporaryImageSrcs });
+  }
+
+  validateSubmission = () => {
+    // Pretty basic but lots of checks to be done
+    const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images } = this.state;
+
+    // Verify that each field has at least 1 item
+    if(name === undefined || name === null || name.length === 0) {
+      return [false, "You must set the event name"];
+    }
+
+    if(date === undefined || date === null || date.length === 0) {
+      return [false, "You must set the event date"];
+    }
+
+    if(shortDescription === undefined || shortDescription === null || shortDescription.length === 0) {
+      return [false, "You must set the event short description"];
+    }
+
+    if(description === undefined || description === null || description.length === 0) {
+      return [false, "You must set the event description"];
+    }
+
+    if(maxIndividuals === undefined || maxIndividuals === null || maxIndividuals.length === 0) {
+      return [false, "You must set the event maximum individuals"];
+    }
+
+    if(bookingCloseTime === undefined || bookingCloseTime === null || bookingCloseTime.length === 0) {
+      return [false, "You must set the event booking close time"];
+    }
+
+    if(ticketTypes === undefined || ticketTypes === null || ticketTypes.length === 0) {
+      return [false, "You must set at least one ticket type"];
+    }
+
+    if(images === undefined || images === null || images.length === 0) {
+      return [false, "You must set at least 1 gallery image, an overview icon and a banner"];
+    }
+
+    // Now validate the ticket types
+
+    const ticketTypeStringProps = [
+      "name",
+      "description",
+      "firstYearReleaseTime",
+      "secondYearReleaseTime",
+      "thirdYearReleaseTime",
+      "fourthYearReleaseTime"
+    ];
+
+    const ticketTypeIntegerProps = [
+      "maxOfType",
+      "maxPeople",
+      "maxGuests",
+      "minPeople"
+    ];
+
+    const ticketTypeFloatProps = [
+      "memberPrice",
+      "guestPrice"
+    ];
+
+    const ticketTypeBooleanProps = [
+      "olderYearsCanOverride"
+    ];
+
+    // Loop over each ticket type
+    for(const ticketTypeId in Object.keys(ticketTypes)) {
+      const ticketType = ticketTypes[ticketTypeId];
+      // Then over each property of each
+      for(const property in ticketType) {
+        // Perform checks depending on the expected data type
+        if(ticketTypeStringProps.includes(property) || ticketTypeBooleanProps.includes(property)) {
+          if(ticketType[property] === undefined || ticketType[property] === null || ticketType[property].length === 0) {
+            return [false, `Missing ${property} in ticket type ${ticketType["name"]}`];
+          }
+        } else if (ticketTypeIntegerProps.includes(property)) {
+          if(ticketType[property] === undefined || ticketType[property] === null || ticketType[property].length === 0) {
+            return [false, `Missing ${property} in ticket type ${ticketType["name"]}`];
+          }
+
+          const asInt = parseInt(ticketType[property]);
+
+          if(isNaN(asInt)) {
+            return [false, `${property} must be a number`];
+          }
+
+          if(asInt < 0) {
+            return [false, `Missing ${property} must be a non-negative value`];
+          }
+        } else if (ticketTypeFloatProps.includes(property)) {
+          if(ticketType[property] === undefined || ticketType[property] === null || ticketType[property].length === 0) {
+            return [false, `Missing ${property} in ticket type ${ticketType["name"]}`];
+          }
+
+          const asFloat = parseFloat(ticketType[property]);
+
+          if(isNaN(asFloat)) {
+            return [false, `${property} must be a number`];
+          }
+
+          if(asFloat < 0) {
+            return [false, `Missing ${property} must be a non-negative value`];
+          }
+        } else if (property === "customData") {
+          // Have to do quite a bit of checking of the custom data too
+          const customData = ticketType[property];
+
+          // If there isn't any custom data just skip it
+          if(Object.keys(customData).length === 0) {
+            continue;
+          }
+
+          // Loop each custom field
+          for(const customFieldId in Object.keys(customData)) {
+            const customField = customData[customFieldId];
+
+            // Check the name and type are set
+            if(customField.name.length === 0) {
+              return [false, `Custom field name missing in ${ticketType.name}`];
+            }
+
+            if(customField.type.length === 0) {
+              return [false, `Custom field type missing in ${ticketType.name}`];
+            }
+
+            // Check if there are any dropdown values
+            if(Object.keys(customField.dropdownValues).length === 0) {
+              // If there aren't and we are expecting some then it's an issue
+              if(customField.type === "dropdown") {
+                return [false, `Custom dropdown ${customField.name} in ${ticketType.name} is empty`];
+              }
+
+              // Not expecting any so continue
+              continue;
+            }
+
+            // Loop over each value in the dropdown
+            for(const customDropdownRowId in Object.keys(customField.dropdownValues)) {
+              const customDropdownRow = customField.dropdownValues[customDropdownRowId];
+
+              // Just check that each one has a value
+              if(customDropdownRow.value.length === 0) {
+                return [false, `Custom dropdown value is empty in ticket type ${ticketType.name}, custom field ${customField.name}`];
+              }
+            }
+          }
+        } else {
+          return [false, `Unknown property ${property}`];
+        }
+      }
+    }
+
+    // Validate images
+    const types = Object.keys(images).map(id => images[id].position);
+
+    // Require at least one of each type
+    if(!types.includes("overview") || !types.includes("banner") || !types.includes("gallery")) {
+      return [false, "You must set at least 1 gallery image, an overview icon and a banner"];
+    }
+
+    // All good
+    return [true, "Validated"];
+  }
+
+  packageSubmission = () => {
+    // Package into a FormData object so we can submit it and use multer
+    const { eventId, name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images } = this.state;
+
+    let packaged = { name, date, shortDescription, description, maxIndividuals, bookingCloseTime };
+    // Map the object to an array instead
+    let ticketTypeData = Object.keys(ticketTypes).map(id => ticketTypes[id]);
+
+    // Separate out the data from the images
+    let imageData = Object.keys(images).map(id => {
+      return {
+        id: images[id].hasOwnProperty("id") ? images[id].id : null,
+        alreadyUploaded: images[id].alreadyUploaded,
+        caption: images[id].caption,
+        position: images[id].position
+      }
+    });
+
+    packaged.ticketTypes = ticketTypeData;
+    packaged.imageData = imageData;
+
+    const formData = new FormData();
+    formData.append("packaged", JSON.stringify(packaged));
+
+    // Put the images in, multer expects them all in one field
+    Object.keys(images).forEach(id => {
+      // Don't want to double upload
+      if(images[id].alreadyUploaded) {
+        formData.append("images", undefined);
+        return;
+      }
+
+      formData.append("images", images[id].image);
+    });
+
+    // Need this to update the event
+    formData.append("eventId", eventId);
+
+    return formData;
+  }
+
+  saveEvent = async () => {
+    // Called when we want to submit it to the server
+    this.setState({ disabled: true });
+    const validated = this.validateSubmission();
+
+    // Validation failed
+    if(!validated[0]) {
+      alert(validated[1]);
+      this.setState({ disabled: false });
+      return;
+    }
+
+    const formData = this.packageSubmission();
+
+    // Send it to the server, set the content type so multer will intercept
+    try {
+      await api.post("/events/update", formData, {
+        headers: { "content-type": "multipart/form-data" }
+      });
+    } catch (error) {
+      // TODO: Handle the errors
+      alert(error.response.data.error);
+      this.setState({ disabled: false });
+      return;
+    }
+
+    // All done so show the success message
+    this.setState({ success: true });
   }
 
   render () {
@@ -541,6 +759,12 @@ class EditEventDetails extends React.Component {
                   )
                 }
               </div>
+            </div>
+            <div className="w-full">
+              <button
+                onClick={this.saveEvent}
+                className="px-4 py-1 text-2xl rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              >Save Event Changes</button>
             </div>
           </div>
         </div>
