@@ -24,7 +24,8 @@ class EventsAdminBookingPage extends React.Component {
       guestDisabled: false,
       unavailable: null,
       booked: false,
-      leadDisabled: false
+      leadDisabled: false,
+      submitError: ""
     };
 
     // Change this to your permission
@@ -130,6 +131,43 @@ class EventsAdminBookingPage extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
+  submitGroup = async () => {
+    this.setState({ disabled: true, submitError: "" });
+
+    const { group, maxMembers, maxGuests, ticketTypeId } = this.state;
+    const { minMembers } = this.state.ticketType.record;
+    const totalMembers = Object.keys(group).length;
+    const totalGuests = Object.keys(group).map(k => group[k].guest).filter(guest => guest === true).length;
+
+    if(totalMembers < minMembers) {
+      this.setState({ disabled: false, submitError: `You must have at least ${minMembers} people in your group` });
+      return;
+    }
+
+    if(totalMembers > maxMembers) {
+      this.setState({ disabled: false, submitError: `You can only have a maximum of ${maxMembers} people in your group` });
+      return;
+    }
+
+    if(totalGuests > maxGuests) {
+      this.setState({ disabled: false, submitError: `You can only have a maximum of ${maxGuests} guests in your group` });
+      return;
+    }
+
+    const packaged = Object.keys(group).map(k => group[k]);
+
+    let result;
+
+    try {
+      result = await api.post("/events/booking/admin", { group: packaged, ticketTypeId });
+    } catch (error) {
+      alert(error.response.data.error);
+      return;
+    }
+
+    this.setState({ disabled: true, booked: true });
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -140,6 +178,17 @@ class EventsAdminBookingPage extends React.Component {
 
       return (
         <LoadingHolder />
+      );
+    }
+
+    if(this.state.booked) {
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-4">Admin Group Booking</h1>
+            <p>The booking has been created successfully</p>
+          </div>
+        </div>
       );
     }
 
@@ -255,6 +304,11 @@ class EventsAdminBookingPage extends React.Component {
                   disabled={this.state.disabled}
                 >Confirm Booking</button>
               ) }
+              {
+                this.state.submitError.length === 0 ? null : (
+                  <p className="py-1 text-red-900 font-semibold">{this.state.submitError}</p>
+                )
+              }
             </div>
           </div>
         </div>

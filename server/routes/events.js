@@ -2200,11 +2200,331 @@ router.get("/ticketType/admin/:id", async (req, res) => {
   });
 });
 
+router.post("/booking/admin", async (req, res) => {
+  // Completes a booking by an admin on behalf of another group
+  const { user } = req.session;
+
+  // Must be a member to get the ticket type
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { group, ticketTypeId } = req.body;
+
+  // Do some quick validation on the data
+  if(group === undefined || group === null || group.length === 0) {
+    return res.status(400).json({ error: "No group submitted" });
+  }
+
+  if(ticketTypeId === undefined || ticketTypeId === null) {
+    return res.status(400).json({ error: "No ticketTypeId submitted" });
+  }
+
+
+  /*
+
+  {
+  group: [
+  {
+    id: 15,
+    username: 'chpf93',
+    removable: false,
+    displayName: 'Finlay Boyle',
+    guest: false,
+
+    lead: true
+  },
+
+  */
+
+  // Now we do more in-depth validation on the group
+  for(const groupMember of group) {
+    // Check that each object has the following properties
+    if(!groupMember.hasOwnProperty("id")) {
+      return res.status(400).json({ error: "Missing ID for a member of your group" });
+    }
+
+    if(!groupMember.hasOwnProperty("username")) {
+      return res.status(400).json({ error: "Missing username for a member of your group" });
+    }
+
+    if(!groupMember.hasOwnProperty("displayName")) {
+      return res.status(400).json({ error: "Missing displayName for a member of your group" });
+    }
+
+    if(!groupMember.hasOwnProperty("guest")) {
+      return res.status(400).json({ error: "Missing guest for a member of your group" });
+    }
+
+    if(!groupMember.hasOwnProperty("lead")) {
+      return res.status(400).json({ error: "Missing lead for a member of your group" });
+    }
+
+    const { id, username, displayName, guest, lead } = groupMember;
+
+    // Make sure ID is defined
+    if(id === undefined) {
+      return res.status(400).json({ error: "ID is undefined for a member of your group" });
+    }
+
+    // Make sure username is defined and exactly 6 characters
+    if(username === undefined || username === null) {
+      return res.status(400).json({ error: "username is missing for a member of your group" });
+    }
+
+    if(username !== "n/a" && username.length !== 6) {
+      return res.status(400).json({ error: "username must be 6 characters long (or n/a)"});
+    }
+
+    // Make sure displayName is defined
+    if(displayName === undefined || displayName === null || displayName.length === 0) {
+      return res.status(400).json({ error: "displayName is missing for a member of your group" });
+    }
+
+    // Make sure guest is defined
+    if(guest === undefined) {
+      return res.status(400).json({ error: "guest is missing for a member of your group" });
+    }
+
+    // Guests don't have an ID
+    if(!guest && id === null) {
+      return res.status(400).json({ error: "guest is false and id is missing for a member of your group" });
+    }
+
+    if(guest && lead) {
+      return res.status(400).json({ error: "guest cannot be lead" });
+    }
+  }
+
+  // Now we need to check that there is space for them to book
+
+  let record;
+
+  // Find the record by the id
+  try {
+    record = await EventTicketType.findOne({
+      where: { id: ticketTypeId },
+      include: [
+        {
+          model: Event,
+          attributes: [ "id", "name", "maxIndividuals", "bookingCloseTime" ]
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the event ticket type from the database" });
+  }
+
+  if(record === null) {
+    return res.status(400).json({ error: "Invalid ticket type ID, no record found" });
+  }
+
+  // First we need to check that booking hasn't closed
+  const now = new Date();
+
+  if(now > new Date(record.Event.bookingCloseTime)) {
+    return res.status(400).json({ error: "Booking has closed" });
+  }
+
+  // We now know that booking is open
+  // Now lets check if the event is already full
+
+  let allBookingCounts;
+
+  try {
+    allBookingCounts = await EventGroupBooking.findAll({
+      where: { eventId: record.eventId },
+      attributes: [ "totalMembers", "ticketTypeId" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to load the event bookings" });
+  }
+
+  // Map to the total members per group and then sum the result
+  const totalTicketsOfAllTypes = allBookingCounts.map(booking => booking.totalMembers).reduce((acc, value) => acc + value, 0);
+
+  // The event is sold out entirely
+  if(totalTicketsOfAllTypes >= record.Event.maxIndividuals) {
+    return res.status(400).json({ error: "This event is already sold out" });
+  }
+
+  // There is limited space but not enough for this type of ticket
+  const remainingIndividualSpaces = record.Event.maxIndividuals - totalTicketsOfAllTypes;
+
+  if(remainingIndividualSpaces < group.length) {
+    return res.status(400).json({ error: "There is not enough space on the event for your group" });
+  }
+
+  // Filter to this ticket type only then count how many there are
+  const totalBookingsOfThisType = allBookingCounts.filter(booking => booking.ticketTypeId === record.id).length;
+  const remainingSpacesOfType = record.maxOfType - totalBookingsOfThisType;
+
+  // The ticket is sold entirely
+  if(remainingSpacesOfType <= 0) {
+    return res.status(400).json({ error: "There are no more tickets of this type available" });
+  }
+
+  // There are tickets available
+  // Now we get the user records for each member
+
+  // We only want those that aren't guests
+  const ids = group.filter(member => member.guest === false).map(member => member.id);
+
+  let jcrMembers;
+
+  try {
+    jcrMembers = await User.findAll({
+      where: {
+        id: ids
+      },
+      include: [
+        {
+          model: EventGroupBooking,
+          where: {
+            eventId: record.Event.id
+          },
+          required: false
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check the members against the database" });
+  }
+
+  const leads = group.filter(member => member.lead === true);
+
+  if(leads.length !== 1) {
+    return res.status(400).json({ error: "No lead booker" });
+  }
+
+  const leadId = leads[0].id;
+
+  let realJCRMembers = [];
+  let leadBooker = null;
+
+  for(const jcrMember of jcrMembers) {
+    let givenData = group.filter(m => m.id === jcrMember.id);
+
+    if(givenData.length === 0) {
+      return res.status(500).json({ error: "Unexpected length assertion failed" });
+    }
+
+    const { id, username, membershipExpiresAt } = jcrMember;
+    givenData = givenData[0];
+
+    if(givenData.username !== username) {
+      return res.status(400).json({ error: "Inconsistent username submitted" });
+    }
+
+    // Check their debt status
+    let debtRecord;
+
+    try {
+      debtRecord = await Debt.findOne({ where: { username: givenData.username }});
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to check the debt status" });
+    }
+
+    // If they have a debt record then prevent them booking
+    if(debtRecord !== null) {
+      return res.status(400).json({ error: `${username} has a debt owed to the JCR` });
+    }
+
+    // Check they don't already have a ticket
+    if(jcrMember.EventGroupBookings.length !== 0) {
+      return res.status(400).json({ error: `${username} already has a ticket for this event` });
+    }
+
+    // Make sure they have a valid membership
+    if(membershipExpiresAt === null || now > new Date(membershipExpiresAt)) {
+      return res.status(400).json({ error: `${username} does not have a JCR membership and must be booked on as a guest instead` });
+    }
+
+    // Select the lead record
+    if(id === leadId) {
+      leadBooker = jcrMember;
+    }
+
+    realJCRMembers.push({
+      id,
+      email: jcrMember.email
+    });
+  }
+
+  if(leadBooker === null) {
+    return res.status(400).json({ error: "Unable to find the lead booker" });
+  }
+
+  const guestList = group.filter(m => m.guest === true);
+  const totalMembers = guestList.length + realJCRMembers.length;
+
+  // Think everything is checked at this point so we can actually make the booking
+
+  let groupBooking;
+
+  try {
+    groupBooking = await EventGroupBooking.create({
+      eventId: record.Event.id,
+      leadBookerId: leadBooker.id,
+      ticketTypeId,
+      totalMembers
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the booking in the database" });
+  }
+
+  let emails = [];
+
+  // Have the booking so now we create the tickets for the members first
+  for(const jcrGroupMember of realJCRMembers) {
+    let ticket;
+
+    try {
+      ticket = await EventTicket.create({
+        groupId: groupBooking.id,
+        bookerId: jcrGroupMember.id
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to create the ticket for a member of the group" });
+    }
+
+    emails.push({
+      email: jcrGroupMember.email,
+      ticket
+    });
+  }
+
+  // Now we create the tickets for the guests
+  for(const guest of guestList) {
+    let ticket;
+
+    try {
+      ticket = await EventTicket.create({
+        groupId: groupBooking.id,
+        bookerId: leadBooker.id,
+        isGuestTicket: true,
+        guestName: guest.displayName,
+        guestUsername: guest.username
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to create the ticket for a guest of the group" });
+    }
+  }
+
+  // Now we send the emails out
+
+  for(const emailData of emails) {
+    const emailContent = createInviteOnlyEmail(record.Event, record, user, leadBooker, emailData.ticket);
+    mailer.sendEmail(emailData.email, `${record.Event.name} Ticket`, emailContent);
+  }
+
+  return res.status(204).end();
+})
+
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
   let firstName = booker.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = booker.surname.charAt(0).toUpperCase() + booker.surname.substr(1).toLowerCase();
-  let message = [];
 
   let contents = [];
 
@@ -2214,6 +2534,7 @@ const createPaymentEmail = (event, ticketType, booker, ticket) => {
   contents.push(`<p>${ticketType.description}</p>`);
   contents.push(`<p>You now have 24 hours to make payment for this ticket otherwise the group's booking will be cancelled</p>`);
   contents.push(`<a href="${process.env.WEB_ADDRESS}/events/bookings/payment/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>To make payment, please click here.</p></a>`);
+  contents.push(`<p>Thank you</p>`);
 
   return contents.join("");
 }
@@ -2264,6 +2585,28 @@ const deletedEmail = (user, event) => {
   message.push(`<p>Please contact the FACSO to discuss any refunds that may be necessary.</p>`);
 
   return message.join("");
+}
+
+const createInviteOnlyEmail = (event, ticketType, realBooker, leadBooker, ticket) => {
+  let realBookerFirstName = realBooker.firstNames.split(",")[0];
+  realBookerFirstName = realBookerFirstName.charAt(0).toUpperCase() + realBookerFirstName.substr(1).toLowerCase();
+  const realBookerLastName = realBooker.surname.charAt(0).toUpperCase() + realBooker.surname.substr(1).toLowerCase();
+
+  let leadBookerFirstName = leadBooker.firstNames.split(",")[0];
+  leadBookerFirstName = leadBookerFirstName.charAt(0).toUpperCase() + leadBookerFirstName.substr(1).toLowerCase();
+  const leadBookerLastName = leadBooker.surname.charAt(0).toUpperCase() + leadBooker.surname.substr(1).toLowerCase();
+
+  let contents = [];
+
+  contents.push(`<h1>${event.name} Ticket</h1>`);
+  contents.push(`<p>You have been booked onto this event by ${realBookerFirstName} ${realBookerLastName} on behalf of ${leadBookerFirstName} ${leadBookerLastName}.</p>`);
+  contents.push(`<p>Ticket Type: ${ticketType.name}</p>`);
+  contents.push(`<p>${ticketType.description}</p>`);
+  contents.push(`<p>You now have 24 hours to make payment for this ticket otherwise the group's booking will be cancelled</p>`);
+  contents.push(`<a href="${process.env.WEB_ADDRESS}/events/bookings/payment/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>To make payment, please click here.</p></a>`);
+  contents.push(`<p>Thank you</p>`);
+
+  return contents.join("");
 }
 
 // Set the module export to router so it can be used in server.js

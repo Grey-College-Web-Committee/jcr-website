@@ -28,7 +28,8 @@ class EventsGroupBookingPage extends React.Component {
       unavailable: null,
       booked: false,
       agreedGuests: false,
-      leadTicketId: null
+      leadTicketId: null,
+      submitError: ""
     };
   }
 
@@ -120,7 +121,7 @@ class EventsGroupBookingPage extends React.Component {
   }
 
   submitGroup = async () => {
-    this.setState({ disabled: true });
+    this.setState({ disabled: true, submitError: "" });
 
     const { group, maxMembers, maxGuests, type } = this.state;
     const { minMembers } = this.state.ticketType.record;
@@ -128,17 +129,17 @@ class EventsGroupBookingPage extends React.Component {
     const totalGuests = Object.keys(group).map(k => group[k].guest).filter(guest => guest === true).length;
 
     if(totalMembers < minMembers) {
-      this.setState({ disabled: false, error: `You must have at least ${minMembers} people in your group` });
+      this.setState({ disabled: false, submitError: `You must have at least ${minMembers} people in your group` });
       return;
     }
 
     if(totalMembers > maxMembers) {
-      this.setState({ disabled: false, error: `You can only have a maximum of ${maxMembers} people in your group` });
+      this.setState({ disabled: false, submitError: `You can only have a maximum of ${maxMembers} people in your group` });
       return;
     }
 
     if(totalGuests > maxGuests) {
-      this.setState({ disabled: false, error: `You can only have a maximum of ${maxGuests} guests in your group` });
+      this.setState({ disabled: false, submitError: `You can only have a maximum of ${maxGuests} guests in your group` });
       return;
     }
 
@@ -357,6 +358,11 @@ class EventsGroupBookingPage extends React.Component {
                   disabled={this.canSubmit() || this.state.disabled}
                 >Confirm Booking</button>
               ) }
+              {
+                this.state.submitError.length === 0 ? null : (
+                  <p className="py-1 text-red-900 font-semibold">{this.state.submitError}</p>
+                )
+              }
             </div>
           </div>
         </div>
