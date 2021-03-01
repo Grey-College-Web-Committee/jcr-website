@@ -77,7 +77,7 @@ class AddGuest extends React.Component {
         <p className="font-semibold text-xl">Add Guests</p>
         {
           this.props.disabled ? (
-            <p>Your group is full or this ticket type does not allow any more guests.</p>
+            <p>{this.props.disabledMessage}</p>
           ) : null
         }
         <fieldset>

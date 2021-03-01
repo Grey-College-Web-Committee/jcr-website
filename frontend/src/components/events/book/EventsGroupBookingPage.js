@@ -265,12 +265,14 @@ class EventsGroupBookingPage extends React.Component {
             <h2 className="font-semibold text-2xl pb-2">{ticketType.name}</h2>
             <p>{ticketType.description}</p>
             <MemberSearch
+              title="Add JCR Members"
               ticketTypeId={this.state.type}
               disabled={this.state.disabled || this.state.memberDisabled || Object.keys(this.state.group).length >= this.state.maxMembers}
               addMember={(details) => this.addToGroup(details, false)}
               rejectIf={(username) => {
                 return Object.keys(this.state.group).map(i => this.state.group[i].username).includes(username);
               }}
+              disabledMessage="Your group is full. Please remove a member of the group to add new members."
             />
             {
               this.state.maxGuests === 0 ? null : (
@@ -280,6 +282,7 @@ class EventsGroupBookingPage extends React.Component {
                   rejectIf={(username) => {
                     return Object.keys(this.state.group).map(i => this.state.group[i].username).includes(username);
                   }}
+                  disabledMessage="Your group is full or this ticket type does not allow any more guests."
                 />
               )
             }

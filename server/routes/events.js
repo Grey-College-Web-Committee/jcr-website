@@ -2092,6 +2092,114 @@ router.post("/update", upload.array("images"), async (req, res) => {
   return res.status(200).json({ id: eventRecord.id });
 });
 
+router.get("/ticketType/admin/:id", async (req, res) => {
+  // Gets the details about a single ticket type
+  // Admin endpoint as it doesn't check if the requesting user has access to the ticket
+  const { user } = req.session;
+
+  // Must be a member to get the ticket type
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const id = req.params.id;
+
+  // Validate the id briefly
+  if(!id || id === null || id === undefined) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let record;
+
+  // Find the record by the id
+  try {
+    record = await EventTicketType.findOne({
+      where: { id },
+      include: [
+        {
+          model: Event,
+          attributes: [ "name", "maxIndividuals", "bookingCloseTime", "inviteOnly" ]
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the event from the database" });
+  }
+
+  if(record === null) {
+    return res.status(400).json({ error: "Invalid ID, no record found" });
+  }
+
+  // First we need to check that booking hasn't closed
+  const now = new Date();
+
+  if(now > new Date(record.Event.bookingCloseTime)) {
+    return res.status(200).json({
+      available: false,
+      reason: "closed",
+      record
+    });
+  }
+
+  // Now lets check if the event is already full
+
+  let allBookingCounts;
+
+  try {
+    allBookingCounts = await EventGroupBooking.findAll({
+      where: { eventId: record.eventId },
+      attributes: [ "totalMembers", "ticketTypeId" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to load the event bookings" });
+  }
+
+  // Map to the total members per group and then sum the result
+  const totalTicketsOfAllTypes = allBookingCounts.map(booking => booking.totalMembers).reduce((acc, value) => acc + value, 0);
+
+  // The event is sold out entirely
+  if(totalTicketsOfAllTypes >= record.Event.maxIndividuals) {
+    return res.status(200).json({
+      available: false,
+      reason: "full:all",
+      record
+    });
+  }
+
+  // There is limited space but not enough for this type of ticket
+  const remainingIndividualSpaces = record.Event.maxIndividuals - totalTicketsOfAllTypes;
+  if(remainingIndividualSpaces < record.minPeople) {
+    return res.status(200).json({
+      available: false,
+      reason: "full:limited",
+      record
+    });
+  }
+
+  // Filter to this ticket type only then count how many there are
+  const totalBookingsOfThisType = allBookingCounts.filter(booking => booking.ticketTypeId === record.id).length;
+  const remainingSpacesOfType = record.maxOfType - totalBookingsOfThisType;
+
+  // The ticket is sold entirely
+  if(remainingSpacesOfType <= 0) {
+    return res.status(200).json({
+      available: false,
+      reason: "full:type",
+      record
+    });
+  }
+
+  return res.status(200).json({
+    available: true,
+    reason: "N/A",
+    capacity: {
+      remainingIndividualSpaces,
+      remainingSpacesOfType
+    },
+    record
+  });
+});
+
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
   let firstName = booker.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();

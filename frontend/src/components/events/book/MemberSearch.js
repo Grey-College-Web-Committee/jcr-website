@@ -61,10 +61,10 @@ class MemberSearch extends React.Component {
   render () {
     return (
       <div className="border p-2 my-1">
-        <p className="font-semibold text-xl">Add JCR Members</p>
+        <p className="font-semibold text-xl">{this.props.title}</p>
         {
           this.props.disabled ? (
-            <p>Your group is full. Please remove a member of the group to add new members.</p>
+            <p>{this.props.disabledMessage}</p>
           ) : (
             <div>
               <p>Members will only show up in this search if they have consented to the terms and conditions for events.</p>
