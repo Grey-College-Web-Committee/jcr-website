@@ -118,6 +118,7 @@ class CreateTicketCustomRow extends React.Component {
               value={this.state.name}
               className="w-full border border-black rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               maxLength={255}
+              disabled={this.props.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -129,6 +130,7 @@ class CreateTicketCustomRow extends React.Component {
               type="checkbox"
               checked={this.state.required}
               className="w-full border border-black rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+              disabled={this.props.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -139,6 +141,7 @@ class CreateTicketCustomRow extends React.Component {
                 onChange={this.onInputChange}
                 value={this.state.type}
                 className="w-auto border border-black rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                disabled={this.props.disabled}
               >
                 <option value="dropdown">Dropdown</option>
                 <option value="freetext">Free Text (max 1000 characters)</option>
@@ -149,6 +152,7 @@ class CreateTicketCustomRow extends React.Component {
                   <button
                     onClick={this.addDropdownValue}
                     className="ml-6 px-4 py-1 rounded bg-green-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    disabled={this.props.disabled}
                   >Add Dropdown Value</button>
                 ) : null
               }
@@ -178,6 +182,7 @@ class CreateTicketCustomRow extends React.Component {
                             data-key={id}
                             value={this.state.dropdownValues[id].value}
                             className="w-full border border-black rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                            disabled={this.props.disabled}
                           />
                         </td>
                         <td className="p-2 border-r border-gray-400">
@@ -188,6 +193,7 @@ class CreateTicketCustomRow extends React.Component {
                             data-key={id}
                             checked={this.state.dropdownValues[id].is_default}
                             className="w-full border border-black rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                            disabled={this.props.disabled}
                           />
                         </td>
                         <td className="p-2 border-r border-gray-400">
@@ -196,6 +202,7 @@ class CreateTicketCustomRow extends React.Component {
                             onClick={() => {
                               this.removeDropdownValue(id);
                             }}
+                            disabled={this.props.disabled}
                           >Remove</button>
                         </td>
                       </tr>

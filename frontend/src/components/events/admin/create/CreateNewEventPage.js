@@ -237,7 +237,7 @@ class CreateNewEventPage extends React.Component {
     }
 
     if(inviteOnly === undefined || inviteOnly === null) {
-      return [false, "You must whether the event is invite only"];
+      return [false, "You must set whether the event is invite only"];
     }
 
     if(ticketTypes === undefined || ticketTypes === null || ticketTypes.length === 0) {

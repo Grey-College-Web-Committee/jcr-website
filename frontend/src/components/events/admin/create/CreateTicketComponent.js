@@ -21,7 +21,7 @@ class CreateTicketComponent extends React.Component {
       thirdYearReleaseTime: props.defaults.thirdYearReleaseTime ? props.defaults.thirdYearReleaseTime : "",
       fourthYearReleaseTime: props.defaults.fourthYearReleaseTime ? props.defaults.fourthYearReleaseTime : "",
       olderYearsCanOverride: props.defaults.olderYearsCanOverride ? props.defaults.olderYearsCanOverride : true,
-      disabled: false,
+      disabled: props.disabled ? props.disabled : false,
       customData: props.defaults.customData ? props.defaults.customData : {}
     };
   }
@@ -118,6 +118,7 @@ class CreateTicketComponent extends React.Component {
               autoComplete=""
               min={1}
               step={1}
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -131,6 +132,7 @@ class CreateTicketComponent extends React.Component {
               autoComplete=""
               min={1}
               step={1}
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -144,6 +146,7 @@ class CreateTicketComponent extends React.Component {
               autoComplete=""
               min={1}
               step={1}
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -158,6 +161,7 @@ class CreateTicketComponent extends React.Component {
               autoComplete=""
               min={1}
               step={1}
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -171,6 +175,7 @@ class CreateTicketComponent extends React.Component {
               autoComplete=""
               min={1}
               step={0.01}
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -184,6 +189,7 @@ class CreateTicketComponent extends React.Component {
               autoComplete=""
               min={1}
               step={0.01}
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -195,6 +201,7 @@ class CreateTicketComponent extends React.Component {
               className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               onChange={this.onInputChange}
               autoComplete=""
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -206,6 +213,7 @@ class CreateTicketComponent extends React.Component {
               className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               onChange={this.onInputChange}
               autoComplete=""
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -217,6 +225,7 @@ class CreateTicketComponent extends React.Component {
               className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               onChange={this.onInputChange}
               autoComplete=""
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -228,6 +237,7 @@ class CreateTicketComponent extends React.Component {
               className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               onChange={this.onInputChange}
               autoComplete=""
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -240,6 +250,7 @@ class CreateTicketComponent extends React.Component {
               className="p-2 h-6 w-6 align-middle rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               onChange={this.onInputChange}
               autoComplete=""
+              disabled={this.state.disabled}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">
@@ -249,6 +260,7 @@ class CreateTicketComponent extends React.Component {
               <button
                 className="px-4 py-1 rounded bg-green-900 text-white w-48 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                 onClick={this.addCustomDataRow}
+                disabled={this.state.disabled}
               >Add Custom Field</button>
             </div>
             <div>
@@ -258,11 +270,13 @@ class CreateTicketComponent extends React.Component {
                     <button
                       className="px-4 py-1 rounded bg-red-900 text-white w-48 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                       onClick={() => this.deleteCustomDataRow(id)}
+                      disabled={this.state.disabled}
                     >Remove Field</button>
                     <CreateTicketCustomRow
                       id={id}
                       passUp={this.passUpCustomData}
                       data={this.state.customData[id]}
+                      disabled={this.state.disabled}
                     />
                   </div>
                 ))

@@ -22,6 +22,7 @@ class EditEventDetails extends React.Component {
       description: "L",
       maxIndividuals: "",
       bookingCloseTime: "",
+      inviteOnly: false,
       disabled: false,
       ticketTypes: {},
       images: {},
@@ -30,7 +31,8 @@ class EditEventDetails extends React.Component {
       disabledPositions: [],
       imageUpload: null,
       imageDisabled: false,
-      temporaryImageSrcs: {}
+      temporaryImageSrcs: {},
+      success: false
     };
 
     // Change this to your permission
@@ -74,7 +76,7 @@ class EditEventDetails extends React.Component {
     }
 
     // Load any required data for the page here
-    const { EventImages: images, EventTicketTypes: ticketTypes, bookingCloseTime, createdAt, date, description, maxIndividuals, name, shortDescription } = content.data.record;
+    const { EventImages: images, EventTicketTypes: ticketTypes, bookingCloseTime, createdAt, date, description, maxIndividuals, name, shortDescription, inviteOnly } = content.data.record;
 
     // datetime-local requires the date in a specific format
     let fixedCloseTime = `${dateFormat(bookingCloseTime, "yyyy-mm-dd")}T${dateFormat(bookingCloseTime, "HH:MM")}`;
@@ -108,15 +110,18 @@ class EditEventDetails extends React.Component {
         customData = JSON.parse(type.requiredInformationForm);
       }
 
+      console.log(type);
+
       trueTicketTypes[i] = {
+        id: type.id,
         name: type.name,
         description: type.description,
         maxOfType: type.maxOfType,
         minPeople: type.minPeople,
         maxPeople: type.maxPeople,
-        maxGuests: type.maxGuests,
-        memberPrice: type.memberPrice,
-        guestPrice: type.guestPrice,
+        maxGuests: type.maxGuests === 0 ? "0" : type.maxGuests,
+        memberPrice: type.memberPrice === 0 ? "0" : type.memberPrice,
+        guestPrice: type.guestPrice === 0 ? "0" : type.guestPrice,
         firstYearReleaseTime: `${dateFormat(type.firstYearReleaseTime, "yyyy-mm-dd")}T${dateFormat(type.firstYearReleaseTime, "HH:MM")}`,
         secondYearReleaseTime: `${dateFormat(type.secondYearReleaseTime, "yyyy-mm-dd")}T${dateFormat(type.secondYearReleaseTime, "HH:MM")}`,
         thirdYearReleaseTime: `${dateFormat(type.thirdYearReleaseTime, "yyyy-mm-dd")}T${dateFormat(type.thirdYearReleaseTime, "HH:MM")}`,
@@ -126,7 +131,7 @@ class EditEventDetails extends React.Component {
       }
     });
 
-    this.setState({ loaded: true, original: content.data.record, bookingCloseTime: fixedCloseTime, createdAt, date: fixedDate, description, maxIndividuals, name, shortDescription, images: trueImages, temporaryImageSrcs, disabledPositions, ticketTypes: trueTicketTypes });
+    this.setState({ loaded: true, original: content.data.record, bookingCloseTime: fixedCloseTime, createdAt, date: fixedDate, description, maxIndividuals, name, shortDescription, images: trueImages, temporaryImageSrcs, disabledPositions, ticketTypes: trueTicketTypes, inviteOnly });
   }
 
   onInputChange = e => {
@@ -136,6 +141,7 @@ class EditEventDetails extends React.Component {
   createNewTicketType = () => {
     // Blank data for a new ticket type
     const ticket = {
+      id: null,
       name: "",
       description: "",
       maxOfType: "",
@@ -164,6 +170,7 @@ class EditEventDetails extends React.Component {
   updateTicketType = (id, data) => {
     // Updates the data from a ticket type
     let newTickets = this.state.ticketTypes;
+    data.id = newTickets[id].id;
     newTickets[id] = data;
     this.setState({ ticketTypes: newTickets });
   }
@@ -271,7 +278,7 @@ class EditEventDetails extends React.Component {
 
   validateSubmission = () => {
     // Pretty basic but lots of checks to be done
-    const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images } = this.state;
+    const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images, inviteOnly } = this.state;
 
     // Verify that each field has at least 1 item
     if(name === undefined || name === null || name.length === 0) {
@@ -296,6 +303,10 @@ class EditEventDetails extends React.Component {
 
     if(bookingCloseTime === undefined || bookingCloseTime === null || bookingCloseTime.length === 0) {
       return [false, "You must set the event booking close time"];
+    }
+
+    if(inviteOnly === undefined || inviteOnly === null) {
+      return [false, "You must set whether the event is invite only"];
     }
 
     if(ticketTypes === undefined || ticketTypes === null || ticketTypes.length === 0) {
@@ -415,6 +426,10 @@ class EditEventDetails extends React.Component {
             }
           }
         } else {
+          if(property === "id") {
+            continue;
+          }
+
           return [false, `Unknown property ${property}`];
         }
       }
@@ -434,9 +449,9 @@ class EditEventDetails extends React.Component {
 
   packageSubmission = () => {
     // Package into a FormData object so we can submit it and use multer
-    const { eventId, name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images } = this.state;
+    const { eventId, name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images, inviteOnly } = this.state;
 
-    let packaged = { name, date, shortDescription, description, maxIndividuals, bookingCloseTime };
+    let packaged = { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, inviteOnly };
     // Map the object to an array instead
     let ticketTypeData = Object.keys(ticketTypes).map(id => ticketTypes[id]);
 
@@ -499,8 +514,9 @@ class EditEventDetails extends React.Component {
       return;
     }
 
-    // All done so show the success message
+    alert("Successfully updated the event, the page will now reload");
     this.setState({ success: true });
+    window.location.reload();
   }
 
   render () {
@@ -515,6 +531,12 @@ class EditEventDetails extends React.Component {
         <LoadingHolder />
       );
     }
+
+    if(this.state.success) {
+      return null;
+    }
+
+    const now = new Date();
 
     return (
       <div className="flex flex-col justify-start">
@@ -549,6 +571,20 @@ class EditEventDetails extends React.Component {
                     className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                     onChange={this.onInputChange}
                     autoComplete=""
+                    disabled={this.state.disabled}
+                  />
+                </div>
+                <div className="pt-2 pb-2 border-b-2">
+                  <label htmlFor="inviteOnly" className="flex flex-row justify-start text-xl font-semibold">Invite Only?</label>
+                  <span className="flex flex-row justify-start text-sm">Only admins will be able to create groups on behalf of others.</span>
+                  <input
+                    type="checkbox"
+                    name="inviteOnly"
+                    checked={this.state.inviteOnly}
+                    className="p-2 h-6 w-6 align-middle rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    onChange={this.onInputChange}
+                    autoComplete=""
+                    disabled={this.state.disabled}
                   />
                 </div>
                 <div className="pt-2 pb-2 border-b-2">
@@ -591,6 +627,7 @@ class EditEventDetails extends React.Component {
                     autoComplete=""
                     min={1}
                     step={1}
+                    disabled={this.state.disabled}
                   />
                 </div>
                 <div className="pt-2 pb-2 border-b-2">
@@ -604,6 +641,7 @@ class EditEventDetails extends React.Component {
                     className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                     onChange={this.onInputChange}
                     autoComplete=""
+                    disabled={this.state.disabled}
                   />
                 </div>
               </fieldset>
@@ -699,6 +737,7 @@ class EditEventDetails extends React.Component {
                                   <button
                                     className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                                     onClick={() => { this.deleteImage(id) }}
+                                    disabled={this.state.disabled}
                                   >Remove</button>
                                 </td>
                               </tr>
@@ -727,23 +766,31 @@ class EditEventDetails extends React.Component {
                       <p className="font-semibold text-xl">No ticket types added.</p>
                     </div>
                   ) : (
-                    Object.keys(this.state.ticketTypes).map((id) => (
-                        <div className="flex flex-col border-2 border-black" key={id}>
-                          <CreateTicketComponent
-                            id={id}
-                            passUp={this.updateTicketType}
-                            defaults={this.state.ticketTypes[id]}
-                          />
-                          <div className="p-2 flex flex-row justify-start">
-                            <button
-                              className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                              onClick={() => {
-                                this.deleteTicketType(id)
-                              }}
-                            >Delete Ticket Type</button>
+                    Object.keys(this.state.ticketTypes).map((id) => {
+                        const ticketType = this.state.ticketTypes[id];
+                        const alreadyOpen = now > new Date(ticketType.firstYearReleaseTime) || now > new Date(ticketType.secondYearReleaseTime) || now > new Date(ticketType.thirdYearReleaseTime) || now > new Date(ticketType.fourthYearReleaseTime);
+
+                        return (
+                          <div className="flex flex-col border-2 border-black" key={id}>
+                            {alreadyOpen ? <p className="px-2 pt-2 font-semibold text-lg text-left text-red-900">This ticket type has already opened for bookings and cannot be edited</p> : null}
+                            <CreateTicketComponent
+                              id={id}
+                              passUp={this.updateTicketType}
+                              defaults={ticketType}
+                              disabled={alreadyOpen || this.state.disabled}
+                            />
+                            <div className="p-2 flex flex-row justify-start">
+                              <button
+                                className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                                onClick={() => {
+                                  this.deleteTicketType(id)
+                                }}
+                                disabled={alreadyOpen || this.state.disabled}
+                              >Delete Ticket Type</button>
+                            </div>
                           </div>
-                        </div>
-                      )
+                        );
+                      }
                     )
                   )
                 }
@@ -764,6 +811,7 @@ class EditEventDetails extends React.Component {
               <button
                 onClick={this.saveEvent}
                 className="px-4 py-1 text-2xl rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                disabled={this.state.disabled}
               >Save Event Changes</button>
             </div>
           </div>

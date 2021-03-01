@@ -1781,7 +1781,7 @@ router.post("/update", upload.array("images"), async (req, res) => {
 
   // TODO: Should check that these properties actually exist
   // Get the data and images from multer
-  const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, imageData } = JSON.parse(req.body.packaged);
+  const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, imageData, inviteOnly } = JSON.parse(req.body.packaged);
   const images = req.files;
 
   // This is all very similar to the validateSubmission on the frontend
@@ -1809,6 +1809,10 @@ router.post("/update", upload.array("images"), async (req, res) => {
 
   if(bookingCloseTime === undefined || bookingCloseTime === null || bookingCloseTime.length === 0) {
     return res.status(400).json({ error: "Missing bookingCloseTime" });
+  }
+
+  if(inviteOnly === undefined || inviteOnly === null) {
+    return res.status(400).json({ error: "Missing inviteOnly" });
   }
 
   if(ticketTypes === undefined || ticketTypes === null || ticketTypes.length === 0) {
@@ -1846,7 +1850,6 @@ router.post("/update", upload.array("images"), async (req, res) => {
     "olderYearsCanOverride"
   ];
 
-  console.log("hereXX")
   // For all of this, refer to the validateSubmission() in /frontend/src/components/events/admin/create/CreateNewEventPage.js
 
   for(const ticketTypeId in Object.keys(ticketTypes)) {
@@ -1919,6 +1922,10 @@ router.post("/update", upload.array("images"), async (req, res) => {
           }
         }
       } else {
+        if(property === "id") {
+          continue;
+        }
+
         return res.status(400).json({ error: `Unknown property ${property}` });
       }
     }
@@ -1936,7 +1943,7 @@ router.post("/update", upload.array("images"), async (req, res) => {
   // Update the event details
 
   try {
-    await eventRecord.update({ name, shortDescription, description, maxIndividuals, bookingCloseTime, date });
+    await eventRecord.update({ name, shortDescription, description, maxIndividuals, bookingCloseTime, date, inviteOnly });
   } catch (error) {
     return res.status(500).json({ error: "Unable to update the event record" });
   }
@@ -2002,6 +2009,78 @@ router.post("/update", upload.array("images"), async (req, res) => {
   }
 
   // Now deal with ticket types
+  const alreadyUploadedTTs = ticketTypes.filter(ticketType => ticketType.id !== null);
+  let knownTicketTypes;
+
+  try {
+    knownTicketTypes = await EventTicketType.findAll({
+      where: { eventId: eventRecord.id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the ticket types for the event" });
+  }
+
+  // Delete any ticket types they no longer want
+  for(const knownTicketType of knownTicketTypes) {
+    // Deleted the ticket type
+    if(alreadyUploadedTTs.filter(ticketType => ticketType.id === knownTicketType.id).length === 0) {
+      // Delete from the database
+      try {
+        knownTicketType.destroy();
+      } catch (error) {
+        return res.status(500).json({ error: "Unable to delete the ticket type record" });
+      }
+
+      continue;
+    }
+  }
+
+  // Now add/update the event ticket types
+  for(let i = 0; i < ticketTypes.length; i++) {
+    // Stringify the JSON object and remove from the ticketType so we can use the spread operator
+    const customData = JSON.stringify(ticketTypes[i].customData);
+    delete ticketTypes[i].customData;
+
+    // Already exists
+    if(ticketTypes[i].id !== null) {
+      let eventTicketType;
+
+      // Find the ticket type
+      try {
+        eventTicketType = await EventTicketType.findOne({
+          where: {
+            id: ticketTypes[i].id,
+            eventId: eventRecord.id
+          }
+        });
+      } catch (error) {
+        return res.status(500).json({ error: `Unable to get event ticket type with id ${ticketTypes[i].id}`});
+      }
+
+      // Update it with the new details (even if they are the same as sequelize will handle it)
+      try {
+        await eventTicketType.update({
+          ...ticketTypes[i],
+          requiredInformationForm: customData
+        });
+      } catch (error) {
+        return res,status(500).json({ error: `Unable to update the ticket type with id ${ticketTypes[i].id}`});
+      }
+
+      continue;
+    }
+
+    // Create the record
+    try {
+      await EventTicketType.create({
+        eventId: eventRecord.id,
+        ...ticketTypes[i],
+        requiredInformationForm: customData
+      });
+    } catch (error) {
+      return res.status(500).json({ error: `Unable to create event ticket type with name ${ticketTypes[i].name}`});
+    }
+  }
 
   // All done
   return res.status(200).json({ id: eventRecord.id });
