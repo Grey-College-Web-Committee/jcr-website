@@ -751,6 +751,11 @@ Event.init({
   date: {
     type: DataTypes.DATE,
     allowNull: false
+  },
+  inviteOnly: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 }, { sequelize });
 

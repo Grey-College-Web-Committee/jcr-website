@@ -198,6 +198,8 @@ class EventsInfoPage extends React.Component {
                         bookingUnavailable = "You have debt owed to the JCR.";
                       } else if (type.reason === "not_consented") {
                         bookingUnavailable = "You have not consented to the event terms and conditions";
+                      } else if (type.reason === "invite_only") {
+                        bookingUnavailable = "This event is invite only";
                       } else {
                         bookingUnavailable = "Unavailable";
                       }

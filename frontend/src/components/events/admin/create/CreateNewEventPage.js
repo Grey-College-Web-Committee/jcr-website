@@ -19,6 +19,7 @@ class CreateNewEventPage extends React.Component {
       description: "",
       maxIndividuals: "",
       bookingCloseTime: "",
+      inviteOnly: false,
       disabled: false,
       ticketTypes: {},
       images: {},
@@ -208,7 +209,7 @@ class CreateNewEventPage extends React.Component {
 
   validateSubmission = () => {
     // Pretty basic but lots of checks to be done
-    const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images } = this.state;
+    const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, inviteOnly, ticketTypes, images } = this.state;
 
     // Verify that each field has at least 1 item
     if(name === undefined || name === null || name.length === 0) {
@@ -233,6 +234,10 @@ class CreateNewEventPage extends React.Component {
 
     if(bookingCloseTime === undefined || bookingCloseTime === null || bookingCloseTime.length === 0) {
       return [false, "You must set the event booking close time"];
+    }
+
+    if(inviteOnly === undefined || inviteOnly === null) {
+      return [false, "You must whether the event is invite only"];
     }
 
     if(ticketTypes === undefined || ticketTypes === null || ticketTypes.length === 0) {
@@ -371,9 +376,9 @@ class CreateNewEventPage extends React.Component {
 
   packageSubmission = () => {
     // Package into a FormData object so we can submit it and use multer
-    const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images } = this.state;
+    const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, inviteOnly, ticketTypes, images } = this.state;
 
-    let packaged = { name, date, shortDescription, description, maxIndividuals, bookingCloseTime };
+    let packaged = { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, inviteOnly };
     // Map the object to an array instead
     let ticketTypeData = Object.keys(ticketTypes).map(id => ticketTypes[id]);
 
@@ -484,6 +489,18 @@ class CreateNewEventPage extends React.Component {
                     name="date"
                     value={this.state.date}
                     className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                    onChange={this.onInputChange}
+                    autoComplete=""
+                  />
+                </div>
+                <div className="pt-2 pb-2 border-b-2">
+                  <label htmlFor="inviteOnly" className="flex flex-row justify-start text-xl font-semibold">Invite Only?</label>
+                  <span className="flex flex-row justify-start text-sm">Only admins will be able to create groups on behalf of others.</span>
+                  <input
+                    type="checkbox"
+                    name="inviteOnly"
+                    checked={this.state.inviteOnly}
+                    className="p-2 h-6 w-6 align-middle rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                     onChange={this.onInputChange}
                     autoComplete=""
                   />

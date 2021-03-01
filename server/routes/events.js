@@ -109,7 +109,7 @@ router.post("/create", upload.array("images"), async (req, res) => {
 
   // TODO: Should check that these properties actually exist
   // Get the data and images from multer
-  const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, imageData } = JSON.parse(req.body.packaged);
+  const { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, inviteOnly, ticketTypes, imageData } = JSON.parse(req.body.packaged);
   const images = req.files;
 
   // This is all very similar to the validateSubmission on the frontend
@@ -137,6 +137,10 @@ router.post("/create", upload.array("images"), async (req, res) => {
 
   if(bookingCloseTime === undefined || bookingCloseTime === null || bookingCloseTime.length === 0) {
     return res.status(400).json({ error: "Missing bookingCloseTime" });
+  }
+
+  if(inviteOnly === undefined || inviteOnly === null) {
+    return res.status(400).json({ error: "Missing inviteOnly" });
   }
 
   if(ticketTypes === undefined || ticketTypes === null || ticketTypes.length === 0) {
@@ -273,7 +277,7 @@ router.post("/create", upload.array("images"), async (req, res) => {
   let eventRecord;
 
   try {
-    eventRecord = await Event.create({ name, shortDescription, description, maxIndividuals, bookingCloseTime, date });
+    eventRecord = await Event.create({ name, shortDescription, description, maxIndividuals, bookingCloseTime, date, inviteOnly });
   } catch (error) {
     return res.status({ error: "Unable to create the event - database error" });
   }
@@ -379,7 +383,7 @@ router.get("/ticketType/:id", async (req, res) => {
       include: [
         {
           model: Event,
-          attributes: [ "name", "maxIndividuals", "bookingCloseTime" ]
+          attributes: [ "name", "maxIndividuals", "bookingCloseTime", "inviteOnly" ]
         }
       ]
     });
@@ -395,6 +399,15 @@ router.get("/ticketType/:id", async (req, res) => {
     return res.status(200).json({
       available: false,
       reason: "not_consented",
+      release: null,
+      record
+    });
+  }
+
+  if(record.Event.inviteOnly) {
+    return res.status(200).json({
+      available: false,
+      reason: "invite_only",
       release: null,
       record
     });
@@ -1928,6 +1941,7 @@ router.post("/update", upload.array("images"), async (req, res) => {
     return res.status(500).json({ error: "Unable to update the event record" });
   }
 
+  // Then we will process the image changes
   const alreadyUploadedImages = imageData.filter(img => img.alreadyUploaded === true);
   let knownImages;
 
@@ -1974,6 +1988,7 @@ router.post("/update", upload.array("images"), async (req, res) => {
       continue;
     }
 
+    // Create the new image entry
     try {
       await EventImage.create({
         eventId: eventRecord.id,
@@ -1985,6 +2000,8 @@ router.post("/update", upload.array("images"), async (req, res) => {
       return res.status(500).json({ error: `Unable to upload an image (${imageFileData.originalname})` });
     }
   }
+
+  // Now deal with ticket types
 
   // All done
   return res.status(200).json({ id: eventRecord.id });
