@@ -1062,7 +1062,7 @@ router.get("/booking/payment/:id", async (req, res) => {
 
   // Calculate the price to pay
 
-  const { memberPrice, guestPrice } = ticket.EventGroupBooking.EventTicketType;
+  const { memberPrice, guestPrice, name: ticketTypeName } = ticket.EventGroupBooking.EventTicketType;
 
   const memberPricePence = Number(memberPrice) * 100;
   const guestPricePence = Number(guestPrice) * 100;
@@ -1074,7 +1074,9 @@ router.get("/booking/payment/:id", async (req, res) => {
   let metadata = {
     ticketId: ticket.id,
     events: totalCost,
-    events_net: Math.round(totalCost - ((0.014 * totalCost) + 20))
+    events_net: Math.round(totalCost - ((0.014 * totalCost) + 20)),
+    event_name: ticket.EventGroupBooking.Event.name,
+    event_ticket_type: ticketTypeName
   }
 
   const { stripePaymentId } = ticket;

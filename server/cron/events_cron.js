@@ -87,6 +87,8 @@ const cancelExpiredBookings = async () => {
   }
 
   if(expiredGroups.length === 0) {
+    // We then send any reminder emails
+    reminderEmailsForBookings();
     console.log("No groups");
     return;
   }
@@ -160,6 +162,9 @@ const cancelExpiredBookings = async () => {
       break;
     }
   }
+
+  // Once this is done we can then send the reminder email
+  reminderEmailsForBookings();
 }
 
 const makeReminderEmail = (group, ticket, notPaid) => {
@@ -170,7 +175,7 @@ const makeReminderEmail = (group, ticket, notPaid) => {
 
   message.push(`<h1>Payment Needed</h1>`);
   message.push(`<p>Hello ${firstName} ${lastName},</p>`);
-  message.push(`<p>Your group's booking for ${group.Event.name} will be cancelled within the next 2 hours</p>`);
+  message.push(`<p>Your group's booking for ${group.Event.name} will be cancelled within the next hour</p>`);
   message.push(`<p>The members of your group who have not authorised their card holds are:</p>`);
   message.push(`<ul>`);
 
@@ -199,8 +204,8 @@ const makeReminderEmail = (group, ticket, notPaid) => {
 const reminderEmailsForBookings = async () => {
   const now = new Date();
   console.log(`Running reminderEmailsForBookings ${now}`);
-  // 22 hours ago, send an email 2 hours before the deadline
-  const twoHoursToGo = new Date(now.getTime() - 1000 * 60 * 60 * 2);
+  // 22 hours ago, send an email 1 hour before the deadline
+  const oneHourToGo = new Date(now.getTime() - 1000 * 60 * 60 * 2);
 
   let groups;
 
@@ -209,7 +214,7 @@ const reminderEmailsForBookings = async () => {
     groups = await EventGroupBooking.findAll({
       where: {
         createdAt: {
-          [Op.lt]: twoHoursToGo
+          [Op.lt]: oneHourToGo
         },
         allPaid: false
       },
@@ -224,9 +229,6 @@ const reminderEmailsForBookings = async () => {
     console.log("No groups");
     return;
   }
-
-  console.log("Sending reminder emails");
-  console.log({ now, twoHoursToGo });
 
   // Then get each group individually
   for(const group of groups) {
