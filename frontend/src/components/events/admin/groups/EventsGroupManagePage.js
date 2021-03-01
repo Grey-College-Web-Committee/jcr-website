@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
 import EventTicketRow from './EventTicketRow';
@@ -123,6 +123,18 @@ class EventsGroupManagePage extends React.Component {
             <h2 className="text-left font-semibold text-2xl">Groups</h2>
             <p className="text-justify py-1">To find a specific user press CTRL+F (or Command+F on Mac) and search for their username or their name</p>
             <p className="text-justify py-1">If you are overriding a payment but it says 'Requires Additional Information' this means that the person needs to fill in specific details requested for the event. To do this, ask them to check their email for the payment link (or alternatively send them the link of the following format https://services.greyjcr.com/events/bookings/payment/[ticketID] where [ticketID] is their specific ID from the tables below). If they click the link (which will only work for their specific user) the first screen will require them to fill in the form. Then, once they have done so and submit the form it will ask them for payment. At this point you can then refresh this admin page and it will allow you to override their payment.</p>
+            <p className="text-justify py-1">You can also create groups (such as for the Sportsperson Formal) by clicking the button below which will redirect you to the admin booking page.</p>
+            <div className="flex flex-row justify-start">
+              {
+                Object.keys(ticketTypes).map(id => (
+                  <Link to={`/events/admin/groups/${event.id}/create/${id}`}>
+                    <button
+                      className="px-4 py-1 ml-2 mb-2 rounded bg-green-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 flex flex-row justify-start"
+                    >Create {ticketTypes[id].name} Group</button>
+                  </Link>
+                ))
+              }
+            </div>
             {
               groups.map((group, i) => {
                 const ticketType = ticketTypes[group.ticketTypeId];
