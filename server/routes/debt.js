@@ -67,11 +67,14 @@ router.post("/", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { username, description, amount } = req.body;
+  const { description, amount } = req.body;
+  const tempUsername = req.body.username;
 
-  if(username === undefined || username === null || username.length !== 6) {
+  if(tempUsername === undefined || tempUsername === null || tempUsername.length !== 6) {
     return res.status(400).json({ error: "username error" });
   }
+
+  const username = tempUsername.toLowerCase();
 
   if(description === undefined || description === null || description.length === 0) {
     return res.status(400).json({ error: "description error" });
@@ -92,7 +95,7 @@ router.post("/", async (req, res) => {
   }
 
   if(existingDebtRecord !== null) {
-    return res.status(400).json({ error: `${username} already has a debt, edit their debt instead` });
+    return res.status(400).json({ error: `${username} already has a debt. You can remove their existing debt and add anything additional on to it.` });
   }
 
   // Find the user if they have an account

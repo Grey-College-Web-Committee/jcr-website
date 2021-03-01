@@ -9,6 +9,7 @@ class AddGuest extends React.Component {
       username: "",
       firstName: "",
       surname: "",
+      atDurham: true,
       disabled: false,
       error: null,
       result: null
@@ -20,10 +21,12 @@ class AddGuest extends React.Component {
   }
 
   canSubmit = () => {
-    const { username, firstName, surname } = this.state;
+    const { username, firstName, surname, atDurham } = this.state;
 
-    if(username === undefined || username === null || username.length !== 6) {
-      return false;
+    if(atDurham) {
+      if(username === undefined || username === null || username.length !== 6) {
+        return false;
+      }
     }
 
     if(firstName === undefined || firstName === null || firstName.length === 0) {
@@ -45,16 +48,18 @@ class AddGuest extends React.Component {
       return;
     }
 
-    const { username, firstName, surname } = this.state;
+    const { username, firstName, surname, atDurham } = this.state;
 
-    if(this.props.rejectIf(username)) {
-      this.setState({ disabled: false, error: "This person is already in your group" });
-      return;
+    if(atDurham) {
+      if(this.props.rejectIf(username)) {
+        this.setState({ disabled: false, error: "This person is already in your group" });
+        return;
+      }
     }
 
     const entry = {
       id: null,
-      username: username.toLowerCase(),
+      username: atDurham ? username.toLowerCase() : "N/A",
       firstNames: firstName,
       surname
     };
@@ -62,7 +67,7 @@ class AddGuest extends React.Component {
     const success = this.props.addGuest(entry);
 
     if(success) {
-      this.setState({ disabled: false, result: `Added ${entry.firstNames} ${entry.surname} to your group as a guest`, username: "", firstName: "", surname: "" });
+      this.setState({ disabled: false, result: `Added ${entry.firstNames} ${entry.surname} to your group as a guest`, username: "", firstName: "", surname: "", atDurham: true });
     }
   }
 
@@ -76,7 +81,20 @@ class AddGuest extends React.Component {
           ) : null
         }
         <fieldset>
-          <div className="pt-2 pb-2">
+          <div className="pt-2 pb-2 flex flex-row align-middle">
+            <label htmlFor="atDurham" className="flex flex-row justify-start text-lg font-semibold">Current Student at Durham?</label>
+            <input
+              type="checkbox"
+              name="atDurham"
+              checked={this.state.atDurham}
+              className="border rounded ml-4 py-1 px-2 h-6 w-6 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+              onChange={this.onInputChange}
+              autoComplete=""
+              maxLength={6}
+              disabled={this.props.disabled || this.state.disabled}
+            />
+          </div>
+          { this.state.atDurham ? (<div className="pt-2 pb-2">
             <label htmlFor="username" className="flex flex-row justify-start text-lg font-semibold">Username</label>
             <input
               type="text"
@@ -88,7 +106,7 @@ class AddGuest extends React.Component {
               maxLength={6}
               disabled={this.props.disabled || this.state.disabled}
             />
-          </div>
+          </div>) : null }
           <div className="pt-2 pb-2">
             <label htmlFor="firstName" className="flex flex-row justify-start text-lg font-semibold">First Name</label>
             <input

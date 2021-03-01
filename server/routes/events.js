@@ -728,8 +728,12 @@ router.post("/booking", async (req, res) => {
     }
 
     // Make sure username is defined and exactly 6 characters
-    if(username === undefined || username === null || username.length !== 6) {
+    if(username === undefined || username === null) {
       return res.status(400).json({ error: "username is missing for a member of your group" });
+    }
+
+    if(username !== "n/a" && username.length !== 6) {
+      return res.status(400).json({ error: "username must be 6 characters long (or n/a)"});
     }
 
     // Make sure displayName is defined
