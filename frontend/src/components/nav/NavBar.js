@@ -138,7 +138,7 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
-          displayName: "Careers",
+          displayName: "Career Angels",
           url: "/careers",
           requiredPermission: "jcr.member",
           staticImage: null,
