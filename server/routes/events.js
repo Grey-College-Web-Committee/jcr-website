@@ -383,7 +383,7 @@ router.get("/ticketType/:id", async (req, res) => {
       include: [
         {
           model: Event,
-          attributes: [ "name", "maxIndividuals", "bookingCloseTime", "inviteOnly" ]
+          attributes: [ "id", "name", "maxIndividuals", "bookingCloseTime", "inviteOnly" ]
         }
       ]
     });
@@ -446,11 +446,14 @@ router.get("/ticketType/:id", async (req, res) => {
       include: [
         {
           model: EventGroupBooking,
-          eventId: record.Event.id
+          where: {
+            eventId: record.Event.id,
+          }
         }
       ]
     });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error: "Unable to get event ticket from database" });
   }
 
@@ -628,12 +631,37 @@ router.get("/search/member/:ticketTypeId/:username", async (req, res) => {
     return res.status(400).json({ error: "The user you are trying to find has an outstanding debt owed to the JCR. They are not allowed to be booked on to events until this is cleared" });
   }
 
-  // Now check if they already have a ticket for the event
-  let ticket;
+  // We also need to check that the tickets have released for this year group
+
+  let ticketType;
+
+  try {
+    ticketType = await EventTicketType.findOne({
+      where: { id: ticketTypeId },
+      include: [
+        {
+          model: Event,
+          attributes: [ "id" ]
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "An error occurred completing this request, please try again later (#4)" });
+  }
 
   try {
     ticket = await EventTicket.findOne({
-      where: { bookerId: member.id }
+      where: {
+        bookerId: user.id
+      },
+      include: [
+        {
+          model: EventGroupBooking,
+          where: {
+            eventId: ticketType.Event.id,
+          }
+        }
+      ]
     });
   } catch (error) {
     return res.status(500).json({ error: "An error occurred completing this request, please try again later (#3)" });
@@ -641,18 +669,6 @@ router.get("/search/member/:ticketTypeId/:username", async (req, res) => {
 
   if(ticket !== null) {
     return res.status(400).json({ error: "The user you are trying to find is already part of a group for this event." });
-  }
-
-  // We also need to check that the tickets have released for this year group
-
-  let ticketType;
-
-  try {
-    ticketType = await EventTicketType.findOne({
-      where: { id: ticketTypeId }
-    });
-  } catch (error) {
-    return res.status(500).json({ error: "An error occurred completing this request, please try again later (#4)" });
   }
 
   if(ticketType === null) {

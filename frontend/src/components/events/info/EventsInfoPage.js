@@ -4,6 +4,7 @@ import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
 import dateFormat from 'dateformat';
+import CountdownClock from '../../common/CountdownClock';
 
 class EventsInfoPage extends React.Component {
   constructor(props) {
@@ -205,15 +206,31 @@ class EventsInfoPage extends React.Component {
                       }
                     }
 
+                    // Countdown clock will trigger the button to appear
+                    // it takes 5 seconds after the real release time
+                    // this is to prevent them trying to get a ticket dead on the time
+                    // and it not working
+                    const bookingIssue = type.reason === "unreleased" ? (
+                      <CountdownClock
+                        until={new Date(new Date(type.release).getTime() + 5000)}
+                        onFinish={() => {
+                          let { ticketTypes } = this.state;
+                          ticketTypes[i].available = true;
+                          this.setState({ ticketTypes });
+                        }}
+                        aboveText="Tickets release in"
+                        verb="Booking opens"
+                        sameLine={true}
+                      />
+                    ) : (<p>{bookingUnavailable}</p>);
+
                     const bookButton = type.available ? (
                       <Link to={`/events/event/${type.record.eventId}/book/${type.record.id}`}>
                         <button
                           className="px-4 py-1 rounded text-lg bg-green-900 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-2"
                         >Book Now</button>
                       </Link>
-                    ) : (
-                      <p>{bookingUnavailable}</p>
-                    );
+                    ) : bookingIssue;
 
                     let peopleDescription = "This ticket is for individual booking only.";
 
