@@ -307,7 +307,7 @@ class CareersPage extends React.Component {
               <h2 className="font-semibold text-3xl text-left pb-2">Latest Opportunities and Information</h2>
               { postDiv }
             </div>
-            <div className="w-full md:w-2/5 md:ml-2 md:px-2 text-justify">
+            <div className="w-full md:w-2/5 md:ml-2 md:px-2 text-left">
               <h2 className="font-semibold text-3xl text-left pb-2">Welcome to the Career and Opportunities Information Board!</h2>
               <p className="py-1">This page is where information for upcoming careers events and other opportunities will be posted, whether this be our fortnightly Career Workshop, University-run talks, or job and internship postings.</p>
               <p className="py-1">For more information, or any queries, please don’t hesitate to email <a className="font-semibold underline" href="mailto:grey.careersalumni@durham.ac.uk" rel="noopener noreferrer" target="_blank">grey.careersalumni@durham.ac.uk</a></p>
