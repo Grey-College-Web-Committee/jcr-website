@@ -57,18 +57,26 @@ class EventsInfoPage extends React.Component {
 
     const galleryImages = content.data.record.EventImages.filter(img => img.position === "gallery");
     const ticketTypeIds = content.data.record.EventTicketTypes.map(type => type.id);
+
+    // Change displayed image every 6 seconds
+    this.interval = setInterval(() => {
+      this.changeImage(1);
+    }, 6000);
+
     this.setState({ loaded: true, status: 200, event: content.data.record, galleryImages, ticketTypeIds }, this.loadTicketTypes);
   }
 
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
   changeImage = (direction) => {
-    const newImage = this.state.currentGalleryImage + direction;
+    let newImage = this.state.currentGalleryImage + direction;
 
     if(newImage < 0) {
-      return;
-    }
-
-    if(newImage >= this.state.galleryImages.length) {
-      return;
+      newImage = this.state.galleryImages.length - 1;
+    } else if(newImage >= this.state.galleryImages.length) {
+      newImage = 0;
     }
 
     this.setState({ currentGalleryImage: newImage });
@@ -144,8 +152,8 @@ class EventsInfoPage extends React.Component {
           </div>
           <div className="flex flex-col md:flex-row">
             <div className="w-full md:w-2/5">
-              <div className="flex flex-col h-auto justify-between">
-                <div className="flex flex-row justify-center p-2 h-96">
+              <div className="flex flex-col h-auto justify-between p-2">
+                <div className="flex flex-row justify-center md:p-2 h-96">
                   <img
                     src={`/uploads/images/events/${galleryImages[currentGalleryImage].image}`}
                     alt={galleryImages[currentGalleryImage].caption}
@@ -156,16 +164,20 @@ class EventsInfoPage extends React.Component {
                   <p className="py-2 text-lg">{galleryImages[currentGalleryImage].caption}</p>
                   <div className="flex flex-row justify-between text-2xl align-middle">
                     <button
-                      onClick={() => this.changeImage(-1)}
-                      disabled={currentGalleryImage === 0}
-                      className="h-full px-12 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
-                    >&lt;</button>
+                      onClick={() => {
+                        this.changeImage(-1);
+                        clearInterval(this.interval);
+                      }}
+                      className="h-full px-8 pb-1 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
+                    >←</button>
                     <p>{currentGalleryImage + 1}/{galleryImages.length}</p>
                     <button
-                      onClick={() => this.changeImage(1)}
-                      disabled={currentGalleryImage === galleryImages.length - 1}
-                      className="h-full px-12 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
-                    >&gt;</button>
+                      onClick={() => {
+                        this.changeImage(1);
+                        clearInterval(this.interval);
+                      }}
+                      className="h-full px-8 pb-1 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
+                    >→</button>
                   </div>
                 </div>
               </div>
