@@ -135,9 +135,6 @@ class EventsInfoPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">{name}</h1>
-          <p className="pb-2 text-xl">Event starts at {dateFormat(this.state.event.date, "dd/mm/yyyy HH:MM")}</p>
-          <p className="pb-2 text-xl">Booking closes at {dateFormat(this.state.event.bookingCloseTime, "dd/mm/yyyy HH:MM")}</p>
-          <p className="pb-4 text-xl">Please check for emails from the Events Manager for details!</p>
           <div>
             <img
               src={`/uploads/images/events/${bannerImage.image}`}
@@ -148,7 +145,7 @@ class EventsInfoPage extends React.Component {
           <div className="flex flex-col md:flex-row">
             <div className="w-full md:w-2/5">
               <div className="flex flex-col h-auto justify-between">
-                <div className="flex flex-row justify-center p-2">
+                <div className="flex flex-row justify-center p-2 h-96">
                   <img
                     src={`/uploads/images/events/${galleryImages[currentGalleryImage].image}`}
                     alt={galleryImages[currentGalleryImage].caption}
@@ -173,8 +170,10 @@ class EventsInfoPage extends React.Component {
                 </div>
               </div>
             </div>
-            <div className="w-full md:w-3/5 p-4 flex flex-col">
+            <div className="w-full mt-4 md:mt-0 md:w-3/5 md:p-4 flex flex-col">
               <div className="text-justify">
+                <p className="pb-2">The event is scheduled to start at {dateFormat(this.state.event.date, "dd/mm/yyyy HH:MM")} but please check for emails from the Events Manager for details!</p>
+                <p className="pb-2">Booking for all tickets closes at {dateFormat(this.state.event.bookingCloseTime, "dd/mm/yyyy HH:MM")}.</p>
                 <h2 className="text-3xl font-semibold">Tickets</h2>
                 <p>You can only book one type of ticket.</p>
                 {
@@ -227,7 +226,7 @@ class EventsInfoPage extends React.Component {
                     const bookButton = type.available ? (
                       <Link to={`/events/event/${type.record.eventId}/book/${type.record.id}`}>
                         <button
-                          className="px-4 py-1 rounded text-lg bg-green-900 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-2"
+                          className="px-4 py-1 rounded text-lg bg-grey-500 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-2"
                         >Book Now</button>
                       </Link>
                     ) : bookingIssue;
@@ -245,7 +244,7 @@ class EventsInfoPage extends React.Component {
                         <h3 className="font-semibold text-xl">{type.record.name}</h3>
                         <p>{type.record.description}</p>
                         <p>{peopleDescription}</p>
-                        <p>JCR Member Price: £{type.record.memberPrice}{ type.record.maxGuests === 0 ? null : `, Guest Price: £${type.record.guestPrice}` }</p>
+                        <p>JCR Member Price: £{type.record.memberPrice}{ type.record.maxGuests === 0 ? null : `, Guest Price: £${type.record.guestPrice}` } (per ticket)</p>
                         {bookButton}
                       </div>
                     )
