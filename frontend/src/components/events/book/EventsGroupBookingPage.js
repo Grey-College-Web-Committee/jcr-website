@@ -197,17 +197,17 @@ class EventsGroupBookingPage extends React.Component {
         <div className="flex flex-col justify-start">
           <div className="container mx-auto text-center p-4">
             <h1 className="font-semibold text-5xl pb-4">Booking Successful!</h1>
-            <div className="py-1">
-              <p className="py-1">Your group has been successfully booked on to the event. Please check your Durham University email address for more details on how to complete this booking and pay. Each member of your group has 24 hours to pay for their ticket and enter any additional details required for this ticket (e.g. dietary requirements).</p>
-            </div>
+            <p className="py-1 text-left">Your group has been successfully booked on to the event. Please check your Durham University email address for more details on how to complete this booking and pay. Each member of your group has 24 hours to pay for their ticket and enter any additional details required for this ticket (e.g. dietary requirements).</p>
             <div className="py-1">
               <Link to={`/events/bookings/payment/${this.state.leadTicketId}`}>
-                <p className="font-semibold underline text-xl">To pay for your ticket please click here!</p>
+                <button
+                  className="px-4 py-1 rounded text-lg bg-grey-500 text-white w-full md:w-64 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-2"
+                >Pay Now!</button>
               </Link>
             </div>
-            <div className="py-1">
-            <p className="py-1">Your confirmed group is as follows:</p>
-              <table className="mx-auto border-2 text-left border-red-900 w-full md:w-3/5">
+            <div className="py-1 flex flex-col items-center">
+              <p className="py-1">Your confirmed group is as follows:</p>
+              <table className="mx-auto border-2 mt-2 text-left border-red-900 w-full md:w-3/5">
                 <thead className="bg-red-900 text-white">
                   <tr>
                     <th className="p-2 font-semibold">Username</th>
@@ -247,12 +247,19 @@ class EventsGroupBookingPage extends React.Component {
     }
 
     if(this.state.unavailable !== null) {
+      let redirectPath = `/events/event/${this.state.eventId}`;
+      let { unavailable } = this.state;
+
+      if(unavailable === "already_booked") {
+        redirectPath = `/my/bookings`;
+      } else if (unavailable === "in_debt") {
+        redirectPath = `/debt`;
+      } else if (unavailable === "not_consented") {
+        redirectPath = `/events/terms`;
+      }
+
       return (
-        <div className="flex flex-col justify-start">
-          <div className="container mx-auto text-center p-4">
-            <h1 className="font-semibold text-5xl pb-4">Ticket Unavailable</h1>
-          </div>
-        </div>
+        <Redirect to={redirectPath} />
       );
     }
 

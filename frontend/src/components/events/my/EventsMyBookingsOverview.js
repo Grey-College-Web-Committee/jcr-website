@@ -87,47 +87,42 @@ class EventsMyBookingsOverview extends React.Component {
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">My Event Bookings</h1>
+          <h1 className="font-semibold text-5xl pb-2">My Event Bookings</h1>
           {
-            tickets.length === 0 ? (<p className="text-2xl">No bookings yet!</p>) : (
-              <table className="mx-auto border-2 text-left border-red-900 w-full">
-                <thead className="bg-red-900 text-white">
-                  <tr>
-                    <th className="p-2 font-semibold">Event</th>
-                    <th className="p-2 font-semibold">Ticket Type</th>
-                    <th className="p-2 font-semibold hidden lg:table-cell">Lead Booker</th>
-                    <th className="p-2 font-semibold hidden lg:table-cell">Fully Confirmed</th>
-                    <th className="p-2 font-semibold hidden lg:table-cell">Booked At</th>
-                    <th className="p-2 font-semibold">See More</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {
-                    tickets.map((ticket, i) => (
-                      <tr className="text-center border-b border-gray-400" key={i}>
-                        <td className="p-2 border-r border-gray-400 break-all">
-                          <p>{ticket.EventGroupBooking.Event.name}</p>
-                          <p>({dateFormat(ticket.EventGroupBooking.Event.date, "dd/mm/yyyy")})</p>
-                        </td>
-                        <td className="p-2 border-r border-gray-400 break-all">{ticket.EventGroupBooking.EventTicketType.name}</td>
-                        <td className="p-2 border-r border-gray-400 break-all hidden lg:table-cell">{this.makeDisplayName(ticket.EventGroupBooking.User)}</td>
-                        <td className="p-2 border-r border-gray-400 break-all hidden lg:table-cell">
-                          <p>{ticket.EventGroupBooking.allPaid ? "Yes" : "No"}</p>
-                          <p>(You have {ticket.paid ? "paid" : "not paid"})</p>
-                        </td>
-                        <td className="p-2 border-r border-gray-400 break-all hidden lg:table-cell">{dateFormat(ticket.EventGroupBooking.createdAt, "dd/mm/yyyy HH:MM")}</td>
-                        <td className="p-2 border-r border-gray-400 break-all">
-                          <Link to={`/my/ticket/${ticket.id}`}>
-                            <button
-                              className="px-4 py-1 rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                            >View Group</button>
-                          </Link>
-                        </td>
-                      </tr>
-                    ))
-                  }
-                </tbody>
-              </table>
+            tickets.length === 0 ? (<p className="text-2xl mt-2">No bookings yet!</p>) : (
+              <div className="w-full md:w-3/5 flex flex-col mx-auto">
+                {
+                  tickets.map((ticket, i) => (
+                    <div className="border px-2 mt-2 flex flex-col items-start w-full">
+                      <div className="my-2 flex flex-col w-full items-start md:flex-row md:justify-between  md:items-center">
+                        <h2 className="font-semibold text-3xl">{ticket.EventGroupBooking.Event.name}</h2>
+                        <p className="break-all text-sm md:text-base">Booked at {dateFormat(ticket.EventGroupBooking.createdAt, "dd/mm/yyyy HH:MM")} by {this.makeDisplayName(ticket.EventGroupBooking.User)}</p>
+                      </div>
+                      <p className="py-1">{ticket.EventGroupBooking.Event.shortDescription}</p>
+                      <p>Event takes place on {dateFormat(ticket.EventGroupBooking.Event.date, "dd/mm/yyyy")}</p>
+                      <p className={ticket.paid ? "" : "text-red-900 font-semibold"}>Booking Status: {ticket.EventGroupBooking.allPaid ? "Confirmed" : ticket.paid ? "Awaiting Group Payments" : "Awaiting Your Payment"}</p>
+                      <p>Ticket Type: {ticket.EventGroupBooking.EventTicketType.name}</p>
+                      <div className={`my-2 w-full flex flex-row justify-start border-t ${ticket.paid ? "border-red-900" : "border-grey-500"} pt-2`}>
+                        {
+                          ticket.paid ? (
+                            <Link to={`/my/ticket/${ticket.id}`} className="w-full">
+                              <button
+                                className="px-4 py-1 rounded bg-grey-500 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                              >View Group</button>
+                            </Link>
+                          ) : (
+                            <Link to={`/events/bookings/payment/${ticket.id}`} className="w-full">
+                              <button
+                                className="px-4 py-1 rounded bg-red-900 text-white md:w-64 w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                              >Pay Now</button>
+                            </Link>
+                          )
+                        }
+                      </div>
+                    </div>
+                  ))
+                }
+              </div>
             )
           }
         </div>

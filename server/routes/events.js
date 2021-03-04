@@ -1620,7 +1620,7 @@ router.get("/bookings/my", async (req, res) => {
           include: [
             {
               model: Event,
-              attributes: [ "id", "name", "date" ]
+              attributes: [ "id", "name", "date", "shortDescription" ]
             },
             {
               model: User,

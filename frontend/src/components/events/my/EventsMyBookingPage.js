@@ -93,7 +93,7 @@ class EventsMyBookingPage extends React.Component {
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-2">Your Booking</h1>
+          <h1 className="font-semibold text-5xl pb-2">{event.name} Booking</h1>
           { myTicket.paid ? null : (
             <div className="border-2 border-red-900 p-2 my-2">
               <Link to={`/events/bookings/payment/${myTicket.id}`}>
@@ -101,14 +101,15 @@ class EventsMyBookingPage extends React.Component {
               </Link>
             </div>
           )}
-          <div className="flex flex-col-reverse md:flex-row text-left text-lg">
-            <div className="flex-1 md:p-2">
+          <div className="flex flex-col text-left md:w-3/5 w-full mx-auto">
+            <div className="flex-1">
               <h2 className="text-2xl font-semibold pb-2">Ticket Details</h2>
-              <p className="py-1"><span className="font-semibold">Event:</span> {event.name} ({dateFormat(event.date, "dd/mm/yyyy HH:MM")})</p>
+              <p className="py-1"><span className="font-semibold">Event:</span>  ({dateFormat(event.date, "dd/mm/yyyy HH:MM")})</p>
               <p className="py-1"><span className="font-semibold">Booking Created:</span> {dateFormat(group.createdAt, "dd/mm/yyyy HH:MM")}</p>
               <p className="py-1"><span className="font-semibold">Lead Booker:</span> {this.makeDisplayName(leadBooker)}</p>
               <p className="py-1"><span className="font-semibold">Ticket Type:</span> {ticketType.name}</p>
-              <p className="py-1"><span className="font-semibold">All Paid:</span> {group.allPaid ? "Yes" : `No (payment required from all members by ${dateFormat(paymentReqDate, "dd/mm/yyyy HH:MM")})`}</p>
+              <p className="py-1"><span className="font-semibold">Booking Status:</span> {myTicket.EventGroupBooking.allPaid ? "Confirmed" : myTicket.paid ? "Awaiting Group Payments" : "Awaiting Your Payment"}</p>
+              {myTicket.EventGroupBooking.allPaid ? null : (<p>Payment required from all members of the group by ${dateFormat(paymentReqDate, "dd/mm/yyyy HH:MM")}</p>)}
             </div>
             <div className="flex-1">
               <h2 className="text-2xl font-semibold pb-2">Group Details</h2>
