@@ -61,7 +61,7 @@ const staffToastieEmail = (user, orderId, toasties, extras) => {
   let message = [];
 
   message.push(`<h1>Order Received</h1>`);
-  message.push(`<p>Payment received at ${new Date().toLocaleString()}</p>`);
+  message.push(`<p>Payment received at ${dateFormat(new Date(), "dd/mm/yyyy HH:MM")}</p>`);
   message.push(`<p>Ordered by: ${firstName} ${lastName}</p>`);
   message.push(`<h2>Order Details</h2>`);
 

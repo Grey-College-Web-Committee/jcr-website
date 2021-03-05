@@ -1043,6 +1043,10 @@ router.post("/process", async (req, res) => {
     usedShops: JSON.stringify(usedShops)
   };
 
+  if(debtInCart) {
+    metadata["debt_username"] = user.username;
+  }
+
   const shopCount = Object.keys(totalSpentByShop).length;
 
   Object.keys(totalSpentByShop).forEach(shop => {

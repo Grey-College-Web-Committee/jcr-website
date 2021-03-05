@@ -64,11 +64,11 @@ class DebtPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Your Debt</h1>
           <div className="flex flex-col items-center text-lg">
+            <p className="py-1 text-justify">You currently owe a debt to the JCR.</p>
             {
               !this.state.fromCheckout ? (<p className="py-1 text-justify">Debts must be paid off before you are able to purchase anything else.</p>) :
               (<p className="py-1 text-justify">You must add the debt item to your cart before you can checkout.</p>)
             }
-            <p className="py-1 text-justify">You currently owe a debt to the JCR.</p>
             <p className="py-1 text-justify">Debt Reason: {debt.description}</p>
             <GenericCartableItem
               price={debt.debt}
