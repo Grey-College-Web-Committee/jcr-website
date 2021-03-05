@@ -109,7 +109,7 @@ class EventsMyBookingPage extends React.Component {
               <p className="py-1"><span className="font-semibold">Lead Booker:</span> {this.makeDisplayName(leadBooker)}</p>
               <p className="py-1"><span className="font-semibold">Ticket Type:</span> {ticketType.name}</p>
               <p className="py-1"><span className="font-semibold">Booking Status:</span> {myTicket.EventGroupBooking.allPaid ? "Confirmed" : myTicket.paid ? "Awaiting Group Payments" : "Awaiting Your Payment"}</p>
-              {myTicket.EventGroupBooking.allPaid ? null : (<p>Payment required from all members of the group by ${dateFormat(paymentReqDate, "dd/mm/yyyy HH:MM")}</p>)}
+              {myTicket.EventGroupBooking.allPaid ? null : (<p>Payment required from all members of the group by {dateFormat(paymentReqDate, "dd/mm/yyyy HH:MM")}</p>)}
             </div>
             <div className="flex-1">
               <h2 className="text-2xl font-semibold pb-2">Group Details</h2>

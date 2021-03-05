@@ -344,9 +344,7 @@ class EventsPaymentPage extends React.Component {
     if(this.state.paid) {
       // We want to redirect to the booking overview instead I think
       return (
-        <div>
-          Already paid
-        </div>
+        <Redirect to={`/my/ticket/${this.state.id}`} />
       )
     }
 

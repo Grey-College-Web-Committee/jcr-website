@@ -88,13 +88,10 @@ const cancelExpiredBookings = async () => {
 
   if(expiredGroups.length === 0) {
     // We then send any reminder emails
-    reminderEmailsForBookings();
     console.log("No groups");
+    reminderEmailsForBookings();
     return;
   }
-
-  console.log("Cancelling Bookings");
-  console.log({ now, dayBefore });
 
   // Then get each group individually
   for(const group of expiredGroups) {
@@ -154,7 +151,7 @@ const cancelExpiredBookings = async () => {
     // Could also send an email to grey.website or grey.treasurer
     // Now we delete the booking
 
-    // Commented out for testing
+    // Delete the group
     try {
       await group.destroy();
     } catch (error) {
@@ -268,7 +265,7 @@ const reminderEmailsForBookings = async () => {
       if(ticket.isGuestTicket) {
         continue;
       }
-      
+
       const reminderEmail = makeReminderEmail(group, ticket, notPaid);
       mailer.sendEmail(ticket.User.email, `Event Payment Reminder`, reminderEmail);
     }
