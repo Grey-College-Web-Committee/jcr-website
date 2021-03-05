@@ -265,6 +265,10 @@ const reminderEmailsForBookings = async () => {
 
     // We now send an email to all of the group to tell them to encourage those who haven't paid
     for(const ticket of tickets) {
+      if(ticket.isGuestTicket) {
+        continue;
+      }
+      
       const reminderEmail = makeReminderEmail(group, ticket, notPaid);
       mailer.sendEmail(ticket.User.email, `Event Payment Reminder`, reminderEmail);
     }

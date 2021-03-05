@@ -576,7 +576,7 @@ class CheckoutPage extends React.Component {
       case 999:
         // Special case for debtors
         return (
-          <Redirect to="/debt" />
+          <Redirect to="/debt?checkout=true" />
         )
 
       case -1:

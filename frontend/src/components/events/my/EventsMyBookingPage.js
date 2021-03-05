@@ -94,6 +94,7 @@ class EventsMyBookingPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-2">{event.name} Booking</h1>
+          <p className="font-semibold text-lg pb-2">Takes places at {dateFormat(event.date, "dd/mm/yyyy HH:MM")}</p>
           { myTicket.paid ? null : (
             <div className="border-2 border-red-900 p-2 my-2">
               <Link to={`/events/bookings/payment/${myTicket.id}`}>
@@ -104,7 +105,6 @@ class EventsMyBookingPage extends React.Component {
           <div className="flex flex-col text-left md:w-3/5 w-full mx-auto">
             <div className="flex-1">
               <h2 className="text-2xl font-semibold pb-2">Ticket Details</h2>
-              <p className="py-1"><span className="font-semibold">Event:</span>  ({dateFormat(event.date, "dd/mm/yyyy HH:MM")})</p>
               <p className="py-1"><span className="font-semibold">Booking Created:</span> {dateFormat(group.createdAt, "dd/mm/yyyy HH:MM")}</p>
               <p className="py-1"><span className="font-semibold">Lead Booker:</span> {this.makeDisplayName(leadBooker)}</p>
               <p className="py-1"><span className="font-semibold">Ticket Type:</span> {ticketType.name}</p>

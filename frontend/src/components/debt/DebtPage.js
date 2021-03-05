@@ -4,43 +4,26 @@ import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
 import GenericCartableItem from '../cart/GenericCartableItem';
+import qs from 'qs';
 
 class DebtPage extends React.Component {
   constructor(props) {
     super(props);
 
+    const queryString = qs.parse(props.location.search, { ignoreQueryPrefix: true });
+
     this.state = {
-      isMember: true,
       loaded: false,
       status: 0,
       error: "",
       hasDebt: false,
-      debt: null
+      debt: null,
+      fromCheckout: queryString && queryString.hasOwnProperty("checkout")
     };
   }
 
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
-    let membershipCheck;
-
-    try {
-      membershipCheck = await api.get("/auth/verify");
-    } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
-      return;
-    }
-
-    // Ensure they are an admin
-    if(membershipCheck.data.user.permissions) {
-      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
-        this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
-        return;
-      }
-    } else {
-      this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
-      return;
-    }
-
     // Once the component is ready we can query the API
     let content;
 
@@ -62,12 +45,6 @@ class DebtPage extends React.Component {
         );
       }
 
-      if(!this.state.isMember) {
-          return (
-            <Redirect to="/membership" />
-          )
-      }
-
       return (
         <LoadingHolder />
       );
@@ -87,7 +64,10 @@ class DebtPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Your Debt</h1>
           <div className="flex flex-col items-center text-lg">
-            <p className="py-1 text-justify">Due to excessive amounts of debt the JCR no longer uses the debting system. Instead, everything must now be paid for upfront on the website.</p>
+            {
+              !this.state.fromCheckout ? (<p className="py-1 text-justify">Debts must be paid off before you are able to purchase anything else.</p>) :
+              (<p className="py-1 text-justify">You must add the debt item to your cart before you can checkout.</p>)
+            }
             <p className="py-1 text-justify">You currently owe a debt to the JCR.</p>
             <p className="py-1 text-justify">Debt Reason: {debt.description}</p>
             <GenericCartableItem

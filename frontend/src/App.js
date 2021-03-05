@@ -307,8 +307,8 @@ class App extends React.Component {
                     <Route exact path="/media/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/media/admin") )
                     )} />
-                    <Route exact path="/debt" render={() => (
-                      this.isLoggedIn() ? ( <DebtPage /> ) : ( this.loginRef("/debt") )
+                  <Route exact path="/debt" render={(props) => (
+                      this.isLoggedIn() ? ( <DebtPage {...props} /> ) : ( this.loginRef("/debt") )
                     )} />
                     <Route exact path="/debt/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("debt.manage") ? ( <ManageDebtPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/debt/manage") )
