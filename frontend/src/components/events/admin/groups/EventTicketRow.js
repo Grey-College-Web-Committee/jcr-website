@@ -62,11 +62,13 @@ class EventTicketRow extends React.Component {
       )
     }
 
+    console.log({ticket})
+
     let overrideButton = "Requires Additional Information";
 
     // It is difficult to allow override before the extra required information is enter
     // so we require that they have filled in the form first
-    if(!paid && ticket.requiredInformation !== null) {
+    if(!this.props.requiresInformation) {
       overrideButton = (
         <button
           className="px-4 py-1 rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"

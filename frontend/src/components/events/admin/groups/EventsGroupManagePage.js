@@ -127,7 +127,7 @@ class EventsGroupManagePage extends React.Component {
             <div className="flex flex-row justify-start">
               {
                 Object.keys(ticketTypes).map(id => (
-                  <Link to={`/events/admin/groups/${event.id}/create/${id}`}>
+                  <Link to={`/events/admin/groups/${event.id}/create/${id}`} key={id}>
                     <button
                       className="px-4 py-1 ml-2 mb-2 rounded bg-green-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 flex flex-row justify-start"
                     >Create {ticketTypes[id].name} Group</button>
@@ -142,8 +142,8 @@ class EventsGroupManagePage extends React.Component {
                 const paymentClose = new Date(new Date(group.createdAt).getTime() + 1000 * 60 * 60 * 24);
                 let requiresInformation = false;
 
-                if(ticketType.requiredInformationForm !== null) {
-                  if(Object.keys(ticketType.requiredInformationForm).length !== 0) {
+                if(ticketType.requiredInformationForm !== "{}") {
+                  if(Object.keys(JSON.parse(ticketType.requiredInformationForm)).length !== 0) {
                     requiresInformation = true;
                   }
                 }
@@ -153,6 +153,8 @@ class EventsGroupManagePage extends React.Component {
                 if(guestsAllowed) {
                   prices = `${prices}, Guest Price: £${Number(ticketType.guestPrice).toFixed(2)}`;
                 }
+
+                console.log({requiresInformation})
 
                 return (
                   <div key={i} className="border p-2 my-2 text-left">
@@ -172,20 +174,22 @@ class EventsGroupManagePage extends React.Component {
                     </div>
                     <table className="mx-auto border-2 text-left border-red-900 w-full">
                       <thead className="bg-red-900 text-white">
-                        <th className="p-2 font-semibold">Ticket ID</th>
-                        <th className="p-2 font-semibold">Name</th>
-                        <th className="p-2 font-semibold">Username</th>
-                        <th className="p-2 font-semibold">Is Guest?</th>
-                        <th className="p-2 font-semibold">Paid?</th>
-                        <th className="p-2 font-semibold">Override Payment</th>
-                        <th className="p-2 font-semibold">Stripe Payment ID</th>
+                        <tr>
+                          <th className="p-2 font-semibold">Ticket ID</th>
+                          <th className="p-2 font-semibold">Name</th>
+                          <th className="p-2 font-semibold">Username</th>
+                          <th className="p-2 font-semibold">Is Guest?</th>
+                          <th className="p-2 font-semibold">Paid?</th>
+                          <th className="p-2 font-semibold">Override Payment</th>
+                          <th className="p-2 font-semibold">Stripe Payment ID</th>
+                        </tr>
                       </thead>
                       <tbody>
                         {
                           group.EventTickets.map((ticket, j) => (
                             <EventTicketRow
                               ticket={ticket}
-                              requiresInformation={requiresInformation}
+                              requiresInformation={requiresInformation && ticket.requiredInformation === null}
                               key={j}
                               leadBooker={group.User}
                             />

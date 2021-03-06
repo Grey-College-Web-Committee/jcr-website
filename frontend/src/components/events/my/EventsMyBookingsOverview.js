@@ -93,7 +93,7 @@ class EventsMyBookingsOverview extends React.Component {
               <div className="w-full md:w-3/5 flex flex-col mx-auto">
                 {
                   tickets.map((ticket, i) => (
-                    <div className="border px-2 mt-2 flex flex-col items-start w-full">
+                    <div className="border px-2 mt-2 flex flex-col items-start w-full text-left">
                       <div className="my-2 flex flex-col w-full items-start md:flex-row md:justify-between  md:items-center">
                         <h2 className="font-semibold text-3xl">{ticket.EventGroupBooking.Event.name}</h2>
                         <p className="break-all text-sm md:text-base">Booked at {dateFormat(ticket.EventGroupBooking.createdAt, "dd/mm/yyyy HH:MM")} by {this.makeDisplayName(ticket.EventGroupBooking.User)}</p>
@@ -107,13 +107,13 @@ class EventsMyBookingsOverview extends React.Component {
                           ticket.paid ? (
                             <Link to={`/my/ticket/${ticket.id}`} className="w-full">
                               <button
-                                className="px-4 py-1 rounded bg-grey-500 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                                className="px-4 py-1 text-lg rounded bg-grey-500 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                               >View Group</button>
                             </Link>
                           ) : (
                             <Link to={`/events/bookings/payment/${ticket.id}`} className="w-full">
                               <button
-                                className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                                className="px-4 py-1 text-lg rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                               >Pay Now</button>
                             </Link>
                           )

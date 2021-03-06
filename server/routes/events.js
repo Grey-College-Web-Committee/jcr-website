@@ -2557,7 +2557,7 @@ const createPaymentEmail = (event, ticketType, booker, ticket) => {
   contents.push(`<p>Ticket Type: ${ticketType.name}</p>`);
   contents.push(`<p>${ticketType.description}</p>`);
   contents.push(`<p>You now have 24 hours to make payment for this ticket otherwise the group's booking will be cancelled</p>`);
-  contents.push(`<a href="${process.env.WEB_ADDRESS}/events/bookings/payment/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>To make payment, please click here.</p></a>`);
+  contents.push(`<a href="${process.env.WEB_ADDRESS}events/bookings/payment/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>To make payment, please click here.</p></a>`);
   contents.push(`<p>Thank you</p>`);
 
   return contents.join("");
@@ -2627,7 +2627,7 @@ const createInviteOnlyEmail = (event, ticketType, realBooker, leadBooker, ticket
   contents.push(`<p>Ticket Type: ${ticketType.name}</p>`);
   contents.push(`<p>${ticketType.description}</p>`);
   contents.push(`<p>You now have 24 hours to make payment for this ticket otherwise the group's booking will be cancelled</p>`);
-  contents.push(`<a href="${process.env.WEB_ADDRESS}/events/bookings/payment/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>To make payment, please click here.</p></a>`);
+  contents.push(`<a href="${process.env.WEB_ADDRESS}events/bookings/payment/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>To make payment, please click here.</p></a>`);
   contents.push(`<p>Thank you</p>`);
 
   return contents.join("");
