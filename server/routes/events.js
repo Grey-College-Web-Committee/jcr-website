@@ -1376,12 +1376,20 @@ router.post("/booking/override", async (req, res) => {
     }
 
     // This will have triggered the payment_intent.captured event from Stripe
-    // we send the emails there instead --> go back to the webhook function
-    // However, those with an overridden paymentId won't receive the email
-    // so we need some way to handle those since this won't necessarily be the last
-    // payment complete so we will need to handle it in the captured event instead
+    // we send the emails there instead for those who have
 
-    // TODO !!!
+    // All captured so now we can send emails to those who had their payment overridden
+    for(let ticket of groupTickets) {
+      if(ticket.isGuestTicket) {
+        continue;
+      }
+
+      if(ticket.stripePaymentId === "overridden") {
+        // Send emails to those who had it overridden
+        const completedEmail = createCompletedEventPaymentEmail(ticket);
+        mailer.sendEmail(ticket.User.email, `Event Booking Confirmation`, completedEmail);
+      }
+    }
   } else {
     // Send them an email confirming their hold
     // And list who hasn't paid and how long they have left
@@ -2623,6 +2631,21 @@ const createInviteOnlyEmail = (event, ticketType, realBooker, leadBooker, ticket
   contents.push(`<p>Thank you</p>`);
 
   return contents.join("");
+}
+
+const createCompletedEventPaymentEmail = (ticket) => {
+  // This email will be sent once we capture the hold amount
+  let firstName = ticket.User.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = ticket.User.surname.charAt(0).toUpperCase() + ticket.User.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Hello ${firstName} ${lastName},`);
+  message.push(`<p>Everybody in your group has successfully paid for their ticket!</p>`);
+  message.push(`<p>This email is confirmation of your booking.</p>`);
+  message.push(`<p><strong>Thank you!</strong></p>`);
+
+  return message.join("");
 }
 
 // Set the module export to router so it can be used in server.js

@@ -90,7 +90,7 @@ class MemberSearch extends React.Component {
             <button
               onClick={this.searchForUser}
               disabled={this.props.disabled || this.state.disabled || this.state.username.length !== 6}
-              className="px-4 py-1 rounded bg-blue-900 text-white md:w-auto w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              className="px-4 py-1 rounded bg-grey-500 text-white md:w-auto w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             >Add User</button>
           </div>
           {

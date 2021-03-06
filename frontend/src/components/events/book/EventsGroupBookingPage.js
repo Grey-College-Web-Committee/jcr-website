@@ -195,7 +195,7 @@ class EventsGroupBookingPage extends React.Component {
 
       return (
         <div className="flex flex-col justify-start">
-          <div className="container mx-auto text-center p-4">
+          <div className="container mx-auto text-center p-4 md:w-3/5 w-full">
             <h1 className="font-semibold text-5xl pb-4">Booking Successful!</h1>
             <p className="py-1 text-left">Your group has been successfully booked on to the event. Please check your Durham University email address for more details on how to complete this booking and pay. Each member of your group has 24 hours to pay for their ticket and enter any additional details required for this ticket (e.g. dietary requirements).</p>
             <div className="py-1">
@@ -207,7 +207,7 @@ class EventsGroupBookingPage extends React.Component {
             </div>
             <div className="py-1 flex flex-col items-center">
               <p className="py-1">Your confirmed group is as follows:</p>
-              <table className="mx-auto border-2 mt-2 text-left border-red-900 w-full md:w-3/5">
+              <table className="mx-auto border-2 mt-2 text-left border-red-900 w-full md:w-4/5">
                 <thead className="bg-red-900 text-white">
                   <tr>
                     <th className="p-2 font-semibold">Username</th>
@@ -361,7 +361,7 @@ class EventsGroupBookingPage extends React.Component {
               ) : (
                 <button
                   onClick={this.submitGroup}
-                  className="px-4 py-2 text-lg rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  className="px-4 py-2 text-lg rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                   disabled={this.canSubmit() || this.state.disabled}
                 >Confirm Booking</button>
               ) }

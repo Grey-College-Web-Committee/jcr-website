@@ -136,7 +136,7 @@ class AddGuest extends React.Component {
           <div>
             <button
               disabled={this.props.disabled || this.state.disabled || !this.canSubmit()}
-              className="px-4 py-1 rounded bg-blue-900 text-white md:w-auto w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              className="px-4 py-1 rounded bg-grey-900 text-white md:w-auto w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               onClick={this.submitGuest}
             >Add Guest</button>
           </div>

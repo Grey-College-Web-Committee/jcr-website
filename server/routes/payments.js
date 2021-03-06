@@ -578,8 +578,21 @@ const processEventHold = async (ticketId) => {
       };
     }
 
+    // All captured so now we can send emails to those who had their payment overridden
+    for(let ticket of groupTickets) {
+      if(ticket.isGuestTicket) {
+        continue;
+      }
+
+      if(ticket.stripePaymentId === "overridden") {
+        // Send emails to those who had it overridden
+        const completedEmail = createCompletedEventPaymentEmail(ticket);
+        mailer.sendEmail(ticket.User.email, `Event Booking Confirmation`, completedEmail);
+      }
+    }
+
     // This will have triggered the payment_intent.captured event from Stripe
-    // we send the emails there instead --> go back to the webhook function
+    // we send the emails to non-overridden ones there instead
   } else {
     // Send them an email confirming their hold
     // And list who hasn't paid and how long they have left

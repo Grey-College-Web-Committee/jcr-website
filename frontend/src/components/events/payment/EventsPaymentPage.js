@@ -382,7 +382,7 @@ class EventsPaymentPage extends React.Component {
                   <p className="font-semibold py-1">Once you save these details, they cannot be altered.</p>
                   <button
                     onClick={this.saveRequiredInformation}
-                    className="px-4 py-1 text-xl rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    className="px-4 py-1 text-xl rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                   >Save Details</button>
                 </div>
               </div>
