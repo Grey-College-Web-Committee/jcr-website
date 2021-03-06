@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, Permission, PermissionLink } = require("../database.models.js");
+const { User, Permission, PermissionLink, Debt } = require("../database.models.js");
 const axios = require("axios");
 // An object consisting of emails and expiry dates
 const prepaidMemberships = require("../prepaid_memberships.json");
@@ -179,6 +179,44 @@ router.post("/login", async (req, res) => {
     }
   }
 
+  let debtRecord;
+
+  try {
+    debtRecord = await Debt.findOne({ where: { username: user.username }});
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check the debt status" });
+  }
+
+  if(debtRecord !== null) {
+    let debtPermission;
+
+    try {
+      debtPermission = await Permission.findOne({ where: { internal: "debt.has" } });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to get the debt permission" });
+    }
+
+    if(debtPermission === null) {
+      return res.status(500).json({ error: "Unable to get the debt permission, was null" });
+    }
+
+    try {
+      await PermissionLink.findOrCreate({
+        where: {
+          permissionId: debtPermission.id,
+          grantedToId: user.id
+        },
+        defaults: {
+          permissionId: debtPermission.id,
+          grantedToId: user.id,
+          grantedById: 1
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to set the debt permission" });
+    }
+  }
+
   // Credentials must have been accepted or axios would have errored
   // Now assign data for their session
   req.session.user = user.dataValues;
@@ -207,7 +245,7 @@ router.post("/login", async (req, res) => {
   const date = new Date();
   date.setTime(date.getTime() + (3 * 60 * 60 * 1000));
 
-  res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email, hlm: user.hlm }, message: "Successfully authenticated" });
+  res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email, hlm: user.hlm, firstNames: user.firstNames, surname: user.surname }, message: "Successfully authenticated" });
 });
 
 router.post("/logout", async (req, res) => {
@@ -222,7 +260,7 @@ router.post("/logout", async (req, res) => {
 router.get("/verify", async (req, res) => {
   if(req.session.user && req.cookies.user_sid && req.session.permissions) {
     const { user, permissions } = req.session;
-    return res.status(200).json({ user: { username: user.username, permissions: permissions } });
+    return res.status(200).json({ user: { userId: user.id, username: user.username, permissions: permissions } });
   }
 
   return res.status(401).end();

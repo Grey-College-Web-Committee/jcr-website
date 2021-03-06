@@ -45,9 +45,25 @@ class Media extends Model {}
 class WelfareThread extends Model {}
 class WelfareThreadMessage extends Model {}
 
+
+// Any historical debt from the old website
+class Debt extends Model {}
+
+// Represents a single event
+class Event extends Model {}
+// Stores the images for the event gallery
+class EventImage extends Model {}
+// Events may have multiple ticket types
+class EventTicketType extends Model {}
+// The overarching booking for a group (or individual i.e. group of 1)
+class EventGroupBooking extends Model {}
+// The individual record for each member of a group (i.e. to track their Stripe payments)
+class EventTicket extends Model {}
+
 class CareersPost extends Model {}
 
 class Feedback extends Model {}
+
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -79,6 +95,10 @@ User.init({
     defaultValue: null
   },
   hlm: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  eventConsent: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   }
@@ -698,6 +718,233 @@ WelfareThreadMessage.init({
   }
 }, { sequelize });
 
+Debt.init({
+  username: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  debt: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
+Event.init({
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  shortDescription: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  maxIndividuals: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  bookingCloseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  date: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  inviteOnly: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  }
+}, { sequelize });
+
+EventImage.init({
+  eventId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Event,
+      key: 'id'
+    }
+  },
+  image: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  caption: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  position: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
+EventTicketType.init({
+  eventId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Event,
+      key: 'id'
+    }
+  },
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  maxOfType: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  minPeople: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  maxPeople: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  maxGuests: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  memberPrice: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  },
+  guestPrice: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  },
+  requiredInformationForm: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  firstYearReleaseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  secondYearReleaseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  thirdYearReleaseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  fourthYearReleaseTime: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  olderYearsCanOverride: {
+    type: DataTypes.BOOLEAN,
+    default: true
+  }
+}, { sequelize });
+
+EventGroupBooking.init({
+  eventId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Event,
+      key: 'id'
+    }
+  },
+  leadBookerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  ticketTypeId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: EventTicketType,
+      key: 'id'
+    }
+  },
+  totalMembers: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  allPaid: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  }
+}, { sequelize });
+
+EventTicket.init({
+  id: {
+    type: DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4
+  },
+  groupId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: EventGroupBooking,
+      key: 'id'
+    }
+  },
+  bookerId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  paid: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  stripePaymentId: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
+  },
+  requiredInformation: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
+  },
+  isGuestTicket: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  guestName: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
+  },
+  guestUsername: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
+  }
+}, { sequelize });
+
 CareersPost.init({
   userId: {
     type: DataTypes.INTEGER,
@@ -829,10 +1076,32 @@ ElectionEditLog.belongsTo(Election, { foreignKey: 'electionId' });
 WelfareThread.hasMany(WelfareThreadMessage, { foreignKey: 'threadId' });
 WelfareThreadMessage.belongsTo(WelfareThread, { foreignKey: 'threadId' });
 
+Event.hasMany(EventImage, { foreignKey: 'eventId' });
+EventImage.belongsTo(Event, { foreignKey: 'eventId' });
+
+Event.hasMany(EventTicketType, { foreignKey: 'eventId' });
+EventTicketType.belongsTo(Event, { foreignKey: 'eventId' });
+
+Event.hasMany(EventGroupBooking, { foreignKey: 'eventId' });
+EventGroupBooking.belongsTo(Event, { foreignKey: 'eventId' });
+
+User.hasMany(EventGroupBooking, { foreignKey: 'leadBookerId' });
+EventGroupBooking.belongsTo(User, { foreignKey: 'leadBookerId' });
+
+EventGroupBooking.hasMany(EventTicket, { foreignKey: 'groupId' });
+EventTicket.belongsTo(EventGroupBooking, { foreignKey: 'groupId' });
+
+User.hasMany(EventTicket, { foreignKey: 'bookerId' });
+EventTicket.belongsTo(User, { foreignKey: 'bookerId' });
+
+EventTicketType.hasMany(EventGroupBooking, { foreignKey: 'ticketTypeId' });
+EventGroupBooking.belongsTo(EventTicketType, { foreignKey: 'ticketTypeId' });
+
 User.hasMany(CareersPost, { foreignKey: 'userId' });
 CareersPost.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasMany(Feedback, { foreignKey: 'userId' });
 Feedback.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket };
+

@@ -138,9 +138,25 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Events",
+          url: "/events",
+          requiredPermission: "events.manage",
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
           displayName: "Career Angels",
           url: "/careers",
           requiredPermission: "jcr.member",
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
+          displayName: "Your Debt",
+          url: "/debt",
+          requiredPermission: "debt.has",
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: null
@@ -159,6 +175,11 @@ class NavBar extends React.Component {
           requiredPermission: null,
           staticImage: null,
           dropdown: [
+            {
+              displayName: "My Bookings",
+              url: "/my/bookings",
+              requiredPermission: "events.manage"
+            },
             {
               displayName: "Logout",
               url: "/accounts/logout",
@@ -222,6 +243,21 @@ class NavBar extends React.Component {
               displayName: "Welfare Messages",
               url: "/welfare/message/admin",
               requiredPermission: "welfare.anonymous"
+            },
+            {
+              displayName: "Manage Events",
+              url: "/events/admin",
+              requiredPermission: "events.manage"
+            },
+            {
+              displayName: "Export Events",
+              url: "/events/admin/export",
+              requiredPermission: "events.export"
+            },
+            {
+              displayName: "Manage Debts",
+              url: "/debt/manage",
+              requiredPermission: "debt.manage"
             },
             {
               displayName: "Manage Careers",

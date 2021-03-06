@@ -6,9 +6,11 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+// Used to schedule jobs
+const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store)
 
@@ -23,11 +25,17 @@ const membershipsRoute = require("./routes/memberships");
 const electionsRoute = require("./routes/elections");
 const mediaRoute = require("./routes/media");
 const welfareMessagesRoute = require("./routes/welfare_messages");
+const eventsRoute = require("./routes/events");
+const debtRoute = require("./routes/debt");
 const careersRoute = require("./routes/careers");
 const feedbackRoute = require("./routes/feedback");
+
 // Required to deploy the static React files for production
 const path = require("path");
 const fs = require("fs");
+
+// The cron jobs for the events system
+const eventsCron = require("./cron/events_cron.js");
 
 // Load express
 const app = express();
@@ -133,6 +141,26 @@ const requiredPermissions = [
     internal: "welfare.anonymous"
   },
   {
+    name: "Manage Events",
+    description: "Create, edit, delete and view details about events",
+    internal: "events.manage"
+  },
+  {
+    name: "Export Events",
+    description: "Export the data for events",
+    internal: "events.export"
+  },
+  {
+    name: "Has Debt",
+    description: "Denotes a user who owes a debt to the JCR",
+    internal: "debt.has"
+  },
+  {
+    name: "Manage Debt",
+    description: "View and manage debt owed to the JCR",
+    internal: "debt.manage"
+  },
+  {
     name: "Manage Careers",
     description: "Manage the posts on the careers page",
     internal: "careers.manage"
@@ -183,6 +211,14 @@ const requiredPermissions = [
   await WelfareThread.sync();
   await WelfareThreadMessage.sync();
 
+  await Debt.sync();
+
+  await Event.sync();
+  await EventImage.sync();
+  await EventTicketType.sync();
+  await EventGroupBooking.sync();
+  await EventTicket.sync();
+  
   await CareersPost.sync();
   
   await Feedback.sync();
@@ -200,6 +236,15 @@ const requiredPermissions = [
     });
   });
 })();
+
+// Running in cluster mode we want to only run this on one of the instances
+if(process.env.WITH_SCHEDULE) {
+  // ("* * * * *") runs every minute
+  // TODO Figure out what every hour is shouldn't be too bad
+  // Will send the emails for reminder and cancellations (as well as cancel bookings)
+  const eventsEmailCronJob = new CronJob("0 * * * *", eventsCron.cancelExpiredBookings);
+  eventsEmailCronJob.start();
+}
 
 // This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.
 // This usually happens when you stop your express server after login, your cookie still remains saved in the browser.
@@ -235,6 +280,8 @@ app.use("/api/memberships", isLoggedIn, membershipsRoute);
 app.use("/api/elections", isLoggedIn, electionsRoute);
 app.use("/api/media", isLoggedIn, mediaRoute);
 app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);
+app.use("/api/events", isLoggedIn, eventsRoute);
+app.use("/api/debt", isLoggedIn, debtRoute);
 app.use("/api/careers", isLoggedIn, careersRoute);
 app.use("/api/feedback", isLoggedIn, feedbackRoute);
 
@@ -262,6 +309,11 @@ app.get("/uploads/images/stash/:id/:image", function(req, res) {
 app.get("/uploads/images/toastie_bar/:image", function(req, res) {
   const image = req.params.image;
   res.sendFile(path.join(__dirname, `./uploads/images/toastie_bar/${image}`));
+});
+
+app.get("/uploads/images/events/:image", function(req, res) {
+  const image = req.params.image;
+  res.sendFile(path.join(__dirname, `./uploads/images/events/${image}`));
 });
 
 app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {
