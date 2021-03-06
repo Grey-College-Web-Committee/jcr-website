@@ -26,6 +26,12 @@ class CreateTicketComponent extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps) {
+    if(this.props.disabled !== prevProps.disabled) {
+      this.setState({ disabled: this.props.disabled });
+    }
+  }
+
   onInputChange = e => {
     // Standard input updater
     // But we also pass up to the parent everytime

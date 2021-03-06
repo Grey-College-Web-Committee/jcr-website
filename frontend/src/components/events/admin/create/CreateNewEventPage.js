@@ -490,6 +490,7 @@ class CreateNewEventPage extends React.Component {
                     value={this.state.date}
                     className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                     onChange={this.onInputChange}
+                    disabled={this.state.disabled}
                     autoComplete=""
                   />
                 </div>
@@ -503,6 +504,7 @@ class CreateNewEventPage extends React.Component {
                     className="p-2 h-6 w-6 align-middle rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                     onChange={this.onInputChange}
                     autoComplete=""
+                    disabled={this.state.disabled}
                   />
                 </div>
                 <div className="pt-2 pb-2 border-b-2">
@@ -545,6 +547,7 @@ class CreateNewEventPage extends React.Component {
                     autoComplete=""
                     min={1}
                     step={1}
+                    disabled={this.state.disabled}
                   />
                 </div>
                 <div className="pt-2 pb-2 border-b-2">
@@ -558,6 +561,7 @@ class CreateNewEventPage extends React.Component {
                     className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                     onChange={this.onInputChange}
                     autoComplete=""
+                    disabled={this.state.disabled}
                   />
                 </div>
               </fieldset>
@@ -682,11 +686,12 @@ class CreateNewEventPage extends React.Component {
                     </div>
                   ) : (
                     Object.keys(this.state.ticketTypes).map((id) => (
-                        <div className="flex flex-col border-2 border-black" key={id}>
+                        <div className="flex flex-col border-2 border-black mt-2" key={id}>
                           <CreateTicketComponent
                             id={id}
                             passUp={this.updateTicketType}
                             defaults={{}}
+                            disabled={this.state.disabled}
                           />
                           <div className="p-2 flex flex-row justify-start">
                             <button
@@ -694,6 +699,7 @@ class CreateNewEventPage extends React.Component {
                               onClick={() => {
                                 this.deleteTicketType(id)
                               }}
+                              disabled={this.state.disabled}
                             >Delete Ticket Type</button>
                           </div>
                         </div>

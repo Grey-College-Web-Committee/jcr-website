@@ -168,7 +168,7 @@ class EventsInfoPage extends React.Component {
                         this.changeImage(-1);
                         clearInterval(this.interval);
                       }}
-                      className="h-full px-8 pb-1 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
+                      className="h-full px-8 md:pb-1 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
                     >←</button>
                     <p>{currentGalleryImage + 1}/{galleryImages.length}</p>
                     <button
@@ -176,14 +176,14 @@ class EventsInfoPage extends React.Component {
                         this.changeImage(1);
                         clearInterval(this.interval);
                       }}
-                      className="h-full px-8 pb-1 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
+                      className="h-full px-8 md:pb-1 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
                     >→</button>
                   </div>
                 </div>
               </div>
             </div>
             <div className="w-full mt-4 md:mt-0 md:w-3/5 md:p-4 flex flex-col">
-              <div className="text-justify">
+              <div className="text-left">
                 <p className="pb-2">The event is scheduled to start at {dateFormat(this.state.event.date, "dd/mm/yyyy HH:MM")} but please check for emails from the Events Manager for details!</p>
                 <p className="pb-2">Booking for all tickets closes at {dateFormat(this.state.event.bookingCloseTime, "dd/mm/yyyy HH:MM")}.</p>
                 <h2 className="text-3xl font-semibold">Tickets</h2>
@@ -254,9 +254,9 @@ class EventsInfoPage extends React.Component {
                     return (
                       <div className="p-2 my-1 border border-black" key={i}>
                         <h3 className="font-semibold text-xl">{type.record.name}</h3>
-                        <p>{type.record.description}</p>
-                        <p>{peopleDescription}</p>
-                        <p>JCR Member Price: £{type.record.memberPrice}{ type.record.maxGuests === 0 ? null : `, Guest Price: £${type.record.guestPrice}` } (per ticket)</p>
+                        <p className="py-1">{type.record.description}</p>
+                        <p className="py-1">{peopleDescription}</p>
+                        <p className="py-1">JCR Member Price: £{type.record.memberPrice}{ type.record.maxGuests === 0 ? null : `, Guest Price: £${type.record.guestPrice}` } (per ticket)</p>
                         {bookButton}
                       </div>
                     )

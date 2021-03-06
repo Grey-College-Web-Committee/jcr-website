@@ -12,7 +12,7 @@ const CronJob = require("cron").CronJob;
 // Routes and database models
 const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("./database.models.js");
 
-const SequelizeStore = require("connect-session-sequelize")(session.Store)
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
@@ -218,9 +218,9 @@ const requiredPermissions = [
   await EventTicketType.sync();
   await EventGroupBooking.sync();
   await EventTicket.sync();
-  
+
   await CareersPost.sync();
-  
+
   await Feedback.sync();
 
   requiredPermissions.forEach(async (item, i) => {

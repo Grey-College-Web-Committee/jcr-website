@@ -771,7 +771,8 @@ class EditEventDetails extends React.Component {
                         const alreadyOpen = now > new Date(ticketType.firstYearReleaseTime) || now > new Date(ticketType.secondYearReleaseTime) || now > new Date(ticketType.thirdYearReleaseTime) || now > new Date(ticketType.fourthYearReleaseTime);
 
                         return (
-                          <div className="flex flex-col border-2 border-black" key={id}>
+                          <div className="flex flex-col border-2 border-black mt-2" key={id}>
+                            <p className="px-2 pt-2 font-semibold text-lg text-left text-red-900">Please do NOT set the release date to before now as it will lock this ticket and you will have to refresh to unlock it (and lose all of your unsaved changes!)</p>
                             {alreadyOpen ? <p className="px-2 pt-2 font-semibold text-lg text-left text-red-900">This ticket type has already opened for bookings and cannot be edited</p> : null}
                             <CreateTicketComponent
                               id={id}

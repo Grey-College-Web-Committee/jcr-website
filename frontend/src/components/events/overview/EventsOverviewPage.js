@@ -74,7 +74,7 @@ class EventsOverviewPage extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
-        <div className="container mx-auto text-center p-4">
+        <div className="container mx-auto text-center p-4 md:w-3/5 w-full">
           <h1 className="font-semibold text-5xl pb-4">Events</h1>
           {
             this.state.consented ? null : (
@@ -91,22 +91,25 @@ class EventsOverviewPage extends React.Component {
             )
           }
           {this.state.consented ? (
-            <p className="text-left">Put some text here about Grey Events...</p>
+            <p className="text-left pb-2">The JCR organises events throughout the year for the members of the JCR. Most of these are led by the Events Manager and the Events Committee. They offer many events throughout the year such as a range of different formals, the Winter Ball, Grey Day, Phoenix Ball, and many others. There are also a few other big events throughout the year such as the The President's Guest Night, the Sportsperson Formal, and the Grey College Charity Fashion Show.</p>
           ) : (
-            <p className="text-left mt-4">Put some text here about Grey Events...</p>
+            <p className="text-left mt-4 pb-2">The JCR organises events throughout the year for the members of the JCR. Most of these are led by the Events Manager and the Events Committee. They offer many events throughout the year such as a range of different formals, the Winter Ball, Grey Day, and Phoenix Ball. There are also other events throughout the year such as the The President's Guest Night, the Sportsperson Formal, and the Grey College Charity Fashion Show.</p>
           )}
           <div className="flex flex-col">
+            {
+              this.state.events.length === 0 ? (<p>There are no events yet! Check back soon!</p>) : null
+            }
             {
               this.state.events.map((record, i) => (
                 <div key={i} className="border-2 border-grey-300 p-2 text-left mt-4">
                   <div className="flex flex-col md:flex-row">
                     {
                       record.EventImages.length === 0 ? null : (
-                        <div className="flex flex-row justify-center">
+                        <div className="mx-auto flex flex-row justify-center h-56 w-56">
                           <img
                             src={`/uploads/images/events/${record.EventImages[0].image}`}
                             alt={record.EventImages[0].caption}
-                            className="w-auto h-56"
+                            className="h-full w-auto"
                           />
                         </div>
                       )
@@ -115,7 +118,7 @@ class EventsOverviewPage extends React.Component {
                       <div>
                         <h2 className="font-semibold text-3xl text-center md:text-left">{record.name}</h2>
                         <p className="pb-2 text-lg text-center md:text-left">{dateFormat(record.date, "dd/mm/yyyy HH:MM")}</p>
-                        <p>{record.shortDescription}</p>
+                        <p className="pb-4">{record.shortDescription}</p>
                       </div>
                       <div className="flex flex-row justify-start">
                         {
