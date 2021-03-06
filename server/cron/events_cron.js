@@ -62,7 +62,7 @@ const forcedCancellationEmail = (group, ticket, notPaid) => {
 const cancelExpiredBookings = async () => {
   const now = new Date();
   console.log(`Running cancelExpiredBookings ${now}`);
-  const dayBefore = new Date(now.getTime() - 1000 * 60 * 60 * 3);
+  const dayBefore = new Date(now.getTime() - 1000 * 60 * 60 * 24);
   // Say a group books on at 13:01 on 19/02/2021 then they have until 14:00 20/02/2021
   // At 13:00 20/02/2021 we look at all groups made before 13:00 19/02/2021
   // They should not get caught in the cron job running at 13:00 but rather than one at 14:00
@@ -202,7 +202,7 @@ const reminderEmailsForBookings = async () => {
   const now = new Date();
   console.log(`Running reminderEmailsForBookings ${now}`);
   // 22 hours ago, send an email 1 hour before the deadline
-  const oneHourToGo = new Date(now.getTime() - 1000 * 60 * 60 * 2);
+  const oneHourToGo = new Date(now.getTime() - 1000 * 60 * 60 * 23);
 
   let groups;
 
