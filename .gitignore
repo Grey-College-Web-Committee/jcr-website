@@ -119,8 +119,6 @@ dist
 
 /domain_verification/
 /domain_verification/*
-/server/uploads/images/stash/*
-/server/uploads/images/toastie_bar/*
 
 /server/debtors.json
 /server/prepaid_memberships.json
@@ -128,4 +126,3 @@ dist
 /server/manifestos/*
 /manual/*
 /server/uploads/*
-/server/events/*

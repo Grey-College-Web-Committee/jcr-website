@@ -1,8 +1,7 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig';
 import LoadingHolder from '../common/LoadingHolder';
-import dateFormat from 'dateformat';
 
 class MediaAdminPage extends React.Component {
   constructor(props) {
@@ -168,9 +167,8 @@ class MediaAdminPage extends React.Component {
     }
   
     // Add it to the database
-    let query;
     try {
-      query = await api.post("/media/new", { title, type, category, description, link });
+      await api.post("/media/new", { title, type, category, description, link });
     } catch (error) {
       this.setState({ status: error.response.status, error: error.response.data.error, loaded: true });
       return;

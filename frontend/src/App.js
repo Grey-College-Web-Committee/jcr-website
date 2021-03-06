@@ -26,11 +26,14 @@ import WelfarePage from './components/welfare/WelfarePage';
 import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage';
 import WelfareThreadPage from './components/welfare/message/thread/WelfareThreadPage';
 
+import CareersPage from './components/careers/CareersPage';
+
 import ElectionOverviewPage from './components/elections/overview/ElectionOverviewPage';
 import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
 
 import ContributorsPage from './components/legal/ContributorsPage';
 import CookiesPage from './components/legal/CookiesPage';
+
 
 import EventsOverviewPage from './components/events/overview/EventsOverviewPage';
 import EventsInfoPage from './components/events/info/EventsInfoPage';
@@ -39,6 +42,8 @@ import EventsGroupBookingPage from './components/events/book/EventsGroupBookingP
 import EventsPaymentPage from './components/events/payment/EventsPaymentPage';
 import EventsMyBookingsOverview from './components/events/my/EventsMyBookingsOverview';
 import EventsMyBookingPage from './components/events/my/EventsMyBookingPage';
+
+import FeedbackPage from './components/feedback/FeedbackPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
@@ -61,8 +66,12 @@ import WelfareAdminOverviewPage from './components/welfare/message/admin/Welfare
 import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
 import MediaPage from './components/media/MediaViewPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
-import ManageDebtPage from './components/debt/admin/ManageDebtPage';
+import CareersAdminPage from './components/careers/CareersAdminPage';
+import CareersEditPost from './components/careers/CareersEditPost';
+import FeedbackAdminOverview from './components/feedback/FeedbackAdminOverview';
+import FeedbackViewPage from './components/feedback/FeedbackViewPage';
 
+import ManageDebtPage from './components/debt/admin/ManageDebtPage';
 import CreateNewEventPage from './components/events/admin/create/CreateNewEventPage';
 import EventsGroupManagePage from './components/events/admin/groups/EventsGroupManagePage';
 import EventsExportPage from './components/events/admin/export/EventsExportPage';
@@ -307,7 +316,7 @@ class App extends React.Component {
                     <Route exact path="/media/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/media/admin") )
                     )} />
-                  <Route exact path="/debt" render={(props) => (
+                    <Route exact path="/debt" render={(props) => (
                       this.isLoggedIn() ? ( <DebtPage {...props} /> ) : ( this.loginRef("/debt") )
                     )} />
                     <Route exact path="/debt/manage" render={() => (
@@ -367,6 +376,15 @@ class App extends React.Component {
                     <Route exact path="/stash/view/:id" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/stash") )
                     )} />
+                    <Route exact path="/careers/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <CareersPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
+                    )} />
+                    <Route exact path="/careers/admin" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("careers.manage") ? <CareersAdminPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers/admin") )
+                    )} />
+                    <Route exact path="/careers/edit/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("careers.manage") ? <CareersEditPost {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
+                    )} />
                     <Route exact path="/spinner/" render={() => (
                       this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( this.loginRef("/spinner") )
                     )} />
@@ -414,6 +432,15 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/checkout/" render={() => (
                       this.isLoggedIn() ? ( <CheckoutPage /> ) : ( this.loginRef("/checkout") )
+                    )} />
+                    <Route exact path="/feedback" render={() => (
+                      this.isLoggedIn() ? ( <FeedbackPage /> ) : ( this.loginRef("/feedback") )
+                    )} />
+                    <Route exact path="/feedback/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/feedback/admin") )
+                    )} />
+                    <Route exact path="/feedback/view/:id" render={(props) => (
+                      this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/feedback/view/${props.id}`) )
                     )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />

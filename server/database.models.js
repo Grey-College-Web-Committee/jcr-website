@@ -45,6 +45,7 @@ class Media extends Model {}
 class WelfareThread extends Model {}
 class WelfareThreadMessage extends Model {}
 
+
 // Any historical debt from the old website
 class Debt extends Model {}
 
@@ -58,6 +59,11 @@ class EventTicketType extends Model {}
 class EventGroupBooking extends Model {}
 // The individual record for each member of a group (i.e. to track their Stripe payments)
 class EventTicket extends Model {}
+
+class CareersPost extends Model {}
+
+class Feedback extends Model {}
+
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -939,6 +945,57 @@ EventTicket.init({
   }
 }, { sequelize });
 
+CareersPost.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  content: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  emailSubject: {
+    type: DataTypes.STRING,
+    allowNull: true
+  }
+}, { sequelize });
+  
+Feedback.init({
+  id: {
+    type: DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4
+  },
+  type: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  subject: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  details: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  anonymous: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  agreement: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  }
+}, { sequelize, freezeTableName: true });
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -1040,4 +1097,11 @@ EventTicket.belongsTo(User, { foreignKey: 'bookerId' });
 EventTicketType.hasMany(EventGroupBooking, { foreignKey: 'ticketTypeId' });
 EventGroupBooking.belongsTo(EventTicketType, { foreignKey: 'ticketTypeId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket };
+User.hasMany(CareersPost, { foreignKey: 'userId' });
+CareersPost.belongsTo(User, { foreignKey: 'userId' });
+
+User.hasMany(Feedback, { foreignKey: 'userId' });
+Feedback.belongsTo(User, { foreignKey: 'userId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket };
+

@@ -10,7 +10,7 @@ const cookieParser = require("cookie-parser");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store)
 
@@ -27,6 +27,8 @@ const mediaRoute = require("./routes/media");
 const welfareMessagesRoute = require("./routes/welfare_messages");
 const eventsRoute = require("./routes/events");
 const debtRoute = require("./routes/debt");
+const careersRoute = require("./routes/careers");
+const feedbackRoute = require("./routes/feedback");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -130,7 +132,7 @@ const requiredPermissions = [
   },
   {
     name: "Manage Media",
-    description: "Allows user to add and remove media items",
+    description: "Allows a user to add and remove media items",
     internal: "media.manage"
   },
   {
@@ -157,6 +159,16 @@ const requiredPermissions = [
     name: "Manage Debt",
     description: "View and manage debt owed to the JCR",
     internal: "debt.manage"
+  },
+  {
+    name: "Manage Careers",
+    description: "Manage the posts on the careers page",
+    internal: "careers.manage"
+  },
+  {
+    name: "Manage Feedback",
+    description: "Allows a user to view the feedback submitted",
+    internal: "feedback.manage"
   }
 ];
 
@@ -206,6 +218,10 @@ const requiredPermissions = [
   await EventTicketType.sync();
   await EventGroupBooking.sync();
   await EventTicket.sync();
+  
+  await CareersPost.sync();
+  
+  await Feedback.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
@@ -266,6 +282,8 @@ app.use("/api/media", isLoggedIn, mediaRoute);
 app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);
 app.use("/api/events", isLoggedIn, eventsRoute);
 app.use("/api/debt", isLoggedIn, debtRoute);
+app.use("/api/careers", isLoggedIn, careersRoute);
+app.use("/api/feedback", isLoggedIn, feedbackRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
