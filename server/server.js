@@ -237,16 +237,17 @@ const requiredPermissions = [
   });
 })();
 
+console.log("NODE_APP_INSTANCE:", process.env.NODE_APP_INSTANCE);
+
 // When in cluster mode we only want 1 instance to run the cron job
 // PM2 will always set the NODE_APP_INSTANCE env variable for us
 // but on local testing there is no need for PM2 so it will be undefined
 if(process.env.NODE_APP_INSTANCE === undefined || process.env.NODE_APP_INSTANCE === "0") {
-  console.log("NAI:", process.env.NODE_APP_INSTANCE);
   // ("* * * * *") runs every minute
   // ("0 * * * *") runs every hour
   // TODO Figure out what every hour is shouldn't be too bad
   // Will send the emails for reminder and cancellations (as well as cancel bookings)
-  const eventsEmailCronJob = new CronJob("* * * * *", eventsCron.cancelExpiredBookings);
+  const eventsEmailCronJob = new CronJob("0 * * * *", eventsCron.cancelExpiredBookings);
   eventsEmailCronJob.start();
 }
 
