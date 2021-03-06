@@ -105,7 +105,7 @@ class EventsOverviewPage extends React.Component {
                   <div className="flex flex-col md:flex-row">
                     {
                       record.EventImages.length === 0 ? null : (
-                        <div className="mx-auto flex flex-row justify-center h-56 w-56">
+                        <div className="mx-auto flex flex-row justify-center h-48 w-48 flex-grow-0 flex-shrink-0 self-center">
                           <img
                             src={`/uploads/images/events/${record.EventImages[0].image}`}
                             alt={record.EventImages[0].caption}
@@ -118,7 +118,7 @@ class EventsOverviewPage extends React.Component {
                       <div>
                         <h2 className="font-semibold text-3xl text-center md:text-left">{record.name}</h2>
                         <p className="pb-2 text-lg text-center md:text-left">{dateFormat(record.date, "dd/mm/yyyy HH:MM")}</p>
-                        <p className="pb-4">{record.shortDescription}</p>
+                        <p className="pb-4 break-words">{record.shortDescription}</p>
                       </div>
                       <div className="flex flex-row justify-start">
                         {
@@ -132,7 +132,7 @@ class EventsOverviewPage extends React.Component {
                             <div className="w-full md:w-auto">
                               <Link to="/events/terms" className="w-full md:w-auto">
                                 <button
-                                  className="px-4 py-1 rounded text-lg bg-grey-500 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                                  className="px-4 py-1 rounded text-lg bg-red-900 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                                 >View Terms and Conditions</button>
                             </Link>
                             </div>
@@ -146,10 +146,10 @@ class EventsOverviewPage extends React.Component {
             }
           </div>
           {this.state.consented ? (
-            <div className="py-2">
+            <div className="py-2 mt-4">
               <Link to="/events/terms">
                 <button
-                  className="px-4 py-1 rounded text-lg bg-grey-500 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  className="px-4 py-1 rounded text-lg bg-red-900 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                 >Review Terms and Conditions</button>
               </Link>
             </div>

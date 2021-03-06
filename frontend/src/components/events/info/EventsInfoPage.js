@@ -263,7 +263,8 @@ class EventsInfoPage extends React.Component {
                   })
                 }
               </div>
-              <div>
+              <div className="mt-1">
+                <h2 className="text-3xl text-left font-semibold">Details</h2>
                 {
                   description.split("\n").map((paragraph, i) => {
                     if(paragraph.length === 0) {
@@ -271,7 +272,7 @@ class EventsInfoPage extends React.Component {
                     }
 
                     return (
-                      <p className="pt-1 text-justify" key={i}>{paragraph}</p>
+                      <p className="pt-1 text-left" key={i}>{paragraph}</p>
                     );
                   })
                 }
