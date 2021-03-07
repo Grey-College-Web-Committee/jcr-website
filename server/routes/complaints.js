@@ -71,7 +71,7 @@ router.post("/", async (req, res) => {
   chairEmail.push(`<p>A new complaint has been received from ${name} with the subject ${subject}</p>`);
   chairEmail.push(`<p><a href="https://services.greyjcr.com/complaints/admin" rel="noopener noreferrer" target="_blank">Please click here to go to the complaints management page.</a></p>`);
 
-  mailer.sendEmail("finlay.boyle@durham.ac.uk", `New Complaint Received`, chairEmail.join(""));
+  mailer.sendEmail("grey.chair@durham.ac.uk", `New Complaint Received`, chairEmail.join(""));
 
   // Prep the email for the user and send it
   let userEmail = [];

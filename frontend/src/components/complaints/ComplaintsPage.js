@@ -160,17 +160,6 @@ class ComplaintsPage extends React.Component {
                 />
               </div>
               <div className="pt-2 pb-2 border-b-2">
-                <label htmlFor="date" className="flex flex-row justify-start text-xl font-semibold">Date of Complaint</label>
-                <input
-                  type="date"
-                  name="date"
-                  value={this.state.date}
-                  className="border w-full rounded py-1 px-2 opacity-50"
-                  readOnly={true}
-                  autoComplete=""
-                />
-              </div>
-              <div className="pt-2 pb-2 border-b-2">
                 <label htmlFor="subject" className="flex flex-row justify-start text-xl font-semibold">Subject of the complaint </label>
                 <span className="flex flex-row justify-start text-sm mb-2">({255 - this.state.subject.length} characters remaining)</span>
                 <input
@@ -212,6 +201,17 @@ class ComplaintsPage extends React.Component {
                     onClick={() => { this.sigPad.clear() }}
                   >Clear</button>
                 </div>
+              </div>
+              <div className="pt-2 pb-2 border-b-2">
+                <label htmlFor="date" className="flex flex-row justify-start text-xl font-semibold">Date of Complaint</label>
+                <input
+                  type="date"
+                  name="date"
+                  value={this.state.date}
+                  className="border w-full rounded py-1 px-2 opacity-50"
+                  readOnly={true}
+                  autoComplete=""
+                />
               </div>
               <div className="pt-2 pb-2 border-b-2 flex flex-row items-center">
                 <label htmlFor="truth" className="flex flex-row justify-start text-xl font-semibold flex-1 items-center">By checking this box I confirm that the complaint is true to my knowledge</label>
