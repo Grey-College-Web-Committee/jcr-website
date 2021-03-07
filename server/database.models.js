@@ -713,11 +713,7 @@ Complaint.init({
   name: {
     type: DataTypes.STRING,
     allowNull: false
-  },
-  complainingAbout: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
+  }, 
   subject: {
     type: DataTypes.STRING,
     allowNull: false
@@ -730,7 +726,7 @@ Complaint.init({
     type: DataTypes.TEXT,
     allowNull: false
   },
-}, { sequelize }); 
+}, { sequelize });
 
 // Associations are necessary to allow joins between tables
 

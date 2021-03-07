@@ -94,7 +94,6 @@ class ComplaintsAdminOverview extends React.Component {
             <thead className="bg-red-900 text-white">
               <tr>
                 <th className="p-2 font-semibold">From</th>
-                <th className="p-2 font-semibold">About</th>
                 <th className="p-2 font-semibold">Subject</th>
                 <th className="p-2 font-semibold">Submited At</th>
                 <th className="p-2 font-semibold">View Complaint</th>
@@ -108,7 +107,6 @@ class ComplaintsAdminOverview extends React.Component {
                       <p>Given: {complaint.name}</p>
                       <p>Actual: {`${complaint.User.firstNames.split(',')[0]} ${complaint.User.surname}`}</p>
                     </td>
-                    <td className="p-2 border-r border-gray-400 break-all">{complaint.complainingAbout}</td>
                     <td className="p-2 border-r border-gray-400 break-all">{complaint.subject}</td>
                     <td className="p-2 border-r border-gray-400">{dateFormat(complaint.createdAt, "dd/mm/yyyy HH:MM")}</td>
                     <td className="p-2 border-r border-gray-400">

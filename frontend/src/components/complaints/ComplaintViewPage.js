@@ -80,7 +80,7 @@ class ComplaintViewPage extends React.Component {
       );
     }
 
-    const { name, User, complainingAbout, createdAt, subject, reason, signatureLink } = this.state;
+    const { name, User, createdAt, subject, reason, signatureLink } = this.state;
 
     return (
       <div className="flex flex-col justify-start">
@@ -95,7 +95,7 @@ class ComplaintViewPage extends React.Component {
           <table className="mx-auto border-2 text-left border-red-900 w-full">
             <tbody>
               <tr>
-                <td className="p-2 bg-red-900 text-white font-semibold border-r border-gray-400 w-1/6">Submitted By</td>
+                <td className="p-2 bg-red-900 text-white font-semibold w-1/6 border-gray-500 border-b">Submitted By</td>
                 <td className="p-2 border-r border-gray-400 border-b">
                   <p>Given: {name}</p>
                   <p>Actual: {`${User.firstNames.split(',')[0]} ${User.surname}`}</p>
@@ -103,7 +103,7 @@ class ComplaintViewPage extends React.Component {
                 </td>
               </tr>
               <tr>
-                <td className="p-2 bg-red-900 text-white font-semibold border-r border-gray-400 w-1/6">Signature</td>
+                <td className="p-2 bg-red-900 text-white font-semibold w-1/6 border-gray-500 border-b">Signature</td>
                 <td className="p-2 border-r border-gray-400 border-b">
                   <img
                     src={`/uploads/complaints/signatures/${signatureLink}`}
@@ -113,19 +113,15 @@ class ComplaintViewPage extends React.Component {
                 </td>
               </tr>
               <tr>
-                <td className="p-2 bg-red-900 text-white font-semibold border-r border-gray-400 w-1/6">Complaint About</td>
-                <td className="p-2 border-r border-gray-400 border-b">{complainingAbout}</td>
-              </tr>
-              <tr>
-                <td className="p-2 bg-red-900 text-white font-semibold border-r border-gray-400 w-1/6">Submitted At</td>
+                <td className="p-2 bg-red-900 text-white font-semibold w-1/6 border-gray-500 border-b">Submitted At</td>
                 <td className="p-2 border-r border-gray-400 border-b">{dateFormat(createdAt, "dd/mm/yyyy HH:MM")}</td>
               </tr>
               <tr>
-                <td className="p-2 bg-red-900 text-white font-semibold border-r border-gray-400 w-1/6">Subject</td>
+                <td className="p-2 bg-red-900 text-white font-semibold w-1/6 border-gray-500 border-b">Subject</td>
                 <td className="p-2 border-r border-gray-400 border-b">{subject}</td>
               </tr>
               <tr>
-                <td className="p-2 bg-red-900 text-white font-semibold border-r border-gray-400 w-1/6">Complaint</td>
+                <td className="p-2 bg-red-900 text-white font-semibold w-1/6">Complaint</td>
                 <td className="p-2 border-r border-gray-400 border-b">
                   {
                     reason.split("\n").map((paragraph, i) => {

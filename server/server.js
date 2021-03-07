@@ -278,7 +278,18 @@ app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {
       res.contentType("application/pdf");
       res.send(data);
     }
-  })
+  });
+});
+
+app.get("/uploads/complaints/procedure", isLoggedIn, function(req, res) {
+  fs.readFile(path.join(__dirname, "./uploads/complaints/procedure/complaints_procedure.pdf"), (err, data) => {
+    if(err) {
+      res.status(404).end();
+    } else {
+      res.contentType("application/pdf");
+      res.send(data);
+    }
+  });
 })
 
 app.get('/*', function (req, res) {

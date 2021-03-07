@@ -15,7 +15,7 @@ const uploadPath = path.join(__dirname, "../uploads/complaints/signatures/");
 // Submits a complaint
 router.post("/", async (req, res) => {
   const { user } = req.session;
-  const { name, complainingAbout, subject, reason, signature } = req.body;
+  const { name, subject, reason, signature } = req.body;
 
   // Must be a JCR member to complain
   if(!hasPermission(req.session, "jcr.member")) {
@@ -25,10 +25,6 @@ router.post("/", async (req, res) => {
   // Brief validation of the data
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
-  }
-
-  if(complainingAbout === undefined || complainingAbout === null || complainingAbout.length === 0) {
-    return res.status(400).json({ error: "Missing complainingAbout" });
   }
 
   if(subject === undefined || subject === null || subject.length === 0) {
@@ -61,7 +57,6 @@ router.post("/", async (req, res) => {
     await Complaint.create({
       userId: user.id,
       name,
-      complainingAbout,
       subject,
       reason,
       signatureLink: signatureLink
@@ -73,10 +68,10 @@ router.post("/", async (req, res) => {
   // Prep the email for the chair and send it
   let chairEmail = [];
 
-  chairEmail.push(`<p>A new complaint has been received from ${name} with the subject ${subject} regarding ${complainingAbout}</p>`);
+  chairEmail.push(`<p>A new complaint has been received from ${name} with the subject ${subject}</p>`);
   chairEmail.push(`<p><a href="https://services.greyjcr.com/complaints/admin" rel="noopener noreferrer" target="_blank">Please click here to go to the complaints management page.</a></p>`);
 
-  mailer.sendEmail("grey.chair@durham.ac.uk", `New Complaint Received`, chairEmail.join(""));
+  mailer.sendEmail("finlay.boyle@durham.ac.uk", `New Complaint Received`, chairEmail.join(""));
 
   // Prep the email for the user and send it
   let userEmail = [];
@@ -85,7 +80,6 @@ router.post("/", async (req, res) => {
   userEmail.push(`<p>The confirmed details are:</p>`);
   userEmail.push("");
   userEmail.push(`<p>Your Name: ${name}</p>`);
-  userEmail.push(`<p>Complaint About: ${complainingAbout}</p>`);
   userEmail.push(`<p>Subject: ${subject}</p>`);
   userEmail.push(`<p>Complaint Details:</p>`);
 
@@ -119,7 +113,7 @@ router.get("/", async (req, res) => {
   // Will find all of the complaints and who wrote them
   try {
     complaints = await Complaint.findAll({
-      attributes: [ "id", "name", "complainingAbout", "subject", "createdAt" ],
+      attributes: [ "id", "name", "subject", "createdAt" ],
       include: [ User ]
     });
   } catch (error) {
