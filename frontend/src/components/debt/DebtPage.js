@@ -71,13 +71,13 @@ class DebtPage extends React.Component {
             }
             <p className="py-1 text-justify">Debt Reason: {debt.description}</p>
             <GenericCartableItem
-              price={debt.debt}
+              price={Number(debt.debt)}
               name="JCR Debt"
               image="./images/cart/placeholder.png"
               cartData={{
                 shop: "debt",
                 name: "JCR Debt",
-                basePrice: debt.debt,
+                basePrice: Number(debt.debt),
                 quantity: 1,
                 submissionInformation: {},
                 components: [],
