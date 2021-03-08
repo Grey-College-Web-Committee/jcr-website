@@ -10,8 +10,6 @@ class LoginPage extends React.Component {
     super(props);
 
     const queryParams = qs.parse(this.props.location.search, { ignoreQueryPrefix: true });
-    console.log(queryParams)
-    console.log(queryParams.ref)
 
     let ref = "/";
 

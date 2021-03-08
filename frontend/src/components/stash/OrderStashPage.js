@@ -5,9 +5,6 @@ import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
 import StashDropdown from './StashDropdown';
 
-const release = new Date("2021-01-20T08:00:00Z");
-const lock = new Date("2021-01-31T23:00:00Z");
-
 class OrderStashPage extends React.Component {
   constructor(props) {
     super(props);
@@ -127,17 +124,13 @@ class OrderStashPage extends React.Component {
       );
     }
 
-    const now = new Date();
-
-
-
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <div className="mb-2 sm:mb-4 font-semibold text-xl">
             <h1 className="my-2 text-5xl">College Stash</h1>
-            <p>The ordering window is currently closed for stash.</p>
-            <p>You are able to browse the stash shop but orders cannot be placed.</p>
+            <p className="py-1">The ordering window is currently closed for stash.</p>
+            <p className="py-1">You can browse the stash shop but orders cannot be placed.</p>
           </div>
           <div className="flex flex-row mb-2 sm:mb-4 justify-between flex-wrap">
             <div className="flex flex-row justify-center flex-grow flex-shrink-0 mb-2">

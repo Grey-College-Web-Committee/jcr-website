@@ -20,7 +20,7 @@ class HamburgerSelector extends React.Component {
     const { menuOptions } = this.props;
     return (
       <li
-        className="p-3 ml-auto w-20 justify-end sm:hidden"
+        className="p-3 ml-auto w-20 justify-end lg:hidden"
         onClick={() => {
           if(this.state.parentActive) {
             this.props.hideBody(true);

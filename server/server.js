@@ -7,11 +7,13 @@ const cors = require("cors");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const { hasPermission } = require("./utils/permissionUtils.js");
+// Used to schedule jobs
+const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, Complaint } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint } = require("./database.models.js");
 
-const SequelizeStore = require("connect-session-sequelize")(session.Store)
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
@@ -25,10 +27,17 @@ const electionsRoute = require("./routes/elections");
 const mediaRoute = require("./routes/media");
 const welfareMessagesRoute = require("./routes/welfare_messages");
 const complaintsRoute = require("./routes/complaints");
+const eventsRoute = require("./routes/events");
+const debtRoute = require("./routes/debt");
+const careersRoute = require("./routes/careers");
+const feedbackRoute = require("./routes/feedback");
 
 // Required to deploy the static React files for production
 const path = require("path");
 const fs = require("fs");
+
+// The cron jobs for the events system
+const eventsCron = require("./cron/events_cron.js");
 
 // Load express
 const app = express();
@@ -125,17 +134,48 @@ const requiredPermissions = [
   },
   {
     name: "Manage Media",
-    description: "Allows user to add and remove media items",
+    description: "Allows a user to add and remove media items",
     internal: "media.manage"
   },
   {
     name: "View Anonymous Messages",
     description: "Gives access to the anonymous messages received by the welfare team",
     internal: "welfare.anonymous"
-  }, {
+  }, 
+  {
     name: "View Complaints",
     description: "Gives access to view complaints",
     internal: "complaints.manage"
+  },
+  {
+    name: "Manage Events",
+    description: "Create, edit, delete and view details about events",
+    internal: "events.manage"
+  },
+  {
+    name: "Export Events",
+    description: "Export the data for events",
+    internal: "events.export"
+  },
+  {
+    name: "Has Debt",
+    description: "Denotes a user who owes a debt to the JCR",
+    internal: "debt.has"
+  },
+  {
+    name: "Manage Debt",
+    description: "View and manage debt owed to the JCR",
+    internal: "debt.manage"
+  },
+  {
+    name: "Manage Careers",
+    description: "Manage the posts on the careers page",
+    internal: "careers.manage"
+  },
+  {
+    name: "Manage Feedback",
+    description: "Allows a user to view the feedback submitted",
+    internal: "feedback.manage"
   }
 ];
 
@@ -179,6 +219,18 @@ const requiredPermissions = [
   await WelfareThreadMessage.sync();
 
   await Complaint.sync();
+  
+  await Debt.sync();
+
+  await Event.sync();
+  await EventImage.sync();
+  await EventTicketType.sync();
+  await EventGroupBooking.sync();
+  await EventTicket.sync();
+
+  await CareersPost.sync();
+
+  await Feedback.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
@@ -193,6 +245,20 @@ const requiredPermissions = [
     });
   });
 })();
+
+console.log("NODE_APP_INSTANCE:", process.env.NODE_APP_INSTANCE);
+
+// When in cluster mode we only want 1 instance to run the cron job
+// PM2 will always set the NODE_APP_INSTANCE env variable for us
+// but on local testing there is no need for PM2 so it will be undefined
+if(process.env.NODE_APP_INSTANCE === undefined || process.env.NODE_APP_INSTANCE === "0") {
+  // ("* * * * *") runs every minute
+  // ("0 * * * *") runs every hour
+  // TODO Figure out what every hour is shouldn't be too bad
+  // Will send the emails for reminder and cancellations (as well as cancel bookings)
+  const eventsEmailCronJob = new CronJob("0 * * * *", eventsCron.cancelExpiredBookings);
+  eventsEmailCronJob.start();
+}
 
 // This middleware will check if user's cookie is still saved in browser and user is not set, then automatically log the user out.
 // This usually happens when you stop your express server after login, your cookie still remains saved in the browser.
@@ -229,6 +295,10 @@ app.use("/api/elections", isLoggedIn, electionsRoute);
 app.use("/api/media", isLoggedIn, mediaRoute);
 app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);
 app.use("/api/complaints", isLoggedIn, complaintsRoute);
+app.use("/api/events", isLoggedIn, eventsRoute);
+app.use("/api/debt", isLoggedIn, debtRoute);
+app.use("/api/careers", isLoggedIn, careersRoute);
+app.use("/api/feedback", isLoggedIn, feedbackRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
@@ -266,6 +336,11 @@ app.get("/uploads/complaints/signatures/:image", isLoggedIn, function(req, res) 
 
   const image = req.params.image;
   res.sendFile(path.join(__dirname, `./uploads/complaints/signatures/${image}`));
+});
+
+app.get("/uploads/images/events/:image", function(req, res) {
+  const image = req.params.image;
+  res.sendFile(path.join(__dirname, `./uploads/images/events/${image}`));
 });
 
 app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {

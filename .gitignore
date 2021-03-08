@@ -126,3 +126,4 @@ dist
 /server/manifestos/*
 /manual/*
 /server/uploads/*
+/server/ecosystem.config.js

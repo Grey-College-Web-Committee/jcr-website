@@ -53,37 +53,37 @@ class LoginForm extends React.Component {
     return (
       <form onSubmit={this.onFormSubmission}>
         <fieldset>
-          <div className="mx-auto w-max pb-4 border-b-2">
+          <div className="mx-auto md:w-max w-4/5 pb-4 border-b-2">
             <label htmlFor="username" className="flex flex-row justify-start pb-2 text-lg font-semibold">Durham Username</label>
             <input
               type="text"
               name="username"
               value={this.state.username}
               onChange={this.onInputChange}
-              className={`shadow w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400 ${usernameBorder}`}
+              className={`shadow w-full md:w-80 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400 ${usernameBorder}`}
               placeholder="Please enter your username..."
               disabled={this.props.disabled}
               autoComplete="username"
             />
           </div>
-          <div className="mx-auto w-max pb-4 pt-2 border-b-2">
+          <div className="mx-auto md:w-max w-4/5 pb-4 pt-2 border-b-2">
             <label htmlFor="password" className="flex flex-row justify-start pb-2 text-lg font-semibold">Durham Password</label>
             <input
               type="password"
               name="password"
               value={this.state.password}
               onChange={this.onInputChange}
-              className={`shadow w-64 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 ${passwordBorder}`}
+              className={`shadow w-full md:w-80 rounded border py-1 px-2 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 ${passwordBorder}`}
               placeholder="Please enter your password..."
               disabled={this.props.disabled}
               autoComplete="current-password"
             />
           </div>
-          <div className="mx-auto w-64 pb-4 pt-4">
+          <div className="mx-auto md:w-max w-4/5 pb-4 pt-4">
             <input
               type="submit"
               value="Login"
-              className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              className="px-4 py-1 rounded bg-red-900 text-white md:w-80 w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               disabled={this.props.disabled}
             />
           </div>

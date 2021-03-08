@@ -9,9 +9,22 @@ module.exports = {
   },
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
     borderStyles: {
       colors: true
+    },
+    extend: {
+      colors: {
+        grey: {
+          900: "#1B1C1D",
+          500: "#2E2F30",
+          300: "#424242",
+        },
+        gray: {
+          900: "#1B1C1D",
+          500: "#2E2F30",
+          300: "#424242",
+        }
+      }
     }
   },
   variants: {

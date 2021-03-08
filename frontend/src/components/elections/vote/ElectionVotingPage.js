@@ -199,6 +199,7 @@ class ElectionVotingPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Vote: {name}</h1>
           <p>The JCR uses Single Transferable Vote for elections.</p>
+          <p>The default order of the candidates is completely randomised.</p>
           <p><span className="font-semibold">Drag the candidates</span> in to the order that you wish to vote for them.</p>
           <p>Your first preference for the role should be at the top and your last preference at the bottom.</p>
           <div>
@@ -210,7 +211,7 @@ class ElectionVotingPage extends React.Component {
           </div>
           <div className="sm:w-1/2 mx-auto">
             <p className="mb-2">Once you have ordered the candidates, press the button below to cast your vote.</p>
-            <p className="mb-2 font-semibold">You will not be able to alter or revoke your vote after casting it.</p>
+            <p className="mb-4 font-semibold">You will not be able to alter or revoke your vote after casting it.</p>
             <button
               onClick={this.submitVote}
               className="px-4 py-2 text-3xl w-full sm:w-1/3 text-center rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"

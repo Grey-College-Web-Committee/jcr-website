@@ -79,7 +79,7 @@ class CheckoutForm extends React.Component {
 
     // Payment succeeded so let the parent know and let them handle it
     // Don't re-enable the form so we can avoid duplicated payments
-    if(result.paymentIntent.status === "succeeded") {
+    if(result.paymentIntent.status === "succeeded" || result.paymentIntent.status === "requires_capture") {
       this.props.onSuccess();
       return;
     }
