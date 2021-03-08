@@ -254,7 +254,7 @@ class MediaPage extends React.Component {
         <div className="mx-0 text-center pt-4">
           <h1 className="font-semibold text-5xl pb-4">Media</h1>
           {this.state.media.length > 0 ? this.getLatestJCRPodcast() : <></>}
-          {this.state.media.length > 0 ? this.getLatestGMPodcast() : <></>}          
+          {this.state.media.length > 0 ? this.getLatestGMPodcast() : <></>}
         </div>
         <div className="text-center flex justify-center w-full px-4">
           {this.state.media.length > 0 ? this.getLatestVideo() : <></>}
@@ -269,4 +269,5 @@ class MediaPage extends React.Component {
 }
 
 MediaPage.contextType = authContext;
+//{this.getiFrameFromPartialUrl(this.state.media[0].link)}
 export default MediaPage;

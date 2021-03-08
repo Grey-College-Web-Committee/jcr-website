@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig';
 import LoadingHolder from '../common/LoadingHolder';
 
@@ -15,6 +15,10 @@ class AdminTemplatePage extends React.Component {
 
     // Change this to your permission
     this.requiredPermission = "YourPermissionHere";
+  }
+
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
   // Load the data once the element is ready

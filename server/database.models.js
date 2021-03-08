@@ -45,6 +45,7 @@ class Media extends Model {}
 class WelfareThread extends Model {}
 class WelfareThreadMessage extends Model {}
 
+class Complaint extends Model {}
 
 // Any historical debt from the old website
 class Debt extends Model {}
@@ -63,7 +64,6 @@ class EventTicket extends Model {}
 class CareersPost extends Model {}
 
 class Feedback extends Model {}
-
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -967,6 +967,38 @@ CareersPost.init({
     allowNull: true
   }
 }, { sequelize });
+
+Complaint.init({
+  id: {
+    type: DataTypes.UUID,
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }, 
+  subject: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  reason: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  signatureLink:  {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+}, { sequelize });
   
 Feedback.init({
   id: {
@@ -1076,6 +1108,9 @@ ElectionEditLog.belongsTo(Election, { foreignKey: 'electionId' });
 WelfareThread.hasMany(WelfareThreadMessage, { foreignKey: 'threadId' });
 WelfareThreadMessage.belongsTo(WelfareThread, { foreignKey: 'threadId' });
 
+User.hasMany(Complaint, { foreignKey: 'userId' });
+Complaint.belongsTo(User, { foreignKey: 'userId' });
+
 Event.hasMany(EventImage, { foreignKey: 'eventId' });
 EventImage.belongsTo(Event, { foreignKey: 'eventId' });
 
@@ -1103,5 +1138,5 @@ CareersPost.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(Feedback, { foreignKey: 'userId' });
 Feedback.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaints };
 

@@ -1,8 +1,7 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import config from '../../config.json';
 import LoadingHolder from '../common/LoadingHolder';
 
 class RegularTemplate extends React.Component {
@@ -16,6 +15,10 @@ class RegularTemplate extends React.Component {
       error: "",
       content: []
     };
+  }
+
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
   // Call the API here initially and then use this.setState to render the content

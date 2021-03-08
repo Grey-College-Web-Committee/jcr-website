@@ -245,6 +245,11 @@ class NavBar extends React.Component {
               requiredPermission: "welfare.anonymous"
             },
             {
+              displayName: "Manage Complaints",
+              url: "/complaints/admin",
+              requiredPermission: "complaints.manage"
+            },
+            {
               displayName: "Manage Events",
               url: "/events/admin",
               requiredPermission: "events.manage"

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import authContext from '../../utils/authContext.js';
 
 class CommonFooter extends React.Component {
   render () {
@@ -8,9 +9,14 @@ class CommonFooter extends React.Component {
         <div>
           <p>© Grey College Junior College Room {new Date().getYear() + 1900}</p>
           <a href="https://register-of-charities.charitycommission.gov.uk/charity-search/-/charity-details/5019056/" target="_blank" rel="noopener noreferrer"><p className="underline">Registered Charity Number: 1142887</p></a>
-          <Link to="/cookies"><p className="underline">Cookie Policy</p></Link>
+          {
+            this.context !== null && this.context.permissions.includes("jcr.member") ? (
+              <Link to="/complaints"><p className="underline">Submit a Complaint</p></Link>
+            ) : null
+          }
         </div>
         <div className="sm:text-right flex flex-col sm:items-end">
+          <Link to="/cookies"><p className="underline">Cookie Policy</p></Link>
           <Link to="/contributors"><p className="underline">Contributors and Image Attributions</p></Link>
           <a href="https://github.com/Grey-College-Web-Committee/grey-shop" target="_blank" rel="noopener noreferrer">
             <div className="flex flex-row items-center justify-center sm:justify-start">
@@ -27,5 +33,7 @@ class CommonFooter extends React.Component {
     )
   }
 }
+
+CommonFooter.contextType = authContext;
 
 export default CommonFooter;

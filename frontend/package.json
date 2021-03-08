@@ -20,6 +20,7 @@
     "react-images-upload": "^1.2.8",
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
+    "react-signature-canvas": "^1.0.3",
     "react-sortable-hoc": "^1.11.0",
     "tailwindcss": "^2.0.1",
     "tailwindcss-border-styles": "^1.0.1"

@@ -240,6 +240,11 @@ router.post("/login", async (req, res) => {
     });
   }
 
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  const displayName = `${firstName} ${lastName}`
+
   req.session.permissions = internalPermissionStrings;
 
   const date = new Date();

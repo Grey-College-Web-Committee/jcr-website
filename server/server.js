@@ -6,11 +6,12 @@ const express = require("express");
 const cors = require("cors");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
+const { hasPermission } = require("./utils/permissionUtils.js");
 // Used to schedule jobs
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
@@ -25,6 +26,7 @@ const membershipsRoute = require("./routes/memberships");
 const electionsRoute = require("./routes/elections");
 const mediaRoute = require("./routes/media");
 const welfareMessagesRoute = require("./routes/welfare_messages");
+const complaintsRoute = require("./routes/complaints");
 const eventsRoute = require("./routes/events");
 const debtRoute = require("./routes/debt");
 const careersRoute = require("./routes/careers");
@@ -139,6 +141,11 @@ const requiredPermissions = [
     name: "View Anonymous Messages",
     description: "Gives access to the anonymous messages received by the welfare team",
     internal: "welfare.anonymous"
+  }, 
+  {
+    name: "View Complaints",
+    description: "Gives access to view complaints",
+    internal: "complaints.manage"
   },
   {
     name: "Manage Events",
@@ -211,6 +218,8 @@ const requiredPermissions = [
   await WelfareThread.sync();
   await WelfareThreadMessage.sync();
 
+  await Complaint.sync();
+  
   await Debt.sync();
 
   await Event.sync();
@@ -285,6 +294,7 @@ app.use("/api/memberships", isLoggedIn, membershipsRoute);
 app.use("/api/elections", isLoggedIn, electionsRoute);
 app.use("/api/media", isLoggedIn, mediaRoute);
 app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);
+app.use("/api/complaints", isLoggedIn, complaintsRoute);
 app.use("/api/events", isLoggedIn, eventsRoute);
 app.use("/api/debt", isLoggedIn, debtRoute);
 app.use("/api/careers", isLoggedIn, careersRoute);
@@ -316,6 +326,18 @@ app.get("/uploads/images/toastie_bar/:image", function(req, res) {
   res.sendFile(path.join(__dirname, `./uploads/images/toastie_bar/${image}`));
 });
 
+// Make sure they have permission before they view the signature
+app.get("/uploads/complaints/signatures/:image", isLoggedIn, function(req, res) {
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "complaints.manage")) {
+    return res.status(403).json({ error: "You do not have permission to view this resource" });
+  }
+
+  const image = req.params.image;
+  res.sendFile(path.join(__dirname, `./uploads/complaints/signatures/${image}`));
+});
+
 app.get("/uploads/images/events/:image", function(req, res) {
   const image = req.params.image;
   res.sendFile(path.join(__dirname, `./uploads/images/events/${image}`));
@@ -331,7 +353,18 @@ app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {
       res.contentType("application/pdf");
       res.send(data);
     }
-  })
+  });
+});
+
+app.get("/uploads/complaints/procedure", isLoggedIn, function(req, res) {
+  fs.readFile(path.join(__dirname, "./uploads/complaints/procedure/complaints_procedure.pdf"), (err, data) => {
+    if(err) {
+      res.status(404).end();
+    } else {
+      res.contentType("application/pdf");
+      res.send(data);
+    }
+  });
 })
 
 app.get('/*', function (req, res) {

@@ -25,6 +25,7 @@ import PurchaseMembershipPage from './components/membership/PurchaseMembershipPa
 import WelfarePage from './components/welfare/WelfarePage';
 import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage';
 import WelfareThreadPage from './components/welfare/message/thread/WelfareThreadPage';
+import ComplaintsPage from './components/complaints/ComplaintsPage';
 
 import CareersPage from './components/careers/CareersPage';
 
@@ -66,6 +67,10 @@ import WelfareAdminOverviewPage from './components/welfare/message/admin/Welfare
 import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
 import MediaPage from './components/media/MediaViewPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
+
+import ComplaintsAdminOverview from './components/complaints/ComplaintsAdminOverview';
+import ComplaintViewPage from './components/complaints/ComplaintViewPage';
+
 import CareersAdminPage from './components/careers/CareersAdminPage';
 import CareersEditPost from './components/careers/CareersEditPost';
 import FeedbackAdminOverview from './components/feedback/FeedbackAdminOverview';
@@ -387,6 +392,15 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/spinner/" render={() => (
                       this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( this.loginRef("/spinner") )
+                    )} />
+                    <Route exact path="/complaints" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ComplaintsPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/complaints") )
+                    )} />
+                    <Route exact path="/complaints/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("complaints.manage") ? ( <ComplaintsAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/complaints/admin") )
+                    )} />
+                    <Route exact path="/complaints/view/:id" render={(props) => (
+                      this.isLoggedIn() ? (this.hasPermission("complaints.manage") ? ( <ComplaintViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/complaints/admin") )
                     )} />
                     <Route exact path="/events/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsManagePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin") )
