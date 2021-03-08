@@ -723,8 +723,8 @@ Debt.init({
     type: DataTypes.TEXT,
     allowNull: false
   },
-  debt: {
-    type: DataTypes.INTEGER,
+  debt: { 
+    type: DataTypes.DECIMAL(6, 2),
     allowNull: false
   },
   description: {
@@ -985,7 +985,7 @@ Complaint.init({
   name: {
     type: DataTypes.STRING,
     allowNull: false
-  }, 
+  },
   subject: {
     type: DataTypes.STRING,
     allowNull: false
@@ -999,7 +999,7 @@ Complaint.init({
     allowNull: false
   },
 }, { sequelize });
-  
+
 Feedback.init({
   id: {
     type: DataTypes.UUID,
@@ -1138,5 +1138,4 @@ CareersPost.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(Feedback, { foreignKey: 'userId' });
 Feedback.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaints };
-
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint };
