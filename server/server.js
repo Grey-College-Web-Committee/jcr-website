@@ -11,7 +11,7 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
@@ -141,7 +141,7 @@ const requiredPermissions = [
     name: "View Anonymous Messages",
     description: "Gives access to the anonymous messages received by the welfare team",
     internal: "welfare.anonymous"
-  }, 
+  },
   {
     name: "View Complaints",
     description: "Gives access to view complaints",
@@ -176,6 +176,11 @@ const requiredPermissions = [
     name: "Manage Feedback",
     description: "Allows a user to view the feedback submitted",
     internal: "feedback.manage"
+  },
+  {
+    name: "Manage Bar",
+    description: "Allows a user to manage the bar stock",
+    internal: "bar.manage"
   }
 ];
 
@@ -219,7 +224,7 @@ const requiredPermissions = [
   await WelfareThreadMessage.sync();
 
   await Complaint.sync();
-  
+
   await Debt.sync();
 
   await Event.sync();
@@ -231,6 +236,12 @@ const requiredPermissions = [
   await CareersPost.sync();
 
   await Feedback.sync();
+
+  await BarDrinkType.sync();
+  await BarDrinkSize.sync();
+  await BarBaseDrink.sync();
+  await BarDrink.sync();
+  await BarMixer.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({

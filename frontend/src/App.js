@@ -48,7 +48,15 @@ import FeedbackPage from './components/feedback/FeedbackPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
+import BarOrderingPage from './components/bar/BarOrderingPage';
+
 // To add a new page import it like above
+
+import BarAdminManageDrinks from './components/bar/admin/BarAdminManageDrinks';
+import BarAdminManageMixers from './components/bar/admin/BarAdminManageMixers';
+import BarAdminManageSizes from './components/bar/admin/BarAdminManageSizes';
+import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
+import BarAdminOverview from './components/bar/admin/BarAdminOverview';
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
@@ -455,6 +463,24 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/feedback/view/:id" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/feedback/view/${props.id}`) )
+                    )} />
+                    <Route exact path="/bar/" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <BarOrderingPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/bar") )
+                    )} />
+                    <Route exact path="/bar/admin/overview" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/overview") )
+                    )} />
+                    <Route exact path="/bar/admin/mixers" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageMixers /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/mixers") )
+                    )} />
+                    <Route exact path="/bar/admin/sizes" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageSizes /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/sizes") )
+                    )} />
+                    <Route exact path="/bar/admin/types" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageTypes /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/types") )
+                    )} />
+                    <Route exact path="/bar/admin/drinks" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageDrinks /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/drinks") )
                     )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />

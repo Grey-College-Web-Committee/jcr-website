@@ -83,7 +83,7 @@ class LoginForm extends React.Component {
             <input
               type="submit"
               value="Login"
-              className="px-4 py-1 rounded bg-red-900 text-white md:w-80 w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              className="px-4 py-1 rounded bg-red-900 text-white md:w-64 w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               disabled={this.props.disabled}
             />
           </div>

@@ -170,6 +170,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: null
         },
         {
+          displayName: "Bar",
+          url: "/bar",
+          requiredPermission: "jcr.member",
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
           displayName: `${user.username}`,
           url: null,
           requiredPermission: null,
@@ -274,6 +282,11 @@ class NavBar extends React.Component {
               url: "/feedback/admin",
               requiredPermission: "feedback.manage"
             },
+            {
+              displayName: "Manage Bar",
+              url: "/bar/admin/overview",
+              requiredPermission: "bar.manage"
+            }
           ],
           alwaysDisplayed: false
         }
