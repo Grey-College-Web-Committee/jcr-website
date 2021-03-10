@@ -475,7 +475,8 @@ class CheckoutPage extends React.Component {
       );
     }
 
-    const { items } = this.state.pageState <= 0 ? this.cart.get() : this.state.lockedClientSideCart ;
+    const { items } = this.state.pageState <= 0 ? this.cart.get() : this.state.lockedClientSideCart;
+    const checkoutClosed = true;
 
     switch(this.state.pageState) {
       // Confirm the order
@@ -504,19 +505,27 @@ class CheckoutPage extends React.Component {
                 <div className="lg:w-1/2 lg:mx-auto w-full">
                   {this.displayCart(items, false)}
                 </div>
-                <div className="w-full lg:w-1/3 mx-auto block lg:flex lg:flex-col text-base py-4 align-middle">
-                  <div className="flex flex-row justify-between font-semibold text-3xl mb-4">
-                    <span>Total</span>
-                    <span>£{subtotal.toFixed(2)}</span>
-                  </div>
-                  { this.requestDeliveryOption() }
-                  { this.requestAddress() }
-                  <button
-                    className="px-2 py-2 rounded bg-red-900 text-white text-2xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                    onClick={this.startCheckout}
-                    disabled={this.state.disabled || bagEmpty || !this.isReadyForPayment()}
-                  >Pay Now</button>
-                </div>
+                {
+                  checkoutClosed ? (
+                    <div className="w-full lg:w-1/3 mx-auto block lg:flex lg:flex-col text-base py-4 align-middle">
+                      <p>Checkout is currently closed for maintenance. Please check back soon!</p>
+                    </div>
+                  ) : (
+                    <div className="w-full lg:w-1/3 mx-auto block lg:flex lg:flex-col text-base py-4 align-middle">
+                      <div className="flex flex-row justify-between font-semibold text-3xl mb-4">
+                        <span>Total</span>
+                        <span>£{subtotal.toFixed(2)}</span>
+                      </div>
+                      { this.requestDeliveryOption() }
+                      { this.requestAddress() }
+                      <button
+                        className="px-2 py-2 rounded bg-red-900 text-white text-2xl w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                        onClick={this.startCheckout}
+                        disabled={this.state.disabled || bagEmpty || !this.isReadyForPayment()}
+                      >Pay Now</button>
+                    </div>
+                  )
+                }
               </div>
             </div>
           </div>
