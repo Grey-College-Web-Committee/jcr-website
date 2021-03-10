@@ -1061,6 +1061,10 @@ BarBaseDrink.init({
     type: DataTypes.TEXT,
     allowNull: false
   },
+  image: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+  },
   typeId: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -1071,7 +1075,7 @@ BarBaseDrink.init({
   }
 }, { sequelize });
 
-BarDrink.init({ 
+BarDrink.init({
   baseDrinkId: {
     type: DataTypes.INTEGER,
     allowNull: false,
@@ -1087,10 +1091,6 @@ BarDrink.init({
       model: BarDrinkSize,
       key: 'id'
     }
-  },
-  image: {
-    type: DataTypes.TEXT,
-    allowNull: false,
   },
   price: {
     type: DataTypes.DECIMAL(6, 2),

@@ -31,6 +31,7 @@ const eventsRoute = require("./routes/events");
 const debtRoute = require("./routes/debt");
 const careersRoute = require("./routes/careers");
 const feedbackRoute = require("./routes/feedback");
+const barRoute = require("./routes/bar");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -310,6 +311,7 @@ app.use("/api/events", isLoggedIn, eventsRoute);
 app.use("/api/debt", isLoggedIn, debtRoute);
 app.use("/api/careers", isLoggedIn, careersRoute);
 app.use("/api/feedback", isLoggedIn, feedbackRoute);
+app.use("/api/bar", isLoggedIn, barRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
