@@ -476,7 +476,7 @@ class CheckoutPage extends React.Component {
     }
 
     const { items } = this.state.pageState <= 0 ? this.cart.get() : this.state.lockedClientSideCart;
-    const checkoutClosed = true;
+    const checkoutClosed = false;
 
     switch(this.state.pageState) {
       // Confirm the order

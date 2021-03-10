@@ -84,7 +84,7 @@ class ElectionRow extends React.Component {
                 return a.name < b.name ? -1 : (a.name > b.name ? 1 : 0)
               }).map((candidate, i) => (
                 <li key={i} className="underline font-semibold">
-                  <Link to={`/elections/manifesto/${candidate.manifestoLink}`}>{candidate.name}</Link>
+                  <a href={`/elections/manifesto/${candidate.manifestoLink}`} target="_blank">{candidate.name}</a>
                 </li>
               ))
             }
