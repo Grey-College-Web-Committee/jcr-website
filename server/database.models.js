@@ -1077,7 +1077,7 @@ BarBaseDrink.init({
     type: DataTypes.BOOLEAN,
     allowNull: false
   }
-}, { sequelize }); 
+}, { sequelize });
 
 BarDrink.init({
   baseDrinkId: {
@@ -1106,8 +1106,16 @@ BarMixer.init({
   name: {
     type: DataTypes.TEXT,
     allowNull: false
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  price: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
   }
-}, { sequelize });
+}, { sequelize }); 
 
 // Associations are necessary to allow joins between tables
 

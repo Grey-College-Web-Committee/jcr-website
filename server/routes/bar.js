@@ -73,6 +73,7 @@ router.get("/admin/types", async (req, res) => {
   try {
     types = await BarDrinkType.findAll();
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error: "Unable to list the types" });
   }
 
@@ -126,6 +127,79 @@ router.get("/admin/sizes", async (req, res) => {
   }
 
   return res.status(200).json({ sizes });
+});
+
+router.post("/admin/mixer", async (req, res) => {
+  // Creates a new mixer
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Basic validation
+  const { name, available, price: priceUnchecked } = req.body;
+
+  if(name === undefined || name === null || name.length === 0) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(available === undefined || available === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
+  if(priceUnchecked === undefined || priceUnchecked === null) {
+    return res.status(400).json({ error: "Missing price" });
+  }
+
+  let price;
+
+  try {
+    price = parseFloat(priceUnchecked);
+  } catch (error) {
+    return res.status(400).json({ error: "Non-numeric price" });
+  }
+
+  if(isNaN(price)) {
+    return res.status(400).json({ error: "Non-numeric price - NaN" });
+  }
+
+  if(price <= 0) {
+    return res.status(400).json({ error: "Positive prices only" });
+  }
+
+  // Make the new type and send it back
+  let mixer;
+
+  try {
+    mixer = await BarMixer.create({ name, available, price });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the mixer" });
+  }
+
+  return res.status(200).json({ mixer });
+});
+
+router.get("/admin/mixers", async (req, res) => {
+  // Lists the sizes of drinks
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Just find them all and send it back
+  let mixers;
+
+  try {
+    mixers = await BarMixer.findAll();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to list the mixers" });
+  }
+
+  return res.status(200).json({ mixers });
 });
 
 router.get("/admin/summary", async (req, res) => {
@@ -271,6 +345,42 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
 
   return res.status(200).json({ baseDrink, drinks });
 });
+
+router.get("/drink/:id", async (req, res) => {
+  const { id } = req.params;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let drink;
+
+  try {
+    drink = await BarBaseDrink.findOne({
+      where: { id },
+      include: [
+        {
+          model: BarDrink,
+          attributes: [ "id", "sizeId", "price" ],
+          include: [
+            {
+              model: BarDrinkSize,
+              attributes: [ "id", "name" ]
+            }
+          ]
+        },
+        {
+          model: BarDrinkType,
+          attributes: [ "name", "allowsMixer" ]
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the drink" });
+  }
+
+  return res.status(200).json({ drink });
+})
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route

@@ -49,6 +49,7 @@ import FeedbackPage from './components/feedback/FeedbackPage';
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
 import BarOrderingPage from './components/bar/BarOrderingPage';
+import ViewBarItemPage from './components/bar/ViewBarItemPage';
 
 // To add a new page import it like above
 
@@ -466,6 +467,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/bar/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <BarOrderingPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/bar") )
+                    )} />
+                    <Route exact path="/bar/view/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewBarItemPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/bar") )
                     )} />
                     <Route exact path="/bar/admin/overview" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/overview") )
