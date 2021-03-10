@@ -9,7 +9,21 @@ const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/bar/" });
 
 router.get("/", async (req, res) => {
-  return res.status(200).end();
+  // Don't need to be a JCR member for this
+
+  // Find all of the base drinks
+  let baseDrinks;
+
+  try {
+    baseDrinks = await BarBaseDrink.findAll({
+      attributes: [ "id", "name", "image", "typeId", "available" ],
+      include: [ BarDrinkType ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the base drinks" });
+  }
+
+  return res.status(200).json({ baseDrinks });
 });
 
 router.post("/admin/type", async (req, res) => {
@@ -169,15 +183,17 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { name, description, sizeCheckboxes: sizeCheckboxesUnparsed, prices: pricesUnparsed, type } = req.body;
+  const { name, description: descriptionUnchecked, sizeCheckboxes: sizeCheckboxesUnparsed, prices: pricesUnparsed, type, available } = req.body;
   const image = req.file;
 
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
   }
 
-  if(description === undefined || description === null || description.length === 0) {
-    return res.status(400).json({ error: "Missing description" });
+  let description = descriptionUnchecked;
+
+  if(descriptionUnchecked === undefined || descriptionUnchecked === null) {
+    description = "";
   }
 
   if(sizeCheckboxesUnparsed === undefined || sizeCheckboxesUnparsed === null) {
@@ -200,6 +216,10 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
     return res.status(400).json({ error: "Missing image" });
   }
 
+  if(available === undefined || available === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
   let typeRecord;
 
   try {
@@ -215,8 +235,9 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
   let baseDrink;
 
   try {
-    baseDrink = await BarBaseDrink.create({ name, description, image: image.filename, typeId: typeRecord.id });
+    baseDrink = await BarBaseDrink.create({ name, description, image: image.filename, typeId: typeRecord.id, available });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ error: "Unable to create the base drink" });
   }
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import BarSelectable from './BarSelectable';
 
 class BarDropdown extends React.Component {
   constructor(props) {
@@ -42,6 +43,12 @@ class BarDropdown extends React.Component {
           {
             this.props.groupItems.map((item, i) => (
               <div className="flex-1 flex flex-row justify-center" key={i}>
+                <BarSelectable
+                  id={item.id}
+                  name={item.name}
+                  image={item.image}
+                  available={item.available}
+                />
               </div>
             ))
           }

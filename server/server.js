@@ -356,6 +356,11 @@ app.get("/uploads/images/events/:image", function(req, res) {
   res.sendFile(path.join(__dirname, `./uploads/images/events/${image}`));
 });
 
+app.get("/uploads/images/bar/:image", function(req, res) {
+  const image = req.params.image;
+  res.sendFile(path.join(__dirname, `./uploads/images/bar/${image}`));
+});
+
 app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {
   const filename = req.params.filename;
 

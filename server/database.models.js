@@ -1072,8 +1072,12 @@ BarBaseDrink.init({
       model: BarDrinkType,
       key: 'id'
     }
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
   }
-}, { sequelize });
+}, { sequelize }); 
 
 BarDrink.init({
   baseDrinkId: {

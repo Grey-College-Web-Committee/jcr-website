@@ -14,12 +14,36 @@ class BarOrderingPage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      content: []
+      baseDrinks: [],
+      byType: {},
+      hasScrolled: false
     };
   }
 
   onInputChange = e => {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+  }
+
+  componentDidUpdate = () => {
+    if(this.state.loaded) {
+      this.scrollToLastPosition();
+    }
+  }
+
+  scrollToLastPosition = () => {
+    if(this.state.hasScrolled) {
+      return;
+    }
+
+    this.setState({ hasScrolled: true });
+
+    setTimeout(() => {
+      window.requestAnimationFrame(() => {
+        const y = localStorage.getItem("bar_scroll_position");
+        window.scrollTo(0, y);
+        localStorage.removeItem("bar_scroll_position");
+      });
+    });
   }
 
   // Call the API here initially and then use this.setState to render the content
@@ -48,13 +72,32 @@ class BarOrderingPage extends React.Component {
     let content;
 
     try {
-      content = await api.get("/some/path");
+      content = await api.get("/bar");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
     }
 
-    this.setState({ loaded: true, status: 200, content: content });
+    const { baseDrinks } = content.data;
+
+    // Now sort into types
+    const byType = {};
+
+    baseDrinks.forEach((base, i) => {
+      const typeName = base.BarDrinkType.name;
+      let inType = [];
+
+      if(Object.keys(byType).includes(typeName)) {
+        inType = byType[typeName];
+      }
+
+      inType.push(base);
+      byType[typeName] = inType;
+    });
+
+    // TODO: Sort by type name
+
+    this.setState({ loaded: true, status: 200, baseDrinks, byType });
   }
 
   render () {
@@ -80,10 +123,15 @@ class BarOrderingPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">College Bar</h1>
-          <BarDropdown
-            title="Spirits"
-            groupItems={[]}
-          />
+          {
+            Object.keys(this.state.byType).map((typeName, i) => (
+              <BarDropdown
+                title={typeName}
+                groupItems={this.state.byType[typeName]}
+                key={i}
+              />
+            ))
+          }
         </div>
       </div>
     );

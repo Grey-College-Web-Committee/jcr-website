@@ -22,7 +22,8 @@ class BarAdminManageDrinks extends React.Component {
       imageUpload: null,
       temporaryImageSrc: null,
       baseDrinks: [],
-      drinks: []
+      drinks: [],
+      available: true
     };
 
     // Change this to your permission
@@ -91,7 +92,7 @@ class BarAdminManageDrinks extends React.Component {
 
     this.setState({ disabled: true });
 
-    const { name, description, prices, sizeCheckboxes, type, imageUpload } = this.state;
+    const { name, description, prices, sizeCheckboxes, type, imageUpload, available } = this.state;
     const formData = new FormData();
 
     formData.append("name", name);
@@ -99,6 +100,7 @@ class BarAdminManageDrinks extends React.Component {
     formData.append("prices", JSON.stringify(prices));
     formData.append("sizeCheckboxes", JSON.stringify(sizeCheckboxes));
     formData.append("type", type);
+    formData.append("available", available);
     formData.append("image", imageUpload[0]);
 
     try {
@@ -129,11 +131,11 @@ class BarAdminManageDrinks extends React.Component {
 
     return (
       (this.state.name !== undefined && this.state.name !== null && this.state.name.length !== 0) &&
-      (this.state.description !== undefined && this.state.description !== null && this.state.description.length !== 0) &&
       (this.state.type !== undefined && this.state.type !== null && this.state.type.length !== 0) &&
       (this.state.imageUpload !== undefined && this.state.imageUpload !== null && this.state.imageUpload.length !== 0) &&
       (this.state.prices !== undefined && this.state.prices !== undefined) &&
-      (this.state.sizeCheckboxes !== undefined && this.state.sizeCheckboxes !== undefined)
+      (this.state.sizeCheckboxes !== undefined && this.state.sizeCheckboxes !== undefined) &&
+      (this.state.available !== undefined && this.state.available !== undefined)
     );
   }
 
@@ -213,6 +215,20 @@ class BarAdminManageDrinks extends React.Component {
                   autoComplete=""
                   maxLength={1500}
                 />
+              </div>
+              <div className="pt-2 pb-2 border-b-2 flex flex-row items-center">
+                <label htmlFor="available" className="flex flex-row justify-start text-xl font-semibold flex-1 items-center">Available</label>
+                <div className="flex flex-col items-center justify-center ml-2">
+                  <input
+                    type="checkbox"
+                    name="available"
+                    checked={this.state.available}
+                    onChange={this.onInputChange}
+                    className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    disabled={this.props.disabled}
+                    autoComplete=""
+                  />
+                </div>
               </div>
               <div className="pt-2 pb-2 border-b-2">
                 <label htmlFor="type" className="flex flex-row justify-start text-xl font-semibold">Type</label>

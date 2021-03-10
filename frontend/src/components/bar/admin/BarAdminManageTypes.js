@@ -131,12 +131,12 @@ class BarAdminManageTypes extends React.Component {
                 />
               </div>
               <div className="pt-2 pb-2 border-b-2 flex flex-row items-center">
-                <label htmlFor="truth" className="flex flex-row justify-start text-xl font-semibold flex-1 items-center">Allows Mixer?</label>
+                <label htmlFor="allowsMixer" className="flex flex-row justify-start text-xl font-semibold flex-1 items-center">Allows Mixer?</label>
                 <div className="flex flex-col items-center justify-center ml-2">
                   <input
                     type="checkbox"
                     name="allowsMixer"
-                    value={this.state.allowsMixer}
+                    checked={this.state.allowsMixer}
                     onChange={this.onInputChange}
                     className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                     disabled={this.props.disabled}
