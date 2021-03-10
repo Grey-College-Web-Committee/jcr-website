@@ -66,11 +66,6 @@ class BarAdminManageTypes extends React.Component {
     this.setState({ loaded: true, types: content.data.types });
   }
 
-  onInputChange = e => {
-    // Standard input change
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
-  }
-
   createNewType = async () => {
     if(!this.canSubmit()) {
       alert("You must fill in the name first");

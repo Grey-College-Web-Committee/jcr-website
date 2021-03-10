@@ -65,11 +65,6 @@ class BarAdminManageSizes extends React.Component {
     this.setState({ loaded: true, sizes: content.data.sizes });
   }
 
-  onInputChange = e => {
-    // Standard input change
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
-  }
-
   createNewSize = async () => {
     if(!this.canSubmit()) {
       alert("You must fill in the name first");
