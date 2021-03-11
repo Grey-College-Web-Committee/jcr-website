@@ -178,6 +178,16 @@ class Cart {
     return true;
   }
 
+  removeAllWithFilter = (predicate) => {
+    if(Cart.locked) {
+      return false;
+    }
+
+    this.cart.items = this.cart.items.filter(item => !predicate(item));
+    this.saveToLocalStorage();
+    return true;
+  }
+
   clearCart = () => {
     if(Cart.locked) {
       return false;

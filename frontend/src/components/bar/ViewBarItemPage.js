@@ -25,7 +25,8 @@ class ViewBarItemPage extends React.Component {
       mixer: "",
       currentPrice: 0,
       mixers: [],
-      addedCount: 0
+      addedCount: 0,
+      tableNumberSet: localStorage.getItem("table_bar") !== null
     };
   }
 
@@ -246,8 +247,7 @@ class ViewBarItemPage extends React.Component {
                 <div className="w-full md:w-1/2 text-left md:p-4 flex flex-col">
                   <div className="pb-4">
                     <h1 className="font-semibold text-5xl pb-2">{drink.name}</h1>
-                    {this.state.currentPrice === 0 ? null : <p className="font-semibold text-3xl">£{this.state.currentPrice.toFixed(2)}</p>}
-                    <p className="font-semibold text-xl">Price determined by size {drink.BarDrinkType.allowsMixer ? "and mixer" : ""}</p>
+                    {this.state.currentPrice === 0 ? <p className="font-semibold text-xl">Price determined by size {drink.BarDrinkType.allowsMixer ? "and mixer" : ""}</p> : <p className="font-semibold text-xl">£{this.state.currentPrice.toFixed(2)}</p>}
                     <p className="font-medium">{drink.description}</p>
                   </div>
                   <div className="pb-4 flex flex-row">
@@ -289,10 +289,17 @@ class ViewBarItemPage extends React.Component {
                     <button
                       className="px-4 py-2 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                       onClick={this.addToBag}
-                      disabled={this.state.disabled || !drink.available || this.state.closed}
+                      disabled={this.state.disabled || !drink.available || this.state.closed || !this.state.tableNumberSet}
                     >{drink.available ? this.state.buttonText : "Out of Stock"}</button>
                   </div>
-                  <div className="text-center p-4 underline">
+                  {
+                    !this.state.tableNumberSet ? (
+                      <div className="text-center p-1 underline">
+                        <p>You cannot add this to your bag until you set your table number.</p>
+                      </div>
+                    ) : null
+                  }
+                  <div className="text-center p-1 underline">
                     { this.state.errorAdding !== null ? <p>{this.state.errorAdding}</p> : null}
                   </div>
                 </div>
