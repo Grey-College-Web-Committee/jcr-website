@@ -379,7 +379,21 @@ router.get("/drink/:id", async (req, res) => {
     return res.status(500).json({ error: "Unable to get the drink" });
   }
 
-  return res.status(200).json({ drink });
+  if(drink === null) {
+    return res.status(400).json({ error: "Invalid ID" });
+  }
+
+  let mixers = [];
+
+  if(drink.BarDrinkType.allowsMixer) {
+    try {
+      mixers = await BarMixer.findAll();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to get the mixers" });
+    }
+  }
+
+  return res.status(200).json({ drink, mixers });
 })
 
 // Set the module export to router so it can be used in server.js

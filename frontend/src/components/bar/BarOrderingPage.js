@@ -129,6 +129,7 @@ class BarOrderingPage extends React.Component {
                 title={typeName}
                 groupItems={this.state.byType[typeName]}
                 key={i}
+                identifier={typeName}
               />
             ))
           }
