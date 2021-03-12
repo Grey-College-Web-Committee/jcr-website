@@ -70,6 +70,8 @@ class BarDrinkSize extends Model {}
 class BarBaseDrink extends Model {}
 class BarDrink extends Model {}
 class BarMixer extends Model {}
+class BarOrder extends Model {}
+class BarOrderContent extends Model {}
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -1115,7 +1117,64 @@ BarMixer.init({
     type: DataTypes.DECIMAL(6, 2),
     allowNull: false
   }
-}, { sequelize }); 
+}, { sequelize });
+
+BarOrder.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  paid: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  completed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  }
+}, { sequelize });
+
+BarOrderContent.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: BarOrder,
+      key: 'id'
+    }
+  },
+  drinkId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: BarDrink,
+      key: 'id'
+    }
+  },
+  mixerId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: BarMixer,
+      key: 'id'
+    }
+  },
+  completed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  quantity: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  }
+}, { sequelize });
 
 // Associations are necessary to allow joins between tables
 
@@ -1236,4 +1295,16 @@ BarDrink.belongsTo(BarBaseDrink, { foreignKey: 'baseDrinkId' });
 BarDrinkSize.hasMany(BarDrink, { foreignKey: 'sizeId' });
 BarDrink.belongsTo(BarDrinkSize, { foreignKey: 'sizeId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer };
+User.hasMany(BarOrder, { foreignKey: 'userId' });
+BarOrder.belongsTo(User, { foreignKey: 'userId' });
+
+BarOrder.hasMany(BarOrderContent, { foreignKey: 'orderId' });
+BarOrderContent.belongsTo(BarOrder, { foreignKey: 'orderId' });
+
+BarDrink.hasMany(BarOrderContent, { foreignKey: 'drinkId' });
+BarOrderContent.belongsTo(BarDrink, { foreignKey: 'drinkId' });
+
+BarMixer.hasMany(BarOrderContent, { foreignKey: 'mixerId' });
+BarOrderContent.belongsTo(BarMixer, { foreignKey: 'mixerId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent };

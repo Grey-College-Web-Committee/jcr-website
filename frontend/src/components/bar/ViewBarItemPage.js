@@ -49,8 +49,8 @@ class ViewBarItemPage extends React.Component {
       }
 
       if(size !== "") {
-        const sizeId = Number(size);
-        const sizeRecords = sizes.filter(s => s.sizeId === sizeId);
+        const drinkId = Number(size);
+        const sizeRecords = sizes.filter(s => s.drinkId === drinkId);
 
         if(sizeRecords.length === 1) {
           newPrice += Number(sizeRecords[0].price);
@@ -120,8 +120,8 @@ class ViewBarItemPage extends React.Component {
       return;
     }
 
-    const sizeId = Number(size);
-    const sizeRecords = sizes.filter(s => s.sizeId === sizeId);
+    const drinkId = Number(size);
+    const sizeRecords = sizes.filter(s => s.drinkId === drinkId);
 
     if(sizeRecords.length !== 1) {
       this.setState({ disabled: false, errorAdding: "You must select a size" });
@@ -134,7 +134,7 @@ class ViewBarItemPage extends React.Component {
       quantity: 1,
       submissionInformation: {
         type: "size",
-        sizeId: sizeRecords[0].sizeId
+        drinkId: sizeRecords[0].drinkId
       }
     });
 
@@ -260,7 +260,7 @@ class ViewBarItemPage extends React.Component {
                     >
                       <option value="" disabled={true} hidden={true}>Choose Size...</option>
                       {this.state.sizes.map((size, i) => (
-                        <option key={i} value={size.sizeId}>{size.name} (£{size.price.toFixed(2)})</option>
+                        <option key={i} value={size.drinkId}>{size.name} (£{size.price.toFixed(2)})</option>
                       ))}
                     </select>
                   </div>

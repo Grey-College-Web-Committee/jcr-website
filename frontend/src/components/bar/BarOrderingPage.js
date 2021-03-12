@@ -21,7 +21,11 @@ class BarOrderingPage extends React.Component {
       tableNumber: -1,
       tableNumberOpen: false,
       id: Math.random(),
-      placeOrderOpen: false
+      placeOrderOpen: false,
+      disabled: false,
+      orderStatus: 0,
+      lastOrderPrice: 0,
+      orderError: null
     };
 
     this.barCart = new BarCart();
@@ -181,79 +185,183 @@ class BarOrderingPage extends React.Component {
       return null;
     }
 
+    switch(this.state.orderStatus) {
+      case 0:
+        const { items } = this.barCart.get();
+        let displayItems = [];
+        let totalPrice = 0;
+
+        items.forEach(item => {
+          let perItemPrice = 0;
+
+          let mixer = null;
+          let size = null;
+
+          let sizeComps = item.components.filter(comp => comp.submissionInformation.type === "size");
+
+          if(sizeComps.length !== 0) {
+            size = sizeComps[0].name;
+            perItemPrice += sizeComps[0].price;
+          }
+
+          let mixerComps = item.components.filter(comp => comp.submissionInformation.type === "mixer");
+
+          if(mixerComps.length !== 0) {
+            mixer = mixerComps[0].name;
+            perItemPrice += mixerComps[0].price;
+          }
+
+          displayItems.push({
+            name: item.name,
+            perItemPrice,
+            quantity: item.quantity,
+            mixer,
+            size,
+            hash: item.duplicateHash
+          });
+
+          totalPrice += perItemPrice * item.quantity;
+        });
+
+        return (
+          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
+            <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
+              <h2 className="mb-2 text-2xl font-semibold">Confirm Order</h2>
+              <p className="text-base">Your order will be sent to the bar and a member of staff will come to your table (Table #{this.state.tableNumber}) to collect payment. The order will not be processed until payment is taken.</p>
+              <div className="text-base">
+                <ul className="my-1">
+                  {
+                    displayItems.map((item, i) => (
+                      <li key={i} className="border p-2 mt-2">
+                        {item.quantity} x {item.name} (£{item.perItemPrice.toFixed(2)} each)
+                        <ul>
+                          {
+                            item.mixer === null ? null : (<li>- {item.mixer}</li>)
+                          }
+                          {
+                            item.size === null ? null : (<li>- {item.size}</li>)
+                          }
+                        </ul>
+                      </li>
+                    ))
+                  }
+                </ul>
+                <p className="font-semibold text-xl">Total: £{totalPrice.toFixed(2)}</p>
+              </div>
+              <button
+                onClick={this.placeOrder}
+                className="mt-2 px-4 py-1 rounded bg-grey-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                disabled={displayItems.length === 0 || this.state.disabled}
+              >Confirm Order</button>
+              <button
+                onClick={() => this.setState({ placeOrderOpen: false })}
+                className="mt-2 px-4 py-1 rounded bg-red-900 text-sm text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              >Close</button>
+            </div>
+          </div>
+        );
+      case 1:
+        return (
+          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
+            <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
+              <h2 className="mb-2 text-2xl font-semibold">Processing...</h2>
+              <LoadingHolder />
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
+            <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
+              <h2 className="mb-2 text-2xl font-semibold">Order Confirmed</h2>
+              <p>Your order has been confirmed and emailed to your Durham email address.</p>
+              <p>A member of staff will come over soon to collect payment.</p>
+              <p className="font-semibold">Total to pay: £{this.state.lastOrderPrice.toFixed(2)}</p>
+              <button
+                onClick={() => {
+                  this.setState({ placeOrderOpen: false, orderStatus: 0, disabled: false, lastOrderPrice: 0, orderError: null });
+                }}
+                className="mt-2 px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              >Close</button>
+            </div>
+          </div>
+        );
+      default:
+      case 999:
+        return (
+          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
+            <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
+              <h2 className="mb-2 text-2xl font-semibold">Error Occurred</h2>
+              <p>Error: {this.state.orderError}</p>
+            </div>
+          </div>
+        );
+    }
+  }
+
+  placeOrder = async () => {
+    this.setState({ disabled: true, orderStatus: 1 });
     const { items } = this.barCart.get();
-    let displayItems = [];
-    let totalPrice = 0;
 
-    items.forEach(item => {
-      let perItemPrice = 0;
+    let issue = false;
 
-      let mixer = null;
-      let size = null;
+    let simplifiedOrder = items.map(item => {
+      const { components } = item;
 
-      let sizeComps = item.components.filter(comp => comp.submissionInformation.type === "size");
+      const mixerComp = components.filter(comp => comp.submissionInformation.type === "mixer");
+      const sizeComp = components.filter(comp => comp.submissionInformation.type === "size");
 
-      if(sizeComps.length !== 0) {
-        size = sizeComps[0].name;
-        perItemPrice += sizeComps[0].price;
+      let mixerId = null;
+      let drinkId = null;
+
+      if(mixerComp.length !== 0) {
+        mixerId = mixerComp[0].submissionInformation.mixerId;
       }
 
-      let mixerComps = item.components.filter(comp => comp.submissionInformation.type === "mixer");
-
-      if(mixerComps.length !== 0) {
-        mixer = mixerComps[0].name;
-        perItemPrice += mixerComps[0].price;
+      if(sizeComp.length === 0) {
+        issue = true;
+      } else {
+        drinkId = sizeComp[0].submissionInformation.drinkId;
       }
 
-      displayItems.push({
-        name: item.name,
-        perItemPrice,
-        quantity: item.quantity,
-        mixer,
-        size,
-        hash: item.duplicateHash
-      });
-
-      totalPrice += perItemPrice * item.quantity;
+      return {
+        mixerId,
+        drinkId,
+        quantity: item.quantity
+      }
     });
 
-    return (
-      <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
-        <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
-          <h2 className="mb-2 text-2xl font-semibold">Confirm Order</h2>
-          <p className="text-base">Your order will be sent to the bar and a member of staff will come to your table (Table #{this.state.tableNumber}) to collect payment. The order will not be processed until payment is taken.</p>
-          <div className="text-base">
-            <ul className="list-inside list-disc my-1">
-              {
-                displayItems.map((item, i) => (
-                  <li key={i} className="border p-2 mt-2">
-                    {item.quantity} x {item.name} (£{item.perItemPrice.toFixed(2)} each)
-                    <ul className="ml-4 mb-2">
-                      {
-                        item.mixer === null ? null : (<li>- {item.mixer}</li>)
-                      }
-                      {
-                        item.size === null ? null : (<li>- {item.size}</li>)
-                      }
-                    </ul>
-                  </li>
-                ))
-              }
-            </ul>
-            <p className="font-semibold text-xl">Total: £{totalPrice.toFixed(2)}</p>
-          </div>
-          <button
-            onClick={() => this.setState({ placeOrderOpen: false })}
-            className="mt-2 px-4 py-1 rounded bg-grey-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-            disabled={displayItems.length === 0}
-          >Confirm Order</button>
-          <button
-            onClick={() => this.setState({ placeOrderOpen: false })}
-            className="mt-2 px-4 py-1 rounded bg-red-900 text-sm text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-          >Close</button>
-        </div>
-      </div>
-    )
+    if(issue) {
+      alert("There was an issue with your cart. Please clear it and try again.");
+      this.setState({ disabled: false, orderStatus: 0 });
+      return;
+    }
+
+    if(simplifiedOrder.length === 0) {
+      alert("There is nothing in your order");
+      this.setState({ disabled: false, orderStatus: 0 });
+      return;
+    }
+
+    const { tableNumber } = this.state;
+
+    const submission = {
+      tableNumber,
+      items: simplifiedOrder
+    };
+
+    let result;
+
+    try {
+      result = await api.post("/bar/order", submission);
+    } catch (error) {
+      this.setState({ orderStatus: 999, orderError: error.response.data.error });
+      return;
+    }
+
+    this.barCart.get();
+    this.barCart.clearCart();
+    this.setState({ orderStatus: 2, lastOrderPrice: result.data.totalPrice });
   }
 
   renderBarOrder = () => {
@@ -307,12 +415,12 @@ class BarOrderingPage extends React.Component {
       <div className="text-lg">
         <h2 className="text-2xl font-semibold">Your Order</h2>
         <p>Total: £{totalPrice.toFixed(2)}</p>
-        <ul className="list-inside list-disc">
+        <ul className="">
           {
             displayItems.map((item, i) => (
               <li key={i} className="border p-2 mt-2">
                 {item.quantity} x {item.name} (£{item.perItemPrice.toFixed(2)} each)
-                <ul className="ml-4 mb-2">
+                <ul className="mb-2">
                   {
                     item.mixer === null ? null : (<li>- {item.mixer}</li>)
                   }
