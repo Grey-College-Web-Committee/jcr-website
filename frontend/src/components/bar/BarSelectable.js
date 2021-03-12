@@ -24,7 +24,7 @@ class BarSelectable extends React.Component {
     const imageUrl = `/uploads/images/bar/${this.props.image}`;
 
     return (
-      <div className="flex flex-col w-64 border-red-900 border-8 m-2">
+      <div className="flex flex-col md:w-64 w-40 border-red-900 border-8 m-2">
         <img
           src={imageUrl}
           alt={this.props.name}

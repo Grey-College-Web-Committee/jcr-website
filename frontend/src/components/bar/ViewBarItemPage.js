@@ -3,13 +3,13 @@ import { Link, Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
-import Cart from '../cart/Cart';
+import BarCart from './BarCart';
 
 class ViewBarItemPage extends React.Component {
   constructor(props) {
     super(props);
 
-    this.cart = new Cart();
+    this.barCart = new BarCart();
     this.state = {
       id: this.props.match.params.id,
       isMember: true,
@@ -20,7 +20,7 @@ class ViewBarItemPage extends React.Component {
       drink: {},
       errorAdding: null,
       disabled: false,
-      buttonText: "Add To Bag",
+      buttonText: "Add To Order",
       size: "",
       mixer: "",
       currentPrice: 0,
@@ -110,7 +110,7 @@ class ViewBarItemPage extends React.Component {
   addToBag = () => {
     this.setState({ disabled: true });
     // refresh the cart
-    this.cart.get();
+    this.barCart.get();
 
     const { size, mixer, sizes, mixers, drink } = this.state;
     let components = [];
@@ -175,8 +175,7 @@ class ViewBarItemPage extends React.Component {
 
     const image = `/uploads/images/bar/${drink.image}`;
 
-    this.cart.addToCartRaw({
-      shop: "bar",
+    this.barCart.addToCartRaw({
       name: drink.name,
       basePrice: 0,
       quantity: 1,
@@ -196,7 +195,7 @@ class ViewBarItemPage extends React.Component {
 
     setTimeout(() => {
       this.setState({
-        buttonText: "Add to Bag"
+        buttonText: "Add to Order"
       });
     }, 1200);
   }

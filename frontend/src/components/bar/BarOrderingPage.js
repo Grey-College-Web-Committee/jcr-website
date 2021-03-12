@@ -4,13 +4,12 @@ import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
 import BarDropdown from './BarDropdown';
-import Cart from '../cart/Cart';
+import BarCart from './BarCart';
 
 class BarOrderingPage extends React.Component {
   constructor(props) {
     super(props);
 
-    this.cart = new Cart();
     this.state = {
       isMember: true,
       loaded: false,
@@ -20,9 +19,12 @@ class BarOrderingPage extends React.Component {
       byType: {},
       hasScrolled: false,
       tableNumber: -1,
-      tableNumberOpen: false
+      tableNumberOpen: false,
+      id: Math.random(),
+      placeOrderOpen: false
     };
 
+    this.barCart = new BarCart();
     this.validTableNumbers = [...Array(15).keys()].map(i => i + 1);
   }
 
@@ -109,13 +111,23 @@ class BarOrderingPage extends React.Component {
 
     // TODO: Sort by type name
 
+    window.addEventListener("focus", this.onFocus);
+    this.barCart.registerCallbackOnSave(this.refreshBarOrder);
     this.setState({ loaded: true, status: 200, baseDrinks, byType, tableNumber });
+  }
+
+  componentWillUnmount = () => {
+    window.removeEventListener("focus", this.onFocus);
+  }
+
+  onFocus = () => {
+    this.refreshBarOrder();
   }
 
   onChangeTableNumber = (e) => {
     const chosen = Number(e.target.value);
     localStorage.setItem("table_bar", chosen);
-    this.setState({ tableNumber: chosen });
+    this.setState({ tableNumber: chosen, tableNumberOpen: false });
   }
 
   showChangeTableNumber = () => {
@@ -124,9 +136,9 @@ class BarOrderingPage extends React.Component {
     }
 
     return (
-      <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-25 top-0 left-0">
-        <div className="flex flex-col w-max bg-white p-4 border-2 border-grey-900">
-          <p className="mb-2 text-lg font-semibold">Select your table number</p>
+      <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
+        <div className="flex flex-col w-max bg-white p-4 border-2 border-grey-900 text-lg">
+          <p className="mb-2 text-2xl font-semibold">Select your table number</p>
           <select
             name="tableNumber"
             className="w-auto h-8 border border-gray-400 disabled:opacity-50"
@@ -151,19 +163,182 @@ class BarOrderingPage extends React.Component {
   }
 
   removeTableNumber = (e) => {
-    const confirmed = window.confirm("Are you sure you want to remove your table number and delete all your drinks?");
+    e.preventDefault();
+    localStorage.removeItem("table_bar");
+    this.setState({ tableNumber: -1 });
+  }
 
-    if(!confirmed) {
-      return;
+  refreshBarOrder = () => {
+    this.setState({ id: Math.random() });
+  }
+
+  showPlaceOrder = () => {
+    if(!this.state.placeOrderOpen) {
+      return null;
     }
 
-    e.preventDefault();
+    if(this.state.tableNumber === -1) {
+      return null;
+    }
 
-    localStorage.removeItem("table_bar");
-    this.cart.get();
-    this.cart.removeAllWithFilter(item => item.shop === "bar");
+    const { items } = this.barCart.get();
+    let displayItems = [];
+    let totalPrice = 0;
 
-    this.setState({ tableNumber: -1 });
+    items.forEach(item => {
+      let perItemPrice = 0;
+
+      let mixer = null;
+      let size = null;
+
+      let sizeComps = item.components.filter(comp => comp.submissionInformation.type === "size");
+
+      if(sizeComps.length !== 0) {
+        size = sizeComps[0].name;
+        perItemPrice += sizeComps[0].price;
+      }
+
+      let mixerComps = item.components.filter(comp => comp.submissionInformation.type === "mixer");
+
+      if(mixerComps.length !== 0) {
+        mixer = mixerComps[0].name;
+        perItemPrice += mixerComps[0].price;
+      }
+
+      displayItems.push({
+        name: item.name,
+        perItemPrice,
+        quantity: item.quantity,
+        mixer,
+        size,
+        hash: item.duplicateHash
+      });
+
+      totalPrice += perItemPrice * item.quantity;
+    });
+
+    return (
+      <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
+        <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
+          <h2 className="mb-2 text-2xl font-semibold">Confirm Order</h2>
+          <p className="text-base">Your order will be sent to the bar and a member of staff will come to your table (Table #{this.state.tableNumber}) to collect payment. The order will not be processed until payment is taken.</p>
+          <div className="text-base">
+            <ul className="list-inside list-disc my-1">
+              {
+                displayItems.map((item, i) => (
+                  <li key={i} className="border p-2 mt-2">
+                    {item.quantity} x {item.name} (£{item.perItemPrice.toFixed(2)} each)
+                    <ul className="ml-4 mb-2">
+                      {
+                        item.mixer === null ? null : (<li>- {item.mixer}</li>)
+                      }
+                      {
+                        item.size === null ? null : (<li>- {item.size}</li>)
+                      }
+                    </ul>
+                  </li>
+                ))
+              }
+            </ul>
+            <p className="font-semibold text-xl">Total: £{totalPrice.toFixed(2)}</p>
+          </div>
+          <button
+            onClick={() => this.setState({ placeOrderOpen: false })}
+            className="mt-2 px-4 py-1 rounded bg-grey-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+            disabled={displayItems.length === 0}
+          >Confirm Order</button>
+          <button
+            onClick={() => this.setState({ placeOrderOpen: false })}
+            className="mt-2 px-4 py-1 rounded bg-red-900 text-sm text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+          >Close</button>
+        </div>
+      </div>
+    )
+  }
+
+  renderBarOrder = () => {
+    const { items } = this.barCart.get();
+    let displayItems = [];
+    let totalPrice = 0;
+
+    items.forEach(item => {
+      let perItemPrice = 0;
+
+      let mixer = null;
+      let size = null;
+
+      let sizeComps = item.components.filter(comp => comp.submissionInformation.type === "size");
+
+      if(sizeComps.length !== 0) {
+        size = sizeComps[0].name;
+        perItemPrice += sizeComps[0].price;
+      }
+
+      let mixerComps = item.components.filter(comp => comp.submissionInformation.type === "mixer");
+
+      if(mixerComps.length !== 0) {
+        mixer = mixerComps[0].name;
+        perItemPrice += mixerComps[0].price;
+      }
+
+      displayItems.push({
+        name: item.name,
+        perItemPrice,
+        quantity: item.quantity,
+        mixer,
+        size,
+        hash: item.duplicateHash
+      });
+
+      totalPrice += perItemPrice * item.quantity;
+    });
+
+    const belowButton = this.state.tableNumber !== -1 ?
+      (
+        <button
+          className="px-4 py-1 rounded bg-grey-900 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+          onClick={() => this.setState({ placeOrderOpen: true })}
+        >Place Order</button>
+      ) : (
+        <p>You need to set your table number</p>
+      );
+
+    return (
+      <div className="text-lg">
+        <h2 className="text-2xl font-semibold">Your Order</h2>
+        <p>Total: £{totalPrice.toFixed(2)}</p>
+        <ul className="list-inside list-disc">
+          {
+            displayItems.map((item, i) => (
+              <li key={i} className="border p-2 mt-2">
+                {item.quantity} x {item.name} (£{item.perItemPrice.toFixed(2)} each)
+                <ul className="ml-4 mb-2">
+                  {
+                    item.mixer === null ? null : (<li>- {item.mixer}</li>)
+                  }
+                  {
+                    item.size === null ? null : (<li>- {item.size}</li>)
+                  }
+                </ul>
+                <div className="flex flex-row justify-between">
+                  <button
+                    className="px-4 py-1 rounded bg-grey-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 text-sm"
+                    onClick={() => this.barCart.adjustQuantity(item.hash, 1)}
+                  >Add 1</button>
+                  <button
+                    className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 text-sm"
+                    onClick={() => this.barCart.adjustQuantity(item.hash, -1)}
+                  >Remove 1</button>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+        <div className="mt-2">
+          { displayItems.length !== 0 ? belowButton : null }
+        </div>
+      </div>
+    )
   }
 
   render () {
@@ -175,9 +350,9 @@ class BarOrderingPage extends React.Component {
       }
 
       if(!this.state.isMember) {
-          return (
-            <Redirect to="/membership" />
-          )
+        return (
+          <Redirect to="/membership" />
+        )
       }
 
       return (
@@ -190,39 +365,43 @@ class BarOrderingPage extends React.Component {
     return (
       <React.Fragment>
         {this.showChangeTableNumber()}
-        <div className="flex flex-col justify-start">
-          <div className="container mx-auto text-center p-4">
+        {this.showPlaceOrder()}
+        <div className="flex flex-col justify-start md:mx-10">
+          <div className="text-center p-4">
             <h1 className="font-semibold text-5xl pb-2">College Bar</h1>
-            <div className="mb-2">
-              <p className="text-2xl font-semibold"> {tableNumber === -1 ? "Set your table number" : `Your Table Number: ${tableNumber}`}</p>
-              {tableNumber === -1 ? <p>You won't be able to add items to your cart until you set a table number.</p> : null}
-              <div className="my-1 flex md:flex-row flex-col md:justify-center">
-                <button
-                  onClick={() => this.setState({ tableNumberOpen: true })}
-                  className="mx-2 md:mb-0 mb-2 px-4 py-1 rounded bg-grey-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                >{tableNumber === -1 ? "Set" : "Change"} Table Number</button>
-                {tableNumber !== -1 ?
-                  <button
-                    onClick={this.removeTableNumber}
-                    className="mx-2 px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                  >Remove Table Number</button>
-                : null}
-              </div>
-              <div>
-                <p>Removing your table number will clear all of the drinks from your bag!</p>
-                <p>You can change it without affecting your order however.</p>
-              </div>
+          </div>
+          <div className="flex flex-col-reverse md:flex-row">
+            <div className="md:w-7/10 mx-2">
+              {
+                Object.keys(this.state.byType).map((typeName, i) => (
+                  <BarDropdown
+                    title={typeName}
+                    groupItems={this.state.byType[typeName]}
+                    key={i}
+                    identifier={typeName}
+                  />
+                ))
+              }
             </div>
-            {
-              Object.keys(this.state.byType).map((typeName, i) => (
-                <BarDropdown
-                  title={typeName}
-                  groupItems={this.state.byType[typeName]}
-                  key={i}
-                  identifier={typeName}
-                />
-              ))
-            }
+            <div className="md:w-3/10 px-2 mx-2 md:mb-0 mb-2">
+              <div className="mb-2">
+                <h2 className="text-2xl font-semibold">{tableNumber === -1 ? "Set your table number" : `Your Table Number: ${tableNumber}`}</h2>
+                {tableNumber === -1 ? <p>You won't be able to add items to your cart until you set a table number.</p> : null}
+                <div className="my-2 flex md:flex-row flex-col md:justify-start">
+                  <button
+                    onClick={() => this.setState({ tableNumberOpen: true })}
+                    className="md:mr-2 md:mb-0 mb-2 px-4 py-1 rounded bg-grey-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 text-lg"
+                  >{tableNumber === -1 ? "Set" : "Change"} Table Number</button>
+                  {tableNumber !== -1 ?
+                    <button
+                      onClick={this.removeTableNumber}
+                      className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 text-lg"
+                    >Remove Table Number</button>
+                  : null}
+                </div>
+              </div>
+              {this.renderBarOrder()}
+            </div>
           </div>
         </div>
       </React.Fragment>
