@@ -224,11 +224,26 @@ class BarOrderingPage extends React.Component {
         });
 
         return (
-          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
-            <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
+          <div className="w-screen h-screen overflow-auto flex flex-row justify-center fixed bg-grey-500 bg-opacity-75 top-0 left-0 block z-10 overflow-hidden">
+            <div className="flex flex-col w-96 bg-white overflow-scroll p-4 border-2 border-grey-900 text-lg">
               <h2 className="mb-2 text-2xl font-semibold">Confirm Order</h2>
               <p className="text-base">Your order will be sent to the bar and a member of staff will come to your table (Table #{this.state.tableNumber}) to collect payment. The order will not be processed until payment is taken.</p>
+              <div className="w-full">
+                <button
+                  onClick={this.placeOrder}
+                  className="my-2 px-4 py-1 block rounded bg-grey-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  disabled={displayItems.length === 0 || this.state.disabled}
+                >Confirm Order</button>
+                <button
+                  onClick={() => {
+                    this.props.disableScroll(false);
+                    this.setState({ placeOrderOpen: false });
+                  }}
+                  className="mb-2 px-4 py-1 rounded bg-red-900 text-sm text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >Close</button>
+              </div>
               <div className="text-base">
+                <p className="font-semibold text-xl">Total: £{totalPrice.toFixed(2)}</p>
                 <ul className="my-1">
                   {
                     displayItems.map((item, i) => (
@@ -246,17 +261,26 @@ class BarOrderingPage extends React.Component {
                     ))
                   }
                 </ul>
-                <p className="font-semibold text-xl">Total: £{totalPrice.toFixed(2)}</p>
               </div>
-              <button
-                onClick={this.placeOrder}
-                className="mt-2 px-4 py-1 rounded bg-grey-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                disabled={displayItems.length === 0 || this.state.disabled}
-              >Confirm Order</button>
-              <button
-                onClick={() => this.setState({ placeOrderOpen: false })}
-                className="mt-2 px-4 py-1 rounded bg-red-900 text-sm text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-              >Close</button>
+              {
+                displayItems.length >= 4 ? (
+                  <div className="w-full">
+                    <button
+                      onClick={this.placeOrder}
+                      className="my-1 px-4 py-1 rounded bg-grey-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                      disabled={displayItems.length === 0 || this.state.disabled}
+                    >Confirm Order</button>
+                  </div>
+              ) : null }
+              <div className="w-full">
+                <button
+                  onClick={() => {
+                    this.props.disableScroll(false);
+                    this.setState({ placeOrderOpen: false });
+                  }}
+                  className="mt-2 px-4 py-1 rounded bg-red-900 text-sm text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >Close</button>
+              </div>
             </div>
           </div>
         );
@@ -279,6 +303,7 @@ class BarOrderingPage extends React.Component {
               <p className="font-semibold">Total to pay: £{this.state.lastOrderPrice.toFixed(2)}</p>
               <button
                 onClick={() => {
+                  this.props.disableScroll(false);
                   this.setState({ placeOrderOpen: false, orderStatus: 0, disabled: false, lastOrderPrice: 0, orderError: null });
                 }}
                 className="mt-2 px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
@@ -404,8 +429,11 @@ class BarOrderingPage extends React.Component {
     const belowButton = this.state.tableNumber !== -1 ?
       (
         <button
-          className="px-4 py-1 rounded bg-grey-900 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-          onClick={() => this.setState({ placeOrderOpen: true })}
+          className="px-4 py-1 rounded bg-grey-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+          onClick={() => {
+            this.props.disableScroll(true);
+            this.setState({ placeOrderOpen: true })
+          }}
         >Place Order</button>
       ) : (
         <p>You need to set your table number</p>
@@ -415,6 +443,9 @@ class BarOrderingPage extends React.Component {
       <div className="text-lg">
         <h2 className="text-2xl font-semibold">Your Order</h2>
         <p>Total: £{totalPrice.toFixed(2)}</p>
+        <div className="mt-2 mb-2">
+          { displayItems.length !== 0 ? belowButton : null }
+        </div>
         <ul className="">
           {
             displayItems.map((item, i) => (
@@ -442,9 +473,6 @@ class BarOrderingPage extends React.Component {
             ))
           }
         </ul>
-        <div className="mt-2">
-          { displayItems.length !== 0 ? belowButton : null }
-        </div>
       </div>
     )
   }
@@ -474,12 +502,12 @@ class BarOrderingPage extends React.Component {
       <React.Fragment>
         {this.showChangeTableNumber()}
         {this.showPlaceOrder()}
-        <div className="flex flex-col justify-start md:mx-10">
+        <div className={`flex flex-col justify-start md:mx-10 ${this.state.placeOrderOpen || this.state.tableNumberOpen ? "overflow-hidden" : ""}`}>
           <div className="text-center p-4">
             <h1 className="font-semibold text-5xl pb-2">College Bar</h1>
           </div>
           <div className="flex flex-col-reverse md:flex-row">
-            <div className="md:w-7/10 mx-2">
+            <div className="md:w-7/10 px-2 mx-2">
               {
                 Object.keys(this.state.byType).map((typeName, i) => (
                   <BarDropdown
