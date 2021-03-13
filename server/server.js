@@ -14,6 +14,7 @@ const CronJob = require("cron").CronJob;
 const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
+const sharedSession = require("express-socket.io-session");
 
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
@@ -47,13 +48,7 @@ const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const barSocket = require("./sockets/bar_socket");
 
-barSocket.setupEmitter(io);
-
 io.on("connection", socket => {
-  socket.on("disconnect", () => {
-    console.log("Disconnect received");
-  });
-  console.log("at connection");
   barSocket.setupEvents(socket, io);
 });
 
@@ -106,7 +101,12 @@ if(process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 
-app.use(session(sessionConfig));
+const configuredSession = session(sessionConfig);
+
+app.use(configuredSession);
+io.use(sharedSession(configuredSession, {
+  autoSave: true
+}));
 
 const requiredPermissions = [
   {

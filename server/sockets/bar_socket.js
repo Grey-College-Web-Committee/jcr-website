@@ -1,7 +1,13 @@
 const { User, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent } = require("../database.models.js");
+const { hasPermission } = require("../utils/permissionUtils.js");
 
 const setupEvents = (socket, io) => {
   socket.on("subscribeToBarOrders", async () => {
+    if(!hasPermission(socket.handshake.session, "bar.manage")) {
+      socket.disconnect();
+      return;
+    }
+
     // When they subscribe we will register them to the room
     // we broadcast all the messages over this room
     socket.join("barOrderClients");
@@ -72,6 +78,11 @@ const setupEvents = (socket, io) => {
   });
 
   socket.on("markBarContentComplete", async (data) => {
+    if(!hasPermission(socket.handshake.session, "bar.manage")) {
+      socket.disconnect();
+      return;
+    }
+
     const { orderId, contentId } = data;
 
     // Update the record
@@ -90,6 +101,11 @@ const setupEvents = (socket, io) => {
   });
 
   socket.on("markBarOrderPaid", async (data) => {
+    if(!hasPermission(socket.handshake.session, "bar.manage")) {
+      socket.disconnect();
+      return;
+    }
+
     const { orderId } = data;
 
     try {
@@ -106,6 +122,11 @@ const setupEvents = (socket, io) => {
   });
 
   socket.on("markBarOrderCompleted", async (data) => {
+    if(!hasPermission(socket.handshake.session, "bar.manage")) {
+      socket.disconnect();
+      return;
+    }
+
     const { orderId } = data;
 
     console.log({orderId})
@@ -124,29 +145,4 @@ const setupEvents = (socket, io) => {
   });
 }
 
-const setupEmitter = (io) => {
-  // setInterval(() => {
-  //   io.to("barOrderClients").emit("barNewOrder", {
-  //     id: Math.floor(Math.random() * 5000),
-  //     orderedAt: new Date(),
-  //     orderedBy: "Finlay Boyle",
-  //     totalPrice: 4.2,
-  //     contents: [
-  //       {
-  //         name: "Spiced Rum",
-  //         size: "Double",
-  //         mixer: "Coke",
-  //         quantity: 2
-  //       },
-  //       {
-  //         name: "Vodka",
-  //         size: "Single",
-  //         mixer: "None",
-  //         quantity: 1
-  //       }
-  //     ]
-  //   });
-  // }, 5000);
-}
-
-module.exports = { setupEvents, setupEmitter };
+module.exports = { setupEvents };
