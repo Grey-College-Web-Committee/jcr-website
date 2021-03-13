@@ -3,6 +3,22 @@ import PropTypes from 'prop-types';
 import dateFormat from 'dateformat';
 
 class BarOrder extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      completedDrinks: []
+    }
+  }
+
+  markDrinkComplete = (id) => {
+    let { completedDrinks } = this.state;
+    completedDrinks.push(id);
+    this.setState({ completedDrinks }, () => {
+      this.props.updateDrinkCompleted(this.props.order.id, id);
+    });
+  }
+
   render () {
     const { order } = this.props;
 
@@ -13,6 +29,7 @@ class BarOrder extends React.Component {
         <p>Ordered At: {order.orderedAt}</p>
         <p>Table Number: {order.tableNumber}</p>
         <p>Total to Pay: £{order.totalPrice.toFixed(2)}</p>
+        <p>Paid: £{order.paid ? "Yes" : "No"}</p>
         <p>Order:</p>
         <table>
           <thead>
@@ -30,7 +47,15 @@ class BarOrder extends React.Component {
                   <td>{content.name} ({content.size})</td>
                   <td>{content.mixer === null ? "N/A" : content.mixer}</td>
                   <td>{content.quantity}</td>
-                  <td><button>Complete</button></td>
+                  <td>
+                    {
+                      this.state.completedDrinks.includes(content.id) ? "Completed" : (
+                        <button
+                          onClick={() => this.markDrinkComplete(content.id)}
+                        >Complete</button>
+                      )
+                    }
+                  </td>
                 </tr>
               ))
             }

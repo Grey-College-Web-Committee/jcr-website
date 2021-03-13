@@ -61,22 +61,33 @@ class BarAdminLive extends React.Component {
     this.socket = socketIOClient("http://localhost:3000");
     // Subscribes to the barOrderClients room so that we receive the events relating to orders
     this.socket.emit("subscribeToBarOrders", {});
+    // This will occur when the server sends the initial backlog of orders
+    this.socket.on("barInitialData", this.handleInitialData);
+    // This will occur when someone updates a drink as complete
+    this.socket.on("barContentCompleted", this.handleOrderContentCompleted);
     // This will occur when the server send a barNewOrder event
     this.socket.on("barNewOrder", this.handleNewOrder);
 
     this.setState({ loaded: true });
   }
 
+  handleOrderContentCompleted = (orderId, contentId) => {
+
+  }
+
+  handleInitialData = (data) => {
+    data.forEach(this.handleNewOrder);
+  }
+
   handleNewOrder = (order) => {
     let { activeOrders } = this.state;
-
-    // Just going to cap for testing
-    if(Object.keys(activeOrders).length >= 3) {
-      delete activeOrders[Object.keys(activeOrders)[0]];
-    }
-
     activeOrders[order.id] = order;
     this.setState({ activeOrders });
+  }
+
+  updateDrinkCompleted = (orderId, contentId) => {
+    // When someone marks a drink as complete we want to update it on all instances
+    this.socket.emit("markBarContentComplete", { orderId, contentId });
   }
 
   render () {

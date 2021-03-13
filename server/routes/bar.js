@@ -430,7 +430,7 @@ router.post("/order", async (req, res) => {
   let overallOrder;
 
   try {
-    overallOrder = await BarOrder.create({ userId: user.id });
+    overallOrder = await BarOrder.create({ userId: user.id, tableNumber });
   } catch (error) {
     return res.status(500).json({ error: "Unable to create a new order" });
   }
@@ -533,6 +533,14 @@ router.post("/order", async (req, res) => {
     orderContents.push({ id: orderPart.id, drink, mixer, perItemPrice, realQuantity });
   }
 
+  overallOrder.totalPrice = totalPrice;
+
+  try {
+    await overallOrder.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Error setting the price" });
+  }
+
   // Prepare the data to send over the socket
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -551,9 +559,10 @@ router.post("/order", async (req, res) => {
   // Send it to the live admin page
   req.io.to("barOrderClients").emit("barNewOrder", {
     id: overallOrder.id,
-    orderedAt: new Date(),
+    orderedAt: overallOrder.createdAt,
     orderedBy: `${firstName} ${lastName}`,
     email: user.email,
+    paid: false,
     totalPrice,
     tableNumber,
     contents

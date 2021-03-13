@@ -1128,6 +1128,10 @@ BarOrder.init({
       key: 'id'
     }
   },
+  tableNumber: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   paid: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
@@ -1137,6 +1141,11 @@ BarOrder.init({
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false
+  },
+  totalPrice: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false,
+    defaultValue: 0
   }
 }, { sequelize });
 

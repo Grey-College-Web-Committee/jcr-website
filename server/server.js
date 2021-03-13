@@ -47,7 +47,6 @@ const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const barSocket = require("./sockets/bar_socket");
 
-
 barSocket.setupEmitter(io);
 
 io.on("connection", socket => {
