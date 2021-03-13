@@ -38,10 +38,24 @@ const path = require("path");
 const fs = require("fs");
 
 // The cron jobs for the events system
-const eventsCron = require("./cron/events_cron.js");
+const eventsCron = require("./cron/events_cron");
 
 // Load express
 const app = express();
+
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
+const barSocket = require("./sockets/bar_socket");
+
+barSocket.setupEmitter(io);
+
+io.on("connection", socket => {
+  socket.on("disconnect", () => {
+    console.log("Disconnect received");
+  });
+  console.log("at connection");
+  barSocket.setupEvents(socket, io);
+});
 
 // Tells express to recognise incoming requests as JSON
 app.use((req, res, next) => {
@@ -393,4 +407,4 @@ app.get('/*', function (req, res) {
 
 
 // Listen for requests on the port specified in the .env file
-app.listen(process.env.EXPRESS_PORT, () => console.log(`Server started on ${process.env.EXPRESS_PORT}`));
+http.listen(process.env.EXPRESS_PORT, () => console.log(`Server started on ${process.env.EXPRESS_PORT}`));

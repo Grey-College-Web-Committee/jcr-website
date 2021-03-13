@@ -58,6 +58,7 @@ import BarAdminManageMixers from './components/bar/admin/BarAdminManageMixers';
 import BarAdminManageSizes from './components/bar/admin/BarAdminManageSizes';
 import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
 import BarAdminOverview from './components/bar/admin/BarAdminOverview';
+import BarAdminLive from './components/bar/admin/BarAdminLive';
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
@@ -491,6 +492,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/bar/admin/drinks" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageDrinks /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/drinks") )
+                    )} />
+                    <Route exact path="/bar/admin/live" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/drinks") )
                     )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />
