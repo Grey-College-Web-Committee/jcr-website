@@ -16,7 +16,8 @@ class BarAdminLive extends React.Component {
       activeOrders: {},
       completedOrders: {},
       refreshKey: new Date(),
-      initialLoaded: false
+      initialLoaded: false,
+      showCompleted: false
     };
 
     // Change this to your permission
@@ -60,7 +61,7 @@ class BarAdminLive extends React.Component {
     }
 
     // Prepare the socket.io client
-    this.socket = socketIOClient("http://localhost:3000");
+    this.socket = socketIOClient("ws://localhost:3000");
     // Subscribes to the barOrderClients room so that we receive the events relating to orders
     this.socket.emit("subscribeToBarOrders", {});
     // This will occur when the server sends the initial backlog of orders
@@ -163,46 +164,70 @@ class BarAdminLive extends React.Component {
       );
     }
 
-    const { activeOrders, refreshKey } = this.state;
+    const { activeOrders, refreshKey, connected, showCompleted, completedOrders } = this.state;
 
+    let knownKeys = Object.keys(activeOrders).map(key => {
+      return {
+        key,
+        active: true
+      }
+    });
+
+    if(showCompleted) {
+      knownKeys = knownKeys.concat(Object.keys(completedOrders).map(key => {
+        return {
+          key,
+          active: false
+        }
+      }));
+    }
     // We want the oldest orders at the top
-    let sortedActiveKeys = Object.keys(activeOrders).sort((a, b) => {
-      const aDate = new Date(activeOrders[a].orderedAt);
-      const bDate = new Date(activeOrders[b].orderedAt);
+    let sortedKeys = Object.keys(knownKeys).map(k => knownKeys[k]).sort((a, b) => {
+      const aDate = a.active ? new Date(activeOrders[Number(a.key)].orderedAt) : new Date(completedOrders[Number(a.key)].orderedAt);
+      const bDate = b.active ? new Date(activeOrders[Number(b.key)].orderedAt) : new Date(completedOrders[Number(b.key)].orderedAt);
 
       return aDate < bDate ? -1 : (aDate > bDate ? 1 : 0);
-    })
+    });
 
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Live Bar Orders</h1>
           <p className="text-left">Bar orders will appear here as they come in. The oldest orders will appear at the top of the page. You can mark individual drinks as completed as well as marking whole orders as paid and completed. If you mark a whole order it will be moved to the completed orders section to help track which orders are outstanding.</p>
+          <p className="text-left">If you want to see the completed orders in this session (i.e. since you opened this page) you can toggle them on or off. They will appear greyed out and will be uneditable.</p>
+          <div className="flex flex-row justify-start py-1">
+            <button
+              className="px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              onClick={() => {
+                this.setState({ showCompleted: !showCompleted });
+              }}
+            >{showCompleted ? "Hide Recently Completed" : "Show Recently Completed"}</button>
+          </div>
           {
             !this.state.initialLoaded ? <LoadingHolder /> : null
           }
           {
-            this.state.initialLoaded && sortedActiveKeys.length === 0 ? (
+            this.state.initialLoaded && sortedKeys.length === 0 ? (
               <p className="font-semibold text-2xl py-2">No outstanding orders.</p>
             ) : null
           }
+          {
+            sortedKeys.map(record => (
+              <BarOrder
+                key={`${refreshKey}-${record.key}`}
+                order={record.active ? activeOrders[record.key] : completedOrders[record.key]}
+                updateContentCompleted={this.updateContentCompleted}
+                updateOrderPaid={this.updateOrderPaid}
+                updateOrderCompleted={this.updateOrderCompleted}
+                completed={!record.active}
+              />
+            ))
+          }
           <div>
-            {
-              sortedActiveKeys.map(id => (
-                <BarOrder
-                  key={`${refreshKey}-${id}`}
-                  order={activeOrders[id]}
-                  updateContentCompleted={this.updateContentCompleted}
-                  updateOrderPaid={this.updateOrderPaid}
-                  updateOrderCompleted={this.updateOrderCompleted}
-                />
-              ))
-            }
           </div>
         </div>
       </div>
     );
   }
 }
-
 export default BarAdminLive;
