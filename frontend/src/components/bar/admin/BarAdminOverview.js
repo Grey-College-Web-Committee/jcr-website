@@ -73,16 +73,12 @@ class BarAdminOverview extends React.Component {
           <div className="flex flex-col items-start mb-4">
             <h2 className="font-semibold text-3xl pb-1">Live Orders</h2>
             <p className="pb-1">This page will show you orders as they come in so that they can be processed.</p>
+            <p className="pb-1">You can also open and close the ordering from here.</p>
             <Link to="/bar/admin/live">
               <button
                 className="px-4 py-1 rounded bg-grey-500 text-white md:w-80 w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               >View Live Orders</button>
             </Link>
-          </div>
-          <div className="flex flex-col items-start mb-4">
-            <h2 className="font-semibold text-3xl pb-1">Open/Close Ordering</h2>
-            <p>Current Status: TODO OPEN/CLOSED</p>
-            <p>Put a button here to toggle it</p>
           </div>
           <div>
             <h2 className="font-semibold text-3xl pb-1 text-left">Manage Drinks</h2>

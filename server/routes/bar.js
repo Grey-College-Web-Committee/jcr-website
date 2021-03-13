@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 // The database models
-const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent } = require("../database.models.js");
+const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/bar/" });
@@ -24,7 +24,15 @@ router.get("/", async (req, res) => {
     return res.status(500).json({ error: "Unable to get the base drinks" });
   }
 
-  return res.status(200).json({ baseDrinks });
+  let barOpenRecord;
+
+  try {
+    barOpenRecord = await PersistentVariable.findOne({ where: { key: "BAR_OPEN" }});
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the status of the bar" });
+  }
+
+  return res.status(200).json({ baseDrinks, open: barOpenRecord.booleanStorage });
 });
 
 router.post("/admin/type", async (req, res) => {
@@ -422,6 +430,18 @@ router.post("/order", async (req, res) => {
 
   if(items === undefined || items === null || !Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: "Missing items" });
+  }
+
+  let barOpenRecord;
+
+  try {
+    barOpenRecord = await PersistentVariable.findOne({ where: { key: "BAR_OPEN" }});
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check if the bar is open" });
+  }
+
+  if(!barOpenRecord.booleanStorage) {
+    return res.status(400).json({ closed: true, error: "The bar is currently closed for orders." });
   }
 
   // Could validate the table number is in a range but really doesn't matter at the end of the day

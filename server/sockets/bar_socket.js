@@ -1,4 +1,4 @@
-const { User, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent } = require("../database.models.js");
+const { User, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable } = require("../database.models.js");
 const { hasPermission } = require("../utils/permissionUtils.js");
 
 const setupEvents = (socket, io) => {
@@ -73,8 +73,16 @@ const setupEvents = (socket, io) => {
       }
     });
 
+    let barOpenRecord;
+
+    try {
+      barOpen = await PersistentVariable.findOne({ where: { key: "BAR_OPEN" }});
+    } catch (error) {
+      return {};
+    }
+
     // These are then sent directly to the client which processes them
-    socket.emit("barInitialData", transformedOrders)
+    socket.emit("barInitialData", { transformedOrders, open: barOpen.booleanStorage });
   });
 
   socket.on("markBarContentComplete", async (data) => {
@@ -142,6 +150,26 @@ const setupEvents = (socket, io) => {
     }
 
     io.to("barOrderClients").emit("barOrderCompleted", data);
+  });
+
+  socket.on("setBarOpen", async (data) => {
+    if(!hasPermission(socket.handshake.session, "bar.manage")) {
+      socket.disconnect();
+      return;
+    }
+
+    const { open } = data;
+
+    try {
+      await PersistentVariable.update({ booleanStorage: open }, {
+        where: { key: "BAR_OPEN" }
+      });
+    } catch (error) {
+      // TODO: handle
+      return {};
+    }
+
+    io.to("barOrderClients").emit("barOpenChanged", data);
   });
 }
 

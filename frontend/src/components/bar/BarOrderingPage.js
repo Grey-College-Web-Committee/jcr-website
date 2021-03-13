@@ -25,7 +25,8 @@ class BarOrderingPage extends React.Component {
       disabled: false,
       orderStatus: 0,
       lastOrderPrice: 0,
-      orderError: null
+      orderError: null,
+      open: false
     };
 
     this.barCart = new BarCart();
@@ -90,7 +91,7 @@ class BarOrderingPage extends React.Component {
       return;
     }
 
-    const { baseDrinks } = content.data;
+    const { baseDrinks, open } = content.data;
 
     // Now sort into types
     const byType = {};
@@ -117,7 +118,7 @@ class BarOrderingPage extends React.Component {
 
     window.addEventListener("focus", this.onFocus);
     this.barCart.registerCallbackOnSave(this.refreshBarOrder);
-    this.setState({ loaded: true, status: 200, baseDrinks, byType, tableNumber });
+    this.setState({ loaded: true, status: 200, baseDrinks, byType, tableNumber, open });
   }
 
   componentWillUnmount = () => {
@@ -140,7 +141,7 @@ class BarOrderingPage extends React.Component {
     }
 
     return (
-      <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
+      <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0 z-10">
         <div className="flex flex-col w-max bg-white p-4 border-2 border-grey-900 text-lg">
           <p className="mb-2 text-2xl font-semibold">Select your table number</p>
           <select
@@ -224,10 +225,11 @@ class BarOrderingPage extends React.Component {
         });
 
         return (
-          <div className="w-screen h-screen overflow-auto flex flex-row justify-center fixed bg-grey-500 bg-opacity-75 top-0 left-0 block z-10 overflow-hidden">
-            <div className="flex flex-col w-96 bg-white overflow-scroll p-4 border-2 border-grey-900 text-lg">
+          <div className="w-screen h-full overflow-auto flex flex-row justify-center my-auto fixed bg-grey-500 bg-opacity-75 top-0 left-0 block z-10">
+            <div className="flex flex-row justify-center text-lg overflow-y-auto overflow-x-hidden h-full">
+              <div className="flex flex-col bg-white p-4 mx-2 md:mx-0 overflow-y-auto overflow-x-hidden md:w-96 w-full border-2 border-grey-900 h-auto my-auto">
               <h2 className="mb-2 text-2xl font-semibold">Confirm Order</h2>
-              <p className="text-base">Your order will be sent to the bar and a member of staff will come to your table (Table #{this.state.tableNumber}) to collect payment. The order will not be processed until payment is taken.</p>
+              <p className="text-base">Your order will be sent to the bar and a member of staff will come to your table (Table {this.state.tableNumber}) to collect payment. The order will not be processed until payment is taken.</p>
               <div className="w-full">
                 <button
                   onClick={this.placeOrder}
@@ -282,11 +284,12 @@ class BarOrderingPage extends React.Component {
                 >Close</button>
               </div>
             </div>
+            </div>
           </div>
         );
       case 1:
         return (
-          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
+          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0 z-10">
             <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
               <h2 className="mb-2 text-2xl font-semibold">Processing...</h2>
               <LoadingHolder />
@@ -295,7 +298,7 @@ class BarOrderingPage extends React.Component {
         );
       case 2:
         return (
-          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
+          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0 z-10">
             <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
               <h2 className="mb-2 text-2xl font-semibold">Order Confirmed</h2>
               <p>Your order has been confirmed and emailed to your Durham email address.</p>
@@ -314,10 +317,17 @@ class BarOrderingPage extends React.Component {
       default:
       case 999:
         return (
-          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0">
+          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0 z-10">
             <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
               <h2 className="mb-2 text-2xl font-semibold">Error Occurred</h2>
-              <p>Error: {this.state.orderError}</p>
+              <p>{this.state.orderError}</p>
+              <button
+                onClick={() => {
+                  this.props.disableScroll(false);
+                  this.setState({ placeOrderOpen: false, orderStatus: 0, disabled: false, lastOrderPrice: 0, orderError: null });
+                }}
+                className="mt-2 px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              >Close</button>
             </div>
           </div>
         );
@@ -428,13 +438,17 @@ class BarOrderingPage extends React.Component {
 
     const belowButton = this.state.tableNumber !== -1 ?
       (
+      <React.Fragment>
         <button
           className="px-4 py-1 rounded bg-grey-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           onClick={() => {
             this.props.disableScroll(true);
             this.setState({ placeOrderOpen: true })
           }}
-        >Place Order</button>
+          disabled={!this.state.open}
+        >{ this.state.open ? "Place Order" : "Bar Is Closed" }</button>
+        { this.state.open ? null : <p>You will need to refresh this page once the bar opens. Your order will not be lost!</p> }
+      </React.Fragment>
       ) : (
         <p>You need to set your table number</p>
       );

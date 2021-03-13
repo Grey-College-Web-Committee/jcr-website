@@ -73,6 +73,8 @@ class BarMixer extends Model {}
 class BarOrder extends Model {}
 class BarOrderContent extends Model {}
 
+class PersistentVariable extends Model {}
+
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
 // No need to store a users email it is simply username@durham.ac.uk
@@ -1185,6 +1187,33 @@ BarOrderContent.init({
   }
 }, { sequelize });
 
+PersistentVariable.init({
+  key: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  booleanStorage: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: null
+  },
+  textStorage: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
+  },
+  dateStorage: {
+    type: DataTypes.DATE,
+    allowNull: true,
+    defaultValue: null
+  },
+  intStorage: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: null
+  }
+}, { sequelize });
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -1316,4 +1345,4 @@ BarOrderContent.belongsTo(BarDrink, { foreignKey: 'drinkId' });
 BarMixer.hasMany(BarOrderContent, { foreignKey: 'mixerId' });
 BarOrderContent.belongsTo(BarMixer, { foreignKey: 'mixerId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable };

@@ -11,7 +11,7 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sharedSession = require("express-socket.io-session");
@@ -267,6 +267,8 @@ const requiredPermissions = [
   await BarOrder.sync()
   await BarOrderContent.sync();
 
+  await PersistentVariable.sync();
+
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
       where: {
@@ -278,6 +280,16 @@ const requiredPermissions = [
         internal: item.internal
       }
     });
+  });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "BAR_OPEN"
+    },
+    defaults: {
+      key: "BAR_OPEN",
+      booleanStorage: false
+    }
   });
 })();
 
