@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
-import api from '../../../utils/axiosConfig';
-import LoadingHolder from '../../common/LoadingHolder';
+import api from '../../../../utils/axiosConfig';
+import LoadingHolder from '../../../common/LoadingHolder';
 import socketIOClient from 'socket.io-client';
+import BarOrder from './BarOrder';
 
 class BarAdminLive extends React.Component {
   constructor(props) {
@@ -12,16 +13,16 @@ class BarAdminLive extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      data: "None"
+      activeOrders: {},
+      completedOrders: {}
     };
-
-    this.socket = socketIOClient("http://localhost:3000");
 
     // Change this to your permission
     this.requiredPermission = "bar.manage";
   }
 
   componentWillUnmount = () => {
+    // Want to end the connection when it unmounts
     this.socket.disconnect();
   }
 
@@ -56,13 +57,26 @@ class BarAdminLive extends React.Component {
       return;
     }
 
-    // Load any required data for the page here
-
+    // Prepare the socket.io client
+    this.socket = socketIOClient("http://localhost:3000");
+    // Subscribes to the barOrderClients room so that we receive the events relating to orders
     this.socket.emit("subscribeToBarOrders", {});
-    this.socket.on("barOrder", (data) => {
-      this.setState({ data });
-    })
+    // This will occur when the server send a barNewOrder event
+    this.socket.on("barNewOrder", this.handleNewOrder);
+
     this.setState({ loaded: true });
+  }
+
+  handleNewOrder = (order) => {
+    let { activeOrders } = this.state;
+
+    // Just going to cap for testing
+    if(Object.keys(activeOrders).length >= 3) {
+      delete activeOrders[Object.keys(activeOrders)[0]];
+    }
+
+    activeOrders[order.id] = order;
+    this.setState({ activeOrders });
   }
 
   render () {
@@ -78,16 +92,31 @@ class BarAdminLive extends React.Component {
       );
     }
 
+    const { activeOrders } = this.state;
+
+    // We want the oldest orders at the top
+    let sortedActiveKeys = Object.keys(activeOrders).sort((a, b) => {
+      const aDate = new Date(activeOrders[a].orderedAt);
+      const bDate = new Date(activeOrders[b].orderedAt);
+
+      return aDate < bDate ? -1 : (aDate > bDate ? 1 : 0);
+    })
+
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Live Bar Orders</h1>
           <p>Bar orders will appear here as they come in. The oldest orders will appear at the top of the page. You can mark individual drinks as completed as well as marking whole orders as paid and completed. If you mark a whole order it will be moved to the completed orders section to help track which orders are outstanding.</p>
-          <button
-            onClick={() => {
-            }}
-          >Request</button>
-          <p>{this.state.data}</p>
+          <div>
+            {
+              sortedActiveKeys.map(id => (
+                <BarOrder
+                  key={id}
+                  order={activeOrders[id]}
+                />
+              ))
+            }
+          </div>
         </div>
       </div>
     );

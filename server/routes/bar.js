@@ -530,9 +530,36 @@ router.post("/order", async (req, res) => {
     }
 
     totalPrice += perItemPrice * realQuantity;
-    orderContents.push({ drink, mixer, perItemPrice, realQuantity });
+    orderContents.push({ id: orderPart.id, drink, mixer, perItemPrice, realQuantity });
   }
 
+  // Prepare the data to send over the socket
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+
+  const contents = orderContents.map(item => {
+    return {
+      id: item.id,
+      name: item.drink.BarBaseDrink.name,
+      size: item.drink.BarDrinkSize.name,
+      mixer: item.mixer === null ? null : item.mixer.name,
+      quantity: item.realQuantity
+    };
+  });
+
+  // Send it to the live admin page
+  req.io.to("barOrderClients").emit("barNewOrder", {
+    id: overallOrder.id,
+    orderedAt: new Date(),
+    orderedBy: `${firstName} ${lastName}`,
+    email: user.email,
+    totalPrice,
+    tableNumber,
+    contents
+  });
+
+  // Send the confirmation email to the user
   const customerEmail = createBarCustomerEmail(user, orderContents, totalPrice, tableNumber);
   mailer.sendEmail(user.email, `Bar Order Confirmation`, customerEmail);
 

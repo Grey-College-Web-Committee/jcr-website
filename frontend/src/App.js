@@ -58,7 +58,7 @@ import BarAdminManageMixers from './components/bar/admin/BarAdminManageMixers';
 import BarAdminManageSizes from './components/bar/admin/BarAdminManageSizes';
 import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
 import BarAdminOverview from './components/bar/admin/BarAdminOverview';
-import BarAdminLive from './components/bar/admin/BarAdminLive';
+import BarAdminLive from './components/bar/admin/live/BarAdminLive';
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';

@@ -47,6 +47,7 @@ const http = require("http").Server(app);
 const io = require("socket.io")(http);
 const barSocket = require("./sockets/bar_socket");
 
+
 barSocket.setupEmitter(io);
 
 io.on("connection", socket => {
@@ -64,7 +65,14 @@ app.use((req, res, next) => {
   } else {
     express.json()(req, res, next);
   }
-})
+});
+
+// Attach the socket.io to the request so it can be used in the routes
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // Manages CORS headers to prevent errors
 app.use(cors());
 // Allows express to send and receive cookies
