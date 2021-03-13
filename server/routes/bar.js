@@ -241,20 +241,17 @@ router.get("/admin/summary", async (req, res) => {
   let baseDrinks;
 
   try {
-    baseDrinks = await BarBaseDrink.findAll();
+    baseDrinks = await BarBaseDrink.findAll({
+      include: [ BarDrinkType, {
+        model: BarDrink,
+        include: [ BarDrinkSize ]
+      } ]
+    });
   } catch (error) {
     return res.status(500).json({ error: "Unable to list the base drinks" });
   }
 
-  let drinks;
-
-  try {
-    drinks = await BarDrink.findAll();
-  } catch (error) {
-    return res.status(500).json({ error: "Unable to list the drinks" });
-  }
-
-  return res.status(200).json({ sizes, types, baseDrinks, drinks });
+  return res.status(200).json({ sizes, types, baseDrinks });
 
 });
 
@@ -352,7 +349,21 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
     }
   }
 
-  return res.status(200).json({ baseDrink, drinks });
+  let completeRecord;
+
+  try {
+    completeRecord = await BarBaseDrink.findOne({
+      where: { id: baseDrink.id },
+      include: [ BarDrinkType, {
+        model: BarDrink,
+        include: [ BarDrinkSize ]
+      } ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the record in the database" });
+  }
+
+  return res.status(200).json({ newDrink: completeRecord });
 });
 
 router.get("/drink/:id", async (req, res) => {
@@ -594,6 +605,85 @@ router.post("/order", async (req, res) => {
   mailer.sendEmail(user.email, `Bar Order Confirmation`, customerEmail);
 
   return res.status(200).json({ orderContents, totalPrice });
+});
+
+router.post("/drink/update/available", async (req, res) => {
+  // Change whether a drink is available
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, available } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  if(available === undefined || available === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
+  let drinkRecord;
+
+  try {
+    drinkRecord = await BarBaseDrink.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the drink from the database" });
+  }
+
+  if(drinkRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  drinkRecord.available = available;
+
+  try {
+    await drinkRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the drink in the database" });
+  }
+
+  return res.status(200).json({ available });
+});
+
+router.delete("/drink/:id", async (req, res) => {
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.params;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let drinkRecord;
+
+  try {
+    drinkRecord = await BarBaseDrink.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the drink from the database" });
+  }
+
+  if(drinkRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  try {
+    await drinkRecord.destroy();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the drink" });
+  }
+
+  return res.status(204).end();
 });
 
 const createBarCustomerEmail = (user, orderContents, totalPrice, tableNumber) => {

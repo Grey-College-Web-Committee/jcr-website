@@ -3,6 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
 import ImageUploader from 'react-images-upload';
+import DrinkRow from './DrinkRow';
 
 class BarAdminManageDrinks extends React.Component {
   constructor(props) {
@@ -22,7 +23,6 @@ class BarAdminManageDrinks extends React.Component {
       imageUpload: null,
       temporaryImageSrc: null,
       baseDrinks: [],
-      drinks: [],
       available: true
     };
 
@@ -70,7 +70,7 @@ class BarAdminManageDrinks extends React.Component {
       return;
     }
 
-    const { types, sizes, baseDrinks, drinks } = content.data;
+    const { types, sizes, baseDrinks } = content.data;
     let sizeCheckboxes = {};
     let prices = {};
 
@@ -81,7 +81,7 @@ class BarAdminManageDrinks extends React.Component {
 
     // Load any required data for the page here
 
-    this.setState({ loaded: true, types, sizes, sizeCheckboxes, prices, baseDrinks, drinks });
+    this.setState({ loaded: true, types, sizes, sizeCheckboxes, prices, baseDrinks });
   }
 
   createNewDrink = async () => {
@@ -92,7 +92,7 @@ class BarAdminManageDrinks extends React.Component {
 
     this.setState({ disabled: true });
 
-    const { name, description, prices, sizeCheckboxes, type, imageUpload, available } = this.state;
+    const { name, description, prices, sizeCheckboxes, type, imageUpload, available, sizes } = this.state;
     const formData = new FormData();
 
     formData.append("name", name);
@@ -103,8 +103,10 @@ class BarAdminManageDrinks extends React.Component {
     formData.append("available", available);
     formData.append("image", imageUpload[0]);
 
+    let result;
+
     try {
-      await api.post("/bar/admin/drink", formData, {
+      result = await api.post("/bar/admin/drink", formData, {
         headers: { "content-type": "multipart/form-data" }
       });
     } catch (error) {
@@ -113,7 +115,18 @@ class BarAdminManageDrinks extends React.Component {
       return;
     }
 
-    this.setState({ disabled: false, name: "", description: "" });
+    let newSizeCheckboxes = {};
+    let newPrices = {};
+
+    sizes.forEach((size, _) => {
+      sizeCheckboxes[size.id] = false;
+      prices[size.id] = 0;
+    });
+
+    let { baseDrinks } = this.state;
+    baseDrinks.push(result.data.newDrink);
+
+    this.setState({ disabled: false, name: "", description: "", type: "", available: true, prices: newPrices, sizeCheckboxes: newSizeCheckboxes, imageUpload: null, temporaryImageSrc: null, baseDrinks });
   }
 
   canSubmit = () => {
@@ -327,17 +340,17 @@ class BarAdminManageDrinks extends React.Component {
                   <th className="p-2 font-semibold">Image</th>
                   <th className="p-2 font-semibold">Type</th>
                   <th className="p-2 font-semibold">Sizes and Prices</th>
+                  <th className="p-2 font-semibold">Toggle Availability</th>
+                  <th className="p-2 font-semibold">Delete</th>
                 </tr>
               </thead>
               <tbody>
                 {
                   this.state.baseDrinks.map((baseDrink, id) => (
-                    <tr className="text-center border-b border-gray-400">
-                      <td className="p-2 border-r border-gray-400">{baseDrink.name}</td>
-                      <td className="p-2 border-r border-gray-400">{baseDrink.description}</td>
-                      <td className="p-2 border-r border-gray-400">{baseDrink.image}</td>
-                      <td className="p-2 border-r border-gray-400">{baseDrink.typeId}</td>
-                    </tr>
+                    <DrinkRow
+                      key={id}
+                      baseDrink={baseDrink}
+                    />
                   ))
                 }
               </tbody>

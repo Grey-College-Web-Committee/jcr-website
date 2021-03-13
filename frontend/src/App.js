@@ -35,7 +35,6 @@ import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
 import ContributorsPage from './components/legal/ContributorsPage';
 import CookiesPage from './components/legal/CookiesPage';
 
-
 import EventsOverviewPage from './components/events/overview/EventsOverviewPage';
 import EventsInfoPage from './components/events/info/EventsInfoPage';
 import EventsTermsPage from './components/events/disclaimer/EventsTermsPage';
@@ -494,7 +493,7 @@ class App extends React.Component {
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageDrinks /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/drinks") )
                     )} />
                     <Route exact path="/bar/admin/live" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/drinks") )
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/live") )
                     )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />
