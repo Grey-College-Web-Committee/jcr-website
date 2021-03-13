@@ -15,7 +15,8 @@ class BarAdminLive extends React.Component {
       error: "",
       activeOrders: {},
       completedOrders: {},
-      refreshKey: Math.random()
+      refreshKey: new Date(),
+      initialLoaded: false
     };
 
     // Change this to your permission
@@ -68,8 +69,31 @@ class BarAdminLive extends React.Component {
     this.socket.on("barContentCompleted", this.handleOrderContentCompleted);
     // This will occur when the server send a barNewOrder event
     this.socket.on("barNewOrder", this.handleNewOrder);
+    // This will occur when someone updates an order as paided
+    this.socket.on("barOrderPaid", this.handleOrderPaid);
+    // This will occur when someone updates an order as completed
+    this.socket.on("barOrderCompleted", this.handleOrderCompleted);
 
     this.setState({ loaded: true });
+  }
+
+  handleOrderCompleted = (data) => {
+    let { orderId } = data;
+    let { activeOrders, completedOrders } = this.state;
+
+    const filteredIdRecords = Object.keys(activeOrders).filter(id => id === `${orderId}`);
+
+    if(filteredIdRecords.length === 0) {
+      return;
+    }
+
+    const completedOrder = activeOrders[filteredIdRecords[0]];
+    completedOrder.paid = true;
+
+    delete activeOrders[`${orderId}`];
+    completedOrders[`${orderId}`] = completedOrder;
+
+    this.setState({ activeOrders, completedOrders, refreshKey: new Date() });
   }
 
   handleOrderContentCompleted = (data) => {
@@ -86,11 +110,23 @@ class BarAdminLive extends React.Component {
       }
     }
 
-    this.setState({ activeOrders, refreshKey: Math.random() });
+    this.setState({ activeOrders, refreshKey: new Date() });
+  }
+
+  handleOrderPaid = (data) => {
+    let { orderId } = data;
+    let { activeOrders } = this.state;
+
+    if(Object.keys(activeOrders).includes(`${orderId}`)) {
+      activeOrders[`${orderId}`].paid = true;
+    }
+
+    this.setState({ activeOrders, refreshKey: new Date() });
   }
 
   handleInitialData = (data) => {
     data.forEach(this.handleNewOrder);
+    this.setState({ initialLoaded: true });
   }
 
   handleNewOrder = (order) => {
@@ -99,9 +135,19 @@ class BarAdminLive extends React.Component {
     this.setState({ activeOrders });
   }
 
+  updateOrderCompleted = (orderId) => {
+    // Called when the order is marked as completed so it can update all instances
+    this.socket.emit("markBarOrderCompleted", { orderId });
+  }
+
   updateContentCompleted = (orderId, contentId) => {
     // When someone marks a drink as complete we want to update it on all instances
     this.socket.emit("markBarContentComplete", { orderId, contentId });
+  }
+
+  updateOrderPaid = (orderId) => {
+    // Called when the order is marked as paid so it can update all instances
+    this.socket.emit("markBarOrderPaid", { orderId });
   }
 
   render () {
@@ -131,7 +177,15 @@ class BarAdminLive extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Live Bar Orders</h1>
-          <p>Bar orders will appear here as they come in. The oldest orders will appear at the top of the page. You can mark individual drinks as completed as well as marking whole orders as paid and completed. If you mark a whole order it will be moved to the completed orders section to help track which orders are outstanding.</p>
+          <p className="text-left">Bar orders will appear here as they come in. The oldest orders will appear at the top of the page. You can mark individual drinks as completed as well as marking whole orders as paid and completed. If you mark a whole order it will be moved to the completed orders section to help track which orders are outstanding.</p>
+          {
+            !this.state.initialLoaded ? <LoadingHolder /> : null
+          }
+          {
+            this.state.initialLoaded && sortedActiveKeys.length === 0 ? (
+              <p className="font-semibold text-2xl py-2">No outstanding orders.</p>
+            ) : null
+          }
           <div>
             {
               sortedActiveKeys.map(id => (
@@ -139,6 +193,8 @@ class BarAdminLive extends React.Component {
                   key={`${refreshKey}-${id}`}
                   order={activeOrders[id]}
                   updateContentCompleted={this.updateContentCompleted}
+                  updateOrderPaid={this.updateOrderPaid}
+                  updateOrderCompleted={this.updateOrderCompleted}
                 />
               ))
             }

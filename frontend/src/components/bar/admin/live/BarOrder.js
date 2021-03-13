@@ -7,7 +7,9 @@ class BarOrder extends React.Component {
     super(props);
 
     this.state = {
-      completedDrinks: this.props.order.contents.filter(item => item.completed).map(item => item.id)
+      completedDrinks: this.props.order.contents.filter(item => item.completed).map(item => item.id),
+      paid: this.props.order.paid,
+      completed: false
     }
   }
 
@@ -24,12 +26,28 @@ class BarOrder extends React.Component {
       }
     });
 
+    let updates = {}
+
     // Only update if there was actually a difference
     if(updatedCompletedDrinks !== state.completedDrinks) {
-      return { completedDrinks: updatedCompletedDrinks }
+      updates.completedDrinks = updatedCompletedDrinks;
+    }
+
+    if(props.order.paid !== state.paid) {
+      updates.paid = props.order.paid;
+    }
+
+    if(Object.keys(updates).length !== 0) {
+      return updates;
     }
 
     return null;
+  }
+
+  markOrderCompleted = () => {
+    this.setState({ paid: true, completed: true }, () => {
+      this.props.updateOrderCompleted(this.props.order.id);
+    });
   }
 
   markDrinkComplete = (id) => {
@@ -37,6 +55,12 @@ class BarOrder extends React.Component {
     completedDrinks.push(id);
     this.setState({ completedDrinks }, () => {
       this.props.updateContentCompleted(this.props.order.id, id);
+    });
+  }
+
+  markOrderPaid = () => {
+    this.setState({ paid: true }, () => {
+      this.props.updateOrderPaid(this.props.order.id);
     });
   }
 
@@ -49,18 +73,24 @@ class BarOrder extends React.Component {
           <div className="flex flex-row justify-between items-center">
             <p>Order ID: {order.id}</p>
             <button
+              onClick={this.markOrderCompleted}
               className="px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             >Mark Paid & Completed</button>
           </div>
           <p className="py-1">Ordered By: {order.orderedBy} ({order.email})</p>
-          <p className="py-1">Ordered At: {order.orderedAt}</p>
+          <p className="py-1">Ordered At: {dateFormat(order.orderedAt, "dd/mm/yyyy HH:MM:ss")}</p>
           <p className="py-1">Table Number: {order.tableNumber}</p>
           <p className="py-1">Total to Pay: £{order.totalPrice.toFixed(2)}</p>
           <div className="flex flex-row justify-start items-center">
-            <p>Paid: {order.paid ? "Yes" : "No"}</p>
-            <button
-              className="ml-2 px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-            >Mark Paid</button>
+            <p>Paid: {order.paid || this.state.paid ? "Yes" : "No"}</p>
+            {
+              order.paid || this.state.paid ? null : (
+                <button
+                  onClick={this.markOrderPaid}
+                  className="ml-2 px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >Mark Paid</button>
+              )
+            }
           </div>
         </div>
         <table className="mx-auto border-2 text-left border-red-900 w-full">

@@ -89,25 +89,39 @@ const setupEvents = (socket, io) => {
     io.to("barOrderClients").emit("barContentCompleted", data);
   });
 
-  // socket.on("markBarOrderPaid", async (data) => {
-  //   const { orderId } = data;
-  //
-  //   let orderRecord;
-  //
-  //   try {
-  //     orderRecord = await BarOrder.update({ paid: true }, {
-  //       where: { id: orderId }
-  //     });
-  //   } catch (error) {
-  //     // need to handle
-  //     console.log(error);
-  //     return {};
-  //   }
-  //
-  //   if(orderRecord === null) {
-  //     return {};
-  //   }
-  // });
+  socket.on("markBarOrderPaid", async (data) => {
+    const { orderId } = data;
+
+    try {
+      await BarOrder.update({ paid: true }, {
+        where: { id: orderId }
+      });
+    } catch (error) {
+      // need to handle
+      console.log(error);
+      return {};
+    }
+
+    io.to("barOrderClients").emit("barOrderPaid", data);
+  });
+
+  socket.on("markBarOrderCompleted", async (data) => {
+    const { orderId } = data;
+
+    console.log({orderId})
+
+    try {
+      await BarOrder.update({ paid: true, completed: true }, {
+        where: { id: orderId }
+      });
+    } catch (error) {
+      // need to handle
+      console.log(error);
+      return {};
+    }
+
+    io.to("barOrderClients").emit("barOrderCompleted", data);
+  });
 }
 
 const setupEmitter = (io) => {
