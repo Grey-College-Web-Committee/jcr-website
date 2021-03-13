@@ -552,7 +552,8 @@ router.post("/order", async (req, res) => {
       name: item.drink.BarBaseDrink.name,
       size: item.drink.BarDrinkSize.name,
       mixer: item.mixer === null ? null : item.mixer.name,
-      quantity: item.realQuantity
+      quantity: item.realQuantity,
+      completed: false
     };
   });
 

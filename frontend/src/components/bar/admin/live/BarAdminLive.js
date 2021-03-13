@@ -14,7 +14,8 @@ class BarAdminLive extends React.Component {
       status: 0,
       error: "",
       activeOrders: {},
-      completedOrders: {}
+      completedOrders: {},
+      refreshKey: Math.random()
     };
 
     // Change this to your permission
@@ -71,8 +72,21 @@ class BarAdminLive extends React.Component {
     this.setState({ loaded: true });
   }
 
-  handleOrderContentCompleted = (orderId, contentId) => {
+  handleOrderContentCompleted = (data) => {
+    let { orderId, contentId } = data;
+    let { activeOrders } = this.state;
 
+    if(Object.keys(activeOrders).includes(`${orderId}`)) {
+      for(const i in activeOrders[`${orderId}`].contents) {
+        const content = activeOrders[`${orderId}`].contents[i];
+        if(content.id === contentId) {
+          content.completed = true;
+          break;
+        }
+      }
+    }
+
+    this.setState({ activeOrders, refreshKey: Math.random() });
   }
 
   handleInitialData = (data) => {
@@ -85,7 +99,7 @@ class BarAdminLive extends React.Component {
     this.setState({ activeOrders });
   }
 
-  updateDrinkCompleted = (orderId, contentId) => {
+  updateContentCompleted = (orderId, contentId) => {
     // When someone marks a drink as complete we want to update it on all instances
     this.socket.emit("markBarContentComplete", { orderId, contentId });
   }
@@ -103,7 +117,7 @@ class BarAdminLive extends React.Component {
       );
     }
 
-    const { activeOrders } = this.state;
+    const { activeOrders, refreshKey } = this.state;
 
     // We want the oldest orders at the top
     let sortedActiveKeys = Object.keys(activeOrders).sort((a, b) => {
@@ -122,8 +136,9 @@ class BarAdminLive extends React.Component {
             {
               sortedActiveKeys.map(id => (
                 <BarOrder
-                  key={id}
+                  key={`${refreshKey}-${id}`}
                   order={activeOrders[id]}
+                  updateContentCompleted={this.updateContentCompleted}
                 />
               ))
             }

@@ -2,9 +2,11 @@ const { User, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarO
 
 const setupEvents = (socket, io) => {
   socket.on("subscribeToBarOrders", async () => {
+    // When they subscribe we will register them to the room
+    // we broadcast all the messages over this room
     socket.join("barOrderClients");
-    console.log("subscribed")
 
+    // Then we get all of the non-completed orders
     let existingOrders;
 
     try {
@@ -36,6 +38,7 @@ const setupEvents = (socket, io) => {
       return {};
     }
 
+    // And construct them into an array as if they were new orders
     let transformedOrders = existingOrders.map(order => {
       let firstName = order.User.firstNames.split(",")[0];
       firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -47,7 +50,8 @@ const setupEvents = (socket, io) => {
           name: item.BarDrink.BarBaseDrink.name,
           size: item.BarDrink.BarDrinkSize.name,
           mixer: item.mixerId === null ? null : item.BarMixer.name,
-          quantity: item.quantity
+          quantity: item.quantity,
+          completed: item.completed
         };
       })
 
@@ -63,9 +67,47 @@ const setupEvents = (socket, io) => {
       }
     });
 
-    console.log("sending initial")
+    // These are then sent directly to the client which processes them
     socket.emit("barInitialData", transformedOrders)
   });
+
+  socket.on("markBarContentComplete", async (data) => {
+    const { orderId, contentId } = data;
+
+    // Update the record
+    try {
+      await BarOrderContent.update({ completed: true }, {
+        where: { id: contentId, orderId }
+      });
+    } catch (error) {
+      // need to handle
+      console.log(error);
+      return {};
+    }
+
+    // now emit to all others
+    io.to("barOrderClients").emit("barContentCompleted", data);
+  });
+
+  // socket.on("markBarOrderPaid", async (data) => {
+  //   const { orderId } = data;
+  //
+  //   let orderRecord;
+  //
+  //   try {
+  //     orderRecord = await BarOrder.update({ paid: true }, {
+  //       where: { id: orderId }
+  //     });
+  //   } catch (error) {
+  //     // need to handle
+  //     console.log(error);
+  //     return {};
+  //   }
+  //
+  //   if(orderRecord === null) {
+  //     return {};
+  //   }
+  // });
 }
 
 const setupEmitter = (io) => {
