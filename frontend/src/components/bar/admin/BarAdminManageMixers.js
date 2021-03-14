@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
+import MixerRow from './MixerRow';
 
 class BarAdminManageMixers extends React.Component {
   constructor(props) {
@@ -77,8 +78,10 @@ class BarAdminManageMixers extends React.Component {
 
     const { name, available, price } = this.state;
 
+    let result;
+
     try {
-      await api.post("/bar/admin/mixer", {
+      result = await api.post("/bar/admin/mixer", {
         name, available, price
       });
     } catch (error) {
@@ -87,7 +90,10 @@ class BarAdminManageMixers extends React.Component {
       return;
     }
 
-    this.setState({ disabled: false, name: "", available: true });
+    let { mixers } = this.state;
+    mixers.push(result.data.mixer);
+
+    this.setState({ disabled: false, name: "", available: true, price: 0, mixers });
   }
 
   canSubmit = () => {
@@ -179,16 +185,16 @@ class BarAdminManageMixers extends React.Component {
                   <th className="p-2 font-semibold">Name</th>
                   <th className="p-2 font-semibold">Available</th>
                   <th className="p-2 font-semibold">Price</th>
+                  <th className="p-2 font-semibold">Delete</th>
                 </tr>
               </thead>
               <tbody>
                 {
                   this.state.mixers.map((mixer, id) => (
-                    <tr className="text-center border-b border-gray-400">
-                      <td className="p-2 border-r border-gray-400">{mixer.name}</td>
-                      <td className="p-2 border-r border-gray-400">{mixer.available ? "Yes" : "No"}</td>
-                      <td className="p-2 border-r border-gray-400">£{Number(mixer.price).toFixed(2)}</td>
-                    </tr>
+                    <MixerRow
+                      key={id}
+                      mixer={mixer}
+                    />
                   ))
                 }
               </tbody>

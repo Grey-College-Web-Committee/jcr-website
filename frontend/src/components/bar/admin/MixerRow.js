@@ -2,15 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import api from '../../../utils/axiosConfig';
 
-class DrinkRow extends React.Component {
+class MixerRow extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      available: this.props.baseDrink.available,
+      available: this.props.mixer.available,
       disabled: false,
       deleted: false
-    }
+    };
   }
 
   toggleAvailable = async () => {
@@ -18,7 +18,7 @@ class DrinkRow extends React.Component {
     const newAvailable = !this.state.available;
 
     try {
-      await api.post("/bar/drink/update/available", { id: this.props.baseDrink.id, available: newAvailable });
+      await api.post("/bar/mixer/update/available", { id: this.props.mixer.id, available: newAvailable });
     } catch (error) {
       alert(error.response.data.error);
       this.setState({ disabled: false });
@@ -30,7 +30,7 @@ class DrinkRow extends React.Component {
 
   deleteRow = async () => {
     this.setState({ disabled: true });
-    const confirmed = window.confirm("Are you sure you want to fully delete this drink and any corresponding orders?");
+    const confirmed = window.confirm("Are you sure you want to fully delete this mixer and any corresponding orders?");
 
     if(!confirmed) {
       this.setState({ disabled: false });
@@ -38,7 +38,7 @@ class DrinkRow extends React.Component {
     }
 
     try {
-      await api.delete(`/bar/drink/${this.props.baseDrink.id}`);
+      await api.delete(`/bar/mixer/${this.props.mixer.id}`);
     } catch (error) {
       alert(error.response.data.error);
       this.setState({ disabled: false });
@@ -49,7 +49,7 @@ class DrinkRow extends React.Component {
   }
 
   render () {
-    const { baseDrink } = this.props;
+    const { mixer } = this.props;
 
     if(this.state.deleted) {
       return null;
@@ -57,29 +57,7 @@ class DrinkRow extends React.Component {
 
     return (
       <tr className="text-center border-b border-gray-400">
-        <td className="p-2 border-r border-gray-400">{baseDrink.name}</td>
-        <td className="p-2 border-r border-gray-400">{baseDrink.description}</td>
-        <td className="p-2 border-r border-gray-400">
-          <div className="flex flex-row justify-center">
-            <img
-              src={`/uploads/images/bar/${baseDrink.image}`}
-              alt={baseDrink.name}
-              className="w-32 h-auto"
-            />
-          </div>
-        </td>
-        <td className="p-2 border-r border-gray-400">{baseDrink.BarDrinkType.name}</td>
-        <td className="p-2 border-r border-gray-400">
-          <ul className="list-inside list-disc text-left">
-            {
-              baseDrink.BarDrinks.map((drink, i) => (
-                <li>
-                  {drink.BarDrinkSize.name} (£{Number(drink.price).toFixed(2)})
-                </li>
-              ))
-            }
-          </ul>
-        </td>
+        <td className="p-2 border-r border-gray-400">{mixer.name}</td>
         <td className="p-2 border-r border-gray-400">
           <div>
             <p>Available: { this.state.available ? "Yes" : "No" }</p>
@@ -90,6 +68,7 @@ class DrinkRow extends React.Component {
             >Toggle</button>
           </div>
         </td>
+        <td className="p-2 border-r border-gray-400">£{Number(mixer.price).toFixed(2)}</td>
         <td className="p-2 border-r border-gray-400">
           <button
             onClick={this.deleteRow}
@@ -102,4 +81,4 @@ class DrinkRow extends React.Component {
   }
 }
 
-export default DrinkRow;
+export default MixerRow;

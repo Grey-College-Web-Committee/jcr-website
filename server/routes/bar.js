@@ -686,6 +686,85 @@ router.delete("/drink/:id", async (req, res) => {
   return res.status(204).end();
 });
 
+router.post("/mixer/update/available", async (req, res) => {
+  // Change whether a drink is available
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, available } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  if(available === undefined || available === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
+  let mixerRecord;
+
+  try {
+    mixerRecord = await BarMixer.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the mixer from the database" });
+  }
+
+  if(mixerRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  mixerRecord.available = available;
+
+  try {
+    await mixerRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the mixer in the database" });
+  }
+
+  return res.status(200).json({ available });
+});
+
+router.delete("/mixer/:id", async (req, res) => {
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.params;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let mixerRecord;
+
+  try {
+    mixerRecord = await BarMixer.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the mixer from the database" });
+  }
+
+  if(mixerRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  try {
+    await mixerRecord.destroy();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the mixer" });
+  }
+
+  return res.status(204).end();
+});
+
 const createBarCustomerEmail = (user, orderContents, totalPrice, tableNumber) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();

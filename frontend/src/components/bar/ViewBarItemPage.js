@@ -278,7 +278,12 @@ class ViewBarItemPage extends React.Component {
                           <option value="" disabled={true} hidden={true}>Choose Mixer...</option>
                           <option value="-1">None (+£0.00)</option>
                           {this.state.mixers.map((mixer, i) => (
-                            <option key={i} value={mixer.id}>{mixer.name} (+£{Number(mixer.price).toFixed(2)})</option>
+                            <option
+                              key={i}
+                              disabled={!mixer.available}
+                              className={mixer.available ? "" : "bg-gray-100"}
+                              value={mixer.id}
+                            >{mixer.name} (+£{Number(mixer.price).toFixed(2)})</option>
                           ))}
                         </select>
                       </div>
