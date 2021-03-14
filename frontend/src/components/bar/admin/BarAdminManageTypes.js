@@ -120,6 +120,13 @@ class BarAdminManageTypes extends React.Component {
         <div className="container mx-auto text-center p-4 md:w-3/5 w-full">
           <h1 className="font-semibold text-5xl pb-4">Manage Types</h1>
           <div>
+            <div className="mb-2 flex flex-row justify-start">
+              <Link to="/bar/admin/overview">
+                <button
+                  className="px-4 py-2 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >← Back to the overview</button>
+              </Link>
+            </div>
             <h2 className="font-semibold text-2xl pb-2 text-left">Create New Type</h2>
             <fieldset>
               <div className="pt-2 pb-2 border-b-2">

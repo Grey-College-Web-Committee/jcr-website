@@ -12,7 +12,6 @@ class ViewBarItemPage extends React.Component {
     this.barCart = new BarCart();
     this.state = {
       id: this.props.match.params.id,
-      isMember: true,
       loaded: false,
       status: 0,
       error: "",
@@ -63,23 +62,10 @@ class ViewBarItemPage extends React.Component {
 
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
-    let membershipCheck;
-
     try {
-      membershipCheck = await api.get("/auth/verify");
+      await api.get("/auth/verify");
     } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
-      return;
-    }
-
-    // Ensure they are an admin
-    if(membershipCheck.data.user.permissions) {
-      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
-        this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
-        return;
-      }
-    } else {
-      this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
+      this.setState({ status: error.response.status, error: "Unable to verify membership status" });
       return;
     }
 
@@ -206,12 +192,6 @@ class ViewBarItemPage extends React.Component {
         return (
          <Redirect to={`/errors/${this.state.status}`} />
         );
-      }
-
-      if(!this.state.isMember) {
-          return (
-            <Redirect to="/membership" />
-          )
       }
 
       return (

@@ -172,7 +172,7 @@ class NavBar extends React.Component {
         {
           displayName: "Bar",
           url: "/bar",
-          requiredPermission: "jcr.member",
+          requiredPermission: "bar.manage",
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: null

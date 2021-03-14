@@ -472,10 +472,10 @@ class App extends React.Component {
                       this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/feedback/view/${props.id}`) )
                     )} />
                     <Route exact path="/bar/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <BarOrderingPage disableScroll={this.disableBodyScroll} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/bar") )
+                      this.isLoggedIn() ? ( <BarOrderingPage disableScroll={this.disableBodyScroll} /> ) : ( this.loginRef("/bar") )
                     )} />
                     <Route exact path="/bar/view/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewBarItemPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/bar") )
+                      this.isLoggedIn() ? ( <ViewBarItemPage {...props} /> ) : ( this.loginRef(`/bar/view/${props.id}`) )
                     )} />
                     <Route exact path="/bar/admin/overview" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/overview") )
