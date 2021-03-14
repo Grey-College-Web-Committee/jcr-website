@@ -16,21 +16,6 @@ class MixerRow extends React.Component {
     };
   }
 
-  toggleAvailable = async () => {
-    this.setState({ disabled: true });
-    const newAvailable = !this.state.available;
-
-    try {
-      await api.post("/bar/mixer/update/available", { id: this.props.mixer.id, available: newAvailable });
-    } catch (error) {
-      alert(error.response.data.error);
-      this.setState({ disabled: false });
-      return
-    }
-
-    this.setState({ disabled: false, available: newAvailable });
-  }
-
   deleteRow = async () => {
     this.setState({ disabled: true });
     const confirmed = window.confirm("Are you sure you want to fully delete this mixer and any corresponding orders?");

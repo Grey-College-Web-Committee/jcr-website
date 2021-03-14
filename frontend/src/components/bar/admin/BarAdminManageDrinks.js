@@ -197,9 +197,9 @@ class BarAdminManageDrinks extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
-        <div className="container mx-auto text-center p-4 md:w-3/5 w-full">
+        <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Manage Drinks</h1>
-          <div>
+          <div className="mx-auto md:w-3/5 w-full">
             <h2 className="font-semibold text-2xl pb-2 text-left">Create New Drink</h2>
             <fieldset>
               <div className="pt-2 pb-2 border-b-2">
@@ -340,7 +340,8 @@ class BarAdminManageDrinks extends React.Component {
                   <th className="p-2 font-semibold">Image</th>
                   <th className="p-2 font-semibold">Type</th>
                   <th className="p-2 font-semibold">Sizes and Prices</th>
-                  <th className="p-2 font-semibold">Toggle Availability</th>
+                  <th className="p-2 font-semibold">Available</th>
+                  <th className="p-2 font-semibold">Save</th>
                   <th className="p-2 font-semibold">Delete</th>
                 </tr>
               </thead>
@@ -350,6 +351,8 @@ class BarAdminManageDrinks extends React.Component {
                     <DrinkRow
                       key={id}
                       baseDrink={baseDrink}
+                      types={this.state.types}
+                      sizes={this.state.sizes}
                     />
                   ))
                 }

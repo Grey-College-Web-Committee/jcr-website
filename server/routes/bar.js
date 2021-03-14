@@ -607,50 +607,6 @@ router.post("/order", async (req, res) => {
   return res.status(200).json({ orderContents, totalPrice });
 });
 
-router.post("/drink/update/available", async (req, res) => {
-  // Change whether a drink is available
-  const { user } = req.session;
-
-  // Must have permission
-  if(!hasPermission(req.session, "bar.manage")) {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
-  }
-
-  const { id, available } = req.body;
-
-  if(id === undefined || id === null) {
-    return res.status(400).json({ error: "Missing id" });
-  }
-
-  if(available === undefined || available === null) {
-    return res.status(400).json({ error: "Missing available" });
-  }
-
-  let drinkRecord;
-
-  try {
-    drinkRecord = await BarBaseDrink.findOne({
-      where: { id }
-    });
-  } catch (error) {
-    return res.status(500).json({ error: "Unable to get the drink from the database" });
-  }
-
-  if(drinkRecord === null) {
-    return res.status(400).json({ error: "Invalid id" });
-  }
-
-  drinkRecord.available = available;
-
-  try {
-    await drinkRecord.save();
-  } catch (error) {
-    return res.status(500).json({ error: "Unable to update the drink in the database" });
-  }
-
-  return res.status(200).json({ available });
-});
-
 router.delete("/drink/:id", async (req, res) => {
   // Must have permission
   if(!hasPermission(req.session, "bar.manage")) {
@@ -766,6 +722,92 @@ router.delete("/mixer/:id", async (req, res) => {
     await mixerRecord.destroy();
   } catch (error) {
     return res.status(500).json({ error: "Unable to delete the mixer" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/drink/update", upload.single("image"), async (req, res) => {
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, description: descriptionUnchecked, prices: pricesUnparsed, typeId, available } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  if(name === undefined || name === null || name.length === 0) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  let description = descriptionUnchecked;
+
+  if(descriptionUnchecked === undefined || descriptionUnchecked === null) {
+    description = "";
+  }
+
+  if(pricesUnparsed === undefined || pricesUnparsed === null) {
+    return res.status(400).json({ error: "Missing prices" });
+  }
+
+  const prices = JSON.parse(pricesUnparsed);
+
+  if(typeId === undefined || typeId === null) {
+    return res.status(400).json({ error: "Missing typeId" });
+  }
+
+  if(available === undefined || available === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
+  let baseDrink;
+
+  try {
+    baseDrink = await BarBaseDrink.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the base drink" });
+  }
+
+  if(baseDrink === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  baseDrink.name = name;
+  baseDrink.description = description;
+  baseDrink.typeId = typeId;
+  baseDrink.available = available;
+
+  try {
+    await baseDrink.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the base drink" });
+  }
+
+  let drinks = [];
+
+  for(const drinkId in prices) {
+    let drinkRecord;
+
+    console.log(drinkId, prices[drinkId]);
+
+    try {
+      drinkRecord = await BarDrink.findOne({ where: { sizeId: drinkId, baseDrinkId: id }});
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to get the size" });
+    }
+
+    drinkRecord.price = prices[drinkId];
+
+    try {
+      await drinkRecord.save();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to save the drink record" });
+    }
   }
 
   return res.status(204).end();
