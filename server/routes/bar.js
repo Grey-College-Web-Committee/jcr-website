@@ -657,12 +657,16 @@ router.post("/mixer/update/", async (req, res) => {
     return res.status(400).json({ error: "Missing id" });
   }
 
+  if(name === undefined || name === null) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
   if(available === undefined || available === null) {
     return res.status(400).json({ error: "Missing available" });
   }
 
   if(price === undefined || price === null) {
-    return res.status(400).json({ error: "Missing available" });
+    return res.status(400).json({ error: "Missing price" });
   }
 
   let mixerRecord;
@@ -808,6 +812,99 @@ router.post("/drink/update", upload.single("image"), async (req, res) => {
     } catch (error) {
       return res.status(500).json({ error: "Unable to save the drink record" });
     }
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/size/update/", async (req, res) => {
+  // Change details about a mixer
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  if(name === undefined || name === null) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  let sizeRecord;
+
+  try {
+    sizeRecord = await BarDrinkSize.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the size from the database" });
+  }
+
+  if(sizeRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  sizeRecord.name = name;
+
+  try {
+    await sizeRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the size in the database" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/type/update/", async (req, res) => {
+  // Change details about a mixer
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, allowsMixer } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  if(name === undefined || name === null) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(allowsMixer === undefined || allowsMixer === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
+  let typeRecord;
+
+  try {
+    typeRecord = await BarDrinkType.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the mixer from the database" });
+  }
+
+  if(typeRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  typeRecord.name = name;
+  typeRecord.allowsMixer = allowsMixer;
+
+  try {
+    await typeRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the type in the database" });
   }
 
   return res.status(204).end();

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
+import TypeRow from './TypeRow';
 
 class BarAdminManageTypes extends React.Component {
   constructor(props) {
@@ -76,8 +77,10 @@ class BarAdminManageTypes extends React.Component {
 
     const { name, allowsMixer } = this.state;
 
+    let result;
+
     try {
-      await api.post("/bar/admin/type", {
+      result = await api.post("/bar/admin/type", {
         name, allowsMixer
       });
     } catch (error) {
@@ -86,7 +89,10 @@ class BarAdminManageTypes extends React.Component {
       return;
     }
 
-    this.setState({ disabled: false, name: "", allowsMixer: false });
+    let { types } = this.state;
+    types.push(result.data.type);
+
+    this.setState({ disabled: false, name: "", allowsMixer: false, types });
   }
 
   canSubmit = () => {
@@ -155,21 +161,22 @@ class BarAdminManageTypes extends React.Component {
           </div>
           <div className="mt-4 text-left">
             <h2 className="font-semibold text-2xl pb-2 text-left">Existing Types</h2>
-            <p>These can't be deleted as they may be used for some of the existing drinks. They can be edited though and if you need to effectively remove one you can unassign it from every drink using it and then it will no longer appear on the ordering page.</p>
+            <p>These can't be deleted as they may be used for some of the existing drinks. They can be edited though and if you need to remove one you can unassign it from every drink using it and then it will no longer appear on the ordering page.</p>
             <table className="mx-auto border-2 text-left border-red-900 w-full mt-4">
               <thead className="bg-red-900 text-white">
                 <tr>
                   <th className="p-2 font-semibold">Name</th>
                   <th className="p-2 font-semibold">Allows Mixer</th>
+                  <th className="p-2 font-semibold">Save</th>
                 </tr>
               </thead>
               <tbody>
                 {
                   this.state.types.map((type, id) => (
-                    <tr className="text-center border-b border-gray-400">
-                      <td className="p-2 border-r border-gray-400">{type.name}</td>
-                      <td className="p-2 border-r border-gray-400">{type.allowsMixer ? "Yes" : "No"}</td>
-                    </tr>
+                    <TypeRow
+                      key={id}
+                      type={type}
+                    />
                   ))
                 }
               </tbody>

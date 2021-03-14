@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
+import SizeRow from './SizeRow';
 
 class BarAdminManageSizes extends React.Component {
   constructor(props) {
@@ -75,8 +76,10 @@ class BarAdminManageSizes extends React.Component {
 
     const { name } = this.state;
 
+    let result;
+
     try {
-      await api.post("/bar/admin/size", {
+      result = await api.post("/bar/admin/size", {
         name
       });
     } catch (error) {
@@ -85,7 +88,10 @@ class BarAdminManageSizes extends React.Component {
       return;
     }
 
-    this.setState({ disabled: false, name: "" });
+    let { sizes } = this.state;
+    sizes.push(result.data.size);
+
+    this.setState({ disabled: false, name: "", sizes });
   }
 
   canSubmit = () => {
@@ -139,19 +145,21 @@ class BarAdminManageSizes extends React.Component {
           </div>
           <div className="mt-4 text-left">
             <h2 className="font-semibold text-2xl pb-2 text-left">Existing Types</h2>
-            <p>These can't be deleted as they may be used for some of the existing drinks. They can be edited though and if you need to effectively remove one you can unassign it from every drink using it and then it will no longer appear on the ordering page.</p>
+            <p>These can't be deleted as they may be used for some of the existing drinks. They can be edited though and if you need to remove one you can unassign it from every drink using it and then it will no longer appear on the ordering page.</p>
             <table className="mx-auto border-2 text-left border-red-900 w-full mt-4">
               <thead className="bg-red-900 text-white">
                 <tr>
                   <th className="p-2 font-semibold">Name</th>
+                  <th className="p-2 font-semibold">Save</th>
                 </tr>
               </thead>
               <tbody>
                 {
                   this.state.sizes.map((size, id) => (
-                    <tr className="text-center border-b border-gray-400">
-                      <td className="p-2 border-r border-gray-400">{size.name}</td>
-                    </tr>
+                    <SizeRow
+                      key={id}
+                      size={size}
+                    />
                   ))
                 }
               </tbody>

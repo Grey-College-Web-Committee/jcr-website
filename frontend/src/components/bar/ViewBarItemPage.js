@@ -247,7 +247,7 @@ class ViewBarItemPage extends React.Component {
                   <div className="pb-4">
                     <h1 className="font-semibold text-5xl pb-2">{drink.name}</h1>
                     {this.state.currentPrice === 0 ? <p className="font-semibold text-xl">Price determined by size {drink.BarDrinkType.allowsMixer ? "and mixer" : ""}</p> : <p className="font-semibold text-xl">£{this.state.currentPrice.toFixed(2)}</p>}
-                    <p className="font-medium">{drink.description}</p>
+                    <p>{drink.description}</p>
                   </div>
                   <div className="pb-4 flex flex-row">
                     <label htmlFor="size" className="w-40 inline-block font-semibold">Size:</label>
