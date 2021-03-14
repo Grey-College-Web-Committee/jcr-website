@@ -63,7 +63,7 @@ class BarAdminLive extends React.Component {
 
     // Prepare the socket.io client
 
-    const protocol = window.location.protocol.toLowerCase() === "https:" ? "wss", "ws";
+    const protocol = window.location.protocol.toLowerCase() === "https:" ? "wss" : "ws";
 
     this.socket = socketIOClient(`${protocol}://${window.location.host}`);
     // Subscribes to the barOrderClients room so that we receive the events relating to orders
