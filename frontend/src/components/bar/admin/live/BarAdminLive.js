@@ -62,7 +62,10 @@ class BarAdminLive extends React.Component {
     }
 
     // Prepare the socket.io client
-    this.socket = socketIOClient(`ws://${window.location.host}`);
+
+    const protocol = window.location.protocol.toLowerCase() === "https:" ? "wss", "ws";
+
+    this.socket = socketIOClient(`${protocol}://${window.location.host}`);
     // Subscribes to the barOrderClients room so that we receive the events relating to orders
     this.socket.emit("subscribeToBarOrders", {});
     // This will occur when the server sends the initial backlog of orders
