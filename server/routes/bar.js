@@ -686,8 +686,8 @@ router.delete("/drink/:id", async (req, res) => {
   return res.status(204).end();
 });
 
-router.post("/mixer/update/available", async (req, res) => {
-  // Change whether a drink is available
+router.post("/mixer/update/", async (req, res) => {
+  // Change details about a mixer
   const { user } = req.session;
 
   // Must have permission
@@ -695,13 +695,17 @@ router.post("/mixer/update/available", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { id, available } = req.body;
+  const { id, name, available, price } = req.body;
 
   if(id === undefined || id === null) {
     return res.status(400).json({ error: "Missing id" });
   }
 
   if(available === undefined || available === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
+  if(price === undefined || price === null) {
     return res.status(400).json({ error: "Missing available" });
   }
 
@@ -719,6 +723,8 @@ router.post("/mixer/update/available", async (req, res) => {
     return res.status(400).json({ error: "Invalid id" });
   }
 
+  mixerRecord.name = name;
+  mixerRecord.price = price;
   mixerRecord.available = available;
 
   try {
@@ -727,7 +733,7 @@ router.post("/mixer/update/available", async (req, res) => {
     return res.status(500).json({ error: "Unable to update the mixer in the database" });
   }
 
-  return res.status(200).json({ available });
+  return res.status(204).end();
 });
 
 router.delete("/mixer/:id", async (req, res) => {

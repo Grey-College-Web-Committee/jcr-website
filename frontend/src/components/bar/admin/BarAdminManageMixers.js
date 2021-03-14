@@ -122,10 +122,10 @@ class BarAdminManageMixers extends React.Component {
         <div className="container mx-auto text-center p-4 md:w-3/5 w-full">
           <h1 className="font-semibold text-5xl pb-4">Manage Mixers</h1>
           <div>
-            <h2 className="font-semibold text-2xl pb-2 text-left">Create New Size</h2>
+            <h2 className="font-semibold text-2xl pb-2 text-left">Create New Mixer</h2>
             <fieldset>
               <div className="pt-2 pb-2 border-b-2">
-                <label htmlFor="name" className="flex flex-row justify-start text-xl font-semibold">Size Name</label>
+                <label htmlFor="name" className="flex flex-row justify-start text-xl font-semibold">Name</label>
                 <span className="flex flex-row justify-start text-sm mb-2">({255 - this.state.name.length} characters remaining)</span>
                 <input
                   type="text"
@@ -184,7 +184,8 @@ class BarAdminManageMixers extends React.Component {
                 <tr>
                   <th className="p-2 font-semibold">Name</th>
                   <th className="p-2 font-semibold">Available</th>
-                  <th className="p-2 font-semibold">Price</th>
+                  <th className="p-2 font-semibold">Price (£)</th>
+                  <th className="p-2 font-semibold">Save</th>
                   <th className="p-2 font-semibold">Delete</th>
                 </tr>
               </thead>
