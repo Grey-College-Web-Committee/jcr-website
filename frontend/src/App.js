@@ -35,7 +35,6 @@ import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
 import ContributorsPage from './components/legal/ContributorsPage';
 import CookiesPage from './components/legal/CookiesPage';
 
-
 import EventsOverviewPage from './components/events/overview/EventsOverviewPage';
 import EventsInfoPage from './components/events/info/EventsInfoPage';
 import EventsTermsPage from './components/events/disclaimer/EventsTermsPage';
@@ -48,7 +47,17 @@ import FeedbackPage from './components/feedback/FeedbackPage';
 
 import SpinnerTestPage from './components/common/SpinnerTestPage';
 
+import BarOrderingPage from './components/bar/BarOrderingPage';
+import ViewBarItemPage from './components/bar/ViewBarItemPage';
+
 // To add a new page import it like above
+
+import BarAdminManageDrinks from './components/bar/admin/BarAdminManageDrinks';
+import BarAdminManageMixers from './components/bar/admin/BarAdminManageMixers';
+import BarAdminManageSizes from './components/bar/admin/BarAdminManageSizes';
+import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
+import BarAdminOverview from './components/bar/admin/BarAdminOverview';
+import BarAdminLive from './components/bar/admin/live/BarAdminLive';
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
@@ -112,7 +121,8 @@ class App extends React.Component {
     this.state = {
       user,
       hideBody: false,
-      ref: "/"
+      ref: "/",
+      disableScrollBody: false
     };
   }
 
@@ -257,6 +267,10 @@ class App extends React.Component {
     this.setState({ hideBody: show });
   }
 
+  disableBodyScroll = (show) => {
+    this.setState({ disableScrollBody: show });
+  }
+
   loginRef = (ref) => {
     return (
       <Redirect to={`/accounts/login?ref=${ref}`} />
@@ -265,6 +279,7 @@ class App extends React.Component {
 
   render () {
     const bodyHidden = this.state.hideBody ? "hidden" : "";
+    const bodyScrollDisabled = this.state.disableScrollBody ? "overflow-hidden" : "";
 
     return (
       <Elements stripe={stripePromise}>
@@ -275,7 +290,7 @@ class App extends React.Component {
               <NavBar
                 hideBody={this.hideBody}
               />
-              <div className={`${bodyHidden} flex-grow flex flex-col`}>
+              <div className={`${bodyHidden} ${bodyScrollDisabled} flex-grow flex flex-col`}>
                 <div className="flex-grow">
                   <Switch>
                     <Route exact path="/" render={() => (
@@ -455,6 +470,30 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/feedback/view/:id" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/feedback/view/${props.id}`) )
+                    )} />
+                    <Route exact path="/bar/" render={() => (
+                      this.isLoggedIn() ? ( <BarOrderingPage disableScroll={this.disableBodyScroll} /> ) : ( this.loginRef("/bar") )
+                    )} />
+                    <Route exact path="/bar/view/:id" render={(props) => (
+                      this.isLoggedIn() ? ( <ViewBarItemPage {...props} /> ) : ( this.loginRef(`/bar/view/${props.id}`) )
+                    )} />
+                    <Route exact path="/bar/admin/overview" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/overview") )
+                    )} />
+                    <Route exact path="/bar/admin/mixers" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageMixers /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/mixers") )
+                    )} />
+                    <Route exact path="/bar/admin/sizes" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageSizes /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/sizes") )
+                    )} />
+                    <Route exact path="/bar/admin/types" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageTypes /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/types") )
+                    )} />
+                    <Route exact path="/bar/admin/drinks" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageDrinks /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/drinks") )
+                    )} />
+                    <Route exact path="/bar/admin/live" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/live") )
                     )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />

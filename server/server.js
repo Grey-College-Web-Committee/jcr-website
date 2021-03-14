@@ -11,9 +11,10 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
+const sharedSession = require("express-socket.io-session");
 
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
@@ -31,16 +32,25 @@ const eventsRoute = require("./routes/events");
 const debtRoute = require("./routes/debt");
 const careersRoute = require("./routes/careers");
 const feedbackRoute = require("./routes/feedback");
+const barRoute = require("./routes/bar");
 
 // Required to deploy the static React files for production
 const path = require("path");
 const fs = require("fs");
 
 // The cron jobs for the events system
-const eventsCron = require("./cron/events_cron.js");
+const eventsCron = require("./cron/events_cron");
 
 // Load express
 const app = express();
+
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
+const barSocket = require("./sockets/bar_socket");
+
+io.on("connection", socket => {
+  barSocket.setupEvents(socket, io);
+});
 
 // Tells express to recognise incoming requests as JSON
 app.use((req, res, next) => {
@@ -49,7 +59,14 @@ app.use((req, res, next) => {
   } else {
     express.json()(req, res, next);
   }
-})
+});
+
+// Attach the socket.io to the request so it can be used in the routes
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // Manages CORS headers to prevent errors
 app.use(cors());
 // Allows express to send and receive cookies
@@ -84,7 +101,12 @@ if(process.env.NODE_ENV === "production") {
   app.set("trust proxy", 1);
 }
 
-app.use(session(sessionConfig));
+const configuredSession = session(sessionConfig);
+
+app.use(configuredSession);
+io.use(sharedSession(configuredSession, {
+  autoSave: true
+}));
 
 const requiredPermissions = [
   {
@@ -141,7 +163,7 @@ const requiredPermissions = [
     name: "View Anonymous Messages",
     description: "Gives access to the anonymous messages received by the welfare team",
     internal: "welfare.anonymous"
-  }, 
+  },
   {
     name: "View Complaints",
     description: "Gives access to view complaints",
@@ -176,6 +198,11 @@ const requiredPermissions = [
     name: "Manage Feedback",
     description: "Allows a user to view the feedback submitted",
     internal: "feedback.manage"
+  },
+  {
+    name: "Manage Bar",
+    description: "Allows a user to manage the bar stock",
+    internal: "bar.manage"
   }
 ];
 
@@ -219,7 +246,7 @@ const requiredPermissions = [
   await WelfareThreadMessage.sync();
 
   await Complaint.sync();
-  
+
   await Debt.sync();
 
   await Event.sync();
@@ -232,6 +259,16 @@ const requiredPermissions = [
 
   await Feedback.sync();
 
+  await BarDrinkType.sync();
+  await BarDrinkSize.sync();
+  await BarBaseDrink.sync();
+  await BarDrink.sync();
+  await BarMixer.sync();
+  await BarOrder.sync()
+  await BarOrderContent.sync();
+
+  await PersistentVariable.sync();
+
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
       where: {
@@ -243,6 +280,16 @@ const requiredPermissions = [
         internal: item.internal
       }
     });
+  });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "BAR_OPEN"
+    },
+    defaults: {
+      key: "BAR_OPEN",
+      booleanStorage: false
+    }
   });
 })();
 
@@ -299,6 +346,7 @@ app.use("/api/events", isLoggedIn, eventsRoute);
 app.use("/api/debt", isLoggedIn, debtRoute);
 app.use("/api/careers", isLoggedIn, careersRoute);
 app.use("/api/feedback", isLoggedIn, feedbackRoute);
+app.use("/api/bar", isLoggedIn, barRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
@@ -343,6 +391,11 @@ app.get("/uploads/images/events/:image", function(req, res) {
   res.sendFile(path.join(__dirname, `./uploads/images/events/${image}`));
 });
 
+app.get("/uploads/images/bar/:image", function(req, res) {
+  const image = req.params.image;
+  res.sendFile(path.join(__dirname, `./uploads/images/bar/${image}`));
+});
+
 app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {
   const filename = req.params.filename;
 
@@ -373,4 +426,4 @@ app.get('/*', function (req, res) {
 
 
 // Listen for requests on the port specified in the .env file
-app.listen(process.env.EXPRESS_PORT, () => console.log(`Server started on ${process.env.EXPRESS_PORT}`));
+http.listen(process.env.EXPRESS_PORT, () => console.log(`Server started on ${process.env.EXPRESS_PORT}`));

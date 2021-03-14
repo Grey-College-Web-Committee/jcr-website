@@ -365,7 +365,7 @@ class OrderToastiePage extends React.Component {
     }
 
     // Temporary locking measures
-    const locked = true;
+    const locked = false;
 
     if(locked) {
       return (

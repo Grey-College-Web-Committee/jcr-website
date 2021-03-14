@@ -31,7 +31,8 @@ class CheckoutPage extends React.Component {
         city: "",
         postcode: ""
       },
-      consent: false
+      consent: false,
+      lockedTableNumber: localStorage.getItem("table_bar") === null ? null : Number(localStorage.getItem("table_bar"))
     }
   }
 
@@ -63,6 +64,14 @@ class CheckoutPage extends React.Component {
       }
     } else {
       this.cart.setDeliveryInformation(false, this.state.deliveryOption, this.state.address);
+    }
+
+    const hasBarItems = items.filter(item => item.shop === "bar").length !== 0;
+
+    if(hasBarItems && this.state.lockedTableNumber === null) {
+      alert("You cannot order bar items without setting your table number.");
+      this.setState({ disabled: true });
+      return;
     }
 
     this.setState({ disabled: true, pageState: 1, lockedClientSideCart: JSON.parse(JSON.stringify(this.cart.get())) }, this.submitCart);
@@ -115,7 +124,7 @@ class CheckoutPage extends React.Component {
     let status;
 
     try {
-      serverResponse = await api.post("/cart/process", { submissionCart, delivery });
+      serverResponse = await api.post("/cart/process", { submissionCart, delivery, tableNumber: this.state.lockedTableNumber });
     } catch (error) {
       status = error.response.status;
 

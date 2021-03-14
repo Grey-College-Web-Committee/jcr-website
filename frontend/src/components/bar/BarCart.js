@@ -1,4 +1,6 @@
-class Cart {
+// Due to the Stripe fees, bar items will not be processed normally
+// instead they will be handled separately and then paid for in person following COVID distancing measures
+class BarCart {
   constructor() {
     const { cart } = this.initialiseCart();
     this.cart = cart;
@@ -8,7 +10,7 @@ class Cart {
   }
 
   initialiseCart = () => {
-    const storedCart = localStorage.getItem("localCartSave");
+    const storedCart = localStorage.getItem("localBarCartSave");
     let localSave = null;
 
     if(storedCart !== null) {
@@ -37,26 +39,14 @@ class Cart {
     if(localSave === null || rewrite) {
       localSave = {
         cart: {
-          items: [],
-          discountCodes: [],
-          delivery: {
-            required: false,
-            option: "none",
-            address: {
-              recipient: "",
-              line1: "",
-              line2: "",
-              city: "",
-              postcode: "",
-            }
-          }
+          items: []
         },
         savedAt: new Date(),
         locked: false
       };
     }
 
-    Cart.locked = localSave.locked;
+    BarCart.locked = localSave.locked;
 
     return {
       cart: localSave.cart,
@@ -69,55 +59,32 @@ class Cart {
     const localSave = {
       cart: this.cart,
       savedAt: new Date(),
-      locked: Cart.locked
+      locked: BarCart.locked
     }
 
-    localStorage.setItem("localCartSave", JSON.stringify(localSave));
+    localStorage.setItem("localBarCartSave", JSON.stringify(localSave));
 
-    Cart.registeredCallbacks.forEach((callback, i) => {
+    BarCart.registeredCallbacks.forEach((callback, i) => {
       callback(this);
     });
   }
 
-  setDeliveryInformation = (required, option, address) => {
-    if(!["none", "collection", "delivery"].includes(option)) {
-      return false;
-    }
-
-    const requiredProperties = ["recipient", "line1", "line2", "city", "postcode"];
-
-    for(let property of requiredProperties) {
-      if(!address.hasOwnProperty(property)) {
-        return false;
-      }
-
-      if(address[property] === undefined) {
-        return false;
-      }
-    }
-
-    this.cart.delivery = { required, option, address };
-    this.saveToLocalStorage();
-    return true;
-  }
-
-  addToCart = (shop, name, basePrice, quantity, submissionInformation, components, duplicateHash, image, upperLimit) => {
-    if(Cart.locked) {
+  addToCart = (name, basePrice, quantity, submissionInformation, components, duplicateHash, image, upperLimit) => {
+    if(BarCart.locked) {
       return false;
     }
 
     return this.addToCartRaw({
-      shop, name, basePrice, quantity, submissionInformation, components, duplicateHash, image, upperLimit
+      name, basePrice, quantity, submissionInformation, components, duplicateHash, image, upperLimit
     });
   }
 
   addToCartRaw = (item) => {
-    if(Cart.locked) {
+    if(BarCart.locked) {
       return false;
     }
 
-    const requiredProperties = ["shop", "name", "basePrice", "quantity",
-     "submissionInformation", "components", "duplicateHash", "image"];
+    const requiredProperties = ["name", "basePrice", "quantity", "submissionInformation", "components", "duplicateHash", "image"];
 
     for(let property of requiredProperties) {
       if(!item.hasOwnProperty(property)) {
@@ -134,8 +101,8 @@ class Cart {
     }
 
     if(item.duplicateHash === null) {
-      const { shop, name, basePrice, submissionInformation, components } = item;
-      item.duplicateHash = this.generateHashCode(JSON.stringify({ shop, name, basePrice, submissionInformation, components }));
+      const { name, basePrice, submissionInformation, components } = item;
+      item.duplicateHash = this.generateHashCode(JSON.stringify({ name, basePrice, submissionInformation, components }));
     }
 
     const duplicateIndex = this.getDuplicateIndex(item.duplicateHash);
@@ -150,22 +117,8 @@ class Cart {
     return true;
   }
 
-  applyDiscountCode = (code) => {
-    if(Cart.locked) {
-      return false;
-    }
-
-    if(code in this.cart.discountCodes) {
-      return false;
-    }
-
-    // TODO: Implement
-
-    return false;
-  }
-
   removeFromCart = (index) => {
-    if(Cart.locked) {
+    if(BarCart.locked) {
       return false;
     }
 
@@ -179,7 +132,7 @@ class Cart {
   }
 
   removeAllWithFilter = (predicate) => {
-    if(Cart.locked) {
+    if(BarCart.locked) {
       return false;
     }
 
@@ -189,7 +142,7 @@ class Cart {
   }
 
   clearCart = () => {
-    if(Cart.locked) {
+    if(BarCart.locked) {
       return false;
     }
 
@@ -230,7 +183,7 @@ class Cart {
   }
 
   adjustQuantity = (hash, amount) => {
-    if(Cart.locked) {
+    if(BarCart.locked) {
       return false;
     }
 
@@ -265,22 +218,22 @@ class Cart {
   }
 
   registerCallbackOnSave = (callback) => {
-    if(callback in Cart.registeredCallbacks) {
+    if(callback in BarCart.registeredCallbacks) {
       return false;
     }
 
-    Cart.registeredCallbacks.push(callback);
+    BarCart.registeredCallbacks.push(callback);
     return true;
   }
 
   setLocked = (locked) => {
-    Cart.locked = locked;
+    BarCart.locked = locked;
     this.saveToLocalStorage();
     return true;
   }
 }
 
-Cart.registeredCallbacks = [];
-Cart.locked = false;
+BarCart.registeredCallbacks = [];
+BarCart.locked = false;
 
-export default Cart;
+export default BarCart;

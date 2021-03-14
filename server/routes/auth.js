@@ -27,27 +27,30 @@ router.post("/login", async (req, res) => {
   // https://www.dur.ac.uk/its/password/validator
   // Providing headers 'Authorization' = 'Basic {{base64 encoded string 'username:password'}}'
 
-  const details = Buffer.from(`${username}:${password}`);
-  const b64data = details.toString("base64");
-  const authHeader = `Basic ${b64data}`;
+  // TODO: Remove before live
+  if(!["test11", "test22", "test33"].includes(username)) {
+    const details = Buffer.from(`${username}:${password}`);
+    const b64data = details.toString("base64");
+    const authHeader = `Basic ${b64data}`;
 
-  try {
-    // Query the validator and wait for its response.
-    // If we get a non 2XX code it will error and proceed to the catch.
-    await axios.get("https://www.dur.ac.uk/its/password/validator", {
-      headers: {
-        Authorization: authHeader
+    try {
+      // Query the validator and wait for its response.
+      // If we get a non 2XX code it will error and proceed to the catch.
+      await axios.get("https://www.dur.ac.uk/its/password/validator", {
+        headers: {
+          Authorization: authHeader
+        }
+      });
+    } catch (error) {
+      // Details were incorrect or maybe a server error
+      const status = error.response.status;
+
+      if(status === 401) {
+        return res.status(401).json({ message: "Incorrect username or password" });
       }
-    });
-  } catch (error) {
-    // Details were incorrect or maybe a server error
-    const status = error.response.status;
 
-    if(status === 401) {
-      return res.status(401).json({ message: "Incorrect username or password" });
+      return res.status(status).json({ message: "Validation error" });
     }
-
-    return res.status(status).json({ message: "Validation error" });
   }
 
   // We will error if we do not receive a 200 status so we can assume we are validated from here
