@@ -72,17 +72,34 @@ router.post("/login", async (req, res) => {
       return res.status(500).json({ message: "Unable to fetch details about this user from the university" });
     }
 
-    const { email, surname, firstnames, studyyear, college } = details.data;
+    const { current_staff } = details.data;
 
-    if(college.toLowerCase() !== "grey college") {
-      return res.status(403).json({ message: "You must be a member of Grey College to access this website" });
-    }
+    if(current_staff === "1") {
+      const { email, surname, firstnames, department } = details.data;
 
-    try {
-      // Create a new user record
-      user = await User.create({ username, email, surname, firstNames: firstnames, year: studyyear, email, lastLogin, membershipExpiresAt: null });
-    } catch (error) {
-      return res.status(500).json({ message: "Server error: Unable to create a new user. Database error." });
+      if(!department.toLowerCase().startsWith("grey college")) {
+        return res.status(403).json({ message: "Only staff at Grey College can access this website" });
+      }
+
+      try {
+        // Create a new user record
+        user = await User.create({ username, email, surname, firstNames: firstnames, year: 4, email, lastLogin, membershipExpiresAt: null });
+      } catch (error) {
+        return res.status(500).json({ message: "Server error: Unable to create a new staff user. Database error." });
+      }
+    } else {
+      const { email, surname, firstnames, studyyear, college } = details.data;
+
+      if(college.toLowerCase() !== "grey college") {
+        return res.status(403).json({ message: "You must be a member of Grey College to access this website" });
+      }
+
+      try {
+        // Create a new user record
+        user = await User.create({ username, email, surname, firstNames: firstnames, year: studyyear, email, lastLogin, membershipExpiresAt: null });
+      } catch (error) {
+        return res.status(500).json({ message: "Server error: Unable to create a new user. Database error." });
+      }
     }
   } else {
     // Set the last login time and save
