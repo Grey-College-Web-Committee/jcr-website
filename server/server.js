@@ -11,7 +11,7 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sharedSession = require("express-socket.io-session");
@@ -33,6 +33,7 @@ const debtRoute = require("./routes/debt");
 const careersRoute = require("./routes/careers");
 const feedbackRoute = require("./routes/feedback");
 const barRoute = require("./routes/bar");
+const jcrRoute = require("./routes/jcr");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -145,8 +146,8 @@ const requiredPermissions = [
     internal: "jcr.export"
   },
   {
-    name: "Manage JCR Memberships",
-    description: "Enables managing of JCR memberships",
+    name: "Manage JCR",
+    description: "Enables managing of JCR memberships, roles, and committees",
     internal: "jcr.manage"
   },
   {
@@ -269,6 +270,11 @@ const requiredPermissions = [
 
   await PersistentVariable.sync();
 
+  await JCRRole.sync();
+  await JCRRoleUserLink.sync();
+  await JCRCommittee.sync();
+  await JCRCommitteeRoleLink.sync();
+
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
       where: {
@@ -347,6 +353,7 @@ app.use("/api/debt", isLoggedIn, debtRoute);
 app.use("/api/careers", isLoggedIn, careersRoute);
 app.use("/api/feedback", isLoggedIn, feedbackRoute);
 app.use("/api/bar", isLoggedIn, barRoute);
+app.use("/api/jcr", isLoggedIn, jcrRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 

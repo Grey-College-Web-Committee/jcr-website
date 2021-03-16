@@ -75,6 +75,15 @@ class BarOrderContent extends Model {}
 
 class PersistentVariable extends Model {}
 
+// A role in the JCR, covers everything from Exec, Reps, Officers to committees
+class JCRRole extends Model {}
+// Link a user to the role, many users can be linked to one role (e.g. Senior Welfare)
+class JCRRoleUserLink extends Model {}
+// A committee in the JCR
+class JCRCommittee extends Model {}
+// Links a role to a committee
+class JCRCommitteeRoleLink extends Model {}
+
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
 // No need to store a users email it is simply username@durham.ac.uk
@@ -1214,6 +1223,71 @@ PersistentVariable.init({
   }
 }, { sequelize });
 
+JCRRole.init({
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
+JCRRoleUserLink.init({
+  roleId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: JCRRole,
+      key: 'id'
+    }
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  }
+}, { sequelize });
+
+JCRCommittee.init({
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
+JCRCommitteeRoleLink.init({
+  roleId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: JCRRole,
+      key: 'id'
+    }
+  },
+  committeeId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: JCRCommittee,
+      key: 'id'
+    }
+  },
+  position: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
+  },
+  title: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
+}, { sequelize });
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -1345,4 +1419,13 @@ BarOrderContent.belongsTo(BarDrink, { foreignKey: 'drinkId' });
 BarMixer.hasMany(BarOrderContent, { foreignKey: 'mixerId' });
 BarOrderContent.belongsTo(BarMixer, { foreignKey: 'mixerId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable };
+JCRRole.hasMany(JCRRoleUserLink, { foreignKey: 'roleId' });
+JCRRoleUserLink.belongsTo(JCRRole, { foreignKey: 'roleId' });
+
+User.hasMany(JCRRoleUserLink, { foreignKey: 'userId' });
+JCRRoleUserLink.belongsTo(User, { foreignKey: 'userId' });
+
+JCRCommittee.hasMany(JCRCommitteeRoleLink, { foreignKey: 'committeeId' });
+JCRCommitteeRoleLink.belongsTo(JCRCommittee, { foreignKey: 'committeeId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink };
