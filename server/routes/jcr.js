@@ -138,10 +138,40 @@ router.post("/role", async (req, res) => {
     return res.status(500).json({ error: "Unable to create the role, null" });
   }
 
-  return res.status(200).json({ role });
+  let joinedRecord;
+
+  try {
+    joinedRecord = await JCRRole.findOne({
+      where: { id: role.id },
+      include: [
+        {
+          model: JCRRoleUserLink,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "username", "firstNames", "surname"]
+            }
+          ]
+        },
+        {
+          model: JCRCommitteeRoleLink,
+          include: [
+            {
+              model: JCRCommittee,
+              attributes: [ "id", "name" ]
+            }
+          ]
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the newly created role" });
+  }
+
+  return res.status(200).json({ role: joinedRecord });
 });
 
-router.get("/roles", async (req, res) => {
+router.get("/roles/manage", async (req, res) => {
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -159,6 +189,15 @@ router.get("/roles", async (req, res) => {
               attributes: ["id", "username", "firstNames", "surname"]
             }
           ]
+        },
+        {
+          model: JCRCommitteeRoleLink,
+          include: [
+            {
+              model: JCRCommittee,
+              attributes: [ "id", "name" ]
+            }
+          ]
         }
       ]
     });
@@ -166,7 +205,15 @@ router.get("/roles", async (req, res) => {
     return res.status(500).json({ error: "Unable to get the roles" });
   }
 
-  return res.status(200).json({ roles });
+  let committees;
+
+  try {
+    committees = await JCRCommittee.findAll();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the committees" });
+  }
+
+  return res.status(200).json({ roles, committees });
 });
 
 router.post("/role/update", async (req, res) => {
@@ -314,7 +361,96 @@ router.post("/role/user", async (req, res) => {
   }
 
   return res.status(200).json({ user: userRecord });
-})
+});
+
+router.delete("/role/committeeLink/:committeeLinkId", async (req, res) => {
+  if(!hasPermission(req.session, "jcr.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { committeeLinkId } = req.params;
+
+  if(committeeLinkId === undefined || committeeLinkId === null) {
+    return res.status(400).json({ error: "Missing committeeLinkId" });
+  }
+
+  let committeeLink;
+
+  try {
+    committeeLink = await JCRCommitteeRoleLink.findOne({ where: { id: committeeLinkId }});
+  } catch (error) {
+    return res.status(500).json({ error: "Error finding the committee link in the database" });
+  }
+
+  if(committeeLink === null) {
+    return res.status(400).json({ error: "Invalid committeeLinkId" });
+  }
+
+  try {
+    await committeeLink.destroy();
+  } catch (error) {
+    return res.status(500).json({ error: "Error deleting the committee link from the database" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/role/committeeLink", async (req, res) => {
+  if(!hasPermission(req.session, "jcr.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { committeeId, roleId, position } = req.body;
+
+  if(committeeId === undefined || committeeId === null) {
+    return res.status(400).json({ error: "Missing committeeId" });
+  }
+
+  if(roleId === undefined || roleId === null) {
+    return res.status(400).json({ error: "Missing roleId" });
+  }
+
+  if(position === undefined || position === null) {
+    return res.status(400).json({ error: "Missing position" });
+  }
+
+  let committeeLinkRecord;
+
+  try {
+    committeeLinkRecord = await JCRCommitteeRoleLink.findOne({ where: { committeeId, roleId } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check the committee link" });
+  }
+
+  if(committeeLinkRecord !== null) {
+    return res.status(400).json({ error: "This role and committee are already linked! If you need to change the position then remove them from the committee and reassign!" });
+  }
+
+  let insertedRecord;
+
+  try {
+    insertedRecord = await JCRCommitteeRoleLink.create({ roleId, committeeId, position });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the link" });
+  }
+
+  let joinedRecord;
+
+  try {
+    joinedRecord = await JCRCommitteeRoleLink.findOne({
+      where: { id: insertedRecord.id },
+      include: [
+        {
+          model: JCRCommittee
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable select the newly inserted record" });
+  }
+
+  return res.status(200).json({ assignedCommittee: joinedRecord });
+});
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route

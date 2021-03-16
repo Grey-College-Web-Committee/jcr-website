@@ -1281,10 +1281,6 @@ JCRCommitteeRoleLink.init({
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0
-  },
-  title: {
-    type: DataTypes.TEXT,
-    allowNull: true
   }
 }, { sequelize });
 
@@ -1427,5 +1423,8 @@ JCRRoleUserLink.belongsTo(User, { foreignKey: 'userId' });
 
 JCRCommittee.hasMany(JCRCommitteeRoleLink, { foreignKey: 'committeeId' });
 JCRCommitteeRoleLink.belongsTo(JCRCommittee, { foreignKey: 'committeeId' });
+
+JCRRole.hasMany(JCRCommitteeRoleLink, { foreignKey: 'roleId' });
+JCRCommitteeRoleLink.belongsTo(JCRRole, { foreignKey: 'roleId' });
 
 module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink };

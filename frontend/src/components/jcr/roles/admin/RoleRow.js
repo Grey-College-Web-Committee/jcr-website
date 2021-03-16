@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import api from '../../../../utils/axiosConfig';
 
-class RoleROw extends React.Component {
+class RoleRow extends React.Component {
   constructor(props) {
     super(props);
 
@@ -12,7 +12,10 @@ class RoleROw extends React.Component {
       edited: false,
       name: this.props.role.name,
       assignedUsers: this.props.role.JCRRoleUserLinks.map(entry => entry.User),
-      username: ""
+      assignedCommittees: this.props.role.JCRCommitteeRoleLinks,
+      username: "",
+      selectedCommittee: "",
+      committeePosition: 0
     }
   }
 
@@ -56,7 +59,7 @@ class RoleROw extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), edited: true })
   }
 
-  onInputUsernameChange = e => {
+  onAssignmentInputChange = e => {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
@@ -105,7 +108,47 @@ class RoleROw extends React.Component {
     this.setState({ disabled: false, assignedUsers, username: "" });
   }
 
+  removeCommitteeFromRole = async (committeeLinkId) => {
+    this.setState({ disabled: true });
+
+    try {
+      await api.delete(`/jcr/role/committeeLink/${committeeLinkId}`);
+    } catch (error) {
+      alert(error.response.data.error);
+      this.setState({ disabled: false });
+      return;
+    }
+
+    let { assignedCommittees } = this.state;
+    assignedCommittees = assignedCommittees.filter(committeeLink => committeeLink.id !== committeeLinkId);
+
+    this.setState({ disabled: false, assignedCommittees });
+  }
+
+  addCommitteeToRole = async () => {
+    this.setState({ disabled: true });
+
+    const { committeePosition: position, selectedCommittee: committeeId } = this.state;
+
+    let result;
+
+    try {
+      result = await api.post("/jcr/role/committeeLink", { committeeId, roleId: this.props.role.id, position });
+    } catch (error) {
+      alert(error.response.data.error);
+      this.setState({ disabled: false });
+      return;
+    }
+
+    let { assignedCommittees } = this.state;
+    assignedCommittees.push(result.data.assignedCommittee)
+
+    this.setState({ disabled: false, committeePosition: 0, selectedCommittee: "", assignedCommittees });
+  }
+
   render () {
+    const { committees } = this.props;
+
     if(this.state.deleted) {
       return null;
     }
@@ -127,7 +170,7 @@ class RoleROw extends React.Component {
           <ul className="text-left list-disc list-inside px-2">
             {
               this.state.assignedUsers.map((user, j) => (
-                <li className="mb-2">
+                <li className="mb-2" key={j}>
                   {this.makeDisplayName(user)} ({user.username})
                   <button
                     onClick={() => this.removeUserFromRole(user.id)}
@@ -139,7 +182,7 @@ class RoleROw extends React.Component {
             }
           </ul>
           <div className="flex flex-col items-start p-1 border">
-            <p className="font-semibold text-lg">Add User</p>
+            <p className="font-semibold text-lg">Assign User</p>
             <div>
               <span>Username:</span>
               <input
@@ -147,7 +190,7 @@ class RoleROw extends React.Component {
                 name="username"
                 value={this.state.username}
                 className="ml-2 w-48 border border-grey-500 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-                onChange={this.onInputUsernameChange}
+                onChange={this.onAssignmentInputChange}
                 autoComplete=""
                 maxLength={6}
               />
@@ -158,6 +201,61 @@ class RoleROw extends React.Component {
               >Add</button>
             </div>
           </div>
+        </td>
+        <td className="p-2 border-r border-gray-400">
+          <ul className="text-left list-disc list-inside px-2">
+            {
+              this.state.assignedCommittees.map((committeeLink, j) => (
+                <li className="mb-2" key={j}>
+                  {committeeLink.JCRCommittee.name} (Position: {committeeLink.position})
+                  <button
+                    onClick={() => this.removeCommitteeFromRole(committeeLink.id)}
+                    className="ml-2 px-2 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                    disabled={this.state.disabled}
+                  >Remove</button>
+                </li>
+              ))
+            }
+            <div className="flex flex-col items-start p-1 border">
+              <p className="font-semibold text-lg">Assign Committee</p>
+              <div>
+                <span>Committee:</span>
+                <select
+                  value={this.state.selectedCommittee}
+                  onChange={this.onAssignmentInputChange}
+                  name="selectedCommittee"
+                  className="ml-2 w-auto h-8 border border-gray-400 disabled:opacity-50"
+                  disabled={this.state.disabled}
+                >
+                  <option value="" disabled={true} hidden={true}>Please Select...</option>
+                  {
+                    committees.map((committee, j) => (
+                      <option value={committee.id} key={j}>{committee.name}</option>
+                    ))
+                  }
+                </select>
+              </div>
+              <div className="my-1">
+                <span>Position:</span>
+                <input
+                  type="number"
+                  name="committeePosition"
+                  value={this.state.committeePosition}
+                  className="ml-2 w-48 border border-grey-500 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                  onChange={this.onAssignmentInputChange}
+                  autoComplete=""
+                  step={1}
+                  min={0}
+                  max={10000}
+                />
+              </div>
+              <button
+                className="px-4 py-1 rounded bg-green-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                disabled={this.state.disabled || this.state.selectedCommittee === ""}
+                onClick={this.addCommitteeToRole}
+              >Assign</button>
+            </div>
+          </ul>
         </td>
         <td className="p-2 border-r border-gray-400">
           <button
@@ -178,4 +276,4 @@ class RoleROw extends React.Component {
   }
 }
 
-export default RoleROw;
+export default RoleRow;

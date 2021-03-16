@@ -13,7 +13,8 @@ class CreateNewRolePage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      roles: []
+      roles: [],
+      committees: []
     };
 
     // Change this to your permission
@@ -54,7 +55,7 @@ class CreateNewRolePage extends React.Component {
     let result;
 
     try {
-      result = await api.get("/jcr/roles");
+      result = await api.get("/jcr/roles/manage");
     } catch (error) {
       this.setState({ status: error.response.status, error: error.response.data.error });
       return;
@@ -62,7 +63,7 @@ class CreateNewRolePage extends React.Component {
 
     // Load any required data for the page here
 
-    this.setState({ loaded: true, roles: result.data.roles });
+    this.setState({ loaded: true, roles: result.data.roles, committees: result.data.committees });
   }
 
   appendNewRole = (role) => {
@@ -91,13 +92,16 @@ class CreateNewRolePage extends React.Component {
           <NewRoleForm
             onCreate={this.appendNewRole}
           />
-          <div className="mt-2">
+          <div className="mt-2 text-left">
             <h2 className="font-semibold text-2xl pb-2 text-left">Existing Roles</h2>
+            <p className="py-1">You can adjust the roles that have already been created here as well as assign users and committees to them.</p>
+            <p className="py-1">To control the hierarchy of a committee, so that they are displayed in the correct order on the website, set the position of the role within the committee. A lower number indicates a higher position within the committee. For example, Website Editor will have position 0 in the Website Committee as they chair it whereas they will have position 3 in the Executive Committee as they sit below JCR President (position 0), FACSO and VP (both in position 1), JCR Chair (position 2), then they are in the general executive members (all other members of the exec are also in position 3).</p>
             <table className="mx-auto border-2 text-left border-red-900 w-full mt-4">
               <thead className="bg-red-900 text-white">
                 <tr>
                   <th className="p-2 font-semibold">Name</th>
                   <th className="p-2 font-semibold">Assigned Users</th>
+                  <th className="p-2 font-semibold">Assigned Committees</th>
                   <th className="p-2 font-semibold">Save</th>
                   <th className="p-2 font-semibold">Delete</th>
                 </tr>
@@ -108,6 +112,7 @@ class CreateNewRolePage extends React.Component {
                     <RoleRow
                       key={i}
                       role={role}
+                      committees={this.state.committees}
                     />
                   ))
                 }
