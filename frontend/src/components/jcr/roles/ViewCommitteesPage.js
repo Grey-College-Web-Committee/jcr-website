@@ -4,6 +4,7 @@ import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
 import RoleComponent from './RoleComponent';
+import qs from 'qs';
 
 class ViewCommitteesPage extends React.Component {
   constructor(props) {
@@ -58,13 +59,35 @@ class ViewCommitteesPage extends React.Component {
       return;
     }
 
-    const { committees } = content.data;
+    let { committees } = content.data;
+    committees = committees.sort((a, b) => {
+      return a.name > b.name ? 1 : (b.name > a.name ? -1 : 0)
+    });
 
     const execCommittee = committees.filter(committee => committee.name.toLowerCase().startsWith("executive"));
     let selectedCommittee = "";
 
-    if(execCommittee.length !== 0) {
-      selectedCommittee = execCommittee[0].id;
+    let paramCommittee = undefined;
+    const queryParams = qs.parse(this.props.location.search, { ignoreQueryPrefix: true });
+
+    if(queryParams.committee !== undefined && queryParams.committee !== null && typeof queryParams.committee === "string") {
+      paramCommittee = queryParams.committee
+    }
+
+    if(paramCommittee === undefined) {
+      if(execCommittee.length !== 0) {
+        selectedCommittee = execCommittee[0].id;
+      }
+    } else {
+      const possibleCommittees = committees.filter(committee => committee.name.toLowerCase().replace(" ", "-").startsWith(paramCommittee));
+
+      if(possibleCommittees.length !== 0) {
+        selectedCommittee = possibleCommittees[0].id
+      } else {
+        if(execCommittee.length !== 0) {
+          selectedCommittee = execCommittee[0].id;
+        }
+      }
     }
 
     this.setState({ loaded: true, status: 200, committees, selectedCommittee }, this.loadCommittee);
@@ -101,8 +124,6 @@ class ViewCommitteesPage extends React.Component {
 
     const membersByPosition = activeCommittee.committeeMembers.sort((a, b) => a.position - b.position);
 
-    console.log(membersByPosition);
-
     return (
       <div>
         <h2 className="font-semibold text-2xl">{ activeCommittee.committee.name }</h2>
@@ -114,14 +135,23 @@ class ViewCommitteesPage extends React.Component {
         <div className="grid grid-cols-2 gap-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 2xl:gap-4 auto-rows-fr">
           {
             membersByPosition.map((entry, i) => (
-              <React.Fragment>
+              <React.Fragment key={i}>
                 {entry.JCRRole.JCRRoleUserLinks.map((link, j) => (
                   <RoleComponent
                     key={`${i}-${j}`}
                     role={entry.JCRRole}
                     user={link.User}
+                    vacant={false}
                   />
                 ))}
+                {entry.JCRRole.JCRRoleUserLinks.length === 0 ? (
+                  <RoleComponent
+                    key={`${i}-vacant`}
+                    role={entry.JCRRole}
+                    user={null}
+                    vacant={true}
+                  />
+                ): null}
               </React.Fragment>
             ))
           }

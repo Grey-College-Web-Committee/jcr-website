@@ -502,8 +502,8 @@ class App extends React.Component {
                     <Route exact path="/bar/admin/live" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/live") )
                     )} />
-                    <Route exact path="/jcr/committees" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <ViewCommitteesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees") )
+                  <Route exact path="/jcr/committees" render={(props) => (
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <ViewCommitteesPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees") )
                     )} />
                     <Route exact path="/jcr/committees/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewCommitteePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees/manage") )
