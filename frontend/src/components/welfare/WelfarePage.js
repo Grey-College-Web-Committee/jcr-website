@@ -103,17 +103,7 @@ class WelfarePage extends React.Component {
       return;
     }
 
-    // Once the component is ready we can query the API
-    let content;
-
-    try {
-      content = await api.get("/some/path");
-    } catch (error) {
-      this.setState({ loaded: false, status: error.response.status });
-      return;
-    }
-
-    this.setState({ loaded: true, status: 200, content: content });
+    this.setState({ loaded: true, status: 200 });
   }
 
   render () {

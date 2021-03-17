@@ -452,6 +452,82 @@ router.post("/role/committeeLink", async (req, res) => {
   return res.status(200).json({ assignedCommittee: joinedRecord });
 });
 
+router.get("/committees/basic", async (req, res) => {
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let committees;
+
+  try {
+    committees = await JCRCommittee.findAll({
+      attributes: [ "id", "name" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to select the committees list" });
+  }
+
+  return res.status(200).json({ committees });
+});
+
+router.get("/committee/:id", async (req, res) => {
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.params;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let committee;
+
+  try {
+    committee = await JCRCommittee.findOne({
+      where: { id },
+      attributes: [ "id", "name", "description" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the committee" });
+  }
+
+  if(committee === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  let committeeMembers;
+
+  try {
+    committeeMembers = await JCRCommitteeRoleLink.findAll({
+      where: { committeeId: id },
+      attributes: [ "id", "roleId", "committeeId", "position" ],
+      include: [
+        {
+          model: JCRRole,
+          include: [
+            {
+              model: JCRRoleUserLink,
+              attributes: [ "id", "roleId", "userId" ],
+              include: [
+                {
+                  model: User,
+                  attributes: [ "firstNames", "surname" ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    })
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Unable to get the committee members" });
+  }
+
+  return res.status(200).json({ committee, committeeMembers });
+})
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;
