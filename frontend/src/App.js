@@ -94,6 +94,8 @@ import EventsManagePage from './components/events/admin/overview/EventsManagePag
 import EditEventDetails from './components/events/admin/edit/EditEventDetails';
 import EventsAdminBookingPage from './components/events/admin/book/EventsAdminBookingPage';
 
+import MyProfile from './components/profile/MyProfile';
+
 import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage';
 
 import CreateNewCommitteePage from './components/jcr/roles/admin/CreateNewCommitteePage';
@@ -508,6 +510,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/jcr/roles/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewRolePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/roles/manage") )
+                    )} />
+                    <Route exact path="/my/profile" render={() => (
+                      this.isLoggedIn() ? ( <MyProfile /> ) : ( this.loginRef("/my/profile") )
                     )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />

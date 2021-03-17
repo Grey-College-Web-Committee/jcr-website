@@ -512,7 +512,7 @@ router.get("/committee/:id", async (req, res) => {
               include: [
                 {
                   model: User,
-                  attributes: [ "firstNames", "surname" ]
+                  attributes: [ "firstNames", "surname", "profilePicture" ]
                 }
               ]
             }

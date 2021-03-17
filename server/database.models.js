@@ -120,6 +120,10 @@ User.init({
   eventConsent: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  profilePicture: {
+    type: DataTypes.TEXT,
+    defaultValue: null
   }
 }, { sequelize });
 

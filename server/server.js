@@ -34,6 +34,7 @@ const careersRoute = require("./routes/careers");
 const feedbackRoute = require("./routes/feedback");
 const barRoute = require("./routes/bar");
 const jcrRoute = require("./routes/jcr");
+const profileRoute = require("./routes/profile");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -354,6 +355,7 @@ app.use("/api/careers", isLoggedIn, careersRoute);
 app.use("/api/feedback", isLoggedIn, feedbackRoute);
 app.use("/api/bar", isLoggedIn, barRoute);
 app.use("/api/jcr", isLoggedIn, jcrRoute);
+app.use("/api/profile", isLoggedIn, profileRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
@@ -371,12 +373,12 @@ app.get("/.well-known/apple-developer-merchantid-domain-association", function (
   res.sendFile(path.join(__dirname, "../domain_verification", "apple-developer-merchantid-domain-association"));
 });
 
-app.get("/uploads/images/stash/:id/:image", function(req, res) {
+app.get("/uploads/images/stash/:id/:image", isLoggedIn, function(req, res) {
   const { id, image } = req.params;
   res.sendFile(path.join(__dirname, `./uploads/images/stash/${id}/${image}`));
 });
 
-app.get("/uploads/images/toastie_bar/:image", function(req, res) {
+app.get("/uploads/images/toastie_bar/:image", isLoggedIn, function(req, res) {
   const image = req.params.image;
   res.sendFile(path.join(__dirname, `./uploads/images/toastie_bar/${image}`));
 });
@@ -393,14 +395,19 @@ app.get("/uploads/complaints/signatures/:image", isLoggedIn, function(req, res) 
   res.sendFile(path.join(__dirname, `./uploads/complaints/signatures/${image}`));
 });
 
-app.get("/uploads/images/events/:image", function(req, res) {
+app.get("/uploads/images/events/:image", isLoggedIn, function(req, res) {
   const image = req.params.image;
   res.sendFile(path.join(__dirname, `./uploads/images/events/${image}`));
 });
 
-app.get("/uploads/images/bar/:image", function(req, res) {
+app.get("/uploads/images/bar/:image", isLoggedIn, function(req, res) {
   const image = req.params.image;
   res.sendFile(path.join(__dirname, `./uploads/images/bar/${image}`));
+});
+
+app.get("/uploads/images/profile/:image", isLoggedIn, function(req, res) {
+  const image = req.params.image;
+  res.sendFile(path.join(__dirname, `./uploads/images/profile/${image}`));
 });
 
 app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {

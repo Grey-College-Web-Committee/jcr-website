@@ -27,7 +27,7 @@ class RoleComponent extends React.Component {
     return (
       <div className="border-2 border-red-900">
         <img
-          src="/images/default_avatar.png"
+          src={user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
           alt="User Profile Picture"
           className="w-auto"
         />

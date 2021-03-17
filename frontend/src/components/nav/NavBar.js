@@ -184,6 +184,11 @@ class NavBar extends React.Component {
           staticImage: null,
           dropdown: [
             {
+              displayName: "My Profile",
+              url: "/my/profile",
+              requiredPermission: null
+            },
+            {
               displayName: "My Bookings",
               url: "/my/bookings",
               requiredPermission: "events.manage"
