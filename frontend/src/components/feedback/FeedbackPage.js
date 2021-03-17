@@ -35,7 +35,7 @@ class FeedbackPage extends React.Component {
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
     // We don't need to care if they are member
-    
+
     try {
       await api.get("/auth/verify");
     } catch (error) {
@@ -118,7 +118,7 @@ class FeedbackPage extends React.Component {
           <h1 className="font-semibold text-5xl pb-4">Feedback</h1>
           <div className="w-full md:w-3/5 mx-auto">
             <div>
-              <p className="text-justify py-1">You can submit feedback about anything related to the JCR or College. The feedback will initially be reviewed by the Vice President of the JCR and is also visible to the President and FACSO. They will act on your feedback and may contact you if you do not chose to remain anonymous.</p>
+              <p className="text-justify py-1">You can submit feedback about anything related to the JCR or College. The feedback will initially be reviewed by the Vice President of the JCR and is also visible to the President and FACSO. They will act on your feedback and may contact you if you do not choose to remain anonymous.</p>
               <p className="text-justify py-1">Please do not submit complaints about JCR conduct using this form as that must be handled impartially by the JCR Chair instead.</p>
               <p className="text-justify py-1">You have the option to remain anonymous but if the content of your feedback is deemed offensive, abusive or discriminatory then you will no longer remain anonymous.</p>
             </div>

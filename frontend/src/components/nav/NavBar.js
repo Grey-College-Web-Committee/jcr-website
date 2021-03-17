@@ -79,20 +79,45 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
-          displayName: "Toasties",
-          url: "/toasties",
-          requiredPermission: "jcr.member",
+          displayName: "JCR",
+          url: null,
+          requiredPermission: null,
           staticImage: null,
-          dropdown: null,
-          alwaysDisplayed: false
+          dropdown: [
+            {
+              displayName: "Roles and Committees",
+              url: "/jcr/committees",
+              requiredPermission: null
+            },
+            {
+              displayName: "Feedback",
+              url: "/feedback",
+              requiredPermission: null
+            },
+            {
+              displayName: "Career Angels",
+              url: "/careers",
+              requiredPermission: "jcr.member",
+            }
+          ],
         },
         {
-          displayName: "Stash",
-          url: "/stash",
+          displayName: "Shop",
+          url: null,
           requiredPermission: "jcr.member",
           staticImage: null,
-          dropdown: null,
-          alwaysDisplayed: false
+          dropdown: [
+            {
+              displayName: "Toasties",
+              url: "/toasties",
+              requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "Stash",
+              url: "/stash",
+              requiredPermission: "jcr.member"
+            }
+          ],
         },
         {
           displayName: "Gym",
@@ -146,25 +171,9 @@ class NavBar extends React.Component {
           alwaysDisplayed: null
         },
         {
-          displayName: "Career Angels",
-          url: "/careers",
-          requiredPermission: "jcr.member",
-          staticImage: null,
-          dropdown: null,
-          alwaysDisplayed: null
-        },
-        {
           displayName: "Your Debt",
           url: "/debt",
           requiredPermission: "debt.has",
-          staticImage: null,
-          dropdown: null,
-          alwaysDisplayed: null
-        },
-        {
-          displayName: "Feedback",
-          url: "/feedback",
-          requiredPermission: null,
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: null
@@ -183,6 +192,11 @@ class NavBar extends React.Component {
           requiredPermission: null,
           staticImage: null,
           dropdown: [
+            {
+              displayName: "My Profile",
+              url: "/my/profile",
+              requiredPermission: null
+            },
             {
               displayName: "My Bookings",
               url: "/my/bookings",
@@ -286,6 +300,16 @@ class NavBar extends React.Component {
               displayName: "Manage Bar",
               url: "/bar/admin/overview",
               requiredPermission: "bar.manage"
+            },
+            {
+              displayName: "Manage Roles",
+              url: "/jcr/roles/manage",
+              requiredPermission: "jcr.manage"
+            },
+            {
+              displayName: "Manage Committees",
+              url: "/jcr/committees/manage",
+              requiredPermission: "jcr.manage"
             }
           ],
           alwaysDisplayed: false
