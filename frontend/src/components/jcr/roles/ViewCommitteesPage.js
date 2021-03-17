@@ -108,7 +108,7 @@ class ViewCommitteesPage extends React.Component {
         <h2 className="font-semibold text-2xl">{ activeCommittee.committee.name }</h2>
         {
           activeCommittee.committee.description.split("\n").map((line, i) => (
-            <p key={i}>{line}</p>
+            line.length === 0 ? null : <p key={i} className="py-1">{line}</p>
           ))
         }
         <div className="grid grid-cols-2 gap-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 2xl:gap-4 auto-rows-fr">
@@ -153,9 +153,10 @@ class ViewCommitteesPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-left p-4 md:w-3/5 w-full">
           <h1 className="font-semibold text-5xl pb-4 text-center">JCR Committees</h1>
-          <p>The JCR consists of many roles and committees that any member can hold. Some roles are by application (usually committee members) and some roles and elected in the JCR meetings that are held throughout the term.</p>
-          <p>You can view all of the JCR committees and see their members. Use the dropdown below to select a committee and the members will appear!</p>
-          <div className="py-2">
+          <p className="py-1">There are many roles in the JCR that any member can run for. They are a great way to get involved in the JCR and most of them are elected in JCR meetings throughout the year. If you are interested in any of the roles please contact the JCR Chair (grey.chair@durham.ac.uk) and they will be happy to provide you more information on a specific role as well as information about running in an election!</p>
+          <p className="py-1">As well as the roles, the JCR has lots of committees that help with specific parts of the running of the JCR. Committee positions usually do not require election and instead members can apply to be on them when they are accepting new members (usually annually). They are an excellent way to get involved if you are considering running for an elected role in the future!</p>
+          <p className="py-1">You can view all of the JCR committees and see their members. Use the dropdown below to select a committee and the members will appear!</p>
+          <div className="py-1">
             <label htmlFor="selectedCommittee">Selected Committee:</label>
             <select
               value={this.state.selectedCommittee}

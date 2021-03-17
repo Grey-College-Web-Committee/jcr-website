@@ -521,7 +521,6 @@ router.get("/committee/:id", async (req, res) => {
       ]
     })
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ error: "Unable to get the committee members" });
   }
 
