@@ -5,6 +5,7 @@ import Cart from '../cart/Cart';
 import CheckoutCartItem from './CheckoutCartItem';
 import api from '../../utils/axiosConfig';
 import CheckoutForm from './CheckoutForm';
+import authContext from '../../utils/authContext.js';
 
 const forcedLock = new Date("2021-01-20T08:00:00Z");
 
@@ -485,7 +486,7 @@ class CheckoutPage extends React.Component {
     }
 
     const { items } = this.state.pageState <= 0 ? this.cart.get() : this.state.lockedClientSideCart;
-    const checkoutClosed = false;
+    const checkoutClosed = !this.context.permissions.includes("permissions.edit") && this.context.username !== "nonmem";
 
     switch(this.state.pageState) {
       // Confirm the order
@@ -613,5 +614,7 @@ class CheckoutPage extends React.Component {
     }
   }
 }
+
+CheckoutPage.contextType = authContext;
 
 export default CheckoutPage;
