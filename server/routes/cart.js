@@ -454,9 +454,9 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
       nonMemberPrice: 100
     },
     single_term: {
-      expires: new Date("2021-03-20"),
-      price: 40,
-      nonMemberPrice: 55
+      expires: new Date("2021-06-25"),
+      price: 20,
+      nonMemberPrice: 30
     }
   };
 
@@ -524,6 +524,17 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
     }
   }
 
+  // Used to get their household number during covid
+  const householdComps = componentSubmissionInfo.filter(comp => comp.type === "household");
+
+  if(householdComps.length === 0) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "You must specify your household"
+    };
+  }
+
   // Otherwise they don't have a membership so create one
 
   try {
@@ -531,10 +542,10 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
       orderId,
       userId: user.id,
       type,
-      expiresAt: selectedExpiry
+      expiresAt: selectedExpiry,
+      household: householdComps[0].value
     });
   } catch (error) {
-    console.log({error});
     return {
       errorOccurred: true,
       status: 500,

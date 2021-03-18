@@ -544,6 +544,10 @@ GymMembership.init({
   type: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  household: {
+    type: DataTypes.INTEGER,
+    allowNull: true
   }
 }, { sequelize });
 
