@@ -11,7 +11,8 @@ class NewFileForm extends React.Component {
       description: "",
       parent: "",
       file: "",
-      disabled: false
+      disabled: false,
+      inputFileRK: new Date()
     }
   }
 
@@ -58,7 +59,7 @@ class NewFileForm extends React.Component {
     console.log(res.data);
 
     this.props.onCreate(null);
-    this.setState({ disabled: false, name: "", description: "", parent: "", file: "" });
+    this.setState({ disabled: false, name: "", description: "", parent: "", file: "", inputFileRK: new Date() });
   }
 
   render () {
@@ -119,6 +120,7 @@ class NewFileForm extends React.Component {
               className="border w-full rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               disabled={this.state.disabled}
               accept="application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
+              key={this.state.inputFileRK}
             />
           </div>
           <div className="pt-2 pb-2 border-b-2">

@@ -97,7 +97,6 @@ import EventsAdminBookingPage from './components/events/admin/book/EventsAdminBo
 import MyProfile from './components/profile/MyProfile';
 
 import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage';
-import ConstitutionPage from './components/jcr/ConstitutionPage';
 import JCRFileListingPage from './components/jcr/files/JCRFileListingPage';
 
 import CreateNewCommitteePage from './components/jcr/roles/admin/CreateNewCommitteePage';
@@ -516,9 +515,6 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/jcr/roles/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewRolePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/roles/manage") )
-                    )} />
-                    <Route exact path="/jcr/constitution" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <ConstitutionPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/constitution") )
                     )} />
                     <Route exact path="/jcr/files" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <JCRFileListingPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files") )

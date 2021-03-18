@@ -24,6 +24,11 @@ class FileDirectory extends React.Component {
     return (
       <div>
         {
+          this.props.details && this.props.details.description !== null ? (
+            <p className="text-base my-1">{this.props.details.description}</p>
+          ) : null
+        }
+        {
           this.props.subFolders.sort((a, b) => {
             return a.details.name > b.details.name ? 1 : (a.details.name < b.details.name ? -1 : 0)
           }).map((subfolder, i) => (
