@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { User, Permission, PermissionLink, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink } = require("../database.models.js");
+const { User, Permission, PermissionLink, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFile, JCRFolder } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 
@@ -526,6 +526,64 @@ router.get("/committee/:id", async (req, res) => {
 
   return res.status(200).json({ committee, committeeMembers });
 })
+
+router.get("/folders", async (req, res) => {
+  if(!hasPermission(req.session, "jcr.files")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let folders;
+
+  try {
+    folders = await JCRFolder.findAll({
+      where: {
+        parent: null
+      },
+      include: [
+        {
+          model: JCRFolder,
+        }
+      ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get folders" });
+  }
+
+  return res.status(200).json({ folders });
+});
+
+router.post("/folder", async (req, res) => {
+  if(!hasPermission(req.session, "jcr.files")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { name, description, parent } = req.body;
+
+  if(name === undefined || name === null || name.length === 0) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(description === undefined) {
+    return res.status(400).json({ error: "Missing description" });
+  }
+
+  if(parent === undefined) {
+    return res.status(400).json({ error: "Missing parent" });
+  }
+
+  const trueDescription = description === null || description.length === 0 ? null : description;
+  const trueParent = parent === null || parent.length === 0 ? null : parent;
+
+  let folder;
+
+  try {
+    folder = await JCRFolder.create({ name, description: trueDescription, parent: trueParent });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the new folder" });
+  }
+
+  return res.status(200).json({ folder });
+});
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route

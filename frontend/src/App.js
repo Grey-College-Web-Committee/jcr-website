@@ -97,9 +97,12 @@ import EventsAdminBookingPage from './components/events/admin/book/EventsAdminBo
 import MyProfile from './components/profile/MyProfile';
 
 import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage';
+import ConstitutionPage from './components/jcr/ConstitutionPage';
+import JCRFileListingPage from './components/jcr/files/JCRFileListingPage';
 
 import CreateNewCommitteePage from './components/jcr/roles/admin/CreateNewCommitteePage';
 import CreateNewRolePage from './components/jcr/roles/admin/CreateNewRolePage';
+import ManageJCRFilesPage from './components/jcr/files/admin/ManageJCRFilesPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -313,6 +316,9 @@ class App extends React.Component {
                       this.isLoggedIn() ? ( <Redirect to={this.state.ref} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )
                     )} />
                     <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
+                    <Route exact path="/membership" render={() => (
+                      this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
+                    )} />
                     <Route exact path="/memberships/join" render={() => (
                       this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
                     )} />
@@ -502,7 +508,7 @@ class App extends React.Component {
                     <Route exact path="/bar/admin/live" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/live") )
                     )} />
-                  <Route exact path="/jcr/committees" render={(props) => (
+                    <Route exact path="/jcr/committees" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <ViewCommitteesPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees") )
                     )} />
                     <Route exact path="/jcr/committees/manage" render={() => (
@@ -510,6 +516,15 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/jcr/roles/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewRolePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/roles/manage") )
+                    )} />
+                    <Route exact path="/jcr/constitution" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <ConstitutionPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/constitution") )
+                    )} />
+                    <Route exact path="/jcr/files" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <JCRFileListingPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files") )
+                    )} />
+                    <Route exact path="/jcr/files/manage" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("jcr.files") ? ( <ManageJCRFilesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files/manage") )
                     )} />
                     <Route exact path="/my/profile" render={() => (
                       this.isLoggedIn() ? ( <MyProfile /> ) : ( this.loginRef("/my/profile") )
