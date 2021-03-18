@@ -420,7 +420,15 @@ app.get("/uploads/images/profile/:image", isLoggedIn, function(req, res) {
 
 app.get("/uploads/jcr/:filename", isLoggedIn, function(req, res) {
   const filename = req.params.filename;
-  res.sendFile(path.join(__dirname, `./uploads/jcr/${filename}`));
+
+  fs.readFile(path.join(__dirname, `./uploads/jcr/${filename}`), (err, data) => {
+    if(err) {
+      res.status(404).end();
+    } else {
+      res.contentType("application/pdf");
+      res.send(data);
+    }
+  });
 });
 
 app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {
