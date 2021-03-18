@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
 
 router.post("/picture", upload.single("image"), async (req, res) => {
   const { user } = req.session;
-  
+
   if(!hasPermission(req.session, "jcr.member")) {
     return res.status(403).json({ error: "Only JCR members can change their profile picture" })
   }
@@ -43,6 +43,26 @@ router.post("/picture", upload.single("image"), async (req, res) => {
 
   if(image === undefined || image === null) {
     return res.status(400).json({ error: "Missing image" });
+  }
+
+  if(!["image/jpeg", "image/gif", "image/png"].includes(image.mimetype)) {
+    try {
+      await fs.unlink(`uploads/images/profile/${image.filename}`, (err) => {});
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to delete an image from the file system" });
+    }
+
+    return res.status(400).json({ error: "You can only upload image files (png/gif/jpg/jpeg)" });
+  }
+
+  if(image.size > 2097152) {
+    try {
+      await fs.unlink(`uploads/images/profile/${image.filename}`, (err) => {});
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to delete an image from the file system" });
+    }
+
+    return res.status(400).json({ error: "You can only upload images up to 2MB" });
   }
 
   let userRecord;
