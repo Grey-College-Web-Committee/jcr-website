@@ -49,32 +49,71 @@ class ManageJCRFilesPage extends React.Component {
       return;
     }
 
-    let folderRes;
+    let result;
 
     try {
-      folderRes = await api.get("/jcr/folders");
+      result = await api.get("/jcr/structure");
     } catch (error) {
       this.setState({ status: error.response.status, error: error.response.data.error });
       return;
     }
 
-    const { folders: unmappedFolders } = folderRes.data;
-
-    const folders = [];
-
-    for(const folder of unmappedFolders) {
-      const { createdAt, description, id, name, parent, updatedAt } = folder;
-      folders.push({ createdAt, description, id, name, parent, updatedAt });
-    }
+    const { structure } = result.data;
+    const { folders } = this.parseStructure(structure);
 
     // Load any required data for the page here
 
-    this.setState({ loaded: true, folders });
+    this.setState({ loaded: true, structure, folders });
+  }
+
+  parseSubfolder = (parentStr, folder) => {
+    // If it's a leaf then it has no subfolders
+    if(folder.leaf === 0) {
+      return [];
+    }
+
+    let parts = [];
+
+    // Add itself
+    parts.push({ id: folder.details.id, display: `${parentStr} > ${folder.details.name}`})
+
+    // Then add its children recursively
+    folder.subFolders.forEach(sub => {
+      parts = parts.concat(this.parseSubfolder(`${parentStr} > ${folder.details.name}`, sub));
+    });
+
+    return parts;
+  }
+
+  parseStructure = (structure) => {
+    let folders = [];
+
+    // We want to build the names of the folders including their parents
+    structure.subFolders.forEach(folder => {
+      // Start with the base subfolders
+      folders = folders.concat(this.parseSubfolder("[Base]", folder));
+    });
+
+    return { folders };
   }
 
   onFolderCreated = (folder) => {
     let { folders } = this.state;
-    folders.push(folder);
+
+    console.log({folder, folders});
+
+    let parent = [];
+
+    if(folder.parent !== null) {
+      parent = folders.filter(f => Number(f.id) === Number(folder.parent));
+    }
+
+    if(parent.length !== 0) {
+      folders.push({ id: folder.id, display: `${parent[0].display} > ${folder.name}`});
+    } else {
+      folders.push({ id: folder.id, display: `[Base] > ${folder.name}`});
+    }
+
     // Might need a refresh ID
     this.setState({ folders });
   }

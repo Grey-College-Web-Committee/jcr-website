@@ -86,9 +86,9 @@ class NewFolderForm extends React.Component {
               value={this.state.parent}
               disabled={this.state.disabled}
             >
-              <option value="">Base Directory</option>
+              <option value="">[Base]</option>
               {this.props.folders.map((folder, id) => (
-                <option value={folder.id}>{folder.name}</option>
+                <option value={folder.id}>{folder.display}</option>
               ))}
             </select>
           </div>

@@ -527,30 +527,127 @@ router.get("/committee/:id", async (req, res) => {
   return res.status(200).json({ committee, committeeMembers });
 })
 
-router.get("/folders", async (req, res) => {
+router.get("/structure", async (req, res) => {
   if(!hasPermission(req.session, "jcr.files")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  let folders;
+  let rootDir;
 
+  // Get all the folders in the root directory
   try {
-    folders = await JCRFolder.findAll({
+    rootDir = await JCRFolder.findAll({
       where: {
         parent: null
       },
-      include: [
-        {
-          model: JCRFolder,
-        }
-      ]
+      include: [{
+        model: JCRFolder,
+        attributes: [ "id" ]
+      }],
+      attributes: [ "id", "name", "description" ]
     });
   } catch (error) {
-    return res.status(500).json({ error: "Unable to get folders" });
+    return res.status(500).json({ error: "Unable to get the root folders" });
   }
 
-  return res.status(200).json({ folders });
+  let subFolders = [];
+
+  // Now we need to recurse down the tree and construct the file system
+  for(const folder of rootDir) {
+    const treeResult = await recurseTree(folder);
+
+    if(!treeResult) {
+      return res.status(500).json({ error: "Unable to recurse the file tree" });
+    }
+
+    subFolders.push(treeResult);
+  }
+
+  let files;
+
+  // Get the files in the base directory
+  try {
+    files = await JCRFile.findAll({
+      where: { parent: null },
+      attributes: [ "name", "description", "realFileName" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the root files" });
+  }
+
+  const structure = {
+    details: null,
+    files,
+    leaf: subFolders.length === 0,
+    subFolders
+  }
+
+  // Send it to the client
+  return res.status(200).json({ structure });
 });
+
+// Recurse the file system tree
+const recurseTree = async (currentFolder) => {
+  let files;
+
+  // Get the files in the directory
+  try {
+    files = await JCRFile.findAll({
+      where: {
+        parent: currentFolder.id
+      },
+      attributes: [ "name", "description", "realFileName" ]
+    });
+  } catch (error) {
+    return false;
+  }
+
+  let subDirs;
+
+  try {
+    subDirs = await JCRFolder.findAll({
+      where: {
+        parent: currentFolder.id
+      },
+      attributes: [ "id", "name", "description" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the root folders" });
+  }
+
+  // If it has sub-folders then recurse them
+  if(subDirs && subDirs.length !== 0) {
+    let recurseResult = [];
+
+    for(const basicInnerFolder of subDirs) {
+      let innerFolder;
+
+      // Recurse and put it in the array
+      const innerResult = await recurseTree(basicInnerFolder);
+
+      if(!innerResult) {
+        return false;
+      }
+
+      recurseResult.push(innerResult);
+    }
+
+    return {
+      details: currentFolder,
+      files: [],
+      leaf: true,
+      subFolders: recurseResult
+    }
+  }
+
+  // This is a leaf node
+  return {
+    details: currentFolder,
+    files: [],
+    leaf: false,
+    subFolders: []
+  }
+}
 
 router.post("/folder", async (req, res) => {
   if(!hasPermission(req.session, "jcr.files")) {
