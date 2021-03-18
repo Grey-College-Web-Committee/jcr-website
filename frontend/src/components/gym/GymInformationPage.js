@@ -95,7 +95,7 @@ class GymInformationPage extends React.Component {
     }
 
     // Temporary locking measures
-    const locked = true;
+    const locked = false;
 
     if(locked) {
       return (
@@ -186,7 +186,7 @@ class GymInformationPage extends React.Component {
                   image: option.image,
                   upperLimit: 1
                 }}
-                disabled={membership !== null || !this.state.termsOfUse || !this.state.parq}
+                disabled={true || membership !== null || !this.state.termsOfUse || !this.state.parq}
                 buttonText={membership !== null ? "Already Purchased" : "Add To Bag"}
                 disableOnCondition={(items) => {
                   return items.filter(item => item.shop === "gym").length !== 0;
