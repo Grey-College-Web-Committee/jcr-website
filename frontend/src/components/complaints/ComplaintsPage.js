@@ -219,7 +219,7 @@ class ComplaintsPage extends React.Component {
                   <input
                     type="checkbox"
                     name="truth"
-                    value={this.state.truth}
+                    checked={this.state.truth}
                     onChange={this.onInputChange}
                     className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                     disabled={this.props.disabled}

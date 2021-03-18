@@ -21,8 +21,10 @@ class GymInformationPage extends React.Component {
       termsOfUse: false,
       parq: false,
       induction: false,
+      householdHas: false,
       inBasket: this.cart.get().items.filter(item => item.shop === "gym").length !== 0,
       householdNumber: "",
+      currentGalleryImage: 0
     };
 
     this.membershipOptions = [
@@ -30,7 +32,7 @@ class GymInformationPage extends React.Component {
         price: 20,
         nonMemberPrice: 30,
         name: "Easter Term Gym Membership",
-        image: "/images/cart/placeholder.png",
+        image: "/images/gym/dumbbell.png",
         description: "(expires 25/06/2021)",
         displayName: "Easter Term Gym Membership",
         submissionInformation: {
@@ -48,7 +50,7 @@ class GymInformationPage extends React.Component {
   }
 
   checkCart = () => {
-    if(this.state.termsOfUse && this.state.parq) {
+    if(this.state.termsOfUse && this.state.parq && this.state.induction && this.state.householdHas) {
       return;
     }
 
@@ -63,6 +65,25 @@ class GymInformationPage extends React.Component {
     gymItems.forEach(index => {
       this.cart.removeFromCart(index);
     });
+
+    this.setState({ inBasket: false })
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  changeImage = (direction) => {
+    let newImage = this.state.currentGalleryImage + direction;
+    // we have 5 images
+
+    if(newImage < 0) {
+      newImage = 4;
+    } else if(newImage >= 4) {
+      newImage = 0;
+    }
+
+    this.setState({ currentGalleryImage: newImage });
   }
 
   // Call the API here initially and then use this.setState to render the content
@@ -96,49 +117,82 @@ class GymInformationPage extends React.Component {
       return;
     }
 
+    // Change displayed image every 6 seconds
+    this.interval = setInterval(() => {
+      this.changeImage(1);
+    }, 6000);
+
     this.setState({ loaded: true, status: 200, membership: content.data.membership, isMember });
   }
 
   renderPurchaseDiv = () => {
     const { membership } = this.state;
+
     return (
-      <div className="flex-1 flex flex-col px-4 lg:px-0 mb-2 lg:mx-16">
+      <React.Fragment>
         <h2 className="text-4xl font-semibold pb-2 text-left">Purchase Membership</h2>
         <div className="flex flex-row">
           <div className="flex flex-col text-left">
             <div className="pb-2">
-              <p>You must agree to the following conditions before you are able to add a membership to your bag.</p>
-              <p>Please read the Terms of Use by clicking the red text below.</p>
+              <p className="py-1">You must agree to the following conditions before you are able to add a membership to your cart.</p>
+              <p className="py-1">Please read the Terms of Use by clicking the red text below.</p>
+              <p className="py-1 font-semibold">Selected Household: {this.state.householdNumber}</p>
             </div>
-            <div>
-              <label className="h-4 pr-2 align-middle w-64" htmlFor="termsOfUse">I accept the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link></label>
-              <input
-                type="checkbox"
-                name="termsOfUse"
-                className="p-2 h-4 w-4 align-middle"
-                onChange={this.onInputChange}
-                disabled={this.state.inBasket}
-              />
+            <div className="pb-2 border-b-2 flex flex-row items-center justify-between">
+              <label htmlFor="termsOfUse">I accept the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link></label>
+              <div className="flex flex-col items-center justify-center ml-2">
+                <input
+                  type="checkbox"
+                  name="termsOfUse"
+                  checked={this.state.termsOfUse}
+                  onChange={this.onInputChange}
+                  className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  disabled={this.state.inBasket}
+                  autoComplete=""
+                />
+              </div>
             </div>
-            <div>
-              <label className="h-4 pr-2 align-middle w-64" htmlFor="parq">I have completed an accurate PARQ Health Declaration</label>
-              <input
-                type="checkbox"
-                name="parq"
-                className="p-2 h-4 w-4 align-middle"
-                onChange={this.onInputChange}
-                disabled={this.state.inBasket}
-              />
+            <div className="pt-2 pb-2 border-b-2 flex flex-row items-center justify-between">
+              <label htmlFor="parq">I have completed an accurate PARQ Health Declaration</label>
+              <div className="flex flex-col items-center justify-center ml-2">
+                <input
+                  type="checkbox"
+                  name="parq"
+                  checked={this.state.parq}
+                  onChange={this.onInputChange}
+                  className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  disabled={this.state.inBasket}
+                  autoComplete=""
+                />
+              </div>
             </div>
-            <div>
-              <label className="h-4 pr-2 align-middle w-64" htmlFor="induction">I have completed the online DUO induction training and quiz (with 100% pass mark)</label>
-              <input
-                type="checkbox"
-                name="induction"
-                className="p-2 h-4 w-4 align-middle"
-                onChange={this.onInputChange}
-                disabled={this.state.inBasket}
-              />
+            <div className="pt-2 pb-2 border-b-2 flex flex-row items-center justify-between">
+              <label htmlFor="induction">I have completed the online DUO induction training and quiz (with 100% pass mark)</label>
+              <div className="flex flex-col items-center justify-center ml-2">
+                <input
+                  type="checkbox"
+                  name="induction"
+                  checked={this.state.induction}
+                  onChange={this.onInputChange}
+                  className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  disabled={this.state.inBasket}
+                  autoComplete=""
+                />
+              </div>
+            </div>
+            <div className="pt-2 pb-2 border-b-2 flex flex-row items-center justify-between">
+              <label htmlFor="householdHas">There is somebody else in my household that would like to buy a gym membership or already has purchased one</label>
+              <div className="flex flex-col items-center justify-center ml-2">
+                <input
+                  type="checkbox"
+                  name="householdHas"
+                  checked={this.state.householdHas}
+                  onChange={this.onInputChange}
+                  className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  disabled={this.state.inBasket}
+                  autoComplete=""
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -168,7 +222,7 @@ class GymInformationPage extends React.Component {
                   image: option.image,
                   upperLimit: 1
                 }}
-                disabled={membership !== null || !this.state.termsOfUse || !this.state.parq || !this.state.induction}
+                disabled={membership !== null || !this.state.termsOfUse || !this.state.parq || !this.state.induction || !this.state.householdHas}
                 buttonText={membership !== null ? "Already Purchased" : "Add To Bag"}
                 disableOnCondition={(items) => {
                   return items.filter(item => item.shop === "gym").length !== 0;
@@ -180,20 +234,22 @@ class GymInformationPage extends React.Component {
             ))
           }
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 
   renderHouseholdDiv = () => {
     return (
-      <div className="flex-1 px-4 lg:px-0 mb-2 lg:mx-16">
-        <h2 className="font-semibold text-4xl pb-4 text-left">Household Confirmation</h2>
-        <p>As part of the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link>, at least one other member of your household must be using the gym with you. Please specify your household number below, this will be used to check that at least two members of the same household have a membership once the gym opens.</p>
-        <div className="flex flex-col w-max bg-white p-4 border-2 border-grey-900 text-lg">
+      <React.Fragment>
+        <h2 className="font-semibold text-4xl pb-2 text-left">Household Confirmation</h2>
+        <p className="py-1">As part of the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link>, at least one other member of your household must be using the gym with you. Please specify your household number below. This will be used to check that at least two members of the same household have a membership once the gym opens.</p>
+        <p className="py-1">Once you have selected your household number you will be able to purchase a membership. If you select the wrong household number you will need to refresh the page!</p>
+        <div className="flex flex-col w-auto my-2">
           <p className="mb-2 text-2xl font-semibold">Select your household number</p>
+          <p className="pb-2">If you already have a membership in your cart then it will be automatically removed when you select a household.</p>
           <select
             name="householdNumber"
-            className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+            className="w-64 h-8 border border-gray-400 disabled:opacity-50"
             onChange={this.onInputChange}
             value={this.state.householdNumber}
             disabled={this.state.disabled}
@@ -206,7 +262,7 @@ class GymInformationPage extends React.Component {
             }
           </select>
         </div>
-      </div>
+      </React.Fragment>
     )
   }
 
@@ -248,14 +304,15 @@ class GymInformationPage extends React.Component {
 
     if(membership !== null) {
       displayedPurchaseDiv = (
-        <div className="flex flex-col justify-center text-center px-4 lg:px-0 mb-2 w-full flex-1">
+        <React.Fragment>
           <h2 className="text-4xl font-semibold pb-2">Your Membership</h2>
-          <div className="text-left mx-auto">
+          <p className="py-1">You already have an active gym membership. If you want to renew your membership you can do so on this page once your current one expires! If you have any queries please contact the FACSO, Will, using the email above.</p>
+          <div className="text-left my-2 text-lg">
             <p>Expires On: {dateFormat(new Date(membership.expiresAt), "dd/mm/yyyy")}</p>
             <p>Type: {resolvedType[membership.type]}</p>
-            <p>Purchased On: {dateFormat(new Date(membership.createdAt), "dd/mm/yyyy")}</p>
+            <p>Household: {membership.household}</p>
           </div>
-        </div>
+        </React.Fragment>
       );
     } else {
       if(householdNumber === "") {
@@ -266,26 +323,57 @@ class GymInformationPage extends React.Component {
     }
 
     return (
-      <div className="flex flex-col justify-start">
-        <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Grey Gym</h1>
-        </div>
-        <div className="flex flex-col lg:flex-row lg:justify-between">
-          <div className="mx-auto px-4 lg:px-0 mb-2 w-full lg:flex-1 lg:mx-16">
-            <h2 className="font-semibold text-4xl pb-4 text-left">Information</h2>
+      <div className="mx-auto lg:w-4/5 w-full">
+        <div className="flex flex-col">
+          <h1 className="font-semibold text-5xl py-2 text-center">Grey College Gym</h1>
+          <div className="mx-2 lg:m-0">
             <p className="py-1">Grey College Gym is located in Oswald Block with 3 different fitness rooms:</p>
             <ul className="p-2 list-inside">
               <li>-	<span className="font-semibold">Cardio Room</span> - complete with: Exercise Bikes, Indoor Rowing Ergos, Treadmill and a Punching Bag.</li>
               <li>-	<span className="font-semibold">Main Weights Room</span> - complete with the: Shoulder Press, Leg Extension, Leg Curl, Leg Press and Smith machines. Multiple benches (including a Scott bench) with Bars, Dumbbells and Kettle Bells.</li>
               <li>-	<span className="font-semibold">Henry Dyson Room (Weights Room)</span> – complete with: Cable Station, Squat Rack and Treadmill.</li>
             </ul>
-            <p className="py-1">The Gym Opening Times are from 08:00 until 22:00, 7 days per week.</p>
+            <p className="py-1">The Gym Opening Times are from <span className="font-semibold">08:00 until 22:00, 7 days per week.</span></p>
             <p className="py-1">For Easter Term 2021, users of the gym will need their ‘household leader’ to book ‘household’ gym slots as, unfortunately, the gym is too small to offer individual socially distanced exercise. Therefore, there must be a minimum of 2 people in your ‘household’ with an active gym membership.</p>
             <p className="py-1">Please be considerate to residents living above the Gym by not playing loud music early in the morning and evening.</p>
             <p className="py-1">Gym members will need to complete the DUO induction training, quiz and PARQ form before being granted access to the Gym. DUO > Grey College > Grey JCR > Grey College Gym</p>
             <p className="py-1">The Gym is run and equipment owned by the JCR, please contact the FACSO, Will, at <a href="mailto:grey.treasurer@durham.ac.uk" className="underline font-semibold" target="_blank" rel="noopener noreferrer">grey.treasurer@durham.ac.uk</a> with any questions.</p>
           </div>
-          { displayedPurchaseDiv }
+          <div className="flex flex-col mx-2 lg:flex-row lg:mx-0 mt-2">
+            <div className="flex flex-col flex-1">
+              <div className="flex flex-row justify-center">
+                <div>
+                  <img
+                    src={`/images/gym/gym-${this.state.currentGalleryImage}.jpg`}
+                    alt="Grey Gym"
+                    className="h-auto w-auto"
+                  />
+                </div>
+              </div>
+              <div className="mt-2">
+                <div className="flex flex-row justify-between text-2xl align-middle">
+                  <button
+                    onClick={() => {
+                      this.changeImage(-1);
+                      clearInterval(this.interval);
+                    }}
+                    className="h-full px-8 lg:pb-1 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
+                  >←</button>
+                  <p>{this.state.currentGalleryImage + 1} / 5</p>
+                  <button
+                    onClick={() => {
+                      this.changeImage(1);
+                      clearInterval(this.interval);
+                    }}
+                    className="h-full px-8 lg:pb-1 rounded disabled:bg-gray-400 text-white w-auto font-semibold bg-red-900 disabled:opacity-20"
+                  >→</button>
+                </div>
+              </div>
+            </div>
+            <div className="flex flex-col flex-1 mx-2 mt-2 lg:my-0 lg:ml-4">
+              { displayedPurchaseDiv }
+            </div>
+          </div>
         </div>
       </div>
     );
