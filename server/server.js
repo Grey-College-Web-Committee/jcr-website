@@ -11,7 +11,7 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sharedSession = require("express-socket.io-session");
@@ -205,6 +205,11 @@ const requiredPermissions = [
     name: "Manage Bar",
     description: "Allows a user to manage the bar stock",
     internal: "bar.manage"
+  },
+  {
+    name: "Manage JCR Files",
+    description: "Allows a user to manage the files uploaded for the JCR",
+    internal: "jcr.files"
   }
 ];
 
@@ -275,6 +280,9 @@ const requiredPermissions = [
   await JCRRoleUserLink.sync();
   await JCRCommittee.sync();
   await JCRCommitteeRoleLink.sync();
+
+  await JCRFolder.sync();
+  await JCRFile.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
@@ -408,6 +416,11 @@ app.get("/uploads/images/bar/:image", isLoggedIn, function(req, res) {
 app.get("/uploads/images/profile/:image", isLoggedIn, function(req, res) {
   const image = req.params.image;
   res.sendFile(path.join(__dirname, `./uploads/images/profile/${image}`));
+});
+
+app.get("/uploads/jcr/:filename", isLoggedIn, function(req, res) {
+  const filename = req.params.filename;
+  res.sendFile(path.join(__dirname, `./uploads/jcr/${filename}`));
 });
 
 app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {

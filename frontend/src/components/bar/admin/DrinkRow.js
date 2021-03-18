@@ -39,8 +39,6 @@ class DrinkRow extends React.Component {
     formData.append("typeId", typeId);
     formData.append("available", available);
 
-    console.log(formData);
-
     try {
       await api.post("/bar/drink/update", formData, {
         headers: { "content-type": "multipart/form-data" }

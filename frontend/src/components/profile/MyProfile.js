@@ -62,6 +62,10 @@ class MyProfile extends React.Component {
   }
 
   onImageDrop = (image) => {
+    if(image.length === 0) {
+      return;
+    }
+
     // Set the current image when they select one
     this.setState({ imageUpload: image });
 
@@ -181,7 +185,7 @@ class MyProfile extends React.Component {
                   singleImage={true}
                   onChange={this.onImageDrop}
                   disabled={this.state.disabled}
-                  maxFileSize={2000000}
+                  maxFileSize={2097152}
                   label="Max file size: 2mb, accepts jpg or png"
                 />
               </div>

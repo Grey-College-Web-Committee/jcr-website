@@ -90,6 +90,11 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
+              displayName: "Core Documents",
+              url: "/jcr/files",
+              requiredPermission: null
+            },
+            {
               displayName: "Feedback",
               url: "/feedback",
               requiredPermission: null
@@ -237,26 +242,6 @@ class NavBar extends React.Component {
               requiredPermission: "stash.export"
             },
             {
-              displayName: "Export Gym Members",
-              url: "/gym/admin",
-              requiredPermission: "gym.export"
-            },
-            {
-              displayName: "Export JCR Members",
-              url: "/memberships/export",
-              requiredPermission: "jcr.export"
-            },
-            {
-              displayName: "Manage JCR Members",
-              url: "/memberships/manage",
-              requiredPermission: "jcr.manage"
-            },
-            {
-              displayName: "Manage Elections",
-              url: "/elections/admin",
-              requiredPermission: "elections.manage"
-            },
-            {
               displayName: "Manage Media",
               url: "/media/admin",
               requiredPermission: "media.manage"
@@ -287,11 +272,6 @@ class NavBar extends React.Component {
               requiredPermission: "debt.manage"
             },
             {
-              displayName: "Manage Careers",
-              url: "/careers/admin",
-              requiredPermission: "careers.manage"
-            },
-            {
               displayName: "Manage Feedback",
               url: "/feedback/admin",
               requiredPermission: "feedback.manage"
@@ -300,6 +280,35 @@ class NavBar extends React.Component {
               displayName: "Manage Bar",
               url: "/bar/admin/overview",
               requiredPermission: "bar.manage"
+            }
+          ],
+          alwaysDisplayed: false
+        },
+        {
+          displayName: "JCR Admin Options",
+          url: null,
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: [
+            {
+              displayName: "Export Gym Members",
+              url: "/gym/admin",
+              requiredPermission: "gym.export"
+            },
+            {
+              displayName: "Export JCR Members",
+              url: "/memberships/export",
+              requiredPermission: "jcr.export"
+            },
+            {
+              displayName: "Manage JCR Members",
+              url: "/memberships/manage",
+              requiredPermission: "jcr.manage"
+            },
+            {
+              displayName: "Manage Elections",
+              url: "/elections/admin",
+              requiredPermission: "elections.manage"
             },
             {
               displayName: "Manage Roles",
@@ -310,7 +319,17 @@ class NavBar extends React.Component {
               displayName: "Manage Committees",
               url: "/jcr/committees/manage",
               requiredPermission: "jcr.manage"
-            }
+            },
+            {
+              displayName: "Manage Files",
+              url: "/jcr/files/manage",
+              requiredPermission: "jcr.files"
+            },
+            {
+              displayName: "Manage Careers",
+              url: "/careers/admin",
+              requiredPermission: "careers.manage"
+            },
           ],
           alwaysDisplayed: false
         }
