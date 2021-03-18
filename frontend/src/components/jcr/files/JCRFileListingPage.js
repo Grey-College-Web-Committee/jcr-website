@@ -3,6 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
+import FileDirectory from './FileDirectory';
 
 class JCRFileListingPage extends React.Component {
   constructor(props) {
@@ -13,7 +14,8 @@ class JCRFileListingPage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      content: []
+      content: [],
+      structure: {}
     };
   }
 
@@ -43,17 +45,18 @@ class JCRFileListingPage extends React.Component {
       return;
     }
 
-    // Once the component is ready we can query the API
-    let content;
+    let result;
 
     try {
-      content = await api.get("/some/path");
+      result = await api.get("/jcr/structure");
     } catch (error) {
-      this.setState({ loaded: false, status: error.response.status });
+      this.setState({ status: error.response.status, error: error.response.data.error });
       return;
     }
 
-    this.setState({ loaded: true, status: 200, content: content });
+    const { structure } = result.data;
+
+    this.setState({ loaded: true, status: 200, structure });
   }
 
   render () {
@@ -77,8 +80,15 @@ class JCRFileListingPage extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
-        <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Page Title</h1>
+        <div className="container mx-auto text-center p-4 w-full md:w-3/5">
+          <h1 className="font-semibold text-5xl pb-4">JCR Documents</h1>
+          <p className="py-1 text-left">You can find all documents relating to the goverence and running of the JCR. The core documents governing the JCR are the Constitution and Byelaws but you'll also find plenty of other important documents here such as budgets, meeting minutes, and procedures.</p>
+          <div className="flex flex-row justify-start text-left text-lg">
+            <FileDirectory
+              {...this.state.structure}
+              parentOpen={true}
+            />
+          </div>
         </div>
       </div>
     );

@@ -90,12 +90,7 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
-              displayName: "Constitution",
-              url: "/jcr/constitution",
-              requiredPermission: null
-            },
-            {
-              displayName: "Budgets, Byelaws and Documents",
+              displayName: "Core Documents",
               url: "/jcr/files",
               requiredPermission: null
             },

@@ -637,7 +637,7 @@ const recurseTree = async (currentFolder) => {
 
     return {
       details: currentFolder,
-      files: [],
+      files,
       leaf: true,
       subFolders: recurseResult
     }
@@ -646,7 +646,7 @@ const recurseTree = async (currentFolder) => {
   // This is a leaf node
   return {
     details: currentFolder,
-    files: [],
+    files,
     leaf: false,
     subFolders: []
   }
