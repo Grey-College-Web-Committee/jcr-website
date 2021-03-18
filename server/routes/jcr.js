@@ -5,6 +5,9 @@ const router = express.Router();
 const { User, Permission, PermissionLink, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFile, JCRFolder } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
+const fs = require("fs").promises;
+const multer = require("multer");
+const upload = multer({ dest: "uploads/jcr/" });
 
 router.post("/committee", async (req, res) => {
   if(!hasPermission(req.session, "jcr.manage")) {
@@ -680,6 +683,48 @@ router.post("/folder", async (req, res) => {
   }
 
   return res.status(200).json({ folder });
+});
+
+router.post("/file", upload.single("file"), async (req, res) => {
+  if(!hasPermission(req.session, "jcr.files")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { name, description, parent } = req.body;
+  const file = req.file;
+
+  if(name === undefined || name === null || name.length === 0) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(description === undefined) {
+    return res.status(400).json({ error: "Missing description" });
+  }
+
+  if(parent === undefined) {
+    return res.status(400).json({ error: "Missing parent" });
+  }
+
+  if(file === undefined || file === null) {
+    return res.status(400).json({ error: "Missing file" });
+  }
+
+  const trueDescription = description === null || description.length === 0 ? null : description;
+  const trueParent = parent === null || parent.length === 0 ? null : parent;
+
+  if(!["application/msword", "application/pdf"].includes(file.mimetype)) {
+    return res.status(400).json({ error: "This only accepts pdfs or Word Documents" });
+  }
+
+  let fileRecord;
+
+  try {
+    fileRecord = await JCRFile.create({ name, description: trueDescription, parent: trueParent, realFileName: file.filename });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the file record" });
+  }
+
+  return res.status(200).json({ file: fileRecord });
 });
 
 // Set the module export to router so it can be used in server.js

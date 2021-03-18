@@ -3,6 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
 import NewFolderForm from './NewFolderForm';
+import NewFileForm from './NewFileForm';
 
 class ManageJCRFilesPage extends React.Component {
   constructor(props) {
@@ -138,6 +139,10 @@ class ManageJCRFilesPage extends React.Component {
           <NewFolderForm
             folders={this.state.folders}
             onCreate={this.onFolderCreated}
+          />
+          <NewFileForm
+            folders={this.state.folders}
+            onCreate={() => {}}
           />
         </div>
       </div>

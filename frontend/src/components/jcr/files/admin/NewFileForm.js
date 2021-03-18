@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import api from '../../../../utils/axiosConfig';
 
-class NewFolderForm extends React.Component {
+class NewFileForm extends React.Component {
   constructor(props) {
     super(props);
 
@@ -10,6 +10,7 @@ class NewFolderForm extends React.Component {
       name: "",
       description: "",
       parent: "",
+      file: "",
       disabled: false
     }
   }
@@ -18,36 +19,52 @@ class NewFolderForm extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
+  onFileChange = e => {
+    this.setState({ [e.target.name]: e.target.files[0] });
+  }
+
   canSubmit = () => {
-    const { name } = this.state;
+    const { name, file } = this.state;
 
     return (
-      (name !== undefined && name !== null && name.length !== 0)
+      (name !== undefined && name !== null && name.length !== 0) &&
+      (file !== undefined && file !== null && file !== "")
     );
   }
 
-  createNewFolder = async () => {
+  createNewFile = async () => {
     this.setState({ disabled: true });
-    const { name, description, parent } = this.state;
+    const { name, description, parent, file } = this.state;
 
-    let result;
+    let formData = new FormData();
+
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("parent", parent);
+    formData.append("file", file);
+
+    let res;
 
     try {
-      result = await api.post("/jcr/folder", { name, description, parent });
+      res = await api.post("/jcr/file", formData, {
+        headers: { "content-type": "multipart/form-data" }
+      });
     } catch (error) {
-      this.setState({ disabled: false });
       alert(error.response.data.error);
+      this.setState({ disabled: false });
       return;
     }
 
-    this.props.onCreate(result.data.folder);
-    this.setState({ disabled: false, name: "", description: "", parent: "" });
+    console.log(res.data);
+
+    this.props.onCreate(null);
+    this.setState({ disabled: false, name: "", description: "", parent: "", file: "" });
   }
 
   render () {
     return (
       <div>
-        <h2 className="text-left font-semibold text-2xl">Create a New Folder</h2>
+        <h2 className="text-left font-semibold text-2xl">Create a New File</h2>
         <fieldset>
           <div className="pt-2 pb-2 border-b-2">
             <label htmlFor="name" className="flex flex-row justify-start text-xl font-semibold">Name</label>
@@ -93,11 +110,23 @@ class NewFolderForm extends React.Component {
             </select>
           </div>
           <div className="pt-2 pb-2 border-b-2">
+            <label htmlFor="file" className="flex flex-row justify-start text-xl font-semibold">File</label>
+            <span className="flex flex-row justify-start text-sm mb-2">It's strongly advised that you upload PDFs as they can be viewed in the browser</span>
+            <input
+              type="file"
+              name="file"
+              onChange={this.onFileChange}
+              className="border w-full rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+              disabled={this.state.disabled}
+              accept="application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf"
+            />
+          </div>
+          <div className="pt-2 pb-2 border-b-2">
             <button
               className="px-4 py-2 rounded text-xl bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               disabled={this.state.disabled || !this.canSubmit()}
-              onClick={this.createNewFolder}
-            >Create New Folder</button>
+              onClick={this.createNewFile}
+            >Create New File</button>
           </div>
         </fieldset>
       </div>
@@ -105,4 +134,4 @@ class NewFolderForm extends React.Component {
   }
 }
 
-export default NewFolderForm;
+export default NewFileForm;
