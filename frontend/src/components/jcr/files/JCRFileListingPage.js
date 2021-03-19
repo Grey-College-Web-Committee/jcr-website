@@ -83,10 +83,11 @@ class JCRFileListingPage extends React.Component {
         <div className="container mx-auto text-center p-4 w-full md:w-3/5">
           <h1 className="font-semibold text-5xl pb-4">JCR Documents</h1>
           <p className="py-1 text-left">You can find all documents relating to the goverence and running of the JCR. The core documents governing the JCR are the Constitution and Byelaws but you'll also find plenty of other important documents here such as budgets, meeting minutes, and procedures.</p>
-          <div className="flex flex-row justify-start text-left text-lg p-2">
+          <div className="flex flex-row justify-start text-left text-lg mt-2">
             <FileDirectory
               {...this.state.structure}
               parentOpen={true}
+              topLevel={true}
             />
           </div>
         </div>

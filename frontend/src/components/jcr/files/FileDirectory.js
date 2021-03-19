@@ -21,8 +21,10 @@ class FileDirectory extends React.Component {
       return null;
     }
 
+    const topLevel = this.props.topLevel ? this.props.topLevel : false;
+
     return (
-      <div>
+      <div className={`${topLevel ? "": "border-l border-gray-400"} pl-1`}>
         {
           this.props.details && this.props.details.description !== null ? (
             <p className="text-base my-1">{this.props.details.description}</p>
@@ -40,7 +42,7 @@ class FileDirectory extends React.Component {
                 />
                 <span className="ml-2">{subfolder.details.name}</span>
               </div>
-              <div className={`px-6 ${this.state.open[i] ? "" : "hidden"}`}>
+              <div className={`px-8 ${this.state.open[i] ? "" : "hidden"}`}>
                 <FileDirectory
                   key={i}
                   {...subfolder}
