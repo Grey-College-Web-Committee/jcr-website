@@ -817,6 +817,166 @@ router.delete("/file/:id", async (req, res) => {
   return res.status(204).end();
 })
 
+router.post("/folder/update", async (req, res) => {
+  if(!hasPermission(req.session, "jcr.files")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, description, parent } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  if(name === undefined || name === null || name.length === 0) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(description === undefined) {
+    return res.status(400).json({ error: "Missing description" });
+  }
+
+  if(parent === undefined) {
+    return res.status(400).json({ error: "Missing parent" });
+  }
+
+  let folderRecord;
+
+  try {
+    folderRecord = await JCRFolder.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the folder record" });
+  }
+
+  if(folderRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  folderRecord.name = name;
+  folderRecord.description = description;
+  folderRecord.parent = parent;
+
+  try {
+    await folderRecord.save();
+  } catch (error) {
+    console.log({error})
+    return res.status(500).json({ error: "Unable to save the folder record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.delete("/folder/:id", async (req, res) => {
+  // Must have permission
+  if(!hasPermission(req.session, "jcr.files")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.params;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let folderRecord;
+
+  try {
+    folderRecord = await JCRFolder.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the folder from the database" });
+  }
+
+  if(folderRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  // Recurse and get the files
+  const success = await deleteRecursively(folderRecord);
+
+  if(!success) {
+    return res.status(500).json({ error: "Unable to cascade the deletion" });
+  }
+
+  try {
+    await folderRecord.destroy();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the file record" });
+  }
+
+  return res.status(204).end();
+});
+
+const deleteRecursively = async (currentFolder) => {
+  let files;
+
+  // Get the files in the directory
+  try {
+    files = await JCRFile.findAll({
+      where: {
+        parent: currentFolder.id
+      },
+      attributes: [ "id", "realFileName" ]
+    });
+  } catch (error) {
+    return false;
+  }
+
+  // Delete the files
+  for(const file of files) {
+    try {
+      await fs.unlink(`uploads/jcr/${file.realFileName}`, (err) => {});
+    } catch (error) {
+      return false;
+    }
+
+    try {
+      await file.destroy();
+    } catch (error) {
+      return false;
+    }
+  }
+
+  let subDirs;
+
+  try {
+    subDirs = await JCRFolder.findAll({
+      where: {
+        parent: currentFolder.id
+      },
+      attributes: [ "id" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the root folders" });
+  }
+
+  // If it has sub-folders then recurse them
+  if(subDirs && subDirs.length !== 0) {
+    let recurseResult = [];
+
+    for(const basicInnerFolder of subDirs) {
+      let innerFolder;
+
+      // Recurse and put it in the array
+      const innerResult = await deleteRecursively(basicInnerFolder);
+
+      if(!innerResult) {
+        return false;
+      }
+    }
+  }
+
+  try {
+    await currentFolder.destroy();
+  } catch (error) {
+    return false;
+  }
+
+  // This is a leaf node
+  return true;
+}
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;

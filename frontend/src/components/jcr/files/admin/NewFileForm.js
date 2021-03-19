@@ -56,9 +56,7 @@ class NewFileForm extends React.Component {
       return;
     }
 
-    console.log(res.data);
-
-    this.props.onCreate(null);
+    this.props.onCreate(res.data.file);
     this.setState({ disabled: false, name: "", description: "", parent: "", file: "", inputFileRK: new Date() });
   }
 
