@@ -531,7 +531,7 @@ router.get("/committee/:id", async (req, res) => {
 })
 
 router.get("/structure", async (req, res) => {
-  if(!hasPermission(req.session, "jcr.files")) {
+  if(!hasPermission(req.session, "jcr.member")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
@@ -909,6 +909,7 @@ router.delete("/folder/:id", async (req, res) => {
 });
 
 const deleteRecursively = async (currentFolder) => {
+  // Purge a tree
   let files;
 
   // Get the files in the directory
@@ -923,7 +924,7 @@ const deleteRecursively = async (currentFolder) => {
     return false;
   }
 
-  // Delete the files
+  // Delete the files (both db and file system)
   for(const file of files) {
     try {
       await fs.unlink(`uploads/jcr/${file.realFileName}`, (err) => {});
@@ -940,6 +941,7 @@ const deleteRecursively = async (currentFolder) => {
 
   let subDirs;
 
+  // Get the sub-folders
   try {
     subDirs = await JCRFolder.findAll({
       where: {
@@ -967,13 +969,13 @@ const deleteRecursively = async (currentFolder) => {
     }
   }
 
+  // Finally delete the folder record
   try {
     await currentFolder.destroy();
   } catch (error) {
     return false;
   }
 
-  // This is a leaf node
   return true;
 }
 
