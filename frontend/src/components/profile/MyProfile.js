@@ -185,8 +185,8 @@ class MyProfile extends React.Component {
                   singleImage={true}
                   onChange={this.onImageDrop}
                   disabled={this.state.disabled}
-                  maxFileSize={2097152}
-                  label="Max file size: 2mb, accepts jpg or png"
+                  maxFileSize={4194304}
+                  label="Max file size: 4mb, accepts jpg or png"
                 />
               </div>
               {
