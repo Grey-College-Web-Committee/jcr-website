@@ -55,7 +55,8 @@ router.post("/picture", upload.single("image"), async (req, res) => {
     return res.status(400).json({ error: "You can only upload image files (png/gif/jpg/jpeg)" });
   }
 
-  if(image.size > 2097152) {
+  // 4mb
+  if(image.size > 4194304) {
     try {
       await fs.unlink(`uploads/images/profile/${image.filename}`, (err) => {});
     } catch (error) {
