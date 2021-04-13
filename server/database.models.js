@@ -1087,10 +1087,6 @@ BarBaseDrink.init({
     type: DataTypes.TEXT,
     allowNull: false
   },
-  image: {
-    type: DataTypes.TEXT,
-    allowNull: false,
-  },
   typeId: {
     type: DataTypes.INTEGER,
     allowNull: false,

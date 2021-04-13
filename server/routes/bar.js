@@ -1,12 +1,10 @@
 // Get express
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
 // The database models
 const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
-const upload = multer({ dest: "uploads/images/bar/" });
 const mailer = require("../utils/mailer");
 
 router.get("/", async (req, res) => {
@@ -17,7 +15,7 @@ router.get("/", async (req, res) => {
 
   try {
     baseDrinks = await BarBaseDrink.findAll({
-      attributes: [ "id", "name", "image", "typeId", "available" ],
+      attributes: [ "id", "name", "typeId", "available" ],
       include: [ BarDrinkType ]
     });
   } catch (error) {
@@ -255,7 +253,7 @@ router.get("/admin/summary", async (req, res) => {
 
 });
 
-router.post("/admin/drink", upload.single("image"), async (req, res) => {
+router.post("/admin/drink", async (req, res) => {
   const { user } = req.session;
 
   // Must have permission
@@ -263,8 +261,7 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { name, description: descriptionUnchecked, sizeCheckboxes: sizeCheckboxesUnparsed, prices: pricesUnparsed, type, available } = req.body;
-  const image = req.file;
+  const { name, description: descriptionUnchecked, sizeCheckboxes, prices, type, available } = req.body;
 
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
@@ -276,24 +273,16 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
     description = "";
   }
 
-  if(sizeCheckboxesUnparsed === undefined || sizeCheckboxesUnparsed === null) {
+  if(sizeCheckboxes === undefined || sizeCheckboxes === null) {
     return res.status(400).json({ error: "Missing sizeCheckboxes" });
   }
 
-  const sizeCheckboxes = JSON.parse(sizeCheckboxesUnparsed);
-
-  if(pricesUnparsed === undefined || pricesUnparsed === null) {
+  if(prices === undefined || prices === null) {
     return res.status(400).json({ error: "Missing prices" });
   }
 
-  const prices = JSON.parse(pricesUnparsed);
-
   if(type === undefined || type === null || type.length === 0) {
     return res.status(400).json({ error: "Missing type" });
-  }
-
-  if(image === undefined || image === null) {
-    return res.status(400).json({ error: "Missing image" });
   }
 
   if(available === undefined || available === null) {
@@ -315,7 +304,7 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
   let baseDrink;
 
   try {
-    baseDrink = await BarBaseDrink.create({ name, description, image: image.filename, typeId: typeRecord.id, available });
+    baseDrink = await BarBaseDrink.create({ name, description, typeId: typeRecord.id, available });
   } catch (error) {
     console.log(error)
     return res.status(500).json({ error: "Unable to create the base drink" });
@@ -731,7 +720,7 @@ router.delete("/mixer/:id", async (req, res) => {
   return res.status(204).end();
 });
 
-router.post("/drink/update", upload.single("image"), async (req, res) => {
+router.post("/drink/update", async (req, res) => {
   const { user } = req.session;
 
   // Must have permission
