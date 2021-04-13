@@ -114,15 +114,6 @@ class DrinkRow extends React.Component {
           />
         </td>
         <td className="p-2 border-r border-gray-400">
-          <div className="flex flex-row justify-center">
-            <img
-              src={`/uploads/images/bar/${baseDrink.image}`}
-              alt={baseDrink.name}
-              className="w-32 h-auto"
-            />
-          </div>
-        </td>
-        <td className="p-2 border-r border-gray-400">
           <select
             onChange={this.onInputChange}
             name="typeId"

@@ -1,13 +1,12 @@
 // Get express
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
 // The database models
-const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable } = require("../database.models.js");
+const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, BarBooking } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
-const upload = multer({ dest: "uploads/images/bar/" });
 const mailer = require("../utils/mailer");
+const dateFormat = require("dateformat");
 
 router.get("/", async (req, res) => {
   // Don't need to be a JCR member for this
@@ -17,7 +16,7 @@ router.get("/", async (req, res) => {
 
   try {
     baseDrinks = await BarBaseDrink.findAll({
-      attributes: [ "id", "name", "image", "typeId", "available" ],
+      attributes: [ "id", "name", "typeId", "available" ],
       include: [ BarDrinkType ]
     });
   } catch (error) {
@@ -255,7 +254,7 @@ router.get("/admin/summary", async (req, res) => {
 
 });
 
-router.post("/admin/drink", upload.single("image"), async (req, res) => {
+router.post("/admin/drink", async (req, res) => {
   const { user } = req.session;
 
   // Must have permission
@@ -263,8 +262,7 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { name, description: descriptionUnchecked, sizeCheckboxes: sizeCheckboxesUnparsed, prices: pricesUnparsed, type, available } = req.body;
-  const image = req.file;
+  const { name, description: descriptionUnchecked, sizeCheckboxes, prices, type, available } = req.body;
 
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
@@ -276,24 +274,16 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
     description = "";
   }
 
-  if(sizeCheckboxesUnparsed === undefined || sizeCheckboxesUnparsed === null) {
+  if(sizeCheckboxes === undefined || sizeCheckboxes === null) {
     return res.status(400).json({ error: "Missing sizeCheckboxes" });
   }
 
-  const sizeCheckboxes = JSON.parse(sizeCheckboxesUnparsed);
-
-  if(pricesUnparsed === undefined || pricesUnparsed === null) {
+  if(prices === undefined || prices === null) {
     return res.status(400).json({ error: "Missing prices" });
   }
 
-  const prices = JSON.parse(pricesUnparsed);
-
   if(type === undefined || type === null || type.length === 0) {
     return res.status(400).json({ error: "Missing type" });
-  }
-
-  if(image === undefined || image === null) {
-    return res.status(400).json({ error: "Missing image" });
   }
 
   if(available === undefined || available === null) {
@@ -315,7 +305,7 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
   let baseDrink;
 
   try {
-    baseDrink = await BarBaseDrink.create({ name, description, image: image.filename, typeId: typeRecord.id, available });
+    baseDrink = await BarBaseDrink.create({ name, description, typeId: typeRecord.id, available });
   } catch (error) {
     console.log(error)
     return res.status(500).json({ error: "Unable to create the base drink" });
@@ -731,7 +721,7 @@ router.delete("/mixer/:id", async (req, res) => {
   return res.status(204).end();
 });
 
-router.post("/drink/update", upload.single("image"), async (req, res) => {
+router.post("/drink/update", async (req, res) => {
   const { user } = req.session;
 
   // Must have permission
@@ -910,6 +900,171 @@ router.post("/type/update/", async (req, res) => {
   return res.status(204).end();
 });
 
+router.get("/book/available", async (req, res) => {
+  const { user } = req.session;
+  const daysInAdvance = 3;
+
+  let availableInfo = {};
+
+  // Collect information about available tables
+  for(let advDay = 0; advDay <= daysInAdvance; advDay++) {
+    // The date to check is advDays in the future
+    // We need it to be at 00:00:00 so use some formatting to get there
+    let dayDate = new Date();
+    dayDate.setDate(dayDate.getDate() + advDay);
+    dayDate = dateFormat(dayDate, "yyyy-mm-dd");
+    dayDate = Date.parse(dayDate);
+
+    // Get all the bookings for the day
+    let bookings;
+
+    try {
+      bookings = await BarBooking.findAll({ where: { date: dayDate } });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to check the existing bookings" });
+    }
+
+    // Check if they have a booking already
+    let myBooking;
+
+    try {
+      myBooking = await BarBooking.findOne({ where: { userId: user.id, date: dayDate } });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to check your bookings" });
+    }
+
+    // 20 tables in total
+    availableInfo[dateFormat(dayDate, "yyyy-mm-dd")] = {
+      availableCount: 20 - bookings.length,
+      bookingId: myBooking === null ? null : myBooking.id
+    };
+  }
+
+  // Send the info back
+  return res.status(200).json({ availableInfo });
+});
+
+router.post("/book", async (req, res) => {
+  const { user } = req.session;
+  const { date: unparsedDate } = req.body;
+
+  // Parse the date they want to book for
+  if(unparsedDate === undefined || unparsedDate === null) {
+    return res.status(400).json({ error: "Missing date" });
+  }
+
+  const date = Date.parse(unparsedDate);
+
+  // Check there is space available
+  let bookings;
+
+  try {
+    bookings = await BarBooking.findAll({ where: { date }});
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check bookings for the night" });
+  }
+
+  // No space :(
+  if(bookings.length >= 20) {
+    return res.status(400).json({ error: "There are no more tables available for this night" });
+  }
+
+  // Check if they have a booking
+  let booking;
+
+  try {
+    booking = await BarBooking.findOne({ where: { userId: user.id, date }});
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check if user already has a booking for the night" });
+  }
+
+  // User already has a booking for this night
+  if(booking !== null) {
+    return res.status(400).json({ error: "You already have a table booked" });
+  }
+
+  // Make the booking
+  let newBooking;
+
+  try {
+    newBooking = await BarBooking.create({ userId: user.id, date });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create booking" });
+  }
+
+  const customerEmail = createBarBookingEmail(user, dateFormat(date, "dd/mm/yyyy"));
+  mailer.sendEmail(user.email, `Bar Table Booking`, customerEmail);
+
+  // Return the ID
+  return res.status(200).json({ bookingId: newBooking.id });
+});
+
+router.post("/book/cancel", async (req, res) => {
+  const { user } = req.session;
+  const { id } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing ID" });
+  }
+
+  let booking;
+
+  try {
+    booking = await BarBooking.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the booking" });
+  }
+
+  if(booking === null) {
+    return res.status(400).json({ error: "Invalid ID" });
+  }
+
+  if(booking.userId !== user.id) {
+    return res.status(403).json({ error: "You cannot delete another user's booking" });
+  }
+
+  const date = booking.date;
+
+  try {
+    await BarBooking.destroy({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the booking" });
+  }
+
+  const cancelEmail = createBarCancelEmail(user, dateFormat(date, "dd/mm/yyyy"));
+  mailer.sendEmail(user.email, "Bar Booking Cancelled", cancelEmail);
+
+  return res.status(204).end();
+});
+
+router.post("/book/admin/view", async(req, res) => {
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { date: unparsedDate } = req.body;
+
+  if(unparsedDate === undefined || unparsedDate === null) {
+    return res.status(400).json({ error: "Missing date" });
+  }
+
+  const date = Date.parse(unparsedDate);
+
+  let bookings;
+
+  try {
+    bookings = await BarBooking.findAll({
+      where: { date },
+      include: [ User ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to list the bookings" });
+  }
+
+  return res.status(200).json({ bookings });
+});
+
 const createBarCustomerEmail = (user, orderContents, totalPrice, tableNumber) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -928,6 +1083,33 @@ const createBarCustomerEmail = (user, orderContents, totalPrice, tableNumber) =>
   message.push(`</ul>`);
   message.push(`<p>Total: £${totalPrice.toFixed(2)}`);
   message.push(`<p>Thank you!</p>`);
+
+  return message.join("");
+}
+
+const createBarBookingEmail = (user, date) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
+  message.push(`<p>Your bar table booking has been confirmed for ${date}.</p>`);
+  message.push(`<p>You are allowed a total of 6 people and everybody must follow COVID-19 regulations when using the bar.</p>`);
+  message.push(`<p>Drinks can be ordered via the JCR website. A member of staff will collect your payment from your table and bring the drinks to you.</p>`);
+  message.push(`<p>Thank you!</p>`);
+
+  return message.join("");
+}
+
+const createBarCancelEmail = (user, date) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
+  message.push(`<p>Your bar table booking for ${date} has been cancelled.</p>`);
 
   return message.join("");
 }

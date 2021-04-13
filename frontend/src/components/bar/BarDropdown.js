@@ -41,7 +41,9 @@ class BarDropdown extends React.Component {
         </div>
         <div className={`flex flex-row flex-wrap ${visibility}`}>
           {
-            this.props.groupItems.map((item, i) => (
+            this.props.groupItems.sort((a, b) => {
+              return a.name > b.name ? 1 : (a.name < b.name ? -1 : 0)
+            }).map((item, i) => (
               <div className="flex-1 flex flex-row justify-center" key={i}>
                 <BarSelectable
                   id={item.id}

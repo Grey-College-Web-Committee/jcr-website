@@ -214,15 +214,6 @@ class ViewBarItemPage extends React.Component {
             </div>
             <div className="flex flex-row justify-center mx-2">
               <div className="w-full flex flex-col-reverse md:flex-row text-lg">
-                <div className="w-full md:w-1/2 flex justify-center flex-col mb-4 flex-grow-0 self-start">
-                  <div className="mb-4">
-                    <img
-                      src={`/uploads/images/bar/${drink.image}`}
-                      alt={drink.name}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
                 <div className="w-full md:w-1/2 text-left md:p-4 flex flex-col">
                   <div className="pb-4">
                     <h1 className="font-semibold text-5xl pb-2">{drink.name}</h1>

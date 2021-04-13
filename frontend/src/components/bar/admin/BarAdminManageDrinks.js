@@ -2,7 +2,6 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
-import ImageUploader from 'react-images-upload';
 import DrinkRow from './DrinkRow';
 
 class BarAdminManageDrinks extends React.Component {
@@ -20,8 +19,6 @@ class BarAdminManageDrinks extends React.Component {
       sizeCheckboxes: {},
       type: "",
       prices: {},
-      imageUpload: null,
-      temporaryImageSrc: null,
       baseDrinks: [],
       available: true
     };
@@ -92,7 +89,7 @@ class BarAdminManageDrinks extends React.Component {
 
     this.setState({ disabled: true });
 
-    const { name, description, prices, sizeCheckboxes, type, imageUpload, available, sizes } = this.state;
+    const { name, description, prices, sizeCheckboxes, type, available, sizes } = this.state;
     const formData = new FormData();
 
     formData.append("name", name);
@@ -101,14 +98,11 @@ class BarAdminManageDrinks extends React.Component {
     formData.append("sizeCheckboxes", JSON.stringify(sizeCheckboxes));
     formData.append("type", type);
     formData.append("available", available);
-    formData.append("image", imageUpload[0]);
 
     let result;
 
     try {
-      result = await api.post("/bar/admin/drink", formData, {
-        headers: { "content-type": "multipart/form-data" }
-      });
+      result = await api.post("/bar/admin/drink", { name, description, prices, sizeCheckboxes, type, available });
     } catch (error) {
       this.setState({ disabled: false });
       alert("Unable to create the drink");
@@ -126,7 +120,7 @@ class BarAdminManageDrinks extends React.Component {
     let { baseDrinks } = this.state;
     baseDrinks.push(result.data.newDrink);
 
-    this.setState({ disabled: false, name: "", description: "", type: "", available: true, prices: newPrices, sizeCheckboxes: newSizeCheckboxes, imageUpload: null, temporaryImageSrc: null, baseDrinks });
+    this.setState({ disabled: false, name: "", description: "", type: "", available: true, prices: newPrices, sizeCheckboxes: newSizeCheckboxes, baseDrinks });
   }
 
   canSubmit = () => {
@@ -145,7 +139,6 @@ class BarAdminManageDrinks extends React.Component {
     return (
       (this.state.name !== undefined && this.state.name !== null && this.state.name.length !== 0) &&
       (this.state.type !== undefined && this.state.type !== null && this.state.type.length !== 0) &&
-      (this.state.imageUpload !== undefined && this.state.imageUpload !== null && this.state.imageUpload.length !== 0) &&
       (this.state.prices !== undefined && this.state.prices !== undefined) &&
       (this.state.sizeCheckboxes !== undefined && this.state.sizeCheckboxes !== undefined) &&
       (this.state.available !== undefined && this.state.available !== undefined)
@@ -162,24 +155,6 @@ class BarAdminManageDrinks extends React.Component {
     let { prices } = this.state;
     prices[i] = ev.target.value;
     this.setState({ prices });
-  }
-
-  onImageDrop = (image) => {
-    // Set the current image when they select one
-    this.setState({ imageUpload: image });
-
-    // Use FileReader to generate the base64 data source
-    const reader = new FileReader();
-
-    // Problem is it is async and we don't want to wait for it load before rendering the page
-    // So we just re-render once it is ready
-    reader.onloadend = () => {
-      const temporaryImageSrc = [reader.result];
-      this.setState({ temporaryImageSrc });
-    }
-
-    // Read the image
-    reader.readAsDataURL(image[0]);
   }
 
   render () {
@@ -303,31 +278,6 @@ class BarAdminManageDrinks extends React.Component {
                   ))}
                 </ul>
               </div>
-              <div className="pb-2 border-b-2">
-                <label htmlFor="imagePosition" className="flex flex-row justify-start text-xl font-semibold">Image</label>
-                <ImageUploader
-                  withIcon={false}
-                  buttonText={"Choose Image"}
-                  imgExtension={['.jpg', '.gif', '.png', '.gif']}
-                  singleImage={true}
-                  onChange={this.onImageDrop}
-                  disabled={this.state.disabled}
-                />
-                {
-                  this.state.imageUpload === null ? (
-                    <p>No image selected</p>
-                  ) : (
-                    <div className="flex flex-col items-center">
-                      <p>Selected Image:</p>
-                      <img
-                        src={this.state.temporaryImageSrc}
-                        alt="Uploaded Image"
-                        className="h-auto w-48"
-                      />
-                    </div>
-                  )
-                }
-              </div>
               <div className="pt-2 pb-2 border-b-2">
                 <button
                   className="px-4 py-2 rounded text-xl bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
@@ -344,7 +294,6 @@ class BarAdminManageDrinks extends React.Component {
                 <tr>
                   <th className="p-2 font-semibold">Name</th>
                   <th className="p-2 font-semibold">Description</th>
-                  <th className="p-2 font-semibold">Image</th>
                   <th className="p-2 font-semibold">Type</th>
                   <th className="p-2 font-semibold">Sizes and Prices</th>
                   <th className="p-2 font-semibold">Available</th>
