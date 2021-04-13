@@ -49,6 +49,7 @@ import SpinnerTestPage from './components/common/SpinnerTestPage';
 
 import BarOrderingPage from './components/bar/BarOrderingPage';
 import ViewBarItemPage from './components/bar/ViewBarItemPage';
+import BarBookingPage from './components/bar/book/BarBookingPage';
 
 // To add a new page import it like above
 
@@ -58,6 +59,7 @@ import BarAdminManageSizes from './components/bar/admin/BarAdminManageSizes';
 import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
 import BarAdminOverview from './components/bar/admin/BarAdminOverview';
 import BarAdminLive from './components/bar/admin/live/BarAdminLive';
+import BarAdminViewBookings from './components/bar/admin/BarAdminViewBookings';
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
@@ -489,6 +491,9 @@ class App extends React.Component {
                     <Route exact path="/bar/view/:id" render={(props) => (
                       this.isLoggedIn() ? ( <ViewBarItemPage {...props} /> ) : ( this.loginRef(`/bar/view/${props.id}`) )
                     )} />
+                    <Route exact path="/bar/book" render={() => (
+                      this.isLoggedIn() ? ( <BarBookingPage /> ) : ( this.loginRef("/bar/book") )
+                    )} />
                     <Route exact path="/bar/admin/overview" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/overview") )
                     )} />
@@ -506,6 +511,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/bar/admin/live" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/live") )
+                    )} />
+                    <Route exact path="/bar/admin/bookings" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminViewBookings /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/bookings") )
                     )} />
                     <Route exact path="/jcr/committees" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <ViewCommitteesPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees") )

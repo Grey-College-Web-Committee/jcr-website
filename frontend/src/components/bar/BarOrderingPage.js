@@ -29,7 +29,7 @@ class BarOrderingPage extends React.Component {
     };
 
     this.barCart = new BarCart();
-    this.validTableNumbers = [...Array(15).keys()].map(i => i + 1);
+    this.validTableNumbers = [...Array(20).keys()].map(i => i + 1);
   }
 
   onInputChange = e => {
@@ -140,7 +140,7 @@ class BarOrderingPage extends React.Component {
             <option disabled={true} hidden={true} value={-1}>Please choose an option...</option>
             {
               this.validTableNumbers.map(no => (
-                <option value={no}>Table #{no}</option>
+                <option value={no}>Table {no}</option>
               ))
             }
           </select>

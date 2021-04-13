@@ -185,10 +185,21 @@ class NavBar extends React.Component {
         },
         {
           displayName: "Bar",
-          url: "/bar",
-          requiredPermission: "bar.manage",
+          url: null,
+          requiredPermission: null,
           staticImage: null,
-          dropdown: null,
+          dropdown: [
+            {
+              displayName: "Order",
+              url: "/bar",
+              requiredPermission: null
+            },
+            {
+              displayName: "Book",
+              url: "/bar/book",
+              requiredPermission: null
+            }
+          ],
           alwaysDisplayed: null
         },
         {
