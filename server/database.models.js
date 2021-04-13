@@ -1240,6 +1240,14 @@ JCRRole.init({
   name: {
     type: DataTypes.TEXT,
     allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  videoUrl: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 }, { sequelize });
 

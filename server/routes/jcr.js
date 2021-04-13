@@ -123,16 +123,28 @@ router.post("/role", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { name } = req.body;
+  const { name, description, videoUrl } = req.body;
 
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
   }
 
+  if(description === undefined) {
+    return res.status(400).json({ error: "Missing description" });
+  }
+
+  if(videoUrl === undefined) {
+    return res.status(400).json({ error: "Missing videoUrl" });
+  }
+
+  if(videoUrl !== null && videoUrl !== "" && !videoUrl.toLowerCase().startsWith("https://")) {
+    return res.status(400).json({ error: "Video URL must start with https://" });
+  }
+
   let role;
 
   try {
-    role = await JCRRole.create({ name });
+    role = await JCRRole.create({ name, description, videoUrl });
   } catch (error) {
     return res.status(500).json({ error: "Unable to create the role" });
   }
@@ -224,7 +236,7 @@ router.post("/role/update", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { id, name } = req.body;
+  const { id, name, description, videoUrl } = req.body;
 
   if(id === undefined || id === null) {
     return res.status(400).json({ error: "Missing id" });
@@ -232,6 +244,18 @@ router.post("/role/update", async (req, res) => {
 
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(description === undefined) {
+    return res.status(400).json({ error: "Missing description" });
+  }
+
+  if(videoUrl === undefined) {
+    return res.status(400).json({ error: "Missing videoUrl" });
+  }
+
+  if(videoUrl !== null && videoUrl !== "" && !videoUrl.toLowerCase().startsWith("https://")) {
+    return res.status(400).json({ error: "Video URL must start with https://" });
   }
 
   let role;
@@ -247,6 +271,8 @@ router.post("/role/update", async (req, res) => {
   }
 
   role.name = name;
+  role.description = description;
+  role.videoUrl = videoUrl;
 
   try {
     await role.save();
