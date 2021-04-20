@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Redirect, Switch, Link } from 'react-router-dom';
 import authContext from './utils/authContext.js';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -133,7 +133,9 @@ class App extends React.Component {
       user,
       hideBody: false,
       ref: "/",
-      disableScrollBody: false
+      disableScrollBody: false,
+      debtPopupActive: false,
+      lastPage: null
     };
   }
 
@@ -240,8 +242,45 @@ class App extends React.Component {
     return this.state.user.permissions.includes(permission.toLowerCase());
   }
 
+  closeDebtPopup = () => {
+    if(!this.state.user.permissions.includes("debt.has")) {
+      return;
+    }
+
+    this.setState({ debtPopupActive: false });
+
+    setTimeout(() => {
+      if(this.state.user === undefined || this.state.user === null) {
+        return;
+      }
+
+      const location = window.location.pathname;
+      const ignoredLocs = ["/debt", "/checkout", "/elections", "/election", "/feedback", "/complaints"]
+      let dontBlock = false;
+
+      for(const loc of ignoredLocs) {
+        if(location.startsWith(loc)) {
+          dontBlock = true;
+          break;
+        }
+      }
+
+      if(dontBlock) {
+        this.setState({ debtPopupActive: false });
+
+        setTimeout(() => {
+          this.closeDebtPopup();
+        }, 10000);
+
+        return;
+      }
+
+      this.setState({ debtPopupActive: true });
+    }, 5000);
+  }
+
   loginUser = (user, ref) => {
-    this.setState({ user, ref });
+    this.setState({ user, ref, debtPopupActive: user.permissions.includes("debt.has") });
   }
 
   logoutUser = () => {
@@ -297,6 +336,33 @@ class App extends React.Component {
         <authContext.Provider value={this.state.user}>
           <Router>
             <div className="min-h-full h-full flex flex-col">
+              {
+                this.state.debtPopupActive ? (
+                  <div className={`w-screen p-4 h-screen top-0 left-0 fixed overflow-y-auto overflow-x-hidden bg-red-900 white block z-20 ${Math.random()}`}>
+                    <div className="mx-auto flex flex-column items-center justify-center">
+                      <div className="my-auto bg-white p-4">
+                        <h1 className="my-1 font-semibold text-2xl">Outstanding Debt</h1>
+                        <p className="my-1">You currently have an outstanding debt. Until this has been cleared your access to JCR services is limited.</p>
+                        <p className="my-1">The JCR has contacted you on multiple occasions. You must clear your debt as soon as possible.</p>
+                        <p className="my-1">(If you have just cleared your debt please logout and back in!)</p>
+                        <p className="my-1 font-semibold">Please clear your debt!</p>
+                        <Link to="/debt">
+                          <button
+                            className="my-1 px-4 py-1 rounded bg-grey-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                            onClick={this.closeDebtPopup}
+                          >Click here to clear your debt</button>
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="mx-auto w-auto">
+                      <button
+                        onClick={this.closeDebtPopup}
+                        className="text-xl text-red-500"
+                      >X</button>
+                    </div>
+                  </div>
+                ) : null
+              }
               <CookieAccept />
               <NavBar
                 hideBody={this.hideBody}

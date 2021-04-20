@@ -241,7 +241,7 @@ class GymInformationPage extends React.Component {
   renderHouseholdDiv = () => {
     return (
       <React.Fragment>
-        <h2 className="font-semibold text-4xl pb-2 text-left">Household Confirmation</h2>
+        <h2 className="font-semibold text-4xl pb-2 text-left">Purchase Membership</h2>
         <p className="py-1">As part of the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link>, at least one other member of your household must be using the gym with you. Please specify your household number below. This will be used to check that at least two members of the same household have a membership once the gym opens.</p>
         <p className="py-1">Once you have selected your household number you will be able to purchase a membership. If you select the wrong household number you will need to refresh the page!</p>
         <div className="flex flex-col w-auto my-2">
@@ -333,10 +333,10 @@ class GymInformationPage extends React.Component {
               <li>-	<span className="font-semibold">Main Weights Room</span> - complete with the: Shoulder Press, Leg Extension, Leg Curl, Leg Press and Smith machines. Multiple benches (including a Scott bench) with Bars, Dumbbells and Kettle Bells.</li>
               <li>-	<span className="font-semibold">Henry Dyson Room (Weights Room)</span> – complete with: Cable Station, Squat Rack and Treadmill.</li>
             </ul>
-            <p className="py-1">The Gym Opening Times are from <span className="font-semibold">08:00 until 22:00, 7 days per week.</span></p>
+            <p className="py-1">The Gym Opening Times are from <span className="font-semibold">09:00 until 22:00, 7 days per week.</span></p>
             <p className="py-1">For Easter Term 2021, users of the gym will need their ‘household leader’ to book ‘household’ gym slots as, unfortunately, the gym is too small to offer individual socially distanced exercise. Therefore, there must be a minimum of 2 people in your ‘household’ with an active gym membership.</p>
             <p className="py-1">Please be considerate to residents living above the Gym by not playing loud music early in the morning and evening.</p>
-            <p className="py-1">Gym members will need to complete the DUO induction training, quiz and PARQ form before being granted access to the Gym. DUO > Grey College > Grey JCR > Grey College Gym</p>
+            <p className="py-1 font-semibold">Gym members will need to complete the DUO induction training, quiz and PARQ form before being granted access to the Gym. DUO > Grey College > Grey JCR > Grey College Gym</p>
             <p className="py-1">The Gym is run and equipment owned by the JCR, please contact the FACSO, Will, at <a href="mailto:grey.treasurer@durham.ac.uk" className="underline font-semibold" target="_blank" rel="noopener noreferrer">grey.treasurer@durham.ac.uk</a> with any questions.</p>
           </div>
           <div className="flex flex-col mx-2 lg:flex-row lg:mx-0 mt-2">
@@ -346,7 +346,7 @@ class GymInformationPage extends React.Component {
                   <img
                     src={`/images/gym/gym-${this.state.currentGalleryImage}.jpg`}
                     alt="Grey Gym"
-                    className="h-auto w-auto"
+                    className="h-auto w-auto border-red-900 border-2"
                   />
                 </div>
               </div>

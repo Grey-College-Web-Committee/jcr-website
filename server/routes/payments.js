@@ -420,6 +420,18 @@ const fulfilDebtOrders = async (user, orderId, relatedOrders, deliveryInformatio
   }
 
   // Could maybe send emails??
+  const debtFacsoEmail = createFacsoDebtEmail(user);
+  mailer.sendEmail("grey.website@durham.ac.uk", `Debt Cleared (${user.username})`, debtFacsoEmail);
+}
+
+const debtFacsoEmail = (user) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>${firstName} ${lastName} (Username: ${user.username}) has cleared their debt`);
+  return message.join("");
 }
 
 const awaitingEventPaymentsEmail = (user, notPaid, groupCreatedAtDate) => {
