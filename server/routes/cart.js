@@ -741,7 +741,7 @@ const debtProcessor = async (globalOrderParameters, orderId, quantity, globalSub
   }
 
   return {
-    price: debtRecord.debt,
+    price: Number(debtRecord.debt),
     globalSubmissionInfo: globalSubmissionInfo,
     globalOrderParameters: globalOrderParameters
   };
