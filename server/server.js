@@ -54,7 +54,7 @@ if(process.env.NODE_ENV === "production") {
   const redis = require("redis");
   const redisAdapter = require("socket.io-redis");
   const pubClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST,
-    { auth_path: process.env.REDIS_PASSWORD }
+    { auth_pass: process.env.REDIS_PASSWORD }
   );
   const subClient = pubClient.duplicate();
 
