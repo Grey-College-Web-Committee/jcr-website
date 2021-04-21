@@ -64,6 +64,7 @@ if(process.env.NODE_ENV === "production") {
 const barSocket = require("./sockets/bar_socket");
 
 io.on("connection", socket => {
+  console.log("new connect")
   barSocket.setupEvents(socket, io);
 });
 
