@@ -47,7 +47,7 @@ const eventsCron = require("./cron/events_cron");
 const app = express();
 
 const http = require("http").Server(app);
-const io = require("socket.io")(http, { transports: [ "websocket" ] });
+const io = require("socket.io")(http, { transports: [ "polling", "websocket" ] });
 
 if(process.env.NODE_ENV === "production") {
   console.log("Production Mode: Setting redis sockets");
