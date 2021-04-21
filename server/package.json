@@ -21,8 +21,10 @@
     "nodemailer": "^6.4.16",
     "nodemon": "^2.0.5",
     "object-hash": "^2.0.3",
+    "redis": "^3.1.2",
     "sequelize": "^6.3.5",
     "socket.io": "^4.0.0",
+    "socket.io-redis": "^6.1.0",
     "stripe": "^8.114.0",
     "uuid": "^8.3.1"
   },

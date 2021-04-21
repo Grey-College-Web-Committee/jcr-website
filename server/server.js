@@ -47,7 +47,20 @@ const eventsCron = require("./cron/events_cron");
 const app = express();
 
 const http = require("http").Server(app);
-const io = require("socket.io")(http);
+const io = require("socket.io")(http, { transports: [ "websocket" ] });
+
+if(process.env.NODE_ENV === "production") {
+  console.log("Production Mode: Setting redis sockets");
+  const redis = require("redis");
+  const redisAdapter = require("socket.io-redis");
+  const pubClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST,
+    { auth_path: process.env.REDIS_PASSWORD }
+  );
+  const subClient = pubClient.duplicate();
+
+  io.adapter(redisAdapter({ pubClient, subClient }));
+}
+
 const barSocket = require("./sockets/bar_socket");
 
 io.on("connection", socket => {
