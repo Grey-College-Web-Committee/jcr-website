@@ -14,7 +14,12 @@ class BarBookingPage extends React.Component {
       status: 0,
       error: "",
       availableInfo: {},
-      disabled: false
+      disabled: false,
+      showBookingDialogue: false,
+      bookingDate: null,
+      bookingState: 0,
+      guestNames: [],
+      bookingError: ""
     };
   }
 
@@ -44,25 +49,200 @@ class BarBookingPage extends React.Component {
     this.setState({ loaded: true, status: 200, availableInfo: content.data.availableInfo });
   }
 
-  bookTable = async (date) => {
-    this.setState({ disabled: true });
+  bookTable = (date) => {
+    this.setState({ bookingDate: date, showBookingDialogue: true, bookingState: 0, guestNames: [...Array(5).keys()].map(() => ""), bookingError: "", disabled: true });
+  }
+
+  makeDisplayName = (user) => {
+    const upperCaseFirstName = user.firstNames.split(",")[0];
+    const firstName = upperCaseFirstName.substring(0, 1) + upperCaseFirstName.substring(1).toLowerCase();
+
+    const upperCaseLastName = user.surname;
+    const specialCaseList = ["MC", "MAC"];
+    const foundSpecialCase = specialCaseList.filter(c => upperCaseLastName.startsWith(c));
+
+    let lastName = upperCaseLastName.substring(0, 1) + upperCaseLastName.substring(1).toLowerCase();
+
+    // Fix special cases like McDonald appearing as Mcdonald
+    if(foundSpecialCase.length !== 0) {
+      const c = foundSpecialCase[0].substring(0, 1) + foundSpecialCase[0].substring(1).toLowerCase();
+      lastName = upperCaseLastName.substring(c.length);
+      lastName = c + lastName.substring(0, 1) + lastName.substring(1).toLowerCase();
+    }
+
+    // Fix hyphens
+    if(lastName.includes("-")) {
+      let capNext = false;
+      let newLastName = [];
+
+      for(const i in lastName) {
+        if(capNext) {
+          newLastName.push(lastName[i].toUpperCase());
+          capNext = false;
+          continue;
+        }
+
+        newLastName.push(lastName[i]);
+        capNext = lastName[i] === "-";
+      }
+
+      lastName = newLastName.join("")
+    }
+
+    return `${firstName} ${lastName}`;
+  }
+
+  updateGuestName = (e, index) => {
+    let { guestNames } = this.state;
+    guestNames[index] = e.target.value;
+    this.setState({ guestNames });
+  }
+
+  placeBooking = async () => {
+    this.setState({ bookingState: 1 });
+
+    const { bookingDate, guestNames: unfilteredGuestNames } = this.state;
+    const guestNames = unfilteredGuestNames.filter(name => name !== undefined && name !== null && name.length !== 0);
+
+    if(guestNames.length > 5) {
+      this.setState({ bookingState: 999, bookingError: "You are allowed a maximum of 5 guests only." });
+      return;
+    }
 
     let result;
 
     try {
-      result = await api.post("/bar/book", { date });
+      result = await api.post("/bar/book", { date: bookingDate, guestNames });
     } catch (error) {
-      alert(error.response.data.error);
-      this.setState({ disabled: false });
+      this.setState({ bookingState: 999, bookingError: error.response.data.error });
       return;
     }
 
     let { availableInfo } = this.state;
-    availableInfo[date].bookingId = result.data.bookingId;
-    availableInfo[date].availableCount -= 1;
+    availableInfo[bookingDate].bookingId = result.data.bookingId;
+    availableInfo[bookingDate].availableCount -= 1;
 
-    this.setState({ disabled: false, availableInfo });
+    this.setState({ bookingState: 2, availableInfo, disabled: false })
   }
+
+  renderBookingDialogue = () => {
+    if(!this.state.showBookingDialogue) {
+      return null;
+    }
+
+    const allowedGuests = 5;
+
+    switch(this.state.bookingState) {
+      case 0:
+        return (
+          <div className="w-screen h-full overflow-auto flex flex-row justify-center my-auto fixed bg-grey-500 bg-opacity-75 top-0 left-0 block z-10">
+            <div className="flex flex-row justify-center overflow-y-auto overflow-x-hidden h-full">
+              <div className="flex flex-col bg-white p-4 mx-2 md:mx-0 overflow-y-auto overflow-x-hidden md:w-96 w-full border-2 border-grey-900 h-auto my-auto">
+                <h2 className="font-semibold text-3xl">Book Table</h2>
+                <p className="mb-1 font-semibold">Selected Date: {dateFormat(this.state.bookingDate, "dd/mm/yyyy")}</p>
+                <p>Please enter the names of everybody else who will be attending with you below.</p>
+                <p>This cannot be changed without first cancelling your booking.</p>
+                <h3 className="text-xl font-semibold my-1">Guests</h3>
+                <div>
+                  <p>Guest 1: {this.makeDisplayName(this.context)}</p>
+                  {
+                    [...Array(allowedGuests).keys()].map(i => (
+                      <div className="flex flex-col mt-1" key={i}>
+                        <p>Guest {i + 2}:</p>
+                        <input
+                          type="text"
+                          className="w-full border border-gray-500 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                          onChange={(ev) => this.updateGuestName(ev, i)}
+                          value={this.state.guestNames[i]}
+                        />
+                      </div>
+                    ))
+                  }
+                </div>
+                <button
+                  onClick={this.placeBooking}
+                  className="mt-2 px-4 py-1 rounded bg-red-900 text-white md:w-auto w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >Confirm Booking</button>
+                <button
+                  onClick={() => this.setState({ showBookingDialogue: false, disabled: false })}
+                  className="mt-2 px-4 py-1 text-sm rounded bg-grey-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >Close without Booking</button>
+              </div>
+            </div>
+          </div>
+        )
+      case 1:
+        return (
+          <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0 z-10">
+            <div className="flex flex-col w-96 bg-white p-4 border-2 border-grey-900 text-lg">
+              <h2 className="mb-2 text-2xl font-semibold">Processing...</h2>
+              <LoadingHolder />
+            </div>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="w-screen h-full overflow-auto flex flex-row justify-center my-auto fixed bg-grey-500 bg-opacity-75 top-0 left-0 block z-10">
+            <div className="flex flex-row justify-center overflow-y-auto overflow-x-hidden h-full">
+              <div className="flex flex-col bg-white p-4 mx-2 md:mx-0 overflow-y-auto overflow-x-hidden md:w-96 w-full border-2 border-grey-900 h-auto my-auto">
+                <h2 className="font-semibold text-3xl">Booking Confirmed!</h2>
+                <p>Thank you for your booking!</p>
+                <p>Your confirmed guests are:</p>
+                <ul className="list-inside list-disc">
+                  <li>{this.makeDisplayName(this.context)}</li>
+                  {
+                    this.state.guestNames.map((name, i) => (
+                      name.length === 0 ? null : <li key={i}>{name}</li>
+                    ))
+                  }
+                </ul>
+                <button
+                  onClick={() => this.setState({ showBookingDialogue: false, disabled: false })}
+                  className="mt-2 px-4 py-1 rounded bg-grey-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >Close</button>
+              </div>
+            </div>
+          </div>
+        );
+      case 999:
+        return (
+          <div className="w-screen h-full overflow-auto flex flex-row justify-center my-auto fixed bg-grey-500 bg-opacity-75 top-0 left-0 block z-10">
+            <div className="flex flex-row justify-center overflow-y-auto overflow-x-hidden h-full">
+              <div className="flex flex-col bg-white p-4 mx-2 md:mx-0 overflow-y-auto overflow-x-hidden md:w-96 w-full border-2 border-grey-900 h-auto my-auto">
+                <h2 className="font-semibold text-3xl">Booking Error</h2>
+                <p>{this.state.bookingError}</p>
+                <button
+                  onClick={() => this.setState({ showBookingDialogue: false, disabled: false })}
+                  className="mt-2 px-4 py-1 rounded bg-grey-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >Close</button>
+              </div>
+            </div>
+          </div>
+        )
+      default:
+        return null;
+    }
+  }
+
+  // bookTable = async (date) => {
+  //   this.setState({ disabled: true });
+  //
+  //   let result;
+  //
+  //   try {
+  //     result = await api.post("/bar/book", { date });
+  //   } catch (error) {
+  //     alert(error.response.data.error);
+  //     this.setState({ disabled: false });
+  //     return;
+  //   }
+  //
+  //   let { availableInfo } = this.state;
+  //   availableInfo[date].bookingId = result.data.bookingId;
+  //   availableInfo[date].availableCount -= 1;
+  //
+  //   this.setState({ disabled: false, availableInfo });
+  // }
 
   cancelBooking = async (date, id) => {
     this.setState({ disabled: true });
@@ -100,51 +280,55 @@ class BarBookingPage extends React.Component {
     const { availableInfo } = this.state;
 
     return (
-      <div className="flex flex-col justify-start">
-        <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Book a Table</h1>
-          <p className="text-left">The college bar will be reopening at the start of Easter term! You must book a table in advance. They release 3 days in advance at midnight. There are 20 tables available each night with 6 seats each. <span className="font-semibold">You must follow COVID-19 regulations at all times.</span> This includes maintaining social distancing and wearing a mask when you are not seated at your table.</p>
-          <p className="text-left">When you are at the bar, please <Link to="/bar" className="underline font-semibold">use this website to order your drinks</Link> and a member of staff will collect payment from your table and bring your drinks to you.</p>
-          <div className="flex-col flex w-full md:w-3/5 mx-auto">
-            {
-              Object.keys(availableInfo).map(date => (
-                <div className="border mt-4 p-2 w-full text-left text-lg">
-                  <p className="text-left text-2xl font-semibold">Book for {dateFormat(date, "dd/mm/yyyy")}</p>
-                  {
-                    availableInfo[date].bookingId === null ? (
-                      <div>
-                        {
-                          availableInfo[date].availableCount === 0 ? (
-                            <p>There are no more tables available for this night.</p>
-                          ) : (
-                            <div>
-                              <p>Available Tables: {availableInfo[date].availableCount}</p>
-                              <button
-                                disabled={this.state.disabled}
-                                onClick={() => this.bookTable(date)}
-                                className="mt-2 px-4 py-1 rounded bg-grey-900 text-white md:w-auto w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                              >Book Now</button>
-                            </div>
-                          )
-                        }
-                      </div>
-                    ) : (
-                      <div>
-                        <p>You already have a booking for this night.</p>
-                        <button
-                          disabled={this.state.disabled}
-                          className="mt-2 px-4 py-1 rounded bg-red-900 text-white md:w-auto w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                          onClick={() => this.cancelBooking(date, availableInfo[date].bookingId)}
-                        >Cancel</button>
-                      </div>
-                    )
-                  }
-                </div>
-              ))
-            }
+      <React.Fragment>
+        {this.renderBookingDialogue()}
+        <div className="flex flex-col justify-start">
+          <div className="container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-2">Book a Table</h1>
+            <p className="mt-1 text-left">In line with government restrictions Grey Bar will be reopening! We have had to adjust our opening hours and we will now be open from <span className="font-semibold">7pm-10pm everyday</span>. As well as this, we have made several adjustments to the bar to ensure that we can operate in a COVID-secure manner - namely operating from a brand new outside space on Grey Lawn (until restrictions change) and a <Link to="/bar" className="underline font-semibold">new table booking and ordering system</Link> that makes your lives as customers much, much easier.</p>
+            <p className="mt-1 text-left">For the first week the bar will only open to livers-in before it opens up to the wider Grey community. Due to social distancing and capacity restraints we are limiting tables to <span className="font-semibold">tables of 6 from the same household only.</span> Your table will be yours for the night so make the most of it and get there as early as possible.</p>
+            <p className="mt-1 text-left">As per University Regulations we are required to carry out <span className="font-semibold">track and trace</span> and also ask for proof of a <span className="font-semibold">negative LFT test within the last 4 days.</span></p>
+            <div className="flex-col flex w-full md:w-3/5 mx-auto">
+              {
+                Object.keys(availableInfo).map(date => (
+                  <div className="border mt-4 p-2 w-full text-left text-lg">
+                    <p className="text-left text-2xl font-semibold">Book for {dateFormat(date, "dd/mm/yyyy")}</p>
+                    {
+                      availableInfo[date].bookingId === null ? (
+                        <div>
+                          {
+                            availableInfo[date].availableCount === 0 ? (
+                              <p>There are no more tables available for this night.</p>
+                            ) : (
+                              <div>
+                                <p>Available Tables: {availableInfo[date].availableCount}</p>
+                                <button
+                                  disabled={this.state.disabled}
+                                  onClick={() => this.bookTable(date)}
+                                  className="mt-2 px-4 py-1 rounded bg-grey-900 text-white md:w-auto w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                                >Book Now</button>
+                              </div>
+                            )
+                          }
+                        </div>
+                      ) : (
+                        <div>
+                          <p>Thank you for your booking.</p>
+                          <button
+                            disabled={this.state.disabled}
+                            className="mt-2 px-4 py-1 rounded bg-red-900 text-white md:w-auto w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                            onClick={() => this.cancelBooking(date, availableInfo[date].bookingId)}
+                          >Cancel</button>
+                        </div>
+                      )
+                    }
+                  </div>
+                ))
+              }
+            </div>
           </div>
         </div>
-      </div>
+      </React.Fragment>
     );
   }
 }

@@ -159,17 +159,26 @@ class BarAdminViewBookings extends React.Component {
                   <table className="mx-auto border-2 text-left border-red-900 w-full">
                     <thead className="bg-red-900 text-white">
                       <tr>
-                        <th className="p-2 font-semibold">Username</th>
-                        <th className="p-2 font-semibold">Name</th>
+                        <th className="p-2 font-semibold">Booker Username</th>
+                        <th className="p-2 font-semibold">Guests</th>
                         <th className="p-2 font-semibold">Booked At</th>
                       </tr>
                     </thead>
                     <tbody>
                       {
-                        this.state.tables.map(row => (
-                          <tr className="text-center border-b border-gray-400">
+                        this.state.tables.map((row, i) => (
+                          <tr className="text-center border-b border-gray-400" key={i}>
                             <td className="p-2 border-r border-gray-400">{row.User.username}</td>
-                            <td className="p-2 border-r border-gray-400">{this.makeDisplayName(row.User)}</td>
+                            <td className="p-2 border-r border-gray-400 text-left">
+                              <ul className="list-inside list-disc">
+                                <li>{this.makeDisplayName(row.User)} (Lead Booker)</li>
+                                {
+                                  row.BarBookingGuests.map((guest, j) => (
+                                    <li key={j}>{guest.name}</li>
+                                  ))
+                                }
+                              </ul>
+                            </td>
                             <td className="p-2 border-r border-gray-400">{dateFormat(row.createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
                           </tr>
                         ))

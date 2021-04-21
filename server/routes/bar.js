@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, BarBooking } = require("../database.models.js");
+const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, BarBooking, BarBookingGuest } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const mailer = require("../utils/mailer");
@@ -946,7 +946,7 @@ router.get("/book/available", async (req, res) => {
 
 router.post("/book", async (req, res) => {
   const { user } = req.session;
-  const { date: unparsedDate } = req.body;
+  const { date: unparsedDate, guestNames: unparsedGuestNames } = req.body;
 
   // Parse the date they want to book for
   if(unparsedDate === undefined || unparsedDate === null) {
@@ -955,11 +955,23 @@ router.post("/book", async (req, res) => {
 
   const date = Date.parse(unparsedDate);
 
+  // Handle the guest names
+  if(unparsedGuestNames === undefined || unparsedGuestNames === null || unparsedGuestNames.length === 0) {
+    return res.status(400).json({ error: "Missing guestNames" });
+  }
+
+  // Filter empty names and limit the size of each name
+  const guestNames = unparsedGuestNames.filter(name => name !== undefined && name !== null && name.length !== 0).map(name => name.substring(0, 255));
+
+  if(guestNames.length === 0) {
+    return res.status(400).json({ error: "Missing guestNames (post-filter)" });
+  }
+
   // Check there is space available
   let bookings;
 
   try {
-    bookings = await BarBooking.findAll({ where: { date }});
+    bookings = await BarBooking.findAll({ where: { date } });
   } catch (error) {
     return res.status(500).json({ error: "Unable to check bookings for the night" });
   }
@@ -992,7 +1004,18 @@ router.post("/book", async (req, res) => {
     return res.status(500).json({ error: "Unable to create booking" });
   }
 
-  const customerEmail = createBarBookingEmail(user, dateFormat(date, "dd/mm/yyyy"));
+  // Add the guests
+
+  for(const guestName of guestNames) {
+    try {
+      await BarBookingGuest.create({ bookingId: newBooking.id, name: guestName });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to add guest to booking" });
+    }
+  }
+
+  // Email confirmation
+  const customerEmail = createBarBookingEmail(user, dateFormat(date, "dd/mm/yyyy"), guestNames);
   mailer.sendEmail(user.email, `Bar Table Booking`, customerEmail);
 
   // Return the ID
@@ -1021,6 +1044,13 @@ router.post("/book/cancel", async (req, res) => {
 
   if(booking.userId !== user.id) {
     return res.status(403).json({ error: "You cannot delete another user's booking" });
+  }
+
+  // Remove the guests
+  try {
+    await BarBookingGuest.destroy({ where: { bookingId: booking.id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the booking guests" });
   }
 
   const date = booking.date;
@@ -1056,7 +1086,7 @@ router.post("/book/admin/view", async(req, res) => {
   try {
     bookings = await BarBooking.findAll({
       where: { date },
-      include: [ User ]
+      include: [ User, BarBookingGuest ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to list the bookings" });
@@ -1087,7 +1117,7 @@ const createBarCustomerEmail = (user, orderContents, totalPrice, tableNumber) =>
   return message.join("");
 }
 
-const createBarBookingEmail = (user, date) => {
+const createBarBookingEmail = (user, date, guestNames) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
@@ -1095,8 +1125,22 @@ const createBarBookingEmail = (user, date) => {
 
   message.push(`<p>Hello ${firstName} ${lastName},</p>`);
   message.push(`<p>Your bar table booking has been confirmed for ${date}.</p>`);
-  message.push(`<p>You are allowed a total of 6 people and everybody must follow COVID-19 regulations when using the bar.</p>`);
-  message.push(`<p>Drinks can be ordered via the JCR website. A member of staff will collect your payment from your table and bring the drinks to you.</p>`);
+
+  if(guestNames.length !== 0) {
+    message.push(`<p>Your confirmed guests are:</p>`);
+    message.push(`<ul>`);
+
+    guestNames.forEach(name => {
+      message.push(`<li>${name}</li>`)
+    });
+
+    message.push(`</ul>`);
+  }
+
+  message.push(`<p>When you are in the bar please use the drink order QR code on your table to take you to a website where you can order your drinks. Drinks will then be brought to your table by a member of our bar staff. Please note that last orders will be called earlier than usual to ensure you have time to drink up before closing at 10.</p>`)
+  message.push(`<p>To ensure the best experience for all of us we ask you also to please respect the rules in place and stay at your tables instead of mingling between tables. Quite simply, if the bar is found to not be meeting COVID regulations then we will be forced to shut down which is not in any of our best interests.</p>`);
+  message.push(`<p>As per University Regulations we are required to carry out <span className="font-semibold">track and trace</span> and also ask for proof of a <span className="font-semibold">negative LFT test within the last 4 days.</span></p>`);
+
   message.push(`<p>Thank you!</p>`);
 
   return message.join("");

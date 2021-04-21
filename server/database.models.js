@@ -73,6 +73,7 @@ class BarMixer extends Model {}
 class BarOrder extends Model {}
 class BarOrderContent extends Model {}
 class BarBooking extends Model {}
+class BarBookingGuest extends Model {}
 
 class PersistentVariable extends Model {}
 
@@ -1351,6 +1352,21 @@ BarBooking.init({
   },
 }, { sequelize });
 
+BarBookingGuest.init({
+  bookingId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: BarBooking,
+      key: 'id'
+    }
+  },
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -1503,4 +1519,7 @@ JCRFile.belongsTo(JCRFolder, { foreignKey: 'parent' });
 User.hasMany(BarBooking, { foreignKey: 'userId' });
 BarBooking.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking };
+BarBooking.hasMany(BarBookingGuest, { foreignKey: 'bookingId' });
+BarBookingGuest.belongsTo(BarBooking, { foreignKey: 'bookingId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest };
