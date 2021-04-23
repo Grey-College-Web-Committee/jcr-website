@@ -486,7 +486,7 @@ class CheckoutPage extends React.Component {
     }
 
     const { items } = this.state.pageState <= 0 ? this.cart.get() : this.state.lockedClientSideCart;
-    const checkoutClosed = !this.context.permissions.includes("permissions.edit") && this.context.username !== "nonmem";
+    const checkoutClosed = false;
 
     switch(this.state.pageState) {
       // Confirm the order

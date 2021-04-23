@@ -148,7 +148,7 @@ class BarBookingPage extends React.Component {
                   {
                     [...Array(allowedGuests).keys()].map(i => (
                       <div className="flex flex-col mt-1" key={i}>
-                        <p>Guest {i + 2}:</p>
+                        <p>Guest {i + 2} (Optional):</p>
                         <input
                           type="text"
                           className="w-full border border-gray-500 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
