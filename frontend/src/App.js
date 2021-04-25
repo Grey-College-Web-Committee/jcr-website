@@ -60,6 +60,7 @@ import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
 import BarAdminOverview from './components/bar/admin/BarAdminOverview';
 import BarAdminLive from './components/bar/admin/live/BarAdminLive';
 import BarAdminViewBookings from './components/bar/admin/BarAdminViewBookings';
+import BarAdminManageCordials from './components/bar/admin/BarAdminManageCordials';
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
@@ -574,6 +575,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/bar/admin/drinks" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageDrinks /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/drinks") )
+                    )} />
+                    <Route exact path="/bar/admin/cordials" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageCordials /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/cordials") )
                     )} />
                     <Route exact path="/bar/admin/live" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/live") )

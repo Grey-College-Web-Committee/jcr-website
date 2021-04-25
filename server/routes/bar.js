@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, BarBooking, BarBookingGuest } = require("../database.models.js");
+const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, BarBooking, BarBookingGuest, BarCordial } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const mailer = require("../utils/mailer");
@@ -44,7 +44,7 @@ router.post("/admin/type", async (req, res) => {
   }
 
   // Basic validation
-  const { name, allowsMixer } = req.body;
+  const { name, allowsMixer, allowsCordial } = req.body;
 
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
@@ -54,11 +54,15 @@ router.post("/admin/type", async (req, res) => {
     return res.status(400).json({ error: "Missing allowsMixer" });
   }
 
+  if(allowsCordial === undefined || allowsCordial === null) {
+    return res.status(400).json({ error: "Missing allowsCordial" });
+  }
+
   // Make the new type and send it back
   let type;
 
   try {
-    type = await BarDrinkType.create({ name, allowsMixer });
+    type = await BarDrinkType.create({ name, allowsMixer, allowsCordial });
   } catch (error) {
     return res.status(500).json({ error: "Unable to create the type" });
   }
@@ -381,7 +385,7 @@ router.get("/drink/:id", async (req, res) => {
         },
         {
           model: BarDrinkType,
-          attributes: [ "name", "allowsMixer" ]
+          attributes: [ "name", "allowsMixer", "allowsCordial" ]
         }
       ]
     });
@@ -403,7 +407,17 @@ router.get("/drink/:id", async (req, res) => {
     }
   }
 
-  return res.status(200).json({ drink, mixers });
+  let cordials = [];
+
+  if(drink.BarDrinkType.allowsCordial) {
+    try {
+      cordials = await BarCordial.findAll();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to get the cordials" });
+    }
+  }
+
+  return res.status(200).json({ drink, mixers, cordials });
 })
 
 router.post("/order", async (req, res) => {
@@ -517,6 +531,28 @@ router.post("/order", async (req, res) => {
       }
     }
 
+    // Then verify the cordial
+
+    let cordial = null;
+
+    if(item.cordialId !== null && item.cordialId !== -1 && item.cordialId !== "-1") {
+      try {
+        cordial = await BarCordial.findOne({
+          where: { id: item.cordialId }
+        })
+      } catch (error) {
+        return res.status(500).json({ error: "Unable to get the cordial from the database" });
+      }
+
+      if(cordial === null) {
+        return res.status(400).json({ error: "Invalid cordialId" });
+      }
+
+      if(!cordial.available) {
+        return res.status(400).json({ error: `${cordial.name} is out of stock` });
+      }
+    }
+
     let realQuantity;
 
     try {
@@ -537,6 +573,10 @@ router.post("/order", async (req, res) => {
       perItemPrice += Number(mixer.price);
     }
 
+    if(cordial !== null) {
+      perItemPrice += Number(cordial.price);
+    }
+
     let orderPart;
 
     try {
@@ -544,6 +584,7 @@ router.post("/order", async (req, res) => {
         orderId: overallOrder.id,
         drinkId: drink.id,
         mixerId: mixer === null ? null : mixer.id,
+        cordialId: cordial === null ? null : cordial.id,
         quantity: realQuantity
       });
     } catch (error) {
@@ -551,7 +592,7 @@ router.post("/order", async (req, res) => {
     }
 
     totalPrice += perItemPrice * realQuantity;
-    orderContents.push({ id: orderPart.id, drink, mixer, perItemPrice, realQuantity });
+    orderContents.push({ id: orderPart.id, drink, mixer, cordial, perItemPrice, realQuantity });
   }
 
   overallOrder.totalPrice = totalPrice;
@@ -573,6 +614,7 @@ router.post("/order", async (req, res) => {
       name: item.drink.BarBaseDrink.name,
       size: item.drink.BarDrinkSize.name,
       mixer: item.mixer === null ? null : item.mixer.name,
+      cordial: item.cordial === null ? null : item.cordial.name,
       quantity: item.realQuantity,
       completed: false
     };
@@ -860,7 +902,7 @@ router.post("/type/update/", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { id, name, allowsMixer } = req.body;
+  const { id, name, allowsMixer, allowsCordial } = req.body;
 
   if(id === undefined || id === null) {
     return res.status(400).json({ error: "Missing id" });
@@ -871,7 +913,11 @@ router.post("/type/update/", async (req, res) => {
   }
 
   if(allowsMixer === undefined || allowsMixer === null) {
-    return res.status(400).json({ error: "Missing available" });
+    return res.status(400).json({ error: "Missing allowsMixer" });
+  }
+
+  if(allowsCordial === undefined || allowsCordial === null) {
+    return res.status(400).json({ error: "Missing allowsCordial" });
   }
 
   let typeRecord;
@@ -890,6 +936,7 @@ router.post("/type/update/", async (req, res) => {
 
   typeRecord.name = name;
   typeRecord.allowsMixer = allowsMixer;
+  typeRecord.allowsCordial = allowsCordial;
 
   try {
     await typeRecord.save();
@@ -1095,6 +1142,168 @@ router.post("/book/admin/view", async(req, res) => {
   return res.status(200).json({ bookings });
 });
 
+router.post("/admin/cordial", async (req, res) => {
+  // Creates a new cordial
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Basic validation
+  const { name, available, price: priceUnchecked } = req.body;
+
+  if(name === undefined || name === null || name.length === 0) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(available === undefined || available === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
+  if(priceUnchecked === undefined || priceUnchecked === null) {
+    return res.status(400).json({ error: "Missing price" });
+  }
+
+  let price;
+
+  try {
+    price = parseFloat(priceUnchecked);
+  } catch (error) {
+    return res.status(400).json({ error: "Non-numeric price" });
+  }
+
+  if(isNaN(price)) {
+    return res.status(400).json({ error: "Non-numeric price - NaN" });
+  }
+
+  if(price <= 0) {
+    return res.status(400).json({ error: "Positive prices only" });
+  }
+
+  // Make the new type and send it back
+  let cordial;
+
+  try {
+    cordial = await BarCordial.create({ name, available, price });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the cordial" });
+  }
+
+  return res.status(200).json({ cordial });
+});
+
+router.get("/admin/cordials", async (req, res) => {
+  // Lists the sizes of drinks
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Just find them all and send it back
+  let cordials;
+
+  try {
+    cordials = await BarCordial.findAll();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to list the cordials" });
+  }
+
+  return res.status(200).json({ cordials });
+});
+
+router.post("/cordial/update/", async (req, res) => {
+  // Change details about a cordial
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, available, price } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  if(name === undefined || name === null) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(available === undefined || available === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
+  if(price === undefined || price === null) {
+    return res.status(400).json({ error: "Missing price" });
+  }
+
+  let cordialRecord;
+
+  try {
+    cordialRecord = await BarCordial.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the cordial from the database" });
+  }
+
+  if(cordialRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  cordialRecord.name = name;
+  cordialRecord.price = price;
+  cordialRecord.available = available;
+
+  try {
+    await cordialRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the cordial in the database" });
+  }
+
+  return res.status(204).end();
+});
+
+router.delete("/cordial/:id", async (req, res) => {
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.params;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let cordialRecord;
+
+  try {
+    cordialRecord = await BarCordial.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the cordial from the database" });
+  }
+
+  if(cordialRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  try {
+    await cordialRecord.destroy();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the cordial" });
+  }
+
+  return res.status(204).end();
+});
+
 const createBarCustomerEmail = (user, orderContents, totalPrice, tableNumber) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -1107,7 +1316,7 @@ const createBarCustomerEmail = (user, orderContents, totalPrice, tableNumber) =>
   message.push(`<ul>`);
 
   orderContents.forEach(item => {
-    message.push(`<li>${item.realQuantity} x ${item.drink.BarBaseDrink.name} (${item.drink.BarDrinkSize.name}${item.mixer === null ? "" : ", Mixer: " + item.mixer.name})</li>`);
+    message.push(`<li>${item.realQuantity} x ${item.drink.BarBaseDrink.name} (${item.drink.BarDrinkSize.name}${item.mixer === null ? "" : ", Mixer: " + item.mixer.name}${item.cordial === null ? "" : ", Cordial: " + item.cordial.name})</li>`);
   });
 
   message.push(`</ul>`);

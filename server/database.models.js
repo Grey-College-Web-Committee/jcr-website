@@ -74,6 +74,7 @@ class BarOrder extends Model {}
 class BarOrderContent extends Model {}
 class BarBooking extends Model {}
 class BarBookingGuest extends Model {}
+class BarCordial extends Model {}
 
 class PersistentVariable extends Model {}
 
@@ -1069,7 +1070,13 @@ BarDrinkType.init({
   },
   allowsMixer: {
     type: DataTypes.BOOLEAN,
-    allowNull: false
+    allowNull: false,
+    defaultValue: false
+  },
+  allowsCordial: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 }, { sequelize });
 
@@ -1141,6 +1148,21 @@ BarMixer.init({
   }
 }, { sequelize });
 
+BarCordial.init({
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  price: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  }
+}, { sequelize });
+
 BarOrder.init({
   userId: {
     type: DataTypes.INTEGER,
@@ -1193,6 +1215,14 @@ BarOrderContent.init({
     allowNull: true,
     references: {
       model: BarMixer,
+      key: 'id'
+    }
+  },
+  cordialId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: BarCordial,
       key: 'id'
     }
   },
@@ -1498,6 +1528,9 @@ BarOrderContent.belongsTo(BarDrink, { foreignKey: 'drinkId' });
 BarMixer.hasMany(BarOrderContent, { foreignKey: 'mixerId' });
 BarOrderContent.belongsTo(BarMixer, { foreignKey: 'mixerId' });
 
+BarCordial.hasMany(BarOrderContent, { foreignKey: 'cordialId' });
+BarOrderContent.belongsTo(BarCordial, { foreignKey: 'cordialId' });
+
 JCRRole.hasMany(JCRRoleUserLink, { foreignKey: 'roleId' });
 JCRRoleUserLink.belongsTo(JCRRole, { foreignKey: 'roleId' });
 
@@ -1522,4 +1555,4 @@ BarBooking.belongsTo(User, { foreignKey: 'userId' });
 BarBooking.hasMany(BarBookingGuest, { foreignKey: 'bookingId' });
 BarBookingGuest.belongsTo(BarBooking, { foreignKey: 'bookingId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial };

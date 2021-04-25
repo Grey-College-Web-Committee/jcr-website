@@ -139,6 +139,16 @@ class BarAdminOverview extends React.Component {
                     </Link>
                   </td>
                 </tr>
+                <tr className="text-center border-b border-gray-400">
+                  <td className="p-2 border-r border-gray-400">Manage the cordials that are on offer including their availability</td>
+                  <td className="p-2 border-r border-gray-400">
+                    <Link to="/bar/admin/cordials">
+                      <button
+                        className="px-4 py-1 rounded bg-red-900 text-white md:w-80 w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                      >Manage Cordials</button>
+                    </Link>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
