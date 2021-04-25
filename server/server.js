@@ -284,11 +284,11 @@ const requiredPermissions = [
   await BarBaseDrink.sync();
   await BarDrink.sync();
   await BarMixer.sync();
+  await BarCordial.sync();
   await BarOrder.sync()
   await BarOrderContent.sync();
   await BarBooking.sync();
   await BarBookingGuest.sync();
-  await BarCordial.sync();
 
   await PersistentVariable.sync();
 
