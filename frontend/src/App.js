@@ -603,6 +603,14 @@ class App extends React.Component {
                     <Route exact path="/my/profile" render={() => (
                       this.isLoggedIn() ? ( <MyProfile /> ) : ( this.loginRef("/my/profile") )
                     )} />
+                    <Route exact path="/bookings" component={() => {
+                      if(this.isLoggedIn()) {
+                        window.location.replace("https://outlook.office365.com/owa/calendar/GreyCollegeRoomBookings@durhamuniversity.onmicrosoft.com/bookings/");
+                        return null;
+                      }
+
+                      return this.loginRef("/bookings");
+                    }} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />
                     )} />

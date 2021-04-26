@@ -203,6 +203,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: null
         },
         {
+          displayName: "Room Bookings",
+          url: "/bookings",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
           displayName: `${user.username}`,
           url: null,
           requiredPermission: null,
