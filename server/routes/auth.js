@@ -78,9 +78,9 @@ router.post("/login", async (req, res) => {
       return res.status(500).json({ message: "Unable to fetch details about this user from the university" });
     }
 
-    const { current_staff } = details.data;
-
-    if(current_staff === "1") {
+    const { current_staff, current_student } = details.data;
+    
+    if(current_staff === "1" && current_student === "0") {
       const { email, surname, firstnames, department } = details.data;
 
       if(!department.toLowerCase().startsWith("grey college")) {
