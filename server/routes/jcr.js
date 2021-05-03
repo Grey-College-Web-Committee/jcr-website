@@ -473,6 +473,57 @@ router.get("/committees/basic", async (req, res) => {
   return res.status(200).json({ committees });
 });
 
+router.get("/committee/name/welfare", async (req, res) => {
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let committee;
+
+  try {
+    committee = await JCRCommittee.findOne({
+      where: { name: "Welfare" },
+      attributes: [ "id" ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the welfare team" });
+  }
+
+  if(committee === null) {
+    return res.status(400).json({ error: "Unable to load the welfare team" });
+  }
+
+  let committeeMembers;
+
+  try {
+    committeeMembers = await JCRCommitteeRoleLink.findAll({
+      where: { committeeId: committee.id },
+      attributes: [ "id", "roleId", "committeeId", "position" ],
+      include: [
+        {
+          model: JCRRole,
+          include: [
+            {
+              model: JCRRoleUserLink,
+              attributes: [ "id", "roleId", "userId" ],
+              include: [
+                {
+                  model: User,
+                  attributes: [ "firstNames", "surname", "profilePicture" ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    })
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the committee members" });
+  }
+
+  return res.status(200).json({ committee, committeeMembers });
+});
+
 router.get("/committee/:id", async (req, res) => {
   if(!hasPermission(req.session, "jcr.member")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
