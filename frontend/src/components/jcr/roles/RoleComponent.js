@@ -38,6 +38,25 @@ class RoleComponent extends React.Component {
       lastName = newLastName.join("")
     }
 
+    // Fix apostrophes
+    if(lastName.includes("'")) {
+      let capNext = false;
+      let newLastName = [];
+
+      for(const i in lastName) {
+        if(capNext) {
+          newLastName.push(lastName[i].toUpperCase());
+          capNext = false;
+          continue;
+        }
+
+        newLastName.push(lastName[i]);
+        capNext = lastName[i] === "'";
+      }
+
+      lastName = newLastName.join("")
+    }
+
     return `${firstName} ${lastName}`;
   }
 
