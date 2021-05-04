@@ -421,7 +421,7 @@ const fulfilDebtOrders = async (user, orderId, relatedOrders, deliveryInformatio
 
   // Could maybe send emails??
   const debtFacsoEmail = createFacsoDebtEmail(user);
-  mailer.sendEmail("grey.website@durham.ac.uk", `Debt Cleared (${user.username})`, debtFacsoEmail);
+  mailer.sendEmail("grey.treasurer@durham.ac.uk", `Debt Cleared (${user.username})`, debtFacsoEmail);
 }
 
 const debtFacsoEmail = (user) => {
@@ -430,7 +430,7 @@ const debtFacsoEmail = (user) => {
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
   let message = [];
 
-  message.push(`<p>${firstName} ${lastName} (Username: ${user.username}) has cleared their debt`);
+  message.push(`<p>${firstName} ${lastName} (Username: ${user.username}) has cleared their debt</p>`);
   return message.join("");
 }
 

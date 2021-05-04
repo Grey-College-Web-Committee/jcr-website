@@ -50,7 +50,7 @@ router.get("/all", async (req, res) => {
   // Hence we have to use a raw query for this and a left outer join
   // should work fine, just not as elegant as sequelize
   try {
-    debts = await sequelize.query(`SELECT debt.id as debtId, debt.description as description, debt.debt as amount, debt.username as username, user.email as email, user.firstNames as firstNames, user.surname as surname FROM Debts AS debt LEFT OUTER JOIN Users AS user ON user.username = debt.username`, { type: sequelize.QueryTypes.SELECT })
+    debts = await sequelize.query(`SELECT debt.id as debtId, debt.description as description, debt.debt as amount, debt.username as username, user.email as email, user.firstNames as firstNames, user.surname as surname, user.lastLogin as lastLogin FROM Debts AS debt LEFT OUTER JOIN Users AS user ON user.username = debt.username`, { type: sequelize.QueryTypes.SELECT })
   } catch (error) {
     return res.status(500).json({ error: "Unable to select the debt from the database" });
   }
@@ -163,7 +163,8 @@ router.post("/", async (req, res) => {
     username,
     email: debtUser ? debtUser.email : null,
     firstNames: debtUser ? debtUser.firstNames : null,
-    surname: debtUser ? debtUser.surname : null
+    surname: debtUser ? debtUser.surname : null,
+    lastLogin: debtUser ? debtUser.lastLogin : null
   };
 
   return res.status(200).json({ debt: debtObj });

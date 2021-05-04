@@ -196,6 +196,7 @@ class ManageDebtPage extends React.Component {
                   <th className="p-2 font-semibold">Name</th>
                   <th className="p-2 font-semibold">Username</th>
                   <th className="p-2 font-semibold">Email</th>
+                  <th className="p-2 font-semibold">Last Login</th>
                   <th className="p-2 font-semibold">Description</th>
                   <th className="p-2 font-semibold">Amount (£)</th>
                   <th className="p-2 font-semibold">Remove</th>
