@@ -285,8 +285,18 @@ class BarBookingPage extends React.Component {
         <div className="flex flex-col justify-start">
           <div className="container mx-auto text-center p-4">
             <h1 className="font-semibold text-5xl pb-2">Book a Table</h1>
-            <p className="mt-1 text-left">In line with government restrictions Grey Bar will be reopening! We have had to adjust our opening hours and we will now be open from <span className="font-semibold">7pm-10pm everyday</span>. As well as this, we have made several adjustments to the bar to ensure that we can operate in a COVID-secure manner - namely operating from a brand new outside space on Grey Lawn (until restrictions change) and a <Link to="/bar" className="underline font-semibold">new table booking and ordering system</Link> that makes your lives as customers much, much easier.</p>
-            <p className="mt-1 text-left">For the first week the bar will only open to livers-in before it opens up to the wider Grey community. Due to social distancing and capacity restraints we are limiting tables to <span className="font-semibold">tables of 6 from the same household only.</span> Your table will be yours for the night so make the most of it and get there as early as possible.</p>
+            <p className="mt-1 text-left">Grey Bar is now open to all members of the college! We have made several adjustments to the bar to ensure that we can operate in a COVID-secure manner - namely operating from a brand new outside space on Grey Lawn (until restrictions change) and a <Link to="/bar" className="underline font-semibold">new table booking and ordering system</Link> that makes your lives as customers much, much easier.</p>
+            <p className="mt-1 text-left">We have adjusted our opening hours for the exam season. From Monday 10th May, our opening hours are:</p>
+            <ul className="mt-1 text-lg font-semibold">
+              <li>Monday - 7-10pm</li>
+              <li className="text-red-900">Tuesday - Closed</li>
+              <li>Wednesday - 7-10pm</li>
+              <li className="text-red-900">Thursday - Closed</li>
+              <li>Friday - 7-11pm</li>
+              <li>Saturday - 7-11pm</li>
+              <li className="text-red-900">Sunday - Closed</li>
+            </ul>
+            <p className="mt-1 text-left">Due to social distancing and capacity restraints we are limiting tables to <span className="font-semibold">tables of 6 from the same household only.</span> Your table will be yours for the night so make the most of it and get there as early as possible.</p>
             <p className="mt-1 text-left">As per University Regulations we are required to carry out <span className="font-semibold">track and trace</span> and also ask for proof of a <span className="font-semibold">negative LFT test within the last 4 days.</span></p>
             <div className="flex-col flex w-full md:w-3/5 mx-auto">
               {
@@ -298,7 +308,15 @@ class BarBookingPage extends React.Component {
                         <div>
                           {
                             availableInfo[date].availableCount === 0 ? (
-                              <p>There are no more tables available for this night.</p>
+                              <div>
+                                {
+                                  availableInfo[date].open ? (
+                                    <p>There are no more tables available for this night.</p>
+                                  ) : (
+                                    <p>The bar is closed on this night.</p>
+                                  )
+                                }
+                              </div>
                             ) : (
                               <div>
                                 <p>Available Tables: {availableInfo[date].availableCount}</p>

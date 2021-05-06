@@ -962,6 +962,26 @@ router.get("/book/available", async (req, res) => {
     dayDate = dateFormat(dayDate, "yyyy-mm-dd");
     dayDate = Date.parse(dayDate);
 
+    const baseDate = new Date(dayDate);
+
+    const dayNumber = baseDate.getDay(); //dayDate.getDay();
+    // 0 = Sunday, 2 = Tuesday, 4 = Thursday
+
+    const blockedDays = [0, 2, 4];
+
+    // Change doesn't apply until 10th May
+    if(baseDate >= new Date("2021-05-10")) {
+      if(blockedDays.includes(dayNumber)) {
+        availableInfo[dateFormat(dayDate, "yyyy-mm-dd")] = {
+          availableCount: 0,
+          bookingId: null,
+          open: false
+        };
+
+        continue;
+      }
+    }
+
     // Get all the bookings for the day
     let bookings;
 
@@ -983,7 +1003,8 @@ router.get("/book/available", async (req, res) => {
     // 20 tables in total
     availableInfo[dateFormat(dayDate, "yyyy-mm-dd")] = {
       availableCount: 20 - bookings.length,
-      bookingId: myBooking === null ? null : myBooking.id
+      bookingId: myBooking === null ? null : myBooking.id,
+      open: true
     };
   }
 
