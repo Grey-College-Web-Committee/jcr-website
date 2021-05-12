@@ -322,6 +322,26 @@ const requiredPermissions = [
       booleanStorage: false
     }
   });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "STASH_OPEN"
+    },
+    defaults: {
+      key: "STASH_OPEN",
+      booleanStorage: false
+    }
+  });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "STASH_MESSAGE"
+    },
+    defaults: {
+      key: "STASH_MESSAGE",
+      textStorage: "Welcome to the stash shop!"
+    }
+  });
 })();
 
 console.log("NODE_APP_INSTANCE:", process.env.NODE_APP_INSTANCE);

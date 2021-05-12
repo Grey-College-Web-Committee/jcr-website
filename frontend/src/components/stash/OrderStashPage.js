@@ -35,7 +35,9 @@ class OrderStashPage extends React.Component {
           title: "Accessories"
         }
       },
-      hasScrolled: false
+      hasScrolled: false,
+      open: false,
+      message: ""
     };
   }
 
@@ -80,7 +82,16 @@ class OrderStashPage extends React.Component {
       return aName > bName ? 1 : (aName < bName ? -1 : 0);
     });
 
-    this.setState({ loaded: true, status: 200, stock });
+    let stashInfoRes;
+
+    try {
+      stashInfoRes = await api.get("/stash/information");
+    } catch (error) {
+      this.setState({ loaded: false, status: error.response.status });
+      return;
+    }
+
+    this.setState({ loaded: true, status: 200, stock, open: stashInfoRes.data.open, message: stashInfoRes.data.message });
   }
 
   scrollToLastPosition = () => {
@@ -129,8 +140,8 @@ class OrderStashPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <div className="mb-2 sm:mb-4 font-semibold text-xl">
             <h1 className="my-2 text-5xl">College Stash</h1>
-            <p className="py-1">The ordering window is currently closed for stash.</p>
-            <p className="py-1">You can browse the stash shop but orders cannot be placed.</p>
+            <p className="py-1">The ordering window is currently { this.state.open ? "open" : "closed" }.</p>
+            <p className="py-1">{ this.state.message }</p>
           </div>
           <div className="flex flex-row mb-2 sm:mb-4 justify-between flex-wrap">
             <div className="flex flex-row justify-center flex-grow flex-shrink-0 mb-2">

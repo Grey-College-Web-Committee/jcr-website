@@ -7,8 +7,6 @@ import api from '../../utils/axiosConfig';
 import CheckoutForm from './CheckoutForm';
 import authContext from '../../utils/authContext.js';
 
-const forcedLock = new Date("2021-01-20T08:00:00Z");
-
 class CheckoutPage extends React.Component {
   constructor(props) {
     super(props);
@@ -24,7 +22,7 @@ class CheckoutPage extends React.Component {
       error: null,
       status: 0,
       requiresDeliveryOption: true,
-      deliveryOption: "none",
+      deliveryOption: "collection",
       address: {
         recipient: "",
         line1: "",
@@ -282,31 +280,42 @@ class CheckoutPage extends React.Component {
       return null;
     }
 
-    return (
-      <div className="text-justify">
-        <h2 className="text-xl font-semibold pb-2">Stash Delivery</h2>
-        <p className="pb-2">For stash items you can have the items delivered directly to your address (within the UK) or you can collect them from college for free once restrictions are eased.</p>
-        <div className="pb-2 flex flex-col md:flex-row max-w-full">
-          <div className="flex-shrink-0 flex flex-col justify-center">
-            <label htmlFor="deliveryOption" className="w-40 inline-block font-semibold">Delivery Option:</label>
-          </div>
-          <div className="flex-grow">
-            <select
-              name="deliveryOption"
-              className="w-auto h-8 border border-gray-400 disabled:opacity-50"
-              onChange={this.onInputChange}
-              value={this.state.deliveryOption}
-              required={true}
-              disabled={this.state.disabled}
-            >
-              <option value="none" disabled={true} hidden={true}>Please Select...</option>
-              <option value="collection">Collect From College (+£0.00)</option>
-              <option value="delivery">Deliver To UK Address (+£3.60)</option>
-            </select>
+    const allowingDelivery = false;
+
+    if(allowingDelivery) {
+      return (
+        <div className="text-left">
+          <h2 className="text-xl font-semibold pb-2">Stash Delivery</h2>
+          <p className="pb-2">For stash items you can have the items delivered directly to your address (within the UK) or you can collect them from college for free once restrictions are eased.</p>
+          <div className="pb-2 flex flex-col md:flex-row max-w-full">
+            <div className="flex-shrink-0 flex flex-col justify-center">
+              <label htmlFor="deliveryOption" className="w-40 inline-block font-semibold">Delivery Option:</label>
+            </div>
+            <div className="flex-grow">
+              <select
+                name="deliveryOption"
+                className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+                onChange={this.onInputChange}
+                value={this.state.deliveryOption}
+                required={true}
+                disabled={this.state.disabled}
+              >
+                <option value="none" disabled={true} hidden={true}>Please Select...</option>
+                <option value="collection">Collect From College (+£0.00)</option>
+                <option value="delivery">Deliver To UK Address (+£3.60)</option>
+              </select>
+            </div>
           </div>
         </div>
+      )
+    }
+
+    return (
+      <div className="text-left">
+        <h2 className="text-xl font-semibold pb-2">Stash Collection</h2>
+        <p className="pb-2">Due to the easing of restrictions in Durham, all orders must now be collected from college instead.</p>
       </div>
-    )
+    );
   }
 
   requestAddress = () => {
@@ -431,10 +440,6 @@ class CheckoutPage extends React.Component {
 
   isReadyForPayment = () => {
     const now = new Date();
-
-    if(now < forcedLock) {
-      return false;
-    }
 
     if(!this.state.requiresDeliveryOption) {
       return true;

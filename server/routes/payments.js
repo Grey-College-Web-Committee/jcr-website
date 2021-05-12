@@ -184,8 +184,7 @@ const customerStashEmail = (user, orderId, relatedOrders, deliveryInformation) =
     message.push(`<p>${deliveryInformation.address.postcode}</p>`);
   } else {
     message.push(`<h2>Collection Information</h2>`);
-    message.push(`<p>You have opted to collect your stash from the JCR.</p>`);
-    message.push(`<p>Once the stash has arrived and is ready for the collection the JCR secretary will be in touch!</p>`);
+    message.push(`<p>Once the stash has arrived and is ready for collection the JCR secretary will be in touch!</p>`);
   }
 
   message.push(`<h2>Order Details</h2>`);
