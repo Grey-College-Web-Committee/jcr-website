@@ -2,11 +2,9 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address, Debt } = require("../database.models.js");
+const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address, Debt, PersistentVariable } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
-const stashLock = new Date("2021-02-01T00:00:00Z");
 
 const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
   // A toastie will have no global submission info
@@ -201,7 +199,19 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
   const now = new Date();
 
-  if(now > stashLock) {
+  let stashOpenRecord;
+
+  try {
+    stashOpenRecord = await PersistentVariable.findOne({ where: { key: "STASH_OPEN" } });
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to get the stash open variable"
+    }
+  }
+
+  if(!stashOpenRecord.booleanStorage) {
     return {
       errorOccurred: true,
       status: 400,

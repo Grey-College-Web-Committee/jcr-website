@@ -4,7 +4,7 @@ const router = express.Router();
 const fileUpload = require('express-fileupload');
 const path = require("path");
 // The database models
-const { User, Address, StashOrder, ShopOrder, StashStock, StashColours, StashSizeChart, StashItemColours, StashOrderCustomisation, StashCustomisations, StashStockImages } = require("../database.models.js");
+const { User, Address, StashOrder, ShopOrder, StashStock, StashColours, StashSizeChart, StashItemColours, StashOrderCustomisation, StashCustomisations, StashStockImages, PersistentVariable } = require("../database.models.js");
 const dateFormat = require("dateformat");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
@@ -1295,6 +1295,64 @@ router.delete("/stock/:productId", async (req, res) => {
 
   return res.status(204).end();
 });
+
+// Get whether the page is open and any display information
+router.get("/information", async (req, res) => {
+  let stashOpenRecord;
+
+  try {
+    stashOpenRecord = await PersistentVariable.findOne({ where: { key: "STASH_OPEN" } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the status of the stash shop" });
+  }
+
+  let stashMessageRecord;
+
+  try {
+    stashMessageRecord = await PersistentVariable.findOne({ where: { key: "STASH_MESSAGE" } })
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the message for the stash shop" });
+  }
+
+  return res.status(200).json({ open: stashOpenRecord.booleanStorage, message: stashMessageRecord.textStorage });
+});
+
+router.post("/information", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.stock.edit")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { open, message } = req.body;
+
+  if(open === undefined || open === null) {
+    return res.status(400).json({ error: "Missing open" });
+  }
+
+  if(message === undefined || message === null) {
+    return res.status(400).json({ error: "Missing message" });
+  }
+
+  try {
+    await PersistentVariable.update({ booleanStorage: open }, {
+      where: { key: "STASH_OPEN" }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the stash shop open variable" });
+  }
+
+  try {
+    await PersistentVariable.update({ textStorage: message }, {
+      where: { key: "STASH_MESSAGE" }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the stash shop message variable" });
+  }
+
+  return res.status(204).end();
+})
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route

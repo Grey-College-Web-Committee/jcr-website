@@ -5,8 +5,6 @@ import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
 import Cart from '../../cart/Cart';
 
-const lock = new Date("2021-01-31T23:00:00Z");
-
 class ViewStashItemPage extends React.Component {
   constructor(props) {
     super(props);
@@ -38,7 +36,7 @@ class ViewStashItemPage extends React.Component {
       addedCount: 0,
       currentImage: 0,
       multipleImages: false,
-      closed: now > lock
+      closed: true
     };
   }
 
@@ -82,7 +80,16 @@ class ViewStashItemPage extends React.Component {
       return;
     }
 
-    this.setState({ loaded: true, status: 200, item: content.data.item, multipleImages:content.data.item.StashStockImages.length>1 });
+    let stashInfoRes;
+
+    try {
+      stashInfoRes = await api.get("/stash/information");
+    } catch (error) {
+      this.setState({ loaded: false, status: error.response.status });
+      return;
+    }
+
+    this.setState({ loaded: true, status: 200, item: content.data.item, multipleImages:content.data.item.StashStockImages.length>1, closed: !stashInfoRes.data.open });
 
     // Change displayed image every 6 seconds
     this.interval = setInterval(() => {
@@ -563,9 +570,13 @@ class ViewStashItemPage extends React.Component {
                 >← Back to Stash</button>
               </Link>
             </div>
-            <div className="px-2 pb-2 text-xl font-semibold">
-              <p>The stash shop is currently closed. You can browse the stash but orders cannot be placed at this time.</p>
-            </div>
+            {
+              this.state.closed ? (
+                <div className="px-2 pb-2 text-xl font-semibold">
+                  <p>The stash shop is currently closed. You can browse the stash but orders cannot be placed at this time.</p>
+                </div>
+              ) : null
+            }
             <div className="flex flex-row justify-center mx-2">
               <div className="w-full flex flex-col-reverse md:flex-row text-lg">
                 <div className="w-full md:w-1/2 flex justify-center flex-col mb-4 flex-grow-0 self-start">
