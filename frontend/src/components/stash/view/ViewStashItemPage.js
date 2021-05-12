@@ -202,7 +202,7 @@ class ViewStashItemPage extends React.Component {
     }
 
     components.push({
-      name: underShieldText === "1" ? "MCR Only: Grey College MCR" : "Standard: Grey College" ,
+      name: underShieldText === "1" ? "MCR Only: Grey College MCR" : (underShieldText === "2" ? "Graduate: Grey College 2021 Graduate" : "Standard: Grey College"),
       price: 0,
       quantity: 1,
       submissionInformation: {
@@ -403,6 +403,7 @@ class ViewStashItemPage extends React.Component {
           <option value="-1" disabled={true} hidden={true}>Please Select...</option>
           <option value="0">Standard: Grey College</option>
           <option value="1">MCR Only: Grey College MCR</option>
+          <option value="2">Graduate: Grey College 2021 Graduate</option>
         </select>
       </div>
     )

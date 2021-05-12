@@ -307,7 +307,8 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
 
   const resolvedUnderShieldTexts = [
     "Grey College",
-    "Grey College MCR"
+    "Grey College MCR",
+    "Grey College 2021 Graduate"
   ];
 
   const underShieldText = resolvedUnderShieldTexts[Number(underShield[0].underShieldText)];
