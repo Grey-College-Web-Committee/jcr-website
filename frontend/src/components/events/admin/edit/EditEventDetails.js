@@ -451,7 +451,8 @@ class EditEventDetails extends React.Component {
     // Package into a FormData object so we can submit it and use multer
     const { eventId, name, date, shortDescription, description, maxIndividuals, bookingCloseTime, ticketTypes, images, inviteOnly } = this.state;
 
-    let packaged = { name, date, shortDescription, description, maxIndividuals, bookingCloseTime, inviteOnly };
+    let packaged = { name, date: new Date(date), shortDescription, description, maxIndividuals, bookingCloseTime: new Date(bookingCloseTime), inviteOnly };
+
     // Map the object to an array instead
     let ticketTypeData = Object.keys(ticketTypes).map(id => ticketTypes[id]);
 

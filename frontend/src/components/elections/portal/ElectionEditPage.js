@@ -132,7 +132,7 @@ class ElectionEditPage extends React.Component {
     let errored = false;
 
     try {
-      await api.post("/elections/edit/", { id, reason, name, manifestoReleaseTime, votingOpenTime, votingCloseTime });
+      await api.post("/elections/edit/", { id, reason, name, manifestoReleaseTime: new Date(manifestoReleaseTime), votingOpenTime: new Date(votingOpenTime), votingCloseTime: new Date(votingCloseTime) });
     } catch (error) {
       errored = true;
       alert(error.response.data.error);

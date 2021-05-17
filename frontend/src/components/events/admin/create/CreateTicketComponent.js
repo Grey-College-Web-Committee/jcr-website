@@ -38,7 +38,7 @@ class CreateTicketComponent extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, () => {
       const { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData } = this.state;
 
-      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData });
+      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime: new Date(firstYearReleaseTime), secondYearReleaseTime: new Date(secondYearReleaseTime), thirdYearReleaseTime: new Date(thirdYearReleaseTime), fourthYearReleaseTime: new Date(fourthYearReleaseTime), olderYearsCanOverride, customData });
     });
   }
 
@@ -49,7 +49,7 @@ class CreateTicketComponent extends React.Component {
     this.setState({ customData }, () => {
       const { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData } = this.state;
 
-      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData });
+      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime: new Date(firstYearReleaseTime), secondYearReleaseTime: new Date(secondYearReleaseTime), thirdYearReleaseTime: new Date(thirdYearReleaseTime), fourthYearReleaseTime: new Date(fourthYearReleaseTime), olderYearsCanOverride, customData });
     });
   }
 
@@ -77,7 +77,7 @@ class CreateTicketComponent extends React.Component {
     this.setState({ customData }, () => {
       const { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData } = this.state;
 
-      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData });
+      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime: new Date(firstYearReleaseTime), secondYearReleaseTime: new Date(secondYearReleaseTime), thirdYearReleaseTime: new Date(thirdYearReleaseTime), fourthYearReleaseTime: new Date(fourthYearReleaseTime), olderYearsCanOverride, customData });
     });
   }
 
