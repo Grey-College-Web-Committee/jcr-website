@@ -235,6 +235,20 @@ const customerGymEmail = (user, orderId, order) => {
   return message.join("");
 }
 
+const facsoGymEmail = (user, orderId, order) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Name: ${firstName} ${lastName},</p>`);
+  message.push(`<p>Username: ${user.username}</p>`);
+  message.push(`<p>Household: ${order.household === 0 || order.household === "0" ? "Liver Out" : order.household}</p>`);
+  message.push(`<p>Expires on ${dateFormat(order.expiresAt, "dd/mm/yyyy")}</p>`);
+
+  return message.join("");
+}
+
 const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
   let membershipRecord;
 
@@ -256,6 +270,9 @@ const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation
 
   const customerEmail = customerGymEmail(user, orderId, membershipRecord);
   mailer.sendEmail(user.email, `Gym Membership Confirmation`, customerEmail);
+
+  const facsoEmail = facsoGymEmail(user, orderId, membershipRecord);
+  mailer.sendEmail("grey.treasurer@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
 }
 
 const customerJCRMembershipEmail = (user, orderId, expiresAt) => {

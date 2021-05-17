@@ -274,7 +274,7 @@ class CheckoutPage extends React.Component {
     // No stash items so no need for delivery address
     if(stashItems.length === 0) {
       if(this.state.requiresDeliveryOption) {
-        this.setState({ requiresDeliveryOption: false });
+        this.setState({ requiresDeliveryOption: false, deliveryOption: "" });
       }
 
       return null;

@@ -136,7 +136,7 @@ class GymInformationPage extends React.Component {
             <div className="pb-2">
               <p className="py-1">You must agree to the following conditions before you are able to add a membership to your cart.</p>
               <p className="py-1">Please read the Terms of Use by clicking the red text below.</p>
-              <p className="py-1 font-semibold">Selected Household: {this.state.householdNumber}</p>
+              <p className="py-1 font-semibold">Selected Household: {this.state.householdNumber === "0" || this.state.householdNumber === 0 ? "Liver Out" : this.state.householdNumber}</p>
             </div>
             <div className="pb-2 border-b-2 flex flex-row items-center justify-between">
               <label htmlFor="termsOfUse">I accept the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link></label>
@@ -211,7 +211,7 @@ class GymInformationPage extends React.Component {
                   quantity: 1,
                   submissionInformation: option.submissionInformation,
                   components: [{
-                    name: `Household ${this.state.householdNumber}`,
+                    name: this.state.householdNumber === "0" || this.state.householdNumber === 0 ? "Liver Out" : `Household ${this.state.householdNumber}`,
                     price: 0,
                     quantity: 1,
                     submissionInformation: {
@@ -255,6 +255,7 @@ class GymInformationPage extends React.Component {
             disabled={this.state.disabled}
           >
             <option disabled={true} hidden={true} value="">Please choose an option...</option>
+            <option value={0}>Liver Out</option>
             {
               this.validHouseholdNumbers.map(no => (
                 <option value={no}>Household {no}</option>
