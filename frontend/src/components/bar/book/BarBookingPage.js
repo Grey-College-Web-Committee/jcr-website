@@ -5,6 +5,8 @@ import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
 import dateFormat from 'dateformat';
 
+const allowedGuests = 11;
+
 class BarBookingPage extends React.Component {
   constructor(props) {
     super(props);
@@ -104,8 +106,8 @@ class BarBookingPage extends React.Component {
     const { bookingDate, guestNames: unfilteredGuestNames } = this.state;
     const guestNames = unfilteredGuestNames.filter(name => name !== undefined && name !== null && name.length !== 0);
 
-    if(guestNames.length > 5) {
-      this.setState({ bookingState: 999, bookingError: "You are allowed a maximum of 5 guests only." });
+    if(guestNames.length > allowedGuests) {
+      this.setState({ bookingState: 999, bookingError: `You are allowed a maximum of ${allowedGuests} guests only.` });
       return;
     }
 
@@ -130,7 +132,7 @@ class BarBookingPage extends React.Component {
       return null;
     }
 
-    const allowedGuests = 5;
+
 
     switch(this.state.bookingState) {
       case 0:
@@ -151,7 +153,7 @@ class BarBookingPage extends React.Component {
                         <p>Guest {i + 2} (Optional):</p>
                         <input
                           type="text"
-                          className="w-full border border-gray-500 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                          className="w-full border border-gray-500 rounded pt-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                           onChange={(ev) => this.updateGuestName(ev, i)}
                           value={this.state.guestNames[i]}
                         />
@@ -286,7 +288,7 @@ class BarBookingPage extends React.Component {
           <div className="container mx-auto text-center p-4">
             <h1 className="font-semibold text-5xl pb-2">Book a Table</h1>
             <p className="mt-1 text-left">Grey Bar is now open to all members of the college! We have made several adjustments to the bar to ensure that we can operate in a COVID-secure manner - namely operating from a brand new outside space on Grey Lawn (until restrictions change) and a <Link to="/bar" className="underline font-semibold">new table booking and ordering system</Link> that makes your lives as customers much, much easier.</p>
-            <p className="mt-1 text-left">We have adjusted our opening hours for the exam season. From Monday 10th May, our opening hours are:</p>
+            <p className="mt-1 text-left">Our current opening hours are:</p>
             <ul className="mt-1 text-lg font-semibold">
               <li>Monday - 7-10pm</li>
               <li className="text-red-900">Tuesday - Closed</li>
@@ -296,8 +298,9 @@ class BarBookingPage extends React.Component {
               <li>Saturday - 7-11pm</li>
               <li className="text-red-900">Sunday - Closed</li>
             </ul>
-            <p className="mt-1 text-left">Due to social distancing and capacity restraints we are limiting tables to <span className="font-semibold">tables of 6 from the same household only.</span> Your table will be yours for the night so make the most of it and get there as early as possible.</p>
-            <p className="mt-1 text-left">As per University Regulations we are required to carry out <span className="font-semibold">track and trace</span> and also ask for proof of a <span className="font-semibold">negative LFT test within the last 4 days.</span></p>
+            <p className="mt-1 text-left">As of Monday 17th May, <span className="font-semibold">we are allowing groups of 12 from any number of households</span> (including a mix of livers-in and livers-out). The names of all guests must be provided. <span className="font-semibold">Non-Grey students can also join your group</span> as long as Grey students remain the majority.</p>
+            <p className="mt-1 text-left">We will also be allowing <span className="font-semibold">last-minute walk-ins for groups of 6 or less only</span> (as long as there are enough unreserved tables and staff).</p>
+            <p className="mt-1 text-left">As per University Regulations <span className="font-semibold">we are required to carry out track and trace</span> and also ask for proof of a <span className="font-semibold">negative LFT test within the last 4 days from all group members.</span></p>
             <div className="flex-col flex w-full md:w-3/5 mx-auto">
               {
                 Object.keys(availableInfo).map(date => (

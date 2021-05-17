@@ -1367,7 +1367,7 @@ const createBarBookingEmail = (user, date, guestNames) => {
     message.push(`</ul>`);
   }
 
-  message.push(`<p>When you are in the bar please use the drink order QR code on your table to take you to a website where you can order your drinks. Drinks will then be brought to your table by a member of our bar staff. Please note that last orders will be called earlier than usual to ensure you have time to drink up before closing at 10.</p>`)
+  message.push(`<p>When you are in the bar please use the drink order QR code on your table to take you to a website where you can order your drinks. Drinks will then be brought to your table by a member of our bar staff. Please note that last orders will be called earlier than usual to ensure you have time to drink up before closing.</p>`)
   message.push(`<p>To ensure the best experience for all of us we ask you also to please respect the rules in place and stay at your tables instead of mingling between tables. Quite simply, if the bar is found to not be meeting COVID regulations then we will be forced to shut down which is not in any of our best interests.</p>`);
   message.push(`<p>As per University Regulations we are required to carry out <span className="font-semibold">track and trace</span> and also ask for proof of a <span className="font-semibold">negative LFT test within the last 4 days.</span></p>`);
 
