@@ -12,7 +12,7 @@
     "axios": "^0.21.1",
     "cross-env": "^7.0.3",
     "dateformat": "^3.0.3",
-    "postcss": "^8.1.10",
+    "postcss": "^8.2.15",
     "postcss-cli": "^8.3.0",
     "qs": "^6.9.6",
     "react": "^16.14.0",

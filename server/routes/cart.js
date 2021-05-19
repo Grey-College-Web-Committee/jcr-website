@@ -546,6 +546,21 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
     };
   }
 
+  const household = Number(householdComps[0].value);
+
+  // Used to get their postcode during covid
+  const postcodeComps = componentSubmissionInfo.filter(comp => comp.type === "postcode");
+
+  if(postcodeComps.length === 0 && household === 0) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "You must specify your postcode"
+    }
+  }
+
+  const postcode = postcodeComps[0].value;
+
   // Otherwise they don't have a membership so create one
 
   try {
@@ -554,7 +569,8 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
       userId: user.id,
       type,
       expiresAt: selectedExpiry,
-      household: householdComps[0].value
+      household,
+      postcode
     });
   } catch (error) {
     return {

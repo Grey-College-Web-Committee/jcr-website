@@ -244,6 +244,7 @@ const facsoGymEmail = (user, orderId, order) => {
   message.push(`<p>Name: ${firstName} ${lastName},</p>`);
   message.push(`<p>Username: ${user.username}</p>`);
   message.push(`<p>Household: ${order.household === 0 || order.household === "0" ? "Liver Out" : order.household}</p>`);
+  message.push(`<p>Postcode: ${order.household === 0 || order.household === "0" ? order.postcode : "Liver In"}</p>`);
   message.push(`<p>Expires on ${dateFormat(order.expiresAt, "dd/mm/yyyy")}</p>`);
 
   return message.join("");

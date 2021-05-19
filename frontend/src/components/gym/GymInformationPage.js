@@ -24,7 +24,8 @@ class GymInformationPage extends React.Component {
       householdHas: false,
       inBasket: this.cart.get().items.filter(item => item.shop === "gym").length !== 0,
       householdNumber: "",
-      currentGalleryImage: 0
+      currentGalleryImage: 0,
+      postcode: ""
     };
 
     this.membershipOptions = [
@@ -138,6 +139,23 @@ class GymInformationPage extends React.Component {
               <p className="py-1">Please read the Terms of Use by clicking the red text below.</p>
               <p className="py-1 font-semibold">Selected Household: {this.state.householdNumber === "0" || this.state.householdNumber === 0 ? "Liver Out" : this.state.householdNumber}</p>
             </div>
+            {
+              this.state.householdNumber === "0" || this.state.householdNumber === 0 ? (
+                <div className="pb-2">
+                  <label className="mr-2">Postcode:</label>
+                  <input
+                    type="text"
+                    name="postcode"
+                    value={this.state.postcode}
+                    onChange={this.onInputChange}
+                    className="w-full md:w-80 border rounded py-1 px-2 border-gray-400 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                    placeholder="Please enter your Durham postcode"
+                    disabled={this.props.disabled}
+                    autoComplete="postcode"
+                  />
+                </div>
+              ) : null
+            }
             <div className="pb-2 border-b-2 flex flex-row items-center justify-between">
               <label htmlFor="termsOfUse">I accept the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link></label>
               <div className="flex flex-col items-center justify-center ml-2">
@@ -210,19 +228,30 @@ class GymInformationPage extends React.Component {
                   basePrice: this.state.isMember ? option.price : option.nonMemberPrice,
                   quantity: 1,
                   submissionInformation: option.submissionInformation,
-                  components: [{
-                    name: this.state.householdNumber === "0" || this.state.householdNumber === 0 ? "Liver Out" : `Household ${this.state.householdNumber}`,
-                    price: 0,
-                    quantity: 1,
-                    submissionInformation: {
-                      type: "household",
-                      value: this.state.householdNumber
+                  components: [
+                    {
+                      name: this.state.householdNumber === "0" || this.state.householdNumber === 0 ? "Liver Out" : `Household ${this.state.householdNumber}`,
+                      price: 0,
+                      quantity: 1,
+                      submissionInformation: {
+                        type: "household",
+                        value: this.state.householdNumber
+                      }
+                    },
+                    {
+                      name: `Postcode: ${this.state.householdNumber === "0" || this.state.householdNumber === 0 ? this.state.postcode.substring(0, 10) : "N/A"}`,
+                      price: 0,
+                      quantity: 1,
+                      submissionInformation: {
+                        type: "postcode",
+                        value: this.state.postcode.substring(0, 10)
+                      }
                     }
-                  }],
+                  ],
                   image: option.image,
                   upperLimit: 1
                 }}
-                disabled={membership !== null || !this.state.termsOfUse || !this.state.parq || !this.state.induction || !this.state.householdHas}
+                disabled={membership !== null || !this.state.termsOfUse || !this.state.parq || !this.state.induction || !this.state.householdHas || ((this.state.householdNumber === "0" || this.state.householdNumber === 0) && this.state.postcode.length < 6)}
                 buttonText={membership !== null ? "Already Purchased" : "Add To Bag"}
                 disableOnCondition={(items) => {
                   return items.filter(item => item.shop === "gym").length !== 0;
@@ -311,7 +340,7 @@ class GymInformationPage extends React.Component {
           <div className="text-left my-2 text-lg">
             <p>Expires On: {dateFormat(new Date(membership.expiresAt), "dd/mm/yyyy")}</p>
             <p>Type: {resolvedType[membership.type]}</p>
-            <p>Household: {membership.household}</p>
+            <p>Household: {membership.household === 0 ? `Liver Out (Postcode: ${membership.postcode})` : membership.household}</p>
           </div>
         </React.Fragment>
       );
