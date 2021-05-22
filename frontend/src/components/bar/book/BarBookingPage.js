@@ -288,17 +288,17 @@ class BarBookingPage extends React.Component {
           <div className="container mx-auto text-center p-4">
             <h1 className="font-semibold text-5xl pb-2">Book a Table</h1>
             <p className="mt-1 text-left">Grey Bar is now open to all members of the college! We have made several adjustments to the bar to ensure that we can operate in a COVID-secure manner - namely operating from a brand new outside space on Grey Lawn (until restrictions change) and a <Link to="/bar" className="underline font-semibold">new table booking and ordering system</Link> that makes your lives as customers much, much easier.</p>
-            <p className="mt-1 text-left">Our current opening hours are:</p>
+            <p className="mt-1 text-left">From Monday 24th May, our opening hours are:</p>
             <ul className="mt-1 text-lg font-semibold">
-              <li>Monday - 7-10pm</li>
-              <li className="text-red-900">Tuesday - Closed</li>
-              <li>Wednesday - 7-10pm</li>
-              <li className="text-red-900">Thursday - Closed</li>
-              <li>Friday - 7-11pm</li>
-              <li>Saturday - 7-11pm</li>
-              <li className="text-red-900">Sunday - Closed</li>
+              <li>Monday - 7:30 - 11pm</li>
+              <li>Tuesday - 7:30 - 11pm</li>
+              <li>Wednesday - 7:30 - 11pm</li>
+              <li>Thursday - 7:30 - 11pm</li>
+              <li>Friday - 7:30 - 12am</li>
+              <li>Saturday - 7:30 - 12am</li>
+              <li>Sunday - 7:30 - 11pm</li>
             </ul>
-            <p className="mt-1 text-left">As of Monday 17th May, <span className="font-semibold">we are allowing groups of 12 from any number of households</span> (including a mix of livers-in and livers-out). The names of all guests must be provided. <span className="font-semibold">Non-Grey students can also join your group</span> as long as Grey students remain the majority.</p>
+            <p className="mt-1 text-left"><span className="font-semibold">We are now open to groups of 12 from any number of households</span> (including a mix of livers-in and livers-out). The names of all guests must be provided. <span className="font-semibold">Non-Grey students can also join your group</span> as long as Grey students remain the majority.</p>
             <p className="mt-1 text-left">We will also be allowing <span className="font-semibold">last-minute walk-ins for groups of 6 or less only</span> (as long as there are enough unreserved tables and staff).</p>
             <p className="mt-1 text-left">As per University Regulations <span className="font-semibold">we are required to carry out track and trace</span> and also ask for proof of a <span className="font-semibold">negative LFT test within the last 4 days from all group members.</span></p>
             <div className="flex-col flex w-full md:w-3/5 mx-auto">
