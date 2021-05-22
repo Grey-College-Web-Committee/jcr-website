@@ -1384,6 +1384,11 @@ BarBooking.init({
     type: DataTypes.DATE,
     allowNull: false
   },
+  requiredTables: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1
+  }
 }, { sequelize });
 
 BarBookingGuest.init({

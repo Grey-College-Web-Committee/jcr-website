@@ -52,7 +52,7 @@ class BarBookingPage extends React.Component {
   }
 
   bookTable = (date) => {
-    this.setState({ bookingDate: date, showBookingDialogue: true, bookingState: 0, guestNames: [...Array(5).keys()].map(() => ""), bookingError: "", disabled: true });
+    this.setState({ bookingDate: date, showBookingDialogue: true, bookingState: 0, guestNames: [...Array(11).keys()].map(() => ""), bookingError: "", disabled: true });
   }
 
   makeDisplayName = (user) => {
@@ -132,8 +132,6 @@ class BarBookingPage extends React.Component {
       return null;
     }
 
-
-
     switch(this.state.bookingState) {
       case 0:
         return (
@@ -149,15 +147,17 @@ class BarBookingPage extends React.Component {
                   <p>Guest 1: {this.makeDisplayName(this.context)}</p>
                   {
                     [...Array(allowedGuests).keys()].map(i => (
-                      <div className="flex flex-col mt-1" key={i}>
-                        <p>Guest {i + 2} (Optional):</p>
-                        <input
-                          type="text"
-                          className="w-full border border-gray-500 rounded pt-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-                          onChange={(ev) => this.updateGuestName(ev, i)}
-                          value={this.state.guestNames[i]}
-                        />
-                      </div>
+                      this.state.availableInfo[this.state.bookingDate].availableCount <= 1 && i >= 5 ? null : (
+                        <div className="flex flex-col mt-1" key={i}>
+                          <p>Guest {i + 2} (Optional):</p>
+                          <input
+                            type="text"
+                            className="w-full border border-gray-500 rounded pt-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 disabled:bg-gray-800 focus:ring-gray-400"
+                            onChange={(ev) => this.updateGuestName(ev, i)}
+                            value={this.state.guestNames[i]}
+                          />
+                        </div>
+                      )
                     ))
                   }
                 </div>

@@ -8,6 +8,8 @@ const { hasPermission } = require("../utils/permissionUtils.js");
 const mailer = require("../utils/mailer");
 const dateFormat = require("dateformat");
 
+const maxTables = 20;
+
 router.get("/", async (req, res) => {
   // Don't need to be a JCR member for this
 
@@ -969,8 +971,8 @@ router.get("/book/available", async (req, res) => {
 
     const blockedDays = [0, 2, 4];
 
-    // Change doesn't apply until 10th May
-    if(baseDate >= new Date("2021-05-10")) {
+    // Reduced hours between 10th and 23rd May
+    if(baseDate >= new Date("2021-05-10") && baseDate <= new Date("2021-05-23")) {
       if(blockedDays.includes(dayNumber)) {
         availableInfo[dateFormat(dayDate, "yyyy-mm-dd")] = {
           availableCount: 0,
@@ -991,6 +993,9 @@ router.get("/book/available", async (req, res) => {
       return res.status(500).json({ error: "Unable to check the existing bookings" });
     }
 
+    // Larger groups use more than 1 table
+    const usedTables = bookings.map(booking => booking.requiredTables).reduce((a, b) => a + b, 0);
+
     // Check if they have a booking already
     let myBooking;
 
@@ -1000,9 +1005,9 @@ router.get("/book/available", async (req, res) => {
       return res.status(500).json({ error: "Unable to check your bookings" });
     }
 
-    // 20 tables in total
+    // maxTables tables in total
     availableInfo[dateFormat(dayDate, "yyyy-mm-dd")] = {
-      availableCount: 20 - bookings.length,
+      availableCount: maxTables - usedTables,
       bookingId: myBooking === null ? null : myBooking.id,
       open: true
     };
@@ -1044,9 +1049,16 @@ router.post("/book", async (req, res) => {
     return res.status(500).json({ error: "Unable to check bookings for the night" });
   }
 
+  const usedTables = bookings.map(booking => booking.requiredTables).reduce((a, b) => a + b, 0);
+
   // No space :(
-  if(bookings.length >= 20) {
+  if(usedTables >= maxTables) {
     return res.status(400).json({ error: "There are no more tables available for this night" });
+  }
+
+  // If their guest list is of [1, 5] then use 1 table if it is [6, 11] then use 2 tables
+  if(usedTables >= maxTables - 1 && guestNames.length >= 6) {
+    return res.status(400).json({ error: "2 tables are required to book for a group of more than 6" });
   }
 
   // Check if they have a booking
@@ -1063,11 +1075,22 @@ router.post("/book", async (req, res) => {
     return res.status(400).json({ error: "You already have a table booked" });
   }
 
+  let requiredTables = 1;
+  const totalPeople = guestNames.length + 1;
+
+  if(1 <= totalPeople && totalPeople <= 6) {
+    requiredTables = 1;
+  } else if (7 <= totalPeople && totalPeople <= 12) {
+    requiredTables = 2;
+  } else {
+    requiredTables = 2;
+  }
+
   // Make the booking
   let newBooking;
 
   try {
-    newBooking = await BarBooking.create({ userId: user.id, date });
+    newBooking = await BarBooking.create({ userId: user.id, date, requiredTables });
   } catch (error) {
     return res.status(500).json({ error: "Unable to create booking" });
   }
