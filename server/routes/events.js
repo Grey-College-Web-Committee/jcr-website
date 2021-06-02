@@ -2608,6 +2608,101 @@ router.get("/drinks", async (req, res) => {
   return res.status(200).json({ existing: result });
 });
 
+router.get("/drinks/export", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let records;
+
+  try {
+    records = await FormalDrink.findAll({
+      include: [ User ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch all of the records" });
+  }
+
+  const currentDate = new Date();
+  const time = currentDate.getTime();
+  const fileLocation = `PreOrdersAndPrefs-${time}`;
+
+  const csvWriter = createCsvWriter({
+    path: `${csvPath}${fileLocation}.csv`,
+    header: [
+      { id: "username", title: "Username" },
+      { id: "firstNames", title: "First Names" },
+      { id: "surname", title: "Surname" },
+      { id: "updatedAt", title: "Last Updated At" },
+      { id: "household", title: "Household" },
+      { id: "dietary", title: "Dietary Requirements" },
+      { id: "wine", title: "Wine" },
+      { id: "sharingWith", title: "Sharing With" }
+    ]
+  });
+
+  let csvRecords = [];
+
+  records.sort((a, b) => {
+    const aName = a.User.surname.toLowerCase();
+    const bName = b.User.surname.toLowerCase();
+
+    return aName > bName ? 1 : (aName < bName ? -1 : 0);
+  }).forEach(record => {
+    let csvRec = {};
+
+    csvRec.username = record.User.username;
+    csvRec.firstNames = record.User.firstNames;
+    csvRec.surname = record.User.surname;
+    csvRec.updatedAt = dateFormat(record.updatedAt, "dd/mm/yyyy");
+    csvRec.household = record.household;
+    csvRec.dietary = record.dietary;
+    csvRec.wine = record.wine;
+    csvRec.sharingWith = record.sharingWith;
+
+    csvRecords.push(csvRec);
+  });
+
+  try {
+    await csvWriter.writeRecords(csvRecords);
+  } catch (error) {
+    return res.status(500).end({ error });
+  }
+
+  return res.status(200).json({ fileLocation });
+});
+
+router.get("/drinks/download/:file", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const file = req.params.file;
+
+  if(file === undefined || file === null) {
+    return res.status(400).json({ error: "Missing file" });
+  }
+
+  const split = file.split("-");
+  const millisecondsStr = split[0];
+
+  if(new Date().getTime() > Number(millisecondsStr) + 1000 * 60 * 60) {
+    return res.status(410).end();
+  }
+
+  const pathName = path.join(csvPath, `${file}.csv`)
+
+  return res.download(pathName, `${file}.csv`, () => {
+    res.status(404).end();
+  });
+});
+
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
   let firstName = booker.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
