@@ -176,6 +176,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: null
         },
         {
+          displayName: "Liver-In Pre-Ordering",
+          url: "/events/drinks",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
           displayName: "Your Debt",
           url: "/debt",
           requiredPermission: "debt.has",
@@ -224,7 +232,7 @@ class NavBar extends React.Component {
             {
               displayName: "My Bookings",
               url: "/my/bookings",
-              requiredPermission: "events.manage"
+              requiredPermission: null
             },
             {
               displayName: "Logout",
@@ -284,6 +292,11 @@ class NavBar extends React.Component {
               displayName: "Export Events",
               url: "/events/admin/export",
               requiredPermission: "events.export"
+            },
+            {
+              displayName: "Export Preferences and Pre-Orders",
+              url: "/events/drinks/admin",
+              requiredPermission: "events.manage"
             },
             {
               displayName: "Manage Debts",

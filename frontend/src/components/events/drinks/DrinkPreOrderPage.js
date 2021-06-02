@@ -235,7 +235,7 @@ class DrinkPreOrderPage extends React.Component {
                   <option value={-1} disabled={true} hidden={true}>Choose Household...</option>
                   {
                     [...Array(28).keys()].map(i => i + 1).map(household => (
-                      <option value={household}>Household {household}</option>
+                      <option value={household} key={household}>Household {household}</option>
                     ))
                   }
                 </select>
