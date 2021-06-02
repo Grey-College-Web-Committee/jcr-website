@@ -5,7 +5,7 @@ const path = require("path");
 const multer = require("multer");
 const router = express.Router();
 // The database models
-const { User, Permission, PermissionLink, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("../database.models.js");
+const { User, Permission, PermissionLink, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, FormalDrink } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/events/" });
@@ -2544,6 +2544,69 @@ router.post("/booking/admin", async (req, res) => {
 
   return res.status(204).end();
 })
+
+router.post("/drinks", async (req, res) => {
+  const { user } = req.session;
+  const { household, dietary, wine, sharingWith } = req.body;
+
+  if(household === null || household === undefined) {
+    return res.status(400).json({ error: "Missing household" });
+  }
+
+  if(dietary === null || dietary === undefined) {
+    return res.status(400).json({ error: "Missing dietary" });
+  }
+
+  if(wine === null || wine === undefined) {
+    return res.status(400).json({ error: "Missing wine" });
+  }
+
+  if(sharingWith === null || sharingWith === undefined) {
+    return res.status(400).json({ error: "Missing sharingWith" });
+  }
+
+  try {
+    await FormalDrink.destroy({
+      where: {
+        userId: user.id
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete old entries" });
+  }
+
+  try {
+    await FormalDrink.create({
+      userId: user.id,
+      household,
+      dietary,
+      wine,
+      sharingWith
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the entry" });
+  }
+
+  return res.status(204).end();
+});
+
+router.get("/drinks", async (req, res) => {
+  const { user } = req.session;
+
+  let result;
+
+  try {
+    result = await FormalDrink.findOne({
+      where: {
+        userId: user.id
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the record" });
+  }
+
+  return res.status(200).json({ existing: result });
+});
 
 const createPaymentEmail = (event, ticketType, booker, ticket) => {
   let firstName = booker.firstNames.split(",")[0];
