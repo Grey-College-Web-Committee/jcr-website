@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking, Debt } = require("../database.models.js");
+const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking, Debt, ToastieOrderTracker } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
@@ -139,6 +139,17 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
 
   const customerEmail = customerToastieEmail(user, orderId, toasties, extras, firstTableNumber);
   mailer.sendEmail(user.email, `Toastie Bar Order Confirmation`, customerEmail);
+
+  // Create the order tracker entry
+  try {
+    await ToastieOrderTracker.create({
+      orderId,
+      completed: false,
+      tableNumber: Number(firstTableNumber)
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 const translateSize = (size) => {

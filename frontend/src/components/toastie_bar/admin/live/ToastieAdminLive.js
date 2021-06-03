@@ -3,6 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
 import socketIOClient from 'socket.io-client';
+import ToastieOrder from './ToastieOrder';
 
 class ToastieAdminLive extends React.Component {
   constructor(props) {
@@ -12,6 +13,11 @@ class ToastieAdminLive extends React.Component {
       loaded: false,
       status: 0,
       error: "",
+      initialLoaded: false,
+      refreshKey: new Date(),
+      activeOrders: {},
+      completedOrders: {},
+      showCompleted: false
     };
 
     // Change this to your permission
@@ -62,7 +68,7 @@ class ToastieAdminLive extends React.Component {
     // Subscribes to the barOrderClients room so that we receive the events relating to orders
     this.socket.emit("subscribeToToastieOrders", {});
     // This will occur when the server sends the initial backlog of orders
-    // this.socket.on("barInitialData", this.handleInitialData);
+    this.socket.on("toastieInitialData", this.handleInitialData);
     // // This will occur when someone updates a drink as complete
     // this.socket.on("barContentCompleted", this.handleOrderContentCompleted);
     // // This will occur when the server send a barNewOrder event
@@ -75,6 +81,18 @@ class ToastieAdminLive extends React.Component {
     // this.socket.on("barOpenChanged", this.handleBarOpenChanged)
 
     this.setState({ loaded: true });
+  }
+
+  handleInitialData = (data) => {
+    const { transformedOrders, open } = data;
+    transformedOrders.forEach(this.handleNewOrder);
+    this.setState({ initialLoaded: true, openForOrders: open });
+  }
+
+  handleNewOrder = (order) => {
+    let { activeOrders } = this.state;
+    activeOrders[order.id] = order;
+    this.setState({ activeOrders });
   }
 
   render () {
@@ -90,10 +108,34 @@ class ToastieAdminLive extends React.Component {
       );
     }
 
+    const { showCompleted, initialLoaded, activeOrders, refreshKey } = this.state;
+
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Live Toastie Orders</h1>
+          <p className="text-left">Toastie orders will appear here as they come in. The oldest orders will appear at the top of the page. You can mark individual items as completed as well as marking whole orders as completed. If you mark a whole order it will be moved to the completed orders section to help track which orders are outstanding.</p>
+          <p className="text-left">If you want to see the completed orders in this session (i.e. since you opened this page) you can toggle them on or off. They will appear greyed out and will be uneditable.</p>
+          <div className="flex flex-row justify-start py-1">
+            <button
+              className="px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              onClick={() => {
+                this.setState({ showCompleted: !showCompleted });
+              }}
+            >{showCompleted ? "Hide Recently Completed" : "Show Recently Completed"}</button>
+          </div>
+          {
+            !initialLoaded ? <LoadingHolder /> : null
+          }
+          {
+            Object.keys(activeOrders).map(order => (
+              <ToastieOrder
+                key={`${refreshKey}-${order.id}`}
+                order={order}
+                completed={order.completed}
+              />
+            ))
+          }
         </div>
       </div>
     );

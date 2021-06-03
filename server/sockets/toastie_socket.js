@@ -1,5 +1,63 @@
-const { User } = require("../database.models.js");
+const { User, ToastieOrderTracker, ShopOrder, ShopOrderContent, ToastieOrderContent, ToastieStock } = require("../database.models.js");
 const { hasPermission } = require("../utils/permissionUtils.js");
+
+const makeDisplayName = (user) => {
+  const upperCaseFirstName = user.firstNames.split(",")[0];
+  const firstName = upperCaseFirstName.substring(0, 1) + upperCaseFirstName.substring(1).toLowerCase();
+
+  const upperCaseLastName = user.surname;
+  const specialCaseList = ["MC", "MAC"];
+  const foundSpecialCase = specialCaseList.filter(c => upperCaseLastName.startsWith(c));
+
+  let lastName = upperCaseLastName.substring(0, 1) + upperCaseLastName.substring(1).toLowerCase();
+
+  // Fix special cases like McDonald appearing as Mcdonald
+  if(foundSpecialCase.length !== 0) {
+    const c = foundSpecialCase[0].substring(0, 1) + foundSpecialCase[0].substring(1).toLowerCase();
+    lastName = upperCaseLastName.substring(c.length);
+    lastName = c + lastName.substring(0, 1) + lastName.substring(1).toLowerCase();
+  }
+
+  // Fix hyphens
+  if(lastName.includes("-")) {
+    let capNext = false;
+    let newLastName = [];
+
+    for(const i in lastName) {
+      if(capNext) {
+        newLastName.push(lastName[i].toUpperCase());
+        capNext = false;
+        continue;
+      }
+
+      newLastName.push(lastName[i]);
+      capNext = lastName[i] === "-";
+    }
+
+    lastName = newLastName.join("")
+  }
+
+  // Fix apostrophes
+  if(lastName.includes("'")) {
+    let capNext = false;
+    let newLastName = [];
+
+    for(const i in lastName) {
+      if(capNext) {
+        newLastName.push(lastName[i].toUpperCase());
+        capNext = false;
+        continue;
+      }
+
+      newLastName.push(lastName[i]);
+      capNext = lastName[i] === "'";
+    }
+
+    lastName = newLastName.join("")
+  }
+
+  return `${firstName} ${lastName}`;
+}
 
 const setupEvents = (socket, io) => {
   socket.on("subscribeToToastieOrders", async () => {
@@ -7,6 +65,80 @@ const setupEvents = (socket, io) => {
       socket.disconnect();
       return;
     }
+
+    // Subscribe to the toastie ordering room
+    socket.join("toastieOrderClients");
+
+    // Get all of the non-completed orders
+    let existingOrders;
+
+    try {
+      existingOrders = await ToastieOrderTracker.findAll({
+        where: {
+          completed: false
+        },
+        include: [
+          {
+            model: ShopOrder,
+            include: [
+              {
+                model: ShopOrderContent,
+                include: [
+                  {
+                    model: ToastieOrderContent,
+                    include: [ ToastieStock ]
+                  }
+                ]
+              },
+              {
+                model: User
+              }
+            ]
+          }
+        ]
+      });
+    } catch (error) {
+      console.log(error);
+      return {};
+    }
+
+    // Process the existing orders into a better format
+    const transformedOrders = existingOrders.map(order => {
+      const { orderId, completed, tableNumber, createdAt, ShopOrder } = order;
+      const { User, ShopOrderContents } = ShopOrder;
+
+      const items = ShopOrderContents.map(sub => {
+        const { ToastieOrderContents } = sub;
+
+        const inner = ToastieOrderContents.map(i => {
+          const { completed, ToastieStock, quantity } = i;
+          const { name } = ToastieStock;
+
+          return { name, quantity, completed };
+        });
+
+        const part = {
+          toastie: inner.length !== 1,
+          components: inner
+        }
+
+        return part;
+      });
+
+      const displayName = makeDisplayName(User);
+
+      return {
+        id: orderId, completed, tableNumber, createdAt, displayName, items
+      }
+    }).sort((a, b) => {
+      const aDate = new Date(a.createdAt);
+      const bDate = new Date(b.createdAt);
+
+      return aDate < bDate ? -1 : (aDate > bDate ? 1 : 0);
+    });
+
+    // open to do
+    socket.emit("toastieInitialData", { transformedOrders, open: true });
   });
 }
 
