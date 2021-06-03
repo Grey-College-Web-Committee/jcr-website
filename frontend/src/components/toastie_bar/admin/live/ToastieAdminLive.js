@@ -128,11 +128,11 @@ class ToastieAdminLive extends React.Component {
             !initialLoaded ? <LoadingHolder /> : null
           }
           {
-            Object.keys(activeOrders).map(order => (
+            Object.keys(activeOrders).map(id => (
               <ToastieOrder
-                key={`${refreshKey}-${order.id}`}
-                order={order}
-                completed={order.completed}
+                key={`${refreshKey}-${id}`}
+                order={activeOrders[id]}
+                completed={activeOrders[id].completed}
               />
             ))
           }
