@@ -61,7 +61,7 @@ class ToastieOrder extends React.Component {
                       ) : "N/A"
                     }
                   </td>
-                  <td className="p-2 border-r border-gray-400">{sub.toastie ? "What happens with multi toasties?" : sub.components[0].quantity}</td>
+                  <td className="p-2 border-r border-gray-400">{sub.toastie ? 1 : sub.components[0].quantity}</td>
                 </tr>
               ))
             }

@@ -130,11 +130,6 @@ const setupEvents = (socket, io) => {
       return {
         id: orderId, completed, tableNumber, createdAt, displayName, items
       }
-    }).sort((a, b) => {
-      const aDate = new Date(a.createdAt);
-      const bDate = new Date(b.createdAt);
-
-      return aDate < bDate ? -1 : (aDate > bDate ? 1 : 0);
     });
 
     // open to do

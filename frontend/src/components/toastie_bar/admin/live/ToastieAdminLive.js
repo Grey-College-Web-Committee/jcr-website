@@ -69,12 +69,8 @@ class ToastieAdminLive extends React.Component {
     this.socket.emit("subscribeToToastieOrders", {});
     // This will occur when the server sends the initial backlog of orders
     this.socket.on("toastieInitialData", this.handleInitialData);
-    // // This will occur when someone updates a drink as complete
-    // this.socket.on("barContentCompleted", this.handleOrderContentCompleted);
     // // This will occur when the server send a barNewOrder event
-    // this.socket.on("barNewOrder", this.handleNewOrder);
-    // // This will occur when someone updates an order as paided
-    // this.socket.on("barOrderPaid", this.handleOrderPaid);
+    this.socket.on("toastieNewOrder", this.handleNewOrder);
     // // This will occur when someone updates an order as completed
     // this.socket.on("barOrderCompleted", this.handleOrderCompleted);
     // // This will occur when someone updates if the bar is open for orders
@@ -128,7 +124,12 @@ class ToastieAdminLive extends React.Component {
             !initialLoaded ? <LoadingHolder /> : null
           }
           {
-            Object.keys(activeOrders).map(id => (
+            Object.keys(activeOrders).sort((a, b) => {
+              const aDate = new Date(activeOrders[a].createdAt);
+              const bDate = new Date(activeOrders[b].createdAt);
+
+              return aDate < bDate ? -1 : (aDate > bDate ? 1 : 0);
+            }).map(id => (
               <ToastieOrder
                 key={`${refreshKey}-${id}`}
                 order={activeOrders[id]}

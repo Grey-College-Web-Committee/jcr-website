@@ -93,7 +93,7 @@ const staffToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
   return message.join("");
 }
 
-const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
+const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
   let extras = [];
   let toasties = [];
   let firstTableNumber = -1;
@@ -140,9 +140,11 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
   const customerEmail = customerToastieEmail(user, orderId, toasties, extras, firstTableNumber);
   mailer.sendEmail(user.email, `Toastie Bar Order Confirmation`, customerEmail);
 
+  let entry;
+
   // Create the order tracker entry
   try {
-    await ToastieOrderTracker.create({
+    entry = await ToastieOrderTracker.create({
       orderId,
       completed: false,
       tableNumber: Number(firstTableNumber)
@@ -150,6 +152,59 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
   } catch (error) {
     console.log(error);
   }
+
+  console.log({extras});
+  console.log(JSON.stringify(toasties));
+
+  const extrasFormatted = extras.map(extra => {
+    return {
+      toastie: false,
+      components: [
+        {
+          name: extra.name,
+          quantity: extra.quantity,
+          completed: false
+        }
+      ]
+    }
+  });
+
+  const toastiesFormatted = toasties.map(toastie => {
+    let components = [];
+
+    components.push({
+      name: toastie.bread.name,
+      quantity: 1,
+      completed: false
+    });
+
+    let fillings = toastie.fillings.map(filling => {
+      return {
+        name: filling.name,
+        quantity: 1,
+        completed: false
+      }
+    });
+
+    components = components.concat(fillings);
+
+    return {
+      toastie: true,
+      components
+    }
+  });
+
+  const items = toastiesFormatted.concat(extrasFormatted);
+
+  // Send the order to all of the registered toastie clients
+  io.to("toastieOrderClients").emit("toastieNewOrder", {
+    completed: false,
+    id: orderId,
+    displayName: user.firstNames,
+    tableNumber: Number(firstTableNumber),
+    createdAt: entry.createdAt,
+    items
+  });
 }
 
 const translateSize = (size) => {
@@ -229,7 +284,7 @@ const customerStashEmail = (user, orderId, relatedOrders, deliveryInformation) =
   return message.join("");
 }
 
-const fulfilStashOrders = (user, orderId, relatedOrders, deliveryInformation) => {
+const fulfilStashOrders = (user, orderId, relatedOrders, deliveryInformation, io) => {
   const customerEmail = customerStashEmail(user, orderId, relatedOrders, deliveryInformation);
   mailer.sendEmail(user.email, `Stash Order Confirmation`, customerEmail);
 }
@@ -266,7 +321,7 @@ const facsoGymEmail = (user, orderId, order) => {
   return message.join("");
 }
 
-const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
+const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
   let membershipRecord;
 
   try {
@@ -323,7 +378,7 @@ const facsoJCRMembershipEmail = (user, orderId, expiresAt) => {
   return message.join("");
 }
 
-const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
+const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
   if(relatedOrders.length !== 1) {
     console.log("Many memberships?");
     return;
@@ -413,7 +468,7 @@ const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryI
   mailer.sendEmail("grey.treasurer@durham.ac.uk", `New JCR Membership Purchased (${user.username})`, facsoEmail);
 }
 
-const fulfilDebtOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
+const fulfilDebtOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
   // Remove the debt record and the debt permission
 
   let debtPermission;
@@ -858,14 +913,14 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
         const relatedOrders = subOrders.filter(order => order.shop === shop);
 
         if(relatedOrders.length !== 0) {
-          await fulfilOrderProcessors[shop](user, orderId, relatedOrders, deliveryInformation);
+          await fulfilOrderProcessors[shop](user, orderId, relatedOrders, deliveryInformation, req.io);
         }
       });
 
       stashOrders = stashOrders.map(order => order.dataValues);
 
       if(stashOrders.length !== 0) {
-        fulfilOrderProcessors["stash"](user, orderId, stashOrders, deliveryInformation);
+        fulfilOrderProcessors["stash"](user, orderId, stashOrders, deliveryInformation, req.io);
       }
 
       break;
