@@ -168,6 +168,21 @@ class DrinkPreOrderPage extends React.Component {
       );
     }
 
+    const expiryDate = new Date("2021-06-04T11:00:00Z");
+
+    if(new Date() > expiryDate) {
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-4">Preferences and Wine Pre-Ordering</h1>
+            <div className="w-full md:w-3/5 mx-auto text-center text-lg">
+              <p>Preferences can no longer be edited</p>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     if(this.state.submitted) {
       return (
         <div className="flex flex-col justify-start">
