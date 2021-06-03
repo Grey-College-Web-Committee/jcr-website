@@ -42,6 +42,8 @@ import EventsGroupBookingPage from './components/events/book/EventsGroupBookingP
 import EventsPaymentPage from './components/events/payment/EventsPaymentPage';
 import EventsMyBookingsOverview from './components/events/my/EventsMyBookingsOverview';
 import EventsMyBookingPage from './components/events/my/EventsMyBookingPage';
+import DrinkPreOrderPage from './components/events/drinks/DrinkPreOrderPage';
+import AdminDrinkPreOrderPage from './components/events/drinks/AdminDrinkPreOrderPage';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
 
@@ -497,6 +499,12 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/complaints/view/:id" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("complaints.manage") ? ( <ComplaintViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/complaints/admin") )
+                    )} />
+                    <Route exact path="/events/drinks" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <DrinkPreOrderPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/drinks") )
+                    )} />
+                    <Route exact path="/events/drinks/admin" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("events.manage") ? <AdminDrinkPreOrderPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/drinks/admin") )
                     )} />
                     <Route exact path="/events/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsManagePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin") )

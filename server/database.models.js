@@ -61,6 +61,8 @@ class EventGroupBooking extends Model {}
 // The individual record for each member of a group (i.e. to track their Stripe payments)
 class EventTicket extends Model {}
 
+class FormalDrink extends Model {}
+
 class CareersPost extends Model {}
 
 class Feedback extends Model {}
@@ -984,6 +986,33 @@ EventTicket.init({
   }
 }, { sequelize });
 
+FormalDrink.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  household: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  dietary: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  wine: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  sharingWith: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
 CareersPost.init({
   userId: {
     type: DataTypes.INTEGER,
@@ -1564,4 +1593,7 @@ BarBooking.belongsTo(User, { foreignKey: 'userId' });
 BarBooking.hasMany(BarBookingGuest, { foreignKey: 'bookingId' });
 BarBookingGuest.belongsTo(BarBooking, { foreignKey: 'bookingId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial };
+User.hasMany(FormalDrink, { foreignKey: 'userId' });
+FormalDrink.belongsTo(User, { foreignKey: 'userId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, FormalDrink };
