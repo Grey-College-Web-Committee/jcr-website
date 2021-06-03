@@ -1010,6 +1010,10 @@ FormalDrink.init({
   sharingWith: {
     type: DataTypes.TEXT,
     allowNull: false
+  },
+  softDrink: {
+    type: DataTypes.TEXT,
+    allowNull: false
   }
 }, { sequelize });
 

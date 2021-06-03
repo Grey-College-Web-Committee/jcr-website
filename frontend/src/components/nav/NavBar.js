@@ -170,7 +170,7 @@ class NavBar extends React.Component {
         {
           displayName: "Events",
           url: "/events",
-          requiredPermission: "events.manage",
+          requiredPermission: null,
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: null

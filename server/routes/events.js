@@ -2547,7 +2547,7 @@ router.post("/booking/admin", async (req, res) => {
 
 router.post("/drinks", async (req, res) => {
   const { user } = req.session;
-  const { household, dietary, wine, sharingWith } = req.body;
+  const { household, dietary, wine, sharingWith, softDrink } = req.body;
 
   if(household === null || household === undefined) {
     return res.status(400).json({ error: "Missing household" });
@@ -2563,6 +2563,10 @@ router.post("/drinks", async (req, res) => {
 
   if(sharingWith === null || sharingWith === undefined) {
     return res.status(400).json({ error: "Missing sharingWith" });
+  }
+
+  if(softDrink === null || softDrink === undefined) {
+    return res.status(400).json({ error: "Missing softDrink" });
   }
 
   try {
@@ -2581,7 +2585,8 @@ router.post("/drinks", async (req, res) => {
       household,
       dietary,
       wine,
-      sharingWith
+      sharingWith,
+      softDrink
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to create the entry" });
@@ -2640,7 +2645,8 @@ router.get("/drinks/export", async (req, res) => {
       { id: "household", title: "Household" },
       { id: "dietary", title: "Dietary Requirements" },
       { id: "wine", title: "Wine" },
-      { id: "sharingWith", title: "Sharing With" }
+      { id: "sharingWith", title: "Sharing With" },
+      { id: "softDrink", title: "Soft Drink" }
     ]
   });
 
@@ -2657,11 +2663,12 @@ router.get("/drinks/export", async (req, res) => {
     csvRec.username = record.User.username;
     csvRec.firstNames = record.User.firstNames;
     csvRec.surname = record.User.surname;
-    csvRec.updatedAt = dateFormat(record.updatedAt, "dd/mm/yyyy");
+    csvRec.updatedAt = dateFormat(record.updatedAt, "dd/mm/yyyy HH:MM");
     csvRec.household = record.household;
     csvRec.dietary = record.dietary;
     csvRec.wine = record.wine;
-    csvRec.sharingWith = record.sharingWith;
+    csvRec.sharingWith = record.wine !== "none" ? record.sharingWith : "";
+    csvRec.softDrink = record.softDrink;
 
     csvRecords.push(csvRec);
   });

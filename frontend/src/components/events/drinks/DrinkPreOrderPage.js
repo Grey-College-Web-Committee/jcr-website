@@ -16,7 +16,8 @@ class DrinkPreOrderPage extends React.Component {
       household: -1,
       sharingName: "",
       dietary: "none",
-      wine: "none"
+      wine: "none",
+      softDrink: "none"
     };
   }
 
@@ -26,31 +27,11 @@ class DrinkPreOrderPage extends React.Component {
 
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
-    let membershipCheck;
-
-    try {
-      membershipCheck = await api.get("/auth/verify");
-    } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
-      return;
-    }
-
-    // Ensure they are an admin
-    if(membershipCheck.data.user.permissions) {
-      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
-        this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
-        return;
-      }
-    } else {
-      this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
-      return;
-    }
-
     // Once the component is ready we can query the API
     let content;
 
     try {
-      content = await api.get("/events/Drinks");
+      content = await api.get("/events/drinks");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
@@ -63,10 +44,9 @@ class DrinkPreOrderPage extends React.Component {
       return;
     }
 
-    console.log({existing})
-    const { household, dietary, sharingWith: sharingName, wine } = existing;
+    const { household, dietary, sharingWith: sharingName, wine, softDrink } = existing;
 
-    this.setState({ loaded: true, status: 200, household, dietary, sharingName, wine });
+    this.setState({ loaded: true, status: 200, household, dietary, sharingName, wine, softDrink });
   }
 
   makeDisplayName = (user) => {
@@ -130,7 +110,7 @@ class DrinkPreOrderPage extends React.Component {
   submitPreOrder = async () => {
     this.setState({ disabled: true });
 
-    const { household, dietary, wine, sharingName } = this.state;
+    const { household, dietary, wine, sharingName, softDrink } = this.state;
 
     if(!this.canSubmit()) {
       alert("You must fill out the required fields");
@@ -141,7 +121,7 @@ class DrinkPreOrderPage extends React.Component {
 
     try {
       result = await api.post("/events/drinks", {
-        household, dietary, wine, sharingWith: sharingName
+        household, dietary, wine, sharingWith: sharingName, softDrink
       });
     } catch (error) {
       alert("There was an issue saving your data");
@@ -206,10 +186,9 @@ class DrinkPreOrderPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Preferences and Wine Pre-Ordering</h1>
           <div className="w-full md:w-3/5 mx-auto text-left">
-            <p className="mb-1">For the upcoming 'enhanced' dinner for livers-in you can purchase a bottle of wine to share
-            between two people from the same household. Each bottle is £X and payment will be taken on the night.</p>
-            <p className="mb-1">Please also fill in your dietary requirements otherwise you will be given the default option of the meat dish.</p>
-            <p className="mb-1">You can edit your preferences as many times as you like before (date).</p>
+            <p className="mb-1">For the upcoming 'enhanced' dinner (on 8th and 9th June 2021) for livers-in you can purchase a bottle of wine that <span className="font-semibold">must be shared between two people</span> from the same household. Each bottle is £10 and payment will be taken on the night. You can also purchase bottles of J2O for £1.20. Payment will also be taken on the night.</p>
+            <p className="mb-1">Please also fill in your dietary requirements.</p>
+            <p className="mb-1">You can edit your preferences as many times as you like before 4th June at midday.</p>
             <fieldset>
               <div className="pt-2 pb-2 border-b-2">
                 <label htmlFor="name" className="flex flex-row justify-start text-xl font-semibold">Your Name</label>
@@ -265,8 +244,8 @@ class DrinkPreOrderPage extends React.Component {
                   disabled={this.state.disabled}
                 >
                   <option value="none">None</option>
-                  <option value="red">Red</option>
-                  <option value="white">White</option>
+                  <option value="red">Red (£10)</option>
+                  <option value="white">White (£10)</option>
                 </select>
               </div>
               <div className={`pt-2 pb-2 border-b-2 ${this.state.wine === "none" ? "hidden" : ""}`}>
@@ -281,6 +260,21 @@ class DrinkPreOrderPage extends React.Component {
                   maxLength={255}
                   onChange={this.onInputChange}
                 />
+              </div>
+              <div className="pt-2 pb-2 border-b-2">
+                <label htmlFor="wine" className="flex flex-row justify-start text-xl font-semibold">Soft Drink Choice</label>
+                <select
+                  name="softDrink"
+                  className="w-full h-8 border border-gray-400 disabled:opacity-50"
+                  onChange={this.onInputChange}
+                  value={this.state.softDrink}
+                  disabled={this.state.disabled}
+                >
+                  <option value="none">None</option>
+                  <option value="J2O Apple and Raspberry">J2O Apple and Raspberry (£1.20)</option>
+                  <option value="J2O Apple and Mango">J2O Apple and Mango (£1.20)</option>
+                  <option value="J2O Orange and Passionfruit">J2O Orange and Passionfruit (£1.20)</option>
+                </select>
               </div>
               <div>
                 <button
