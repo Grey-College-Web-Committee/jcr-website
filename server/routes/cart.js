@@ -7,9 +7,12 @@ const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrd
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
-  // A toastie will have no global submission info
-  const isToastie = Object.keys(globalSubmissionInfo).length === 0;
+  // A toastie will have the table number
+  const isToastie = Object.keys(globalSubmissionInfo).length === 1;
   const hasComponents = componentSubmissionInfo.length !== 0;
+
+  console.log({componentSubmissionInfo})
+  console.log({globalSubmissionInfo})
 
   let modifiedParameters = globalOrderParameters;
 
@@ -31,7 +34,8 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       try {
         subOrderIdInsert = await ShopOrderContent.create({
           orderId,
-          shop: "toastie"
+          shop: "toastie",
+          additional: JSON.stringify({ tableNumber: globalSubmissionInfo.tableNumber })
         });
       } catch (error) {
         return {
@@ -125,7 +129,8 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
     try {
       subOrderIdInsert = await ShopOrderContent.create({
         orderId,
-        shop: "toastie"
+        shop: "toastie",
+        additional: JSON.stringify({ tableNumber: globalSubmissionInfo.tableNumber })
       });
     } catch (error) {
       return {

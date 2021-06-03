@@ -25,7 +25,8 @@ class OrderToastiePage extends React.Component {
       confectionary: [],
       drinks: [],
       refreshId: Math.random(),
-      showAddedInfo: false
+      showAddedInfo: false,
+      tableNumber: -1
     };
   }
 
@@ -113,7 +114,7 @@ class OrderToastiePage extends React.Component {
     // refresh in case it's out of sync
     this.cart.get();
 
-    const { toastie, drinks, confectionary } = this.state;
+    const { toastie, drinks, confectionary, tableNumber } = this.state;
     const valid = this.checkToastie(toastie);
 
     let cartableObjects = [];
@@ -154,7 +155,7 @@ class OrderToastiePage extends React.Component {
         name: "Toastie",
         basePrice,
         quantity: 1,
-        submissionInformation: {},
+        submissionInformation: { tableNumber },
         components,
         duplicateHash: null,
         image: "/images/cart/placeholder.png"
@@ -170,7 +171,8 @@ class OrderToastiePage extends React.Component {
           basePrice: Number(drink.price),
           quantity: 1,
           submissionInformation: {
-            id: drink.id
+            id: drink.id,
+            tableNumber
           },
           components: [],
           duplicateHash: null,
@@ -188,7 +190,8 @@ class OrderToastiePage extends React.Component {
           basePrice: Number(confectionaryItem.price),
           quantity: 1,
           submissionInformation: {
-            id: confectionaryItem.id
+            id: confectionaryItem.id,
+            tableNumber
           },
           components: [],
           duplicateHash: null,
@@ -273,7 +276,7 @@ class OrderToastiePage extends React.Component {
   }
 
   displaySummary = () => {
-    const { toastie, drinks, confectionary } = this.state;
+    const { toastie, drinks, confectionary, tableNumber } = this.state;
 
     let toastieTotal = -1;
     let drinksTotal = -1;
@@ -299,7 +302,7 @@ class OrderToastiePage extends React.Component {
 
     let subtotal = (toastieOrdered ? toastieTotal : 0) + (drinksOrdered ? drinksTotal : 0) + (confectionaryOrdered ? confectionaryTotal : 0);
 
-    const wasValidOrder = toastieOrdered || drinksOrdered || confectionaryOrdered;
+    const wasValidOrder = (toastieOrdered || drinksOrdered || confectionaryOrdered) && tableNumber !== -1;
 
     return (
       <ul>
@@ -342,6 +345,31 @@ class OrderToastiePage extends React.Component {
           </li>
         ) : null}
       </ul>
+    )
+  }
+
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+  }
+
+  displayTableNumberSelector = () => {
+    return (
+      <div>
+        <select
+          className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+          value={this.state.tableNumber}
+          onChange={this.onInputChange}
+          name="tableNumber"
+        >
+          <option value={-1} hidden={true} disabled={true}>Please select an option...</option>
+          <option value={0} disabled={true}>Collection</option>
+          {
+            [...Array(20).keys()].map(i => i + 1).map(tableNumber => (
+              <option value={tableNumber}>Table {tableNumber}</option>
+            ))
+          }
+        </select>
+      </div>
     )
   }
 
@@ -406,6 +434,10 @@ class OrderToastiePage extends React.Component {
             <div className="w-full lg:w-1/4 text-base pb-4">
               <div className="border-2 p-2 border-black">
                 <h2 className="text-3xl font-bold">Your Order</h2>
+                <div className="pt-2">
+                  <h3 className="text-xl font-semibold">Table Number</h3>
+                  {this.displayTableNumberSelector()}
+                </div>
                 <div className="pt-2">
                   <h3 className="text-xl font-semibold">Toastie</h3>
                   {this.displaySelectedToastie()}

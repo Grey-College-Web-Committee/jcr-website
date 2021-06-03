@@ -9,3 +9,5 @@ const setupEvents = (socket, io) => {
     }
   });
 }
+
+module.exports = { setupEvents };

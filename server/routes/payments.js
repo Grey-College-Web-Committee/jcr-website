@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const mailer = require("../utils/mailer");
 const dateFormat = require("dateformat")
 
-const customerToastieEmail = (user, orderId, toasties, extras) => {
+const customerToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
@@ -17,9 +17,7 @@ const customerToastieEmail = (user, orderId, toasties, extras) => {
   message.push(`<h1>Order Received</h1>`);
   message.push(`<p>Hello ${firstName} ${lastName},</p>`);
   message.push(`<p>Your order has been confirmed and sent to the Toastie Bar.</p>`);
-  message.push(`<p>Please collect your order from the collection area outside the JCR.</p>`);
-  message.push(`<p>There shouldn't be a need to enter the JCR.</p>`);
-  message.push(`<p>Please come and collect it in about 10-15 minutes.</p>`);
+  message.push(`<p>Table Number: ${Number(tableNumber) === 0 ? "Collection" : tableNumber}</p>`);
   message.push(`<h2>Order Details</h2>`);
 
   if(toasties.length !== 0) {
@@ -54,7 +52,7 @@ const customerToastieEmail = (user, orderId, toasties, extras) => {
   return message.join("");
 }
 
-const staffToastieEmail = (user, orderId, toasties, extras) => {
+const staffToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
@@ -63,6 +61,7 @@ const staffToastieEmail = (user, orderId, toasties, extras) => {
   message.push(`<h1>Order Received</h1>`);
   message.push(`<p>Payment received at ${dateFormat(new Date(), "dd/mm/yyyy HH:MM")}</p>`);
   message.push(`<p>Ordered by: ${firstName} ${lastName}</p>`);
+  message.push(`<p>Table Number: ${Number(tableNumber) === 0 ? "Collection" : tableNumber}</p>`);
   message.push(`<h2>Order Details</h2>`);
 
   if(toasties.length !== 0) {
@@ -97,10 +96,16 @@ const staffToastieEmail = (user, orderId, toasties, extras) => {
 const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
   let extras = [];
   let toasties = [];
+  let firstTableNumber = -1;
 
   for(let i = 0; i < relatedOrders.length; i++) {
     const order = relatedOrders[i];
-    const id = order.id;
+    const { id, additional } = order;
+    const tableNumber = JSON.parse(additional).tableNumber;
+
+    if(firstTableNumber === -1) {
+      firstTableNumber = tableNumber;
+    }
 
     let orderContent;
 
@@ -129,10 +134,10 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
   }
 
   // Now construct and send the emails
-  const staffEmail = staffToastieEmail(user, orderId, toasties, extras);
+  const staffEmail = staffToastieEmail(user, orderId, toasties, extras, firstTableNumber);
   mailer.sendEmail(process.env.TOASTIE_BAR_EMAIL_TO, `Toastie Bar Order Received #${orderId}`, staffEmail);
 
-  const customerEmail = customerToastieEmail(user, orderId, toasties, extras);
+  const customerEmail = customerToastieEmail(user, orderId, toasties, extras, firstTableNumber);
   mailer.sendEmail(user.email, `Toastie Bar Order Confirmation`, customerEmail);
 }
 
