@@ -47,7 +47,7 @@ const eventsCron = require("./cron/events_cron");
 const app = express();
 
 const http = require("http").Server(app);
-const io = require("socket.io")(http, { transports: [ "websocket" ] });
+const io = require("socket.io")(http);//, { transports: [ "websocket" ] });
 
 if(process.env.NODE_ENV === "production") {
   console.log("Production Mode: Setting redis sockets");
@@ -62,9 +62,11 @@ if(process.env.NODE_ENV === "production") {
 }
 
 const barSocket = require("./sockets/bar_socket");
+const toastieSocket = require("./sockets/toastie_socket");
 
 io.on("connection", socket => {
   barSocket.setupEvents(socket, io);
+  toastieSocket.setupEvents(socket, io);
 });
 
 // Tells express to recognise incoming requests as JSON

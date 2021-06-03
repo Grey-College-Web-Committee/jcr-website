@@ -259,6 +259,11 @@ class NavBar extends React.Component {
               requiredPermission: "toastie.stock.edit"
             },
             {
+              displayName: "Live Toastie Orders",
+              url: "/toasties/live",
+              requiredPermission: "toastie.stock.edit"
+            },
+            {
               displayName: "Edit Available Stash",
               url: "/stash/stock",
               requiredPermission: "stash.stock.edit"
