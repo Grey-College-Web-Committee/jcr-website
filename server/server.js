@@ -39,6 +39,7 @@ const profileRoute = require("./routes/profile");
 // Required to deploy the static React files for production
 const path = require("path");
 const fs = require("fs");
+const FileType = require("file-type");
 
 // The cron jobs for the events system
 const eventsCron = require("./cron/events_cron");
@@ -468,16 +469,24 @@ app.get("/uploads/images/profile/:image", isLoggedIn, function(req, res) {
   res.sendFile(path.join(__dirname, `./uploads/images/profile/${image}`));
 });
 
-app.get("/uploads/jcr/:filename", isLoggedIn, function(req, res) {
-  const filename = req.params.filename;
+app.get("/uploads/jcr/:filename/:truename", isLoggedIn, async function(req, res) {
+  const { filename, truename } = req.params;
+  const filePath = path.join(__dirname, `./uploads/jcr/${filename}`);
+  let fileType;
 
-  fs.readFile(path.join(__dirname, `./uploads/jcr/${filename}`), (err, data) => {
+  try {
+    fileType = await FileType.fromFile(filePath);
+  } catch (error) {
+    return res.status(500).end();
+  }
+
+  fs.readFile(filePath, (err, data) => {
     if(err) {
-      res.status(404).end();
-    } else {
-      res.contentType("application/pdf");
-      res.send(data);
+      return res.status(404).end();
     }
+
+    res.contentType(fileType.mime);
+    res.send(data);
   });
 });
 

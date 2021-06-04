@@ -56,7 +56,7 @@ class FileDirectory extends React.Component {
           this.props.files.sort((a, b) => {
             return a.name > b.name ? 1 : (a.name < b.name ? -1 : 0)
           }).map((file, i) => (
-            <a className="" href={`/uploads/jcr/${file.realFileName}`} target="_blank">
+            <a className="" href={`/uploads/jcr/${file.realFileName}/${file.name}`} target="_blank">
               <div className="flex flex-row my-1 items-center">
                 <img
                   src="/images/files/file.png"
