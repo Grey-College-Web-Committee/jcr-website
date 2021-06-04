@@ -203,7 +203,7 @@ class DrinkPreOrderPage extends React.Component {
           <div className="w-full md:w-3/5 mx-auto text-left">
             <p className="mb-1">For the upcoming 'enhanced' dinner (on 8th and 9th June 2021) for livers-in you can purchase a bottle of wine that <span className="font-semibold">must be shared between two people</span> from the same household. Each bottle is £10 and payment will be taken on the night. You can also purchase bottles of J2O for £1.20. Payment will also be taken on the night.</p>
             <p className="mb-1">Please also fill in your dietary requirements.</p>
-            <p className="mb-1">You can edit your preferences as many times as you like before 4th June at midday.</p>
+            <p className="mb-1">You can edit your preferences as many times as you like before 4th June at 6pm.</p>
             <fieldset>
               <div className="pt-2 pb-2 border-b-2">
                 <label htmlFor="name" className="flex flex-row justify-start text-xl font-semibold">Your Name</label>
