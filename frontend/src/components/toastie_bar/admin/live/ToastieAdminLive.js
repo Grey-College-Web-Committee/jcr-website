@@ -17,7 +17,8 @@ class ToastieAdminLive extends React.Component {
       refreshKey: new Date(),
       activeOrders: {},
       completedOrders: {},
-      showCompleted: false
+      showCompleted: false,
+      openForOrders: false
     };
 
     // Change this to your permission
@@ -69,12 +70,12 @@ class ToastieAdminLive extends React.Component {
     this.socket.emit("subscribeToToastieOrders", {});
     // This will occur when the server sends the initial backlog of orders
     this.socket.on("toastieInitialData", this.handleInitialData);
-    // // This will occur when the server send a barNewOrder event
+    // This will occur when the server send a barNewOrder event
     this.socket.on("toastieNewOrder", this.handleNewOrder);
-    // // This will occur when someone updates an order as completed
+    // This will occur when someone updates an order as completed
     this.socket.on("toastieOrderCompleted", this.handleOrderCompleted);
-    // // This will occur when someone updates if the bar is open for orders
-    // this.socket.on("barOpenChanged", this.handleBarOpenChanged)
+    // This will occur when someone updates if the bar is open for orders
+    this.socket.on("toastieOpenChanged", this.handleToastieOpenChanged)
 
     this.setState({ loaded: true });
   }
@@ -109,9 +110,21 @@ class ToastieAdminLive extends React.Component {
     this.setState({ activeOrders, refreshKey: new Date() });
   }
 
+  handleToastieOpenChanged = (data) => {
+    const { open } = data;
+    this.setState({ openForOrders: open });
+  }
+
   updateOrderCompleted = (orderId) => {
     // Called when the order is marked as completed so it can update all instances
     this.socket.emit("markToastieOrderCompleted", { orderId });
+  }
+
+  toggleOpenForOrders = () => {
+    // Change the toastie ordering to open or closed
+    const newOpen = !this.state.openForOrders;
+    this.socket.emit("setToastieOpen", { open: newOpen });
+    this.setState({ openForOrders: newOpen });
   }
 
   render () {
@@ -127,12 +140,27 @@ class ToastieAdminLive extends React.Component {
       );
     }
 
-    const { showCompleted, initialLoaded, activeOrders, refreshKey } = this.state;
+    const { showCompleted, initialLoaded, activeOrders, refreshKey, openForOrders } = this.state;
 
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Live Toastie Orders</h1>
+          <div className="flex flex-row items-center">
+            {
+              initialLoaded ? (
+                <React.Fragment>
+                  <p className="text-left font-semibold text-lg py-1 mr-2">Ordering Status: { openForOrders ? "Open" : "Closed" }</p>
+                  <button
+                    onClick={this.toggleOpenForOrders}
+                    className={`px-4 py-1 rounded ${ openForOrders ? "bg-red-700" : "bg-green-700" } text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                  >{ openForOrders ? "Set Closed" : "Set Open" }</button>
+                </React.Fragment>
+              ) : (
+                <p className="text-left font-semibold text-lg py-1 mr-2">Ordering Status: Loading...</p>
+              )
+            }
+          </div>
           <p className="text-left">Toastie orders will appear here as they come in. The oldest orders will appear at the top of the page. You can mark individual items as completed as well as marking whole orders as completed. If you mark a whole order it will be moved to the completed orders section to help track which orders are outstanding.</p>
           <p className="text-left">If you want to see the completed orders in this session (i.e. since you opened this page) you can toggle them on or off. They will appear greyed out and will be uneditable.</p>
           <div className="flex flex-row justify-start py-1">

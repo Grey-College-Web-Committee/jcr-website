@@ -1,4 +1,4 @@
-const { User, ToastieOrderTracker, ShopOrder, ShopOrderContent, ToastieOrderContent, ToastieStock } = require("../database.models.js");
+const { User, ToastieOrderTracker, ShopOrder, ShopOrderContent, ToastieOrderContent, ToastieStock, PersistentVariable } = require("../database.models.js");
 const { hasPermission } = require("../utils/permissionUtils.js");
 
 const makeDisplayName = (user) => {
@@ -132,8 +132,16 @@ const setupEvents = (socket, io) => {
       }
     });
 
+    let toastieOpenRecord;
+
+    try {
+      toastieOpenRecord = await PersistentVariable.findOne({ where: { key: "TOASTIE_OPEN" } });
+    } catch (error) {
+      return {};
+    }
+
     // open to do
-    socket.emit("toastieInitialData", { transformedOrders, open: true });
+    socket.emit("toastieInitialData", { transformedOrders, open: toastieOpenRecord.booleanStorage });
   });
 
   socket.on("markToastieOrderCompleted", async (data) => {
@@ -156,8 +164,24 @@ const setupEvents = (socket, io) => {
     io.to("toastieOrderClients").emit("toastieOrderCompleted", data);
   });
 
-  socket.on("setToastieOpen", async () => {
+  socket.on("setToastieOpen", async (data) => {
+    if(!hasPermission(socket.handshake.session, "toastie.stock.edit")) {
+      socket.disconnect();
+      return;
+    }
 
+    const { open } = data;
+
+    try {
+      await PersistentVariable.update({ booleanStorage: open }, {
+        where: { key: "TOASTIE_OPEN" }
+      });
+    } catch (error) {
+      // TODO: handle
+      return {};
+    }
+
+    io.to("toastieOrderClients").emit("toastieOpenChanged", data);
   });
 }
 

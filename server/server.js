@@ -346,6 +346,16 @@ const requiredPermissions = [
       textStorage: "Welcome to the stash shop!"
     }
   });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "TOASTIE_OPEN"
+    },
+    defaults: {
+      key: "TOASTIE_OPEN",
+      booleanStorage: false
+    }
+  });
 })();
 
 console.log("NODE_APP_INSTANCE:", process.env.NODE_APP_INSTANCE);

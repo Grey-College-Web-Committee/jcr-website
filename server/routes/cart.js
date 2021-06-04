@@ -11,8 +11,38 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
   const isToastie = Object.keys(globalSubmissionInfo).length === 1;
   const hasComponents = componentSubmissionInfo.length !== 0;
 
-  console.log({componentSubmissionInfo})
-  console.log({globalSubmissionInfo})
+  let openRecord;
+
+  // Check if the toastie bar is open too
+  try {
+    openRecord = await PersistentVariable.findOne({
+      where: {
+        key: "TOASTIE_OPEN"
+      }
+    });
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to check open status"
+    };
+  }
+
+  if(openRecord === null) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to fetch open record"
+    };
+  }
+
+  if(!openRecord.booleanStorage) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "The Toastie Bar is currently closed."
+    };
+  }
 
   let modifiedParameters = globalOrderParameters;
 
