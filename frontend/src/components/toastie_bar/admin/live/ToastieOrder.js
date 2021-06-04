@@ -75,8 +75,8 @@ class ToastieOrder extends React.Component {
                       sub.toastie ? (
                         <ul className="list-inside list-disc">
                           {
-                            sub.components.map(comp => (
-                              <li>{comp.name}</li>
+                            sub.components.map((comp, i) => (
+                              <li key={i}>{comp.name}</li>
                             ))
                           }
                         </ul>
