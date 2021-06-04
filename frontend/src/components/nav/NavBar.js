@@ -176,14 +176,6 @@ class NavBar extends React.Component {
           alwaysDisplayed: null
         },
         {
-          displayName: "Liver-In Pre-Ordering",
-          url: "/events/drinks",
-          requiredPermission: null,
-          staticImage: null,
-          dropdown: null,
-          alwaysDisplayed: null
-        },
-        {
           displayName: "Your Debt",
           url: "/debt",
           requiredPermission: "debt.has",

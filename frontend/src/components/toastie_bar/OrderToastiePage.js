@@ -406,12 +406,15 @@ class OrderToastiePage extends React.Component {
           message="You have not added your items to your bag. Are you sure you want to leave?"
         />
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Create Toastie</h1>
+          <h1 className="font-semibold text-5xl pb-4">Toastie Bar</h1>
           {
-            this.state.open ? null : (
-              <p className="mb-4 font-semibold text-lg">The Toastie Bar is currently closed. Orders cannot be placed but you can browse the menu.</p>
+            this.state.open ? (
+              <p className="mb-2 text-lg text-left">The Toastie Bar has reopened! The ordering system is slightly different to the bar. Please make your toastie below, set your table number and then add it to your bag. <span className="font-semibold">Payment is taken via the website instead for toasties.</span> A member of staff will then bring your toastie to your table!</p>
+            ) : (
+              <p className="mb-2 font-semibold text-lg text-left">The Toastie Bar is currently closed. Orders cannot be placed but you can browse the menu.</p>
             )
           }
+          <a href="/uploads/toasties/allergens" className="font-semibold underline" target="_blank"><p className="text-lg underline font-semibold mb-2 text-left">For allergen information, please click here.</p></a>
           <div className="flex flex-col lg:flex-row w-full text-left">
             <div className="w-full lg:w-3/4 lg:px-2 lg:mx-2">
               <GroupDropdown
