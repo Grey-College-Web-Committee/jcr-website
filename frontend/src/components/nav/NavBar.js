@@ -254,16 +254,6 @@ class NavBar extends React.Component {
               requiredPermission: "permissions.edit"
             },
             {
-              displayName: "Edit Toastie Stock",
-              url: "/toasties/stock",
-              requiredPermission: "toastie.stock.edit"
-            },
-            {
-              displayName: "Live Toastie Orders",
-              url: "/toasties/live",
-              requiredPermission: "toastie.stock.edit"
-            },
-            {
               displayName: "Edit Available Stash",
               url: "/stash/stock",
               requiredPermission: "stash.stock.edit"
@@ -317,7 +307,12 @@ class NavBar extends React.Component {
               displayName: "Manage Bar",
               url: "/bar/admin/overview",
               requiredPermission: "bar.manage"
-            }
+            },
+            {
+              displayName: "Manage Toasties",
+              url: "/toasties/admin",
+              requiredPermission: "toastie.stock.edit"
+            },
           ],
           alwaysDisplayed: false
         },
