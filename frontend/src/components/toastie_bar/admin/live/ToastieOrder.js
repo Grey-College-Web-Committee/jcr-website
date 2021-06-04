@@ -12,11 +12,17 @@ class ToastieOrder extends React.Component {
   }
 
   markOrderCompleted = () => {
-
+    this.setState({ completed: true }, () => {
+      this.props.updateOrderCompleted(this.props.order.id);
+    });
   }
 
   render () {
     const { order } = this.props;
+
+    if(order.completed || this.state.completed) {
+      return null;
+    }
 
     // Multi same type toasties??
 

@@ -135,6 +135,30 @@ const setupEvents = (socket, io) => {
     // open to do
     socket.emit("toastieInitialData", { transformedOrders, open: true });
   });
+
+  socket.on("markToastieOrderCompleted", async (data) => {
+    if(!hasPermission(socket.handshake.session, "toastie.stock.edit")) {
+      socket.disconnect();
+      return;
+    }
+
+    const { orderId } = data;
+
+    try {
+      await ToastieOrderTracker.update({ completed: true }, {
+        where: { orderId }
+      })
+    } catch (error) {
+      console.log(error);
+      return {};
+    }
+
+    io.to("toastieOrderClients").emit("toastieOrderCompleted", data);
+  });
+
+  socket.on("setToastieOpen", async () => {
+
+  });
 }
 
 module.exports = { setupEvents };

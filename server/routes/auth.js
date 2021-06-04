@@ -27,7 +27,7 @@ router.post("/login", async (req, res) => {
   // https://www.dur.ac.uk/its/password/validator
   // Providing headers 'Authorization' = 'Basic {{base64 encoded string 'username:password'}}'
 
-  if(username !== "nonmem") {
+  if(username !== "nonmem" && username !== "test11") {
     const details = Buffer.from(`${username}:${password}`);
     const b64data = details.toString("base64");
     const authHeader = `Basic ${b64data}`;
@@ -79,7 +79,7 @@ router.post("/login", async (req, res) => {
     }
 
     const { current_staff, current_student } = details.data;
-    
+
     if(current_staff === "1" && current_student === "0") {
       const { email, surname, firstnames, department } = details.data;
 

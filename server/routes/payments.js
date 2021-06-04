@@ -153,9 +153,6 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
     console.log(error);
   }
 
-  console.log({extras});
-  console.log(JSON.stringify(toasties));
-
   const extrasFormatted = extras.map(extra => {
     return {
       toastie: false,
@@ -194,13 +191,17 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
     }
   });
 
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+
   const items = toastiesFormatted.concat(extrasFormatted);
 
   // Send the order to all of the registered toastie clients
   io.to("toastieOrderClients").emit("toastieNewOrder", {
     completed: false,
     id: orderId,
-    displayName: user.firstNames,
+    displayName: `${firstName} ${lastName}`,
     tableNumber: Number(firstTableNumber),
     createdAt: entry.createdAt,
     items

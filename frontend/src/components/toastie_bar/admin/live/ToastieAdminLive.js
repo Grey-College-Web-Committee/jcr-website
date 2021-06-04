@@ -72,7 +72,7 @@ class ToastieAdminLive extends React.Component {
     // // This will occur when the server send a barNewOrder event
     this.socket.on("toastieNewOrder", this.handleNewOrder);
     // // This will occur when someone updates an order as completed
-    // this.socket.on("barOrderCompleted", this.handleOrderCompleted);
+    this.socket.on("toastieOrderCompleted", this.handleOrderCompleted);
     // // This will occur when someone updates if the bar is open for orders
     // this.socket.on("barOpenChanged", this.handleBarOpenChanged)
 
@@ -89,6 +89,29 @@ class ToastieAdminLive extends React.Component {
     let { activeOrders } = this.state;
     activeOrders[order.id] = order;
     this.setState({ activeOrders });
+  }
+
+  handleOrderCompleted = (data) => {
+    let { orderId } = data;
+    let { activeOrders } = this.state;
+
+    const filteredIdRecords = Object.keys(activeOrders).filter(id => Number(id) === Number(orderId));
+
+    if(filteredIdRecords.length === 0) {
+      return;
+    }
+
+    const completedOrder = activeOrders[filteredIdRecords[0]];
+    completedOrder.completed = true;
+
+    delete activeOrders[`${orderId}`];
+
+    this.setState({ activeOrders, refreshKey: new Date() });
+  }
+
+  updateOrderCompleted = (orderId) => {
+    // Called when the order is marked as completed so it can update all instances
+    this.socket.emit("markToastieOrderCompleted", { orderId });
   }
 
   render () {
@@ -134,6 +157,8 @@ class ToastieAdminLive extends React.Component {
                 key={`${refreshKey}-${id}`}
                 order={activeOrders[id]}
                 completed={activeOrders[id].completed}
+                updateOrderCompleted={this.updateOrderCompleted}
+                showCompleted={showCompleted}
               />
             ))
           }
