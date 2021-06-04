@@ -7,8 +7,17 @@ class ToastieOrder extends React.Component {
     super(props);
 
     this.state = {
-      completed: false
+      completed: false,
+      showCompleted: false
     }
+  }
+
+  static getDerivedStateFromProps = (props, state) => {
+    if(props.showCompleted !== state.showCompleted) {
+      return { showCompleted: props.showCompleted }
+    }
+
+    return null;
   }
 
   markOrderCompleted = () => {
@@ -19,22 +28,29 @@ class ToastieOrder extends React.Component {
 
   render () {
     const { order } = this.props;
+    const { showCompleted } = this.state;
 
-    if(order.completed || this.state.completed) {
+    const completed = order.completed || this.state.completed;
+
+    if(completed && !showCompleted) {
       return null;
     }
 
-    // Multi same type toasties??
-
     return (
-      <div className="text-left border mb-2 p-2">
+      <div className={`text-left border mb-2 p-2 ${completed ? "bg-gray-200" : ""}`}>
         <div className="mb-2">
           <div className="flex flex-row justify-between items-center">
             <p>Order ID: {order.id}</p>
-            <button
-              onClick={this.markOrderCompleted}
-              className="px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-            >Mark Completed</button>
+            {
+              completed ? (
+                <p>Already Completed</p>
+              ) : (
+                <button
+                  onClick={this.markOrderCompleted}
+                  className="px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                >Mark Completed</button>
+              )
+            }
           </div>
           <p className="py-1">Ordered By: {order.displayName}</p>
           <p className="py-1">Ordered At: {dateFormat(order.createdAt, "dd/mm/yyyy HH:MM:ss")}</p>

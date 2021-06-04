@@ -105,7 +105,7 @@ class ToastieAdminLive extends React.Component {
     const completedOrder = activeOrders[filteredIdRecords[0]];
     completedOrder.completed = true;
 
-    delete activeOrders[`${orderId}`];
+    // delete activeOrders[`${orderId}`];
 
     this.setState({ activeOrders, refreshKey: new Date() });
   }
