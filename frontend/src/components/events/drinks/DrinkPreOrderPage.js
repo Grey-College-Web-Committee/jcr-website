@@ -168,7 +168,7 @@ class DrinkPreOrderPage extends React.Component {
       );
     }
 
-    const expiryDate = new Date("2021-06-04T11:00:00Z");
+    const expiryDate = new Date("2021-06-04T17:00:00Z");
 
     if(new Date() > expiryDate) {
       return (
