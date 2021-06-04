@@ -47,6 +47,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
   let modifiedParameters = globalOrderParameters;
 
   let totalPrice = 0;
+  let specialRates = {};
 
   if(isToastie) {
     if(!hasComponents) {
@@ -56,6 +57,8 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
         error: "Toastie has no fillings"
       };
     }
+
+    let firstSubOrderId = -1;
 
     for(let subOrderCount = 0; subOrderCount < quantity; subOrderCount++) {
       // Create an suborder id
@@ -76,6 +79,11 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       }
 
       const subOrderId = subOrderIdInsert.id;
+
+      if(firstSubOrderId === -1) {
+        firstSubOrderId = subOrderId;
+      }
+
       const fillingIds = componentSubmissionInfo.map(obj => obj.id);
 
       let hasBread = false;
@@ -136,6 +144,9 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
         totalPrice += Number(price);
       }
     }
+
+    specialRates["name"] = `Toastie ${firstSubOrderId}`;
+    specialRates["gross"] = totalPrice;
 
     if(modifiedParameters.hasOwnProperty("toastie")) {
       if(modifiedParameters.toastie.hasOwnProperty("nonDiscountedToastieCount") && modifiedParameters.toastie.nonDiscountedToastieCount !== undefined && modifiedParameters.toastie.nonDiscountedToastieCount !== null) {
@@ -216,6 +227,9 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 
     totalPrice += Number(price) * quantity;
 
+    specialRates["name"] = name;
+    specialRates["gross"] = totalPrice;
+
     if(modifiedParameters.hasOwnProperty("toastie")) {
       if(modifiedParameters.toastie.hasOwnProperty("nonDiscountedConfectionary") && modifiedParameters.toastie.nonDiscountedConfectionary !== undefined && modifiedParameters.toastie.nonDiscountedConfectionary !== null) {
         modifiedParameters.toastie.nonDiscountedConfectionary += 1;
@@ -227,7 +241,8 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 
   return {
     price: Number(totalPrice),
-    globalOrderParameters: modifiedParameters
+    globalOrderParameters: modifiedParameters,
+    specialRates
   };
 };
 
@@ -1064,6 +1079,13 @@ router.post("/process", async (req, res) => {
     validatedPrices.push(3.6);
   }
 
+  let metadata = {
+    integration_check: "accept_a_payment",
+    orderId
+  };
+
+  let toastieGrosses = [];
+
   for(let i = 0; i < submittedCart.items.length; i++) {
     item = submittedCart.items[i];
     const { shop, quantity, globalSubmissionInfo, componentSubmissionInfo } = item;
@@ -1100,6 +1122,14 @@ router.post("/process", async (req, res) => {
     globalOrderParameters = result.globalOrderParameters;
     totalSpentByShop[shop] += result.price;
     validatedPrices.push(result.price);
+
+    if(result.hasOwnProperty("specialRates")) {
+      const { name, gross } = result.specialRates;
+      const realGross = Math.round(gross * 100);
+      metadata[`TB_${name}`] = realGross;
+      // metadata[`TB_${name}_net`] = Math.round(realGross - ((0.014 * realGross) + (20 / shopCount)));
+      toastieGrosses.push({ name, realGross });
+    }
   }
 
   Object.keys(usedShops).forEach(key => {
@@ -1110,24 +1140,37 @@ router.post("/process", async (req, res) => {
     }
   });
 
-  let metadata = {
-    integration_check: "accept_a_payment",
-    orderId,
-    usedShops: JSON.stringify(usedShops)
-  };
-
   if(debtInCart) {
     metadata["debt_username"] = user.username;
   }
 
+  metadata["usedShops"] = JSON.stringify(usedShops);
+
   const shopCount = Object.keys(totalSpentByShop).length;
+
+  let toastieExcess = 0;
+  let toastieGross = 0;
 
   Object.keys(totalSpentByShop).forEach(shop => {
     const shopGross = Math.round(totalSpentByShop[shop] * 100);
     metadata[shop] = shopGross;
     const shopNet = Math.round(shopGross - ((0.014 * shopGross) + (20 / shopCount)));
+
+    if(shop === "toastie") {
+      toastieExcess = shopGross - shopNet;
+      toastieGross = shopGross;
+    }
+
     metadata[`${shop}_net`] = shopNet;
   });
+
+  if(toastieGrosses.length !== 0 && toastieExcess !== 0) {
+    toastieGrosses.forEach(item => {
+      const proportion = item.realGross / toastieGross;
+      const diff = Math.round(toastieExcess * proportion);
+      metadata[`TB_${item.name}_net`] = item.realGross - diff;
+    });
+  }
 
   const totalAmount = validatedPrices.reduce((sum, price) => sum + price, 0);
   const totalAmountInPence = Math.round(totalAmount * 100);
