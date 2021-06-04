@@ -134,8 +134,8 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
   }
 
   // Now construct and send the emails
-  const staffEmail = staffToastieEmail(user, orderId, toasties, extras, firstTableNumber);
-  mailer.sendEmail(process.env.TOASTIE_BAR_EMAIL_TO, `Toastie Bar Order Received #${orderId}`, staffEmail);
+  // const staffEmail = staffToastieEmail(user, orderId, toasties, extras, firstTableNumber);
+  // mailer.sendEmail(process.env.TOASTIE_BAR_EMAIL_TO, `Toastie Bar Order Received #${orderId}`, staffEmail);
 
   const customerEmail = customerToastieEmail(user, orderId, toasties, extras, firstTableNumber);
   mailer.sendEmail(user.email, `Toastie Bar Order Confirmation`, customerEmail);

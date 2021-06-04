@@ -505,6 +505,17 @@ app.get("/uploads/complaints/procedure", isLoggedIn, function(req, res) {
   });
 })
 
+app.get("/uploads/toasties/allergens", isLoggedIn, function(req, res) {
+  fs.readFile(path.join(__dirname, "./uploads/toastie/toastie-bar-allergens.pdf"), (err, data) => {
+    if(err) {
+      res.status(404).end();
+    } else {
+      res.contentType("application/pdf");
+      res.send(data);
+    }
+  });
+})
+
 app.get('/*', function (req, res) {
   res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
 });
