@@ -11,7 +11,7 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, FormalDrink } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, FormalDrink, ToastieOrderTracker } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sharedSession = require("express-socket.io-session");
@@ -62,9 +62,11 @@ if(process.env.NODE_ENV === "production") {
 }
 
 const barSocket = require("./sockets/bar_socket");
+const toastieSocket = require("./sockets/toastie_socket");
 
 io.on("connection", socket => {
   barSocket.setupEvents(socket, io);
+  toastieSocket.setupEvents(socket, io);
 });
 
 // Tells express to recognise incoming requests as JSON
@@ -251,6 +253,7 @@ const requiredPermissions = [
 
   await ToastieStock.sync();
   await ToastieOrderContent.sync();
+  await ToastieOrderTracker.sync();
 
   await GymMembership.sync();
 
@@ -341,6 +344,16 @@ const requiredPermissions = [
     defaults: {
       key: "STASH_MESSAGE",
       textStorage: "Welcome to the stash shop!"
+    }
+  });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "TOASTIE_OPEN"
+    },
+    defaults: {
+      key: "TOASTIE_OPEN",
+      booleanStorage: false
     }
   });
 })();

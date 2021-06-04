@@ -66,6 +66,8 @@ import BarAdminManageCordials from './components/bar/admin/BarAdminManageCordial
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
+import ToastieAdminLive from './components/toastie_bar/admin/live/ToastieAdminLive';
+import ToastieBarOverview from './components/toastie_bar/admin/ToastieBarOverview';
 import StashStockPage from './components/stash/admin/StashStockPage';
 import StashImagesPage from './components/stash/admin/ImagesPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
@@ -392,8 +394,14 @@ class App extends React.Component {
                     <Route exact path="/memberships/join" render={() => (
                       this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
                     )} />
+                    <Route exact path="/toasties/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin") )
+                    )} />
                     <Route exact path="/toasties/stock" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/stock") )
+                    )} />
+                    <Route exact path="/toasties/live" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/live") )
                     )} />
                     <Route exact path="/toasties/images" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/images") )

@@ -25,7 +25,9 @@ class OrderToastiePage extends React.Component {
       confectionary: [],
       drinks: [],
       refreshId: Math.random(),
-      showAddedInfo: false
+      showAddedInfo: false,
+      tableNumber: -1,
+      open: false
     };
   }
 
@@ -61,14 +63,14 @@ class OrderToastiePage extends React.Component {
       return;
     }
 
-    content = content.data.stock;
+    const { stock, open } = content.data;
 
-    const idMatchedStock = content.reduce((map, obj) => {
+    const idMatchedStock = stock.reduce((map, obj) => {
       map[obj.id] = obj;
       return map;
     }, {});
 
-    this.setState({ loaded: true, status: 200, stock: content, idMatchedStock });
+    this.setState({ loaded: true, status: 200, stock, idMatchedStock, open });
   }
 
   updateBread = (bread) => {
@@ -113,7 +115,7 @@ class OrderToastiePage extends React.Component {
     // refresh in case it's out of sync
     this.cart.get();
 
-    const { toastie, drinks, confectionary } = this.state;
+    const { toastie, drinks, confectionary, tableNumber } = this.state;
     const valid = this.checkToastie(toastie);
 
     let cartableObjects = [];
@@ -154,7 +156,7 @@ class OrderToastiePage extends React.Component {
         name: "Toastie",
         basePrice,
         quantity: 1,
-        submissionInformation: {},
+        submissionInformation: { tableNumber },
         components,
         duplicateHash: null,
         image: "/images/cart/placeholder.png"
@@ -170,7 +172,8 @@ class OrderToastiePage extends React.Component {
           basePrice: Number(drink.price),
           quantity: 1,
           submissionInformation: {
-            id: drink.id
+            id: drink.id,
+            tableNumber
           },
           components: [],
           duplicateHash: null,
@@ -188,7 +191,8 @@ class OrderToastiePage extends React.Component {
           basePrice: Number(confectionaryItem.price),
           quantity: 1,
           submissionInformation: {
-            id: confectionaryItem.id
+            id: confectionaryItem.id,
+            tableNumber
           },
           components: [],
           duplicateHash: null,
@@ -273,7 +277,7 @@ class OrderToastiePage extends React.Component {
   }
 
   displaySummary = () => {
-    const { toastie, drinks, confectionary } = this.state;
+    const { toastie, drinks, confectionary, tableNumber } = this.state;
 
     let toastieTotal = -1;
     let drinksTotal = -1;
@@ -299,7 +303,7 @@ class OrderToastiePage extends React.Component {
 
     let subtotal = (toastieOrdered ? toastieTotal : 0) + (drinksOrdered ? drinksTotal : 0) + (confectionaryOrdered ? confectionaryTotal : 0);
 
-    const wasValidOrder = toastieOrdered || drinksOrdered || confectionaryOrdered;
+    const wasValidOrder = (toastieOrdered || drinksOrdered || confectionaryOrdered) && tableNumber !== -1;
 
     return (
       <ul>
@@ -338,10 +342,41 @@ class OrderToastiePage extends React.Component {
             <button
               className="px-4 py-2 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               onClick={this.addToBag}
+              disabled={!this.state.open}
             >Add To Bag</button>
+            {
+              this.state.open ? null : (
+                <p className="mt-2 font-semibold">The Toastie Bar is currently closed.</p>
+              )
+            }
           </li>
         ) : null}
       </ul>
+    )
+  }
+
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+  }
+
+  displayTableNumberSelector = () => {
+    return (
+      <div>
+        <select
+          className="w-auto h-8 border border-gray-400 disabled:opacity-50"
+          value={this.state.tableNumber}
+          onChange={this.onInputChange}
+          name="tableNumber"
+        >
+          <option value={-1} hidden={true} disabled={true}>Please select an option...</option>
+          <option value={0} disabled={true}>Collection</option>
+          {
+            [...Array(20).keys()].map(i => i + 1).map(tableNumber => (
+              <option value={tableNumber}>Table {tableNumber}</option>
+            ))
+          }
+        </select>
+      </div>
     )
   }
 
@@ -364,20 +399,6 @@ class OrderToastiePage extends React.Component {
       );
     }
 
-    // Temporary locking measures
-    const locked = true;
-
-    if(locked) {
-      return (
-        <div className="flex flex-col justify-start">
-          <div className="container mx-auto text-center p-4">
-            <h1 className="font-semibold text-5xl pb-4">Toastie Bar</h1>
-            <p className="text-xl mb-2">Unfortunately, the Toastie Bar is closed due to coronavirus restrictions currently in place in Durham.</p>
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className="flex flex-col justify-start">
         <Prompt
@@ -386,6 +407,11 @@ class OrderToastiePage extends React.Component {
         />
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Create Toastie</h1>
+          {
+            this.state.open ? null : (
+              <p className="mb-4 font-semibold text-lg">The Toastie Bar is currently closed. Orders cannot be placed but you can browse the menu.</p>
+            )
+          }
           <div className="flex flex-col lg:flex-row w-full text-left">
             <div className="w-full lg:w-3/4 lg:px-2 lg:mx-2">
               <GroupDropdown
@@ -420,6 +446,10 @@ class OrderToastiePage extends React.Component {
             <div className="w-full lg:w-1/4 text-base pb-4">
               <div className="border-2 p-2 border-black">
                 <h2 className="text-3xl font-bold">Your Order</h2>
+                <div className="pt-2">
+                  <h3 className="text-xl font-semibold">Table Number</h3>
+                  {this.displayTableNumberSelector()}
+                </div>
                 <div className="pt-2">
                   <h3 className="text-xl font-semibold">Toastie</h3>
                   {this.displaySelectedToastie()}

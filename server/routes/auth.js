@@ -79,7 +79,7 @@ router.post("/login", async (req, res) => {
     }
 
     const { current_staff, current_student } = details.data;
-    
+
     if(current_staff === "1" && current_student === "0") {
       const { email, surname, firstnames, department } = details.data;
 
