@@ -92,7 +92,12 @@ class EventsMyBookingsOverview extends React.Component {
             tickets.length === 0 ? (<p className="text-2xl mt-2">No bookings yet!</p>) : (
               <div className="w-full md:w-3/5 flex flex-col mx-auto">
                 {
-                  tickets.map((ticket, i) => (
+                  tickets.sort((a, b) => {
+                    const aDate = new Date(a.EventGroupBooking.createdAt);
+                    const bDate = new Date(b.EventGroupBooking.createdAt);
+
+                    return -(aDate > bDate ? 1 : (aDate < bDate ? -1 : 0));
+                  }).map((ticket, i) => (
                     <div className="border px-2 mt-2 flex flex-col items-start w-full text-left">
                       <div className="my-2 flex flex-col w-full items-start md:flex-row md:justify-between  md:items-center">
                         <h2 className="font-semibold text-3xl">{ticket.EventGroupBooking.Event.name}</h2>

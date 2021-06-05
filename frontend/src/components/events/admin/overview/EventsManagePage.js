@@ -75,7 +75,12 @@ class EventsManagePage extends React.Component {
             </tr>
           </thead>
           <tbody>
-            {this.state.events.map((record, i) => (
+            {this.state.events.sort((a, b) => {
+              const aDate = new Date(a.date);
+              const bDate = new Date(b.date);
+
+              return -(aDate > bDate ? 1 : (aDate < bDate ? -1 : 0));
+            }).map((record, i) => (
               <tr className="text-center border-b border-gray-400" key={i}>
                 <td className="p-2 border-r border-gray-400">{record.name}</td>
                 <td className="p-2 border-r border-gray-400">{record.shortDescription}</td>
