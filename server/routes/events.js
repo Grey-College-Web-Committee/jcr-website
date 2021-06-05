@@ -979,15 +979,15 @@ router.post("/booking", async (req, res) => {
 
     let specificMemberFree = false;
 
-    if(memberTicketsFree && guestTicketsFree && !requiresInfoCollection) {
+    if(memberTicketsFree && guestTicketsFree) {
       specificMemberFree = true;
     }
 
-    if(memberTicketsFree && jcrGroupMember.id !== user.id && !requiresInfoCollection) {
+    if(memberTicketsFree && jcrGroupMember.id !== user.id) {
       specificMemberFree = true;
     }
 
-    if(memberTicketsFree && jcrGroupMember.id === user.id && !requiresInfoCollection && !hasGuests) {
+    if(memberTicketsFree && jcrGroupMember.id === user.id && !hasGuests) {
       specificMemberFree = true;
     }
 
@@ -995,7 +995,7 @@ router.post("/booking", async (req, res) => {
       ticket = await EventTicket.create({
         groupId: groupBooking.id,
         bookerId: jcrGroupMember.id,
-        paid: specificMemberFree,
+        paid: specificMemberFree && !requiresInfoCollection,
         stripePaymentId: specificMemberFree ? "overridden" : null
       });
     } catch (error) {
@@ -1033,8 +1033,22 @@ router.post("/booking", async (req, res) => {
   // Now we send the emails out
 
   for(const emailData of emails) {
-    const emailContent = createPaymentEmail(record.Event, record, user, emailData.ticket);
-    mailer.sendEmail(emailData.email, `${record.Event.name} Ticket`, emailContent);
+    if(emailData.freeTicket) {
+      if(!requiresInfoCollection) {
+        // Free ticket without any additional information --> they're done, no need to do anything
+        const emailContent = createFreeTicketNoReqsEmail(record.Event, record, user, emailData.ticket);
+        mailer.sendEmail(emailData.email, `${record.Event.name} - Confirmation`, emailContent);
+      } else {
+        // Free ticket with additional information --> send them to a different page to collect these details
+        // May need to do something interesting with the 'paid' parameter to force them to do it within 24 hours
+        const emailContent = createFreeTicketWithReqsEmail(record.Event, record, user, emailData.ticket);
+        mailer.sendEmail(emailData.email, `${record.Event.name} - Action Required`, emailContent);
+      }
+    } else {
+      // Regular ticket
+      const emailContent = createPaymentEmail(record.Event, record, user, emailData.ticket);
+      mailer.sendEmail(emailData.email, `${record.Event.name} - Payment Required`, emailContent);
+    }
   }
 
   return res.status(200).json({ leadTicketId, easyFreeTickets });
@@ -1121,6 +1135,10 @@ router.get("/booking/payment/:id", async (req, res) => {
   const guestPricePence = Number(guestPrice) * 100;
 
   const totalCost = Math.round(memberPricePence + guestPricePence * guestTickets.length);
+
+  if(totalCost === 0) {
+    return res.status(200).json({ detailsOnly: true, paid: false, ticket, guestTickets, totalCost });
+  }
 
   // We need to make the reset the stripePaymentId and save it
 
@@ -1221,6 +1239,11 @@ router.post("/booking/forms", async (req, res) => {
 
     // Update the requiredInformation field
     ticketRecord.requiredInformation = JSON.stringify(providedInfo[ticketId]);
+
+    // Do a check here to set it to paid if the ticket is free
+    if(ticketRecord.stripePaymentId === "overridden") {
+      ticketRecord.paid = true;
+    }
 
     // Save the record
     try {
@@ -2760,6 +2783,42 @@ const createPaymentEmail = (event, ticketType, booker, ticket) => {
   contents.push(`<p>${ticketType.description}</p>`);
   contents.push(`<p>You now have 24 hours to make payment for this ticket otherwise the group's booking will be cancelled</p>`);
   contents.push(`<a href="${process.env.WEB_ADDRESS}events/bookings/payment/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>To make payment, please click here.</p></a>`);
+  contents.push(`<p>Thank you</p>`);
+
+  return contents.join("");
+}
+
+const createFreeTicketNoReqsEmail = (event, ticketType, booker, ticket) => {
+  let firstName = booker.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = booker.surname.charAt(0).toUpperCase() + booker.surname.substr(1).toLowerCase();
+
+  let contents = [];
+
+  contents.push(`<h1>${event.name} Ticket</h1>`);
+  contents.push(`<p>You have been booked onto this event by ${firstName} ${lastName}.</p>`);
+  contents.push(`<p>Ticket Type: ${ticketType.name}</p>`);
+  contents.push(`<p>${ticketType.description}</p>`);
+  contents.push(`<p>No further action is required from you.</p>`);
+  contents.push(`<a href="${process.env.WEB_ADDRESS}my/ticket/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>You can view your booking by clicking here.</p></a>`);
+  contents.push(`<p>Thank you</p>`);
+
+  return contents.join("");
+}
+
+const createFreeTicketWithReqsEmail = (event, ticketType, booker, ticket) => {
+  let firstName = booker.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = booker.surname.charAt(0).toUpperCase() + booker.surname.substr(1).toLowerCase();
+
+  let contents = [];
+
+  contents.push(`<h1>${event.name} Ticket</h1>`);
+  contents.push(`<p>You have been booked onto this event by ${firstName} ${lastName}.</p>`);
+  contents.push(`<p>Ticket Type: ${ticketType.name}</p>`);
+  contents.push(`<p>${ticketType.description}</p>`);
+  contents.push(`<p>This ticket is free but requires you to provide some additional information.</p>`);
+  contents.push(`<a href="${process.env.WEB_ADDRESS}events/bookings/free/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>Please click here to provide them.</p></a>`);
   contents.push(`<p>Thank you</p>`);
 
   return contents.join("");

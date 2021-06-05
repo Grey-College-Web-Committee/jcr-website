@@ -42,6 +42,7 @@ import EventsGroupBookingPage from './components/events/book/EventsGroupBookingP
 import EventsPaymentPage from './components/events/payment/EventsPaymentPage';
 import EventsMyBookingsOverview from './components/events/my/EventsMyBookingsOverview';
 import EventsMyBookingPage from './components/events/my/EventsMyBookingPage';
+import EventsFreeReqPage from './components/events/free/EventsFreeReqPage';
 import DrinkPreOrderPage from './components/events/drinks/DrinkPreOrderPage';
 import AdminDrinkPreOrderPage from './components/events/drinks/AdminDrinkPreOrderPage';
 
@@ -555,6 +556,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/events/bookings/payment/:id" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsPaymentPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/bookings/payment/${props.match.params.id}`) )
+                    )} />
+                    <Route exact path="/events/bookings/free/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsFreeReqPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/bookings/free/${props.match.params.id}`) )
                     )} />
                     <Route exact path="/checkout/" render={() => (
                       this.isLoggedIn() ? ( <CheckoutPage /> ) : ( this.loginRef("/checkout") )

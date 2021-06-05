@@ -184,7 +184,7 @@ class EventsInfoPage extends React.Component {
             </div>
             <div className="w-full mt-4 md:mt-0 md:w-3/5 md:p-4 flex flex-col">
               <div className="text-left">
-                <p className="pb-2">The event is scheduled to start at {dateFormat(this.state.event.date, "dd/mm/yyyy HH:MM")} but please check for emails from the Events Manager for details!</p>
+                <p className="pb-2">The event is scheduled to start at {dateFormat(this.state.event.date, "dd/mm/yyyy HH:MM")} but please check your emails for more details!</p>
                 <p className="pb-2">Booking for all tickets closes at {dateFormat(this.state.event.bookingCloseTime, "dd/mm/yyyy HH:MM")}.</p>
                 <h2 className="text-3xl font-semibold">Tickets</h2>
                 <p>You can only book one type of ticket.</p>
