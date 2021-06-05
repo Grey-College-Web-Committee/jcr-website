@@ -937,6 +937,25 @@ router.post("/booking", async (req, res) => {
 
   // Think everything is checked at this point so we can actually make the booking
 
+  const { memberPrice, guestPrice } = record;
+
+  const memberTicketsFree = Number(memberPrice) === 0;
+  const guestTicketsFree = Number(guestPrice) === 0;
+  const requiresInfoCollection = record.requiredInformationForm !== "{}";
+  const hasGuests = guestList.length !== 0;
+
+  console.log({memberTicketsFree, guestTicketsFree, requiresInfoCollection, hasGuests});
+
+  let easyFreeTickets = false;
+
+  if(memberTicketsFree && !hasGuests && !requiresInfoCollection) {
+    easyFreeTickets = true;
+  }
+
+  if(memberTicketsFree && guestTicketsFree && !requiresInfoCollection) {
+    easyFreeTickets = true;
+  }
+
   let groupBooking;
 
   try {
@@ -944,7 +963,8 @@ router.post("/booking", async (req, res) => {
       eventId: record.Event.id,
       leadBookerId: user.id,
       ticketTypeId,
-      totalMembers
+      totalMembers,
+      allPaid: easyFreeTickets
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to create the booking in the database" });
@@ -957,10 +977,26 @@ router.post("/booking", async (req, res) => {
   for(const jcrGroupMember of realJCRMembers) {
     let ticket;
 
+    let specificMemberFree = false;
+
+    if(memberTicketsFree && guestTicketsFree && !requiresInfoCollection) {
+      specificMemberFree = true;
+    }
+
+    if(memberTicketsFree && jcrGroupMember.id !== user.id && !requiresInfoCollection) {
+      specificMemberFree = true;
+    }
+
+    if(memberTicketsFree && jcrGroupMember.id === user.id && !requiresInfoCollection && !hasGuests) {
+      specificMemberFree = true;
+    }
+
     try {
       ticket = await EventTicket.create({
         groupId: groupBooking.id,
-        bookerId: jcrGroupMember.id
+        bookerId: jcrGroupMember.id,
+        paid: specificMemberFree,
+        stripePaymentId: specificMemberFree ? "overridden" : null
       });
     } catch (error) {
       return res.status(500).json({ error: "Unable to create the ticket for a member of the group" });
@@ -972,6 +1008,7 @@ router.post("/booking", async (req, res) => {
 
     emails.push({
       email: jcrGroupMember.email,
+      freeTicket: specificMemberFree,
       ticket
     });
   }
@@ -1000,7 +1037,7 @@ router.post("/booking", async (req, res) => {
     mailer.sendEmail(emailData.email, `${record.Event.name} Ticket`, emailContent);
   }
 
-  return res.status(200).json({ leadTicketId });
+  return res.status(200).json({ leadTicketId, easyFreeTickets });
 });
 
 router.get("/booking/payment/:id", async (req, res) => {

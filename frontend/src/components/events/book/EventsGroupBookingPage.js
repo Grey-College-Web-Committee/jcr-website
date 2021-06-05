@@ -29,7 +29,8 @@ class EventsGroupBookingPage extends React.Component {
       booked: false,
       agreedGuests: false,
       leadTicketId: null,
-      submitError: ""
+      submitError: "",
+      easyFreeTickets: false
     };
   }
 
@@ -154,7 +155,7 @@ class EventsGroupBookingPage extends React.Component {
       return;
     }
 
-    this.setState({ disabled: true, booked: true, leadTicketId: result.data.leadTicketId });
+    this.setState({ disabled: true, booked: true, leadTicketId: result.data.leadTicketId, easyFreeTickets: result.data.easyFreeTickets });
   }
 
   onInputChange = e => {
@@ -197,14 +198,22 @@ class EventsGroupBookingPage extends React.Component {
         <div className="flex flex-col justify-start">
           <div className="container mx-auto text-center p-4 md:w-3/5 w-full">
             <h1 className="font-semibold text-5xl pb-4">Booking Successful!</h1>
-            <p className="py-1 text-left">Your group has been successfully booked on to the event. Please check your Durham University email address for more details on how to complete this booking and pay. Each member of your group has 24 hours to pay for their ticket and enter any additional details required for this ticket (e.g. dietary requirements).</p>
-            <div className="py-1">
-              <Link to={`/events/bookings/payment/${this.state.leadTicketId}`}>
-                <button
-                  className="px-4 py-1 rounded text-lg bg-grey-500 text-white w-full md:w-64 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-2"
-                >Pay Now!</button>
-              </Link>
-            </div>
+            {
+              this.state.autoPayAll ? (
+                <p className="py-1 text-left">Your group has been successfully booked on to the event. No payment is required as this event is free.</p>
+              ) : (
+                <React.Fragment>
+                  <p className="py-1 text-left">Your group has been successfully booked on to the event. Please check your Durham University email address for more details on how to complete this booking and pay. Each member of your group has 24 hours to pay for their ticket and enter any additional details required for this ticket (e.g. dietary requirements).</p>
+                  <div className="py-1">
+                    <Link to={`/events/bookings/payment/${this.state.leadTicketId}`}>
+                      <button
+                        className="px-4 py-1 rounded text-lg bg-grey-500 text-white w-full md:w-64 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-2"
+                      >Pay Now!</button>
+                    </Link>
+                  </div>
+                </React.Fragment>
+              )
+            }
             <div className="py-1 flex flex-col items-center">
               <p className="py-1">Your confirmed group is as follows:</p>
               <table className="mx-auto border-2 mt-2 text-left border-red-900 w-full md:w-4/5">
