@@ -199,8 +199,8 @@ class EventsGroupBookingPage extends React.Component {
           <div className="container mx-auto text-center p-4 md:w-3/5 w-full">
             <h1 className="font-semibold text-5xl pb-4">Booking Successful!</h1>
             {
-              this.state.autoPayAll ? (
-                <p className="py-1 text-left">Your group has been successfully booked on to the event. No payment is required as this event is free.</p>
+              this.state.easyFreeTickets ? (
+                <p className="py-1 md:text-center text-left">Your group has been successfully booked on to the event. No payment is required as this event is free.</p>
               ) : (
                 <React.Fragment>
                   <p className="py-1 text-left">Your group has been successfully booked on to the event. Please check your Durham University email address for more details on how to complete this booking and pay. Each member of your group has 24 hours to pay for their ticket and enter any additional details required for this ticket (e.g. dietary requirements).</p>
@@ -208,7 +208,7 @@ class EventsGroupBookingPage extends React.Component {
                     <Link to={`/events/bookings/payment/${this.state.leadTicketId}`}>
                       <button
                         className="px-4 py-1 rounded text-lg bg-grey-500 text-white w-full md:w-64 font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 mt-2"
-                      >Pay Now!</button>
+                      >Complete Now</button>
                     </Link>
                   </div>
                 </React.Fragment>

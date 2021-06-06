@@ -1216,6 +1216,9 @@ router.post("/booking/forms", async (req, res) => {
   // TODO: Could definitely improve this by making sure they update all of their tickets
   // And validating the providedInfo
 
+  let wasFree = false;
+  let groupId = 0;
+
   // Loop over the keys
   for(const ticketId in providedInfo) {
     let ticketRecord;
@@ -1237,20 +1240,108 @@ router.post("/booking/forms", async (req, res) => {
       return res.status(400).json({ error: "Invalid ticket ID" });
     }
 
+    groupId = ticketRecord.groupId;
+
     // Update the requiredInformation field
     ticketRecord.requiredInformation = JSON.stringify(providedInfo[ticketId]);
 
     // Do a check here to set it to paid if the ticket is free
     if(ticketRecord.stripePaymentId === "overridden") {
       ticketRecord.paid = true;
+      wasFree = true;
     }
 
     // Save the record
     try {
-      ticketRecord.save();
+      await ticketRecord.save();
     } catch (error) {
       return res.status(500).json({ error: "Unable to contact the database to update the ticket record" });
     }
+  }
+
+  // Now if this was a free ticket it will have updated their paid status
+  // Lets check if all of them are complete so we can update the whole booking
+  // Now lets check if everyone in the group has placed a hold (if so we can capture the payments)
+
+  if(wasFree) {
+    let groupsTickets;
+
+    try {
+      groupTickets = await EventTicket.findAll({
+        where: { groupId },
+        include: [ User ]
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to contact the database to get all the tickets in the group" });
+    }
+
+    let allPaid = true;
+    let notPaid = [];
+
+    // Start by assuming they all have then loop and change it if necessary
+    // Also collect everyone who hasn't paid so we can put it in the email
+    for(let ticket of groupTickets) {
+      if(!ticket.paid) {
+        allPaid = false;
+        notPaid.push(ticket);
+      }
+    }
+
+    // Now we can capture
+    if(allPaid) {
+      for(let ticket of groupTickets) {
+        // We will capture the guests via the lead booker
+        if(ticket.isGuestTicket) {
+          continue;
+        }
+
+        // Can't capture this as this is overridden by the FACSO
+        if(ticket.stripePaymentId === "overridden") {
+          continue;
+        }
+
+        // Capture each payment
+        // https://stripe.com/docs/payments/capture-later
+        try {
+          await stripe.paymentIntents.capture(ticket.stripePaymentId);
+        } catch (error) {
+          console.log(error);
+          return res.status(500).json({ error: `Unable to capture the payment for ticket ${ticket.id}` });
+        }
+      }
+
+      // All captured so update the group
+      // Will prevent the booking from being deleted
+      try {
+        await EventGroupBooking.update({ allPaid: true }, {
+          where: { id: groupId }
+        });
+      } catch (error) {
+        return res.status(500).json({ error: "Unable to update the group's payment status" });
+      }
+
+      // This will have triggered the payment_intent.captured event from Stripe
+      // we send the emails there instead for those who have
+
+      // All captured so now we can send emails to those who had their payment overridden
+      for(let ticket of groupTickets) {
+        if(ticket.isGuestTicket) {
+          continue;
+        }
+
+        if(ticket.stripePaymentId === "overridden") {
+          // Send emails to those who had it overridden
+          const completedEmail = createCompletedEventPaymentEmail(ticket);
+          mailer.sendEmail(ticket.User.email, `Event Booking Confirmation`, completedEmail);
+        }
+      }
+    }
+    // } else {
+    //   // Send them an email confirming their hold
+    //   // And list who hasn't paid and how long they have left
+    //   const notPaidEmail = overriddenEmail(purchasedTicket.User, notPaid, purchasedTicket.createdAt);
+    //   mailer.sendEmail(purchasedTicket.User.email, `Ticket Information Updated`, notPaidEmail);
+    // }
   }
 
   // No content but successful

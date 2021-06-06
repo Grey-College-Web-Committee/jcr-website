@@ -105,7 +105,7 @@ class EventsMyBookingsOverview extends React.Component {
                       </div>
                       <p className="py-1">{ticket.EventGroupBooking.Event.shortDescription}</p>
                       <p>Event takes place on {dateFormat(ticket.EventGroupBooking.Event.date, "dd/mm/yyyy")}</p>
-                      <p className={ticket.paid ? "" : "text-red-900 font-semibold"}>Booking Status: {ticket.EventGroupBooking.allPaid ? "Confirmed" : ticket.paid ? "Awaiting Group Payments" : "Awaiting Your Payment"}</p>
+                      <p className={ticket.paid ? "" : "text-red-900 font-semibold"}>Booking Status: {ticket.EventGroupBooking.allPaid ? "Confirmed" : ticket.paid ? "Awaiting Group Payments / Details" : "Awaiting Your Payment / Details"}</p>
                       <p>Ticket Type: {ticket.EventGroupBooking.EventTicketType.name}</p>
                       <div className={`my-2 w-full flex flex-row justify-start border-t ${ticket.paid ? "border-red-900" : "border-grey-500"} pt-2`}>
                         {
@@ -119,7 +119,7 @@ class EventsMyBookingsOverview extends React.Component {
                             <Link to={`/events/bookings/payment/${ticket.id}`} className="w-full">
                               <button
                                 className="px-4 py-1 text-lg rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                              >Pay Now</button>
+                              >Complete Booking</button>
                             </Link>
                           )
                         }
