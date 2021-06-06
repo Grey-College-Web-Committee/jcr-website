@@ -937,6 +937,25 @@ router.post("/booking", async (req, res) => {
 
   // Think everything is checked at this point so we can actually make the booking
 
+  const { memberPrice, guestPrice } = record;
+
+  const memberTicketsFree = Number(memberPrice) === 0;
+  const guestTicketsFree = Number(guestPrice) === 0;
+  const requiresInfoCollection = record.requiredInformationForm !== "{}";
+  const hasGuests = guestList.length !== 0;
+
+  console.log({memberTicketsFree, guestTicketsFree, requiresInfoCollection, hasGuests});
+
+  let easyFreeTickets = false;
+
+  if(memberTicketsFree && !hasGuests && !requiresInfoCollection) {
+    easyFreeTickets = true;
+  }
+
+  if(memberTicketsFree && guestTicketsFree && !requiresInfoCollection) {
+    easyFreeTickets = true;
+  }
+
   let groupBooking;
 
   try {
@@ -944,7 +963,8 @@ router.post("/booking", async (req, res) => {
       eventId: record.Event.id,
       leadBookerId: user.id,
       ticketTypeId,
-      totalMembers
+      totalMembers,
+      allPaid: easyFreeTickets
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to create the booking in the database" });
@@ -957,10 +977,26 @@ router.post("/booking", async (req, res) => {
   for(const jcrGroupMember of realJCRMembers) {
     let ticket;
 
+    let specificMemberFree = false;
+
+    if(memberTicketsFree && guestTicketsFree) {
+      specificMemberFree = true;
+    }
+
+    if(memberTicketsFree && jcrGroupMember.id !== user.id) {
+      specificMemberFree = true;
+    }
+
+    if(memberTicketsFree && jcrGroupMember.id === user.id && !hasGuests) {
+      specificMemberFree = true;
+    }
+
     try {
       ticket = await EventTicket.create({
         groupId: groupBooking.id,
-        bookerId: jcrGroupMember.id
+        bookerId: jcrGroupMember.id,
+        paid: specificMemberFree && !requiresInfoCollection,
+        stripePaymentId: specificMemberFree ? "overridden" : null
       });
     } catch (error) {
       return res.status(500).json({ error: "Unable to create the ticket for a member of the group" });
@@ -972,6 +1008,7 @@ router.post("/booking", async (req, res) => {
 
     emails.push({
       email: jcrGroupMember.email,
+      freeTicket: specificMemberFree,
       ticket
     });
   }
@@ -996,11 +1033,25 @@ router.post("/booking", async (req, res) => {
   // Now we send the emails out
 
   for(const emailData of emails) {
-    const emailContent = createPaymentEmail(record.Event, record, user, emailData.ticket);
-    mailer.sendEmail(emailData.email, `${record.Event.name} Ticket`, emailContent);
+    if(emailData.freeTicket) {
+      if(!requiresInfoCollection) {
+        // Free ticket without any additional information --> they're done, no need to do anything
+        const emailContent = createFreeTicketNoReqsEmail(record.Event, record, user, emailData.ticket);
+        mailer.sendEmail(emailData.email, `${record.Event.name} - Confirmation`, emailContent);
+      } else {
+        // Free ticket with additional information --> send them to a different page to collect these details
+        // May need to do something interesting with the 'paid' parameter to force them to do it within 24 hours
+        const emailContent = createFreeTicketWithReqsEmail(record.Event, record, user, emailData.ticket);
+        mailer.sendEmail(emailData.email, `${record.Event.name} - Action Required`, emailContent);
+      }
+    } else {
+      // Regular ticket
+      const emailContent = createPaymentEmail(record.Event, record, user, emailData.ticket);
+      mailer.sendEmail(emailData.email, `${record.Event.name} - Payment Required`, emailContent);
+    }
   }
 
-  return res.status(200).json({ leadTicketId });
+  return res.status(200).json({ leadTicketId, easyFreeTickets });
 });
 
 router.get("/booking/payment/:id", async (req, res) => {
@@ -1085,6 +1136,10 @@ router.get("/booking/payment/:id", async (req, res) => {
 
   const totalCost = Math.round(memberPricePence + guestPricePence * guestTickets.length);
 
+  if(totalCost === 0) {
+    return res.status(200).json({ detailsOnly: true, paid: false, ticket, guestTickets, totalCost });
+  }
+
   // We need to make the reset the stripePaymentId and save it
 
   let metadata = {
@@ -1161,6 +1216,9 @@ router.post("/booking/forms", async (req, res) => {
   // TODO: Could definitely improve this by making sure they update all of their tickets
   // And validating the providedInfo
 
+  let wasFree = false;
+  let groupId = 0;
+
   // Loop over the keys
   for(const ticketId in providedInfo) {
     let ticketRecord;
@@ -1182,15 +1240,108 @@ router.post("/booking/forms", async (req, res) => {
       return res.status(400).json({ error: "Invalid ticket ID" });
     }
 
+    groupId = ticketRecord.groupId;
+
     // Update the requiredInformation field
     ticketRecord.requiredInformation = JSON.stringify(providedInfo[ticketId]);
 
+    // Do a check here to set it to paid if the ticket is free
+    if(ticketRecord.stripePaymentId === "overridden") {
+      ticketRecord.paid = true;
+      wasFree = true;
+    }
+
     // Save the record
     try {
-      ticketRecord.save();
+      await ticketRecord.save();
     } catch (error) {
       return res.status(500).json({ error: "Unable to contact the database to update the ticket record" });
     }
+  }
+
+  // Now if this was a free ticket it will have updated their paid status
+  // Lets check if all of them are complete so we can update the whole booking
+  // Now lets check if everyone in the group has placed a hold (if so we can capture the payments)
+
+  if(wasFree) {
+    let groupsTickets;
+
+    try {
+      groupTickets = await EventTicket.findAll({
+        where: { groupId },
+        include: [ User ]
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to contact the database to get all the tickets in the group" });
+    }
+
+    let allPaid = true;
+    let notPaid = [];
+
+    // Start by assuming they all have then loop and change it if necessary
+    // Also collect everyone who hasn't paid so we can put it in the email
+    for(let ticket of groupTickets) {
+      if(!ticket.paid) {
+        allPaid = false;
+        notPaid.push(ticket);
+      }
+    }
+
+    // Now we can capture
+    if(allPaid) {
+      for(let ticket of groupTickets) {
+        // We will capture the guests via the lead booker
+        if(ticket.isGuestTicket) {
+          continue;
+        }
+
+        // Can't capture this as this is overridden by the FACSO
+        if(ticket.stripePaymentId === "overridden") {
+          continue;
+        }
+
+        // Capture each payment
+        // https://stripe.com/docs/payments/capture-later
+        try {
+          await stripe.paymentIntents.capture(ticket.stripePaymentId);
+        } catch (error) {
+          console.log(error);
+          return res.status(500).json({ error: `Unable to capture the payment for ticket ${ticket.id}` });
+        }
+      }
+
+      // All captured so update the group
+      // Will prevent the booking from being deleted
+      try {
+        await EventGroupBooking.update({ allPaid: true }, {
+          where: { id: groupId }
+        });
+      } catch (error) {
+        return res.status(500).json({ error: "Unable to update the group's payment status" });
+      }
+
+      // This will have triggered the payment_intent.captured event from Stripe
+      // we send the emails there instead for those who have
+
+      // All captured so now we can send emails to those who had their payment overridden
+      for(let ticket of groupTickets) {
+        if(ticket.isGuestTicket) {
+          continue;
+        }
+
+        if(ticket.stripePaymentId === "overridden") {
+          // Send emails to those who had it overridden
+          const completedEmail = createCompletedEventPaymentEmail(ticket);
+          mailer.sendEmail(ticket.User.email, `Event Booking Confirmation`, completedEmail);
+        }
+      }
+    }
+    // } else {
+    //   // Send them an email confirming their hold
+    //   // And list who hasn't paid and how long they have left
+    //   const notPaidEmail = overriddenEmail(purchasedTicket.User, notPaid, purchasedTicket.createdAt);
+    //   mailer.sendEmail(purchasedTicket.User.email, `Ticket Information Updated`, notPaidEmail);
+    // }
   }
 
   // No content but successful
@@ -2723,6 +2874,42 @@ const createPaymentEmail = (event, ticketType, booker, ticket) => {
   contents.push(`<p>${ticketType.description}</p>`);
   contents.push(`<p>You now have 24 hours to make payment for this ticket otherwise the group's booking will be cancelled</p>`);
   contents.push(`<a href="${process.env.WEB_ADDRESS}events/bookings/payment/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>To make payment, please click here.</p></a>`);
+  contents.push(`<p>Thank you</p>`);
+
+  return contents.join("");
+}
+
+const createFreeTicketNoReqsEmail = (event, ticketType, booker, ticket) => {
+  let firstName = booker.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = booker.surname.charAt(0).toUpperCase() + booker.surname.substr(1).toLowerCase();
+
+  let contents = [];
+
+  contents.push(`<h1>${event.name} Ticket</h1>`);
+  contents.push(`<p>You have been booked onto this event by ${firstName} ${lastName}.</p>`);
+  contents.push(`<p>Ticket Type: ${ticketType.name}</p>`);
+  contents.push(`<p>${ticketType.description}</p>`);
+  contents.push(`<p>No further action is required from you.</p>`);
+  contents.push(`<a href="${process.env.WEB_ADDRESS}my/ticket/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>You can view your booking by clicking here.</p></a>`);
+  contents.push(`<p>Thank you</p>`);
+
+  return contents.join("");
+}
+
+const createFreeTicketWithReqsEmail = (event, ticketType, booker, ticket) => {
+  let firstName = booker.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = booker.surname.charAt(0).toUpperCase() + booker.surname.substr(1).toLowerCase();
+
+  let contents = [];
+
+  contents.push(`<h1>${event.name} Ticket</h1>`);
+  contents.push(`<p>You have been booked onto this event by ${firstName} ${lastName}.</p>`);
+  contents.push(`<p>Ticket Type: ${ticketType.name}</p>`);
+  contents.push(`<p>${ticketType.description}</p>`);
+  contents.push(`<p>This ticket is free but requires you to provide some additional information.</p>`);
+  contents.push(`<a href="${process.env.WEB_ADDRESS}events/bookings/free/${ticket.id}" target="_blank" rel="noopener noreferrer"><p>Please click here to provide them.</p></a>`);
   contents.push(`<p>Thank you</p>`);
 
   return contents.join("");

@@ -92,7 +92,12 @@ class EventsMyBookingsOverview extends React.Component {
             tickets.length === 0 ? (<p className="text-2xl mt-2">No bookings yet!</p>) : (
               <div className="w-full md:w-3/5 flex flex-col mx-auto">
                 {
-                  tickets.map((ticket, i) => (
+                  tickets.sort((a, b) => {
+                    const aDate = new Date(a.EventGroupBooking.createdAt);
+                    const bDate = new Date(b.EventGroupBooking.createdAt);
+
+                    return -(aDate > bDate ? 1 : (aDate < bDate ? -1 : 0));
+                  }).map((ticket, i) => (
                     <div className="border px-2 mt-2 flex flex-col items-start w-full text-left">
                       <div className="my-2 flex flex-col w-full items-start md:flex-row md:justify-between  md:items-center">
                         <h2 className="font-semibold text-3xl">{ticket.EventGroupBooking.Event.name}</h2>
@@ -100,7 +105,7 @@ class EventsMyBookingsOverview extends React.Component {
                       </div>
                       <p className="py-1">{ticket.EventGroupBooking.Event.shortDescription}</p>
                       <p>Event takes place on {dateFormat(ticket.EventGroupBooking.Event.date, "dd/mm/yyyy")}</p>
-                      <p className={ticket.paid ? "" : "text-red-900 font-semibold"}>Booking Status: {ticket.EventGroupBooking.allPaid ? "Confirmed" : ticket.paid ? "Awaiting Group Payments" : "Awaiting Your Payment"}</p>
+                      <p className={ticket.paid ? "" : "text-red-900 font-semibold"}>Booking Status: {ticket.EventGroupBooking.allPaid ? "Confirmed" : ticket.paid ? "Awaiting Group Payments / Details" : "Awaiting Your Payment / Details"}</p>
                       <p>Ticket Type: {ticket.EventGroupBooking.EventTicketType.name}</p>
                       <div className={`my-2 w-full flex flex-row justify-start border-t ${ticket.paid ? "border-red-900" : "border-grey-500"} pt-2`}>
                         {
@@ -114,7 +119,7 @@ class EventsMyBookingsOverview extends React.Component {
                             <Link to={`/events/bookings/payment/${ticket.id}`} className="w-full">
                               <button
                                 className="px-4 py-1 text-lg rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                              >Pay Now</button>
+                              >Complete Booking</button>
                             </Link>
                           )
                         }
