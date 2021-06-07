@@ -27,7 +27,7 @@ router.post("/login", async (req, res) => {
   // https://www.dur.ac.uk/its/password/validator
   // Providing headers 'Authorization' = 'Basic {{base64 encoded string 'username:password'}}'
 
-  if(username !== "nonmem") {
+  if(username !== "nonmem") {// && username !== "test11" && username !== "test22" && username !== "test33") {
     const details = Buffer.from(`${username}:${password}`);
     const b64data = details.toString("base64");
     const authHeader = `Basic ${b64data}`;
@@ -94,10 +94,16 @@ router.post("/login", async (req, res) => {
         return res.status(500).json({ message: "Server error: Unable to create a new staff user. Database error." });
       }
     } else {
-      const { email, surname, firstnames, studyyear, college } = details.data;
+      const { email, surname, firstnames, college, status } = details.data;
+      let { studyyear } = details.data;
 
       if(college.toLowerCase() !== "grey college") {
         return res.status(403).json({ message: "You must be a member of Grey College to access this website" });
+      }
+
+      // Single year PGs will have status 2, I think phds are status 3?
+      if(status === "2" || status === 2 || status === "3" || status === 3) {
+        studyyear = 4;
       }
 
       try {
@@ -108,6 +114,24 @@ router.post("/login", async (req, res) => {
       }
     }
   } else {
+    // There was an issue with non-integrated masters students being recognised as freshers
+    // rather than finalists. This fixes that.
+    if(new Date(user.lastLogin) < new Date("2021-06-08 03:00:00Z")) {
+      let details;
+
+      try {
+        details = await axios.get(`https://community.dur.ac.uk/grey.jcr/itsuserdetailsjson.php?username=${username}`);
+      } catch (error) {
+        return res.status(500).json({ message: "Unable to fetch details about this user from the university" });
+      }
+
+      const { status } = details.data;
+
+      if(status === "2" || status === 2 || status === "3" || status === 3) {
+        user.year = 4;
+      }
+    }
+
     // Set the last login time and save
     user.lastLogin = lastLogin;
 
