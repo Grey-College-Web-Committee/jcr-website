@@ -63,7 +63,7 @@ class RoleComponent extends React.Component {
     return (
       <div className="flex flex-row justify-center items-center w-screen h-screen fixed bg-grey-500 bg-opacity-75 top-0 left-0 z-10">
         <div className="w-full md:w-1/2 bg-white p-2 md:m-0 m-4 border-gray-900 border-2">
-          <div className="flex flex-row justify-between mb-2 align-middle">
+          <div className="flex flex-row justify-between mb-1 align-middle px-2">
             <h2 className="text-2xl font-semibold">{role.name}</h2>
             <button
               onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible }) }}
@@ -71,7 +71,7 @@ class RoleComponent extends React.Component {
             >Close</button>
           </div>
           <div className="flex flex-col md:flex-row p-2">
-            <div className="mx-auto md:m-0 w-48 mb-2 h-auto flex-grow-0 flex-shrink-0">
+            <div className="mx-auto md:m-0 w-48 mb-2 h-full flex-grow-0 flex-shrink-0">
               <div className="border-2 border-red-900">
                 <img
                   src={vacant || user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
@@ -84,25 +84,65 @@ class RoleComponent extends React.Component {
                 </div>
               </div>
             </div>
-            <div className="m-0 md:mx-auto">
+            <div>
               {
                 role.videoUrl === null || role.videoUrl === "" ? (
                   <div className="flex-grow px-2">
-                    <p className="py-1">A video has not yet been provided for this role! If you are interested in finding out more about what this role involves please contact the JCR Chair (grey.chair@durham.ac.uk) or the JCR President or Vice-President who will be happy to provide you information about the role and/or put you in touch with the current holder.</p>
-                    <p className="py-1">You can also checkout the Byelaws on the <Link className="underline font-semibold" to="/jcr/files">Core Documents</Link> page which will include all of the responsibility of this role!</p>
+                    {
+                      role.description === null || role.description === "" ? (
+                        <React.Fragment>
+                          <p className="py-1">There is currently not a description or video for this role. If you are interested in finding out more about what this role involves please contact the JCR Chair (<a href="mailto:grey.chair@durham.ac.uk" rel="noopener noreferrer" target="_blank" className="font-semibold underline">grey.chair@durham.ac.uk</a>) or the JCR President or Vice-President who will be happy to provide you information about the role and/or put you in touch with the current holder.</p>
+                          <p className="py-1">You can also checkout the Byelaws on the <Link className="underline font-semibold" to="/jcr/files">Core Documents</Link> page which will include all of the responsibility of this role!</p>
+                        </React.Fragment>
+                      ) : (
+                        <div className="flex-grow py-1 text-left">
+                          {
+                            role.description.split("\n").map((line, i) => {
+                              if(line === null || line === "\n" || line === "") {
+                                return null;
+                              }
+
+                              return (
+                                <p className="py-1">{line}</p>
+                              )
+                            })
+                          }
+                          <p>There is not currently a video for this role.</p>
+                        </div>
+                      )
+                    }
                   </div>
                 ) : (
-                  <div className="flex flex-col flex-grow overflow-auto">
+                  <div className="flex flex-col flex-grow overflow-auto px-2">
                     <h3 className="text-left font-semibold text-lg hidden md:block">About the Role</h3>
+                    {
+                      role.description === null || role.description === "" ? null : (
+                        <div className="flex-grow py-1 text-left">
+                          {
+                            role.description.split("\n").map((line, i) => {
+                              if(line === null || line === "\n" || line === "") {
+                                return null;
+                              }
+
+                              return (
+                                <p className="py-1" key={i}>{line}</p>
+                              )
+                            })
+                          }
+                        </div>
+                      )
+                    }
                     {
                       this.state.hideLoader ? null : (
                         <LoadingHolder />
                       )
                     }
-                    <ReactPlayer
-                      url={role.videoUrl}
-                      onReady={() => { this.setState({ hideLoader: true })}}
-                    />
+                    <div className={this.state.hideLoader ? "w-full" : "hidden"}>
+                      <ReactPlayer
+                        url={role.videoUrl}
+                        onReady={() => { this.setState({ hideLoader: true })}}
+                      />
+                    </div>
                   </div>
                 )
               }
