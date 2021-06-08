@@ -1,13 +1,16 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import ReactPlayer from 'react-player';
+import LoadingHolder from '../../common/LoadingHolder';
 
 class RoleComponent extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      descriptionVisible: false
+      descriptionVisible: false,
+      hideLoader: false
     }
   }
 
@@ -58,72 +61,53 @@ class RoleComponent extends React.Component {
     const { role, user, vacant } = this.props;
 
     return (
-      <div className="w-screen h-screen flex flex-row justify-center items-center fixed bg-grey-500 bg-opacity-75 top-0 left-0 z-10">
-        <div className="flex flex-col w-full m-2 md:w-1/2 bg-white p-4 border-2 border-grey-900 text-lg h-auto">
-          <div className="flex flex-row justify-between items-center">
-            <h2 className="mb-2 text-3xl font-semibold">{role.name}</h2>
-            <button onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible })}}>Close</button>
+      <div className="flex flex-row justify-center items-center w-screen h-screen fixed bg-grey-500 bg-opacity-75 top-0 left-0 z-10">
+        <div className="w-full md:w-1/2 bg-white p-2 md:m-0 m-4 border-gray-900 border-2">
+          <div className="flex flex-row justify-between mb-2 align-middle">
+            <h2 className="text-2xl font-semibold">{role.name}</h2>
+            <button
+              onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible }) }}
+              className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+            >Close</button>
           </div>
-          <div className="flex flex-col md:flex-row">
-            <div className="w-48 h-auto flex-grow-0 flex-shrink-0">
+          <div className="flex flex-col md:flex-row p-2">
+            <div className="mx-auto md:m-0 w-48 mb-2 h-auto flex-grow-0 flex-shrink-0">
+              <div className="border-2 border-red-900">
+                <img
+                  src={vacant || user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
+                  alt="User Profile Picture"
+                  className="w-auto"
+                />
+                <div className="p-1">
+                  <p className="font-semibold">{role.name}</p>
+                  <p>{vacant ? "Vacant" : this.makeDisplayName(user)}</p>
+                </div>
+              </div>
+            </div>
+            <div className="m-0 md:mx-auto">
               {
-                vacant ? (
-                  <div className="border-2 border-red-900">
-                    <img
-                      src="/images/default_avatar.png"
-                      alt="Vacant Picture"
-                      className="w-auto"
-                    />
-                    <div className="p-1">
-                      <p className="font-semibold">{role.name}</p>
-                      <p>Vacant</p>
-                    </div>
+                role.videoUrl === null || role.videoUrl === "" ? (
+                  <div className="flex-grow px-2">
+                    <p className="py-1">A video has not yet been provided for this role! If you are interested in finding out more about what this role involves please contact the JCR Chair (grey.chair@durham.ac.uk) or the JCR President or Vice-President who will be happy to provide you information about the role and/or put you in touch with the current holder.</p>
+                    <p className="py-1">You can also checkout the Byelaws on the <Link className="underline font-semibold" to="/jcr/files">Core Documents</Link> page which will include all of the responsibility of this role!</p>
                   </div>
                 ) : (
-                  <div className="border-2 border-red-900">
-                    <img
-                      src={user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
-                      alt="User Profile Picture"
-                      className="w-auto"
+                  <div className="flex flex-col flex-grow overflow-auto">
+                    <h3 className="text-left font-semibold text-lg hidden md:block">About the Role</h3>
+                    {
+                      this.state.hideLoader ? null : (
+                        <LoadingHolder />
+                      )
+                    }
+                    <ReactPlayer
+                      url={role.videoUrl}
+                      onReady={() => { this.setState({ hideLoader: true })}}
                     />
-                    <div className="p-1">
-                      <p className="font-semibold">{role.name}</p>
-                      <p>{this.makeDisplayName(user)}</p>
-                    </div>
                   </div>
                 )
               }
             </div>
-            {
-              role.description === null || role.description === "" ? (
-                <div className="flex-grow px-2">
-                  <p className="py-1">No description has been provided for this role yet! If you are interested in finding out more about what this role involves please contact the JCR Chair (grey.chair@durham.ac.uk) or the JCR President or Vice-President who will be happy to provide you information about the role and/or put you in touch with the current holder!</p>
-                  <p className="py-1">You can also checkout the Byelaws on the <Link className="underline font-semibold" to="/jcr/files">Core Documents</Link> page which will include all of the responsibility of this role!</p>
-                </div>
-              ) : (
-                <div className="flex-grow px-2">
-                  {
-                    role.description.split("\n").map((line, i) => {
-                      if(line === null || line === "\n" || line === "") {
-                        return null;
-                      }
-
-                      return (
-                        <p className="py-1">{line}</p>
-                      )
-                    })
-                  }
-                </div>
-              )
-            }
           </div>
-          {
-            role.videoUrl === null || role.videoUrl === "" ? null : (
-              <div className="flex flex-row justify-center py-2 flex-grow overflow-auto">
-                <iframe className="w-full h-full" src={`https://www.youtube-nocookie.com/embed/${role.videoUrl}`} title="Grey JCR Role Video" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
-              </div>
-            )
-          }
         </div>
       </div>
     );
