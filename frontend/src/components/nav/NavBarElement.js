@@ -11,7 +11,7 @@ class NavBarElement extends React.Component {
   render () {
     const { displayName, url, requiredPermission, staticImage, dropdown, alwaysDisplayed, user } = this.props;
     const screenSizeClasses = alwaysDisplayed ? "" : "hidden lg:block";
-    const classes = `${this.getClasses()} ${screenSizeClasses}`;
+    let classes = `${this.getClasses()} ${screenSizeClasses}`;
 
     if(requiredPermission !== null) {
       if(user === undefined) {
@@ -87,6 +87,7 @@ class NavBarElement extends React.Component {
       // No point displaying if they don't have a single option available
       const internalPermissions = dropdown.map(item => item.requiredPermission);
       const nullPermissions = internalPermissions.filter(permission => permission === null);
+      classes += " cursor-default";
 
       if(internalPermissions.length !== 0 && nullPermissions.length === 0) {
         if(user === undefined) {

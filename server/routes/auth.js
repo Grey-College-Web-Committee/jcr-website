@@ -116,7 +116,7 @@ router.post("/login", async (req, res) => {
   } else {
     // There was an issue with non-integrated masters students being recognised as freshers
     // rather than finalists. This fixes that.
-    if(new Date(user.lastLogin) < new Date("2021-06-08 03:00:00Z")) {
+    if(new Date(user.lastLogin) < new Date("2021-06-08 03:00:00Z") && username !== "nonmem") {
       let details;
 
       try {
