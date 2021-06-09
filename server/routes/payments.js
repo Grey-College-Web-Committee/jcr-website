@@ -1,7 +1,7 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking, Debt, ToastieOrderTracker } = require("../database.models.js");
+const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking, Debt, ToastieOrderTracker, GreyDayGuest } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
@@ -513,7 +513,7 @@ const fulfilDebtOrders = async (user, orderId, relatedOrders, deliveryInformatio
   mailer.sendEmail("grey.treasurer@durham.ac.uk", `Debt Cleared (${user.username})`, debtFacsoEmail);
 }
 
-const debtFacsoEmail = (user) => {
+const createFacsoDebtEmail = (user) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
@@ -763,12 +763,51 @@ const sendCompletedEventPaymentEmail = async (ticketId) => {
   }
 }
 
+const fulfilGreyDayOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
+  const { additional } = relatedOrders[0];
+  const parsedInfo = JSON.parse(additional);
+
+  try {
+    await GreyDayGuest.create({
+      userId: user.id,
+      selfBooking: parsedInfo.selfTicket,
+      guestName: parsedInfo.guestName
+    });
+  } catch (error) {
+    console.log({error});
+    return;
+  }
+
+  const gdEmail = createGreyDayGuestEmail(user, parsedInfo.selfTicket, parsedInfo.guestName);
+  mailer.sendEmail(user.email, `Grey Day ${parsedInfo.selfTicket ? "" : "Guest"} Ticket`, gdEmail);
+}
+
+const createGreyDayGuestEmail = (user, selfTicket, guestName) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
+
+  if(selfTicket) {
+    message.push(`<p>This email is confirmation of your ticket for Grey Day 2021.</p>`);
+  } else {
+    message.push(`<p>This email is confirmation of your guest ticket for Grey Day 2021.</p>`);
+    message.push(`<p>The ticket is for ${guestName}</p>`);
+  }
+
+  message.push(`<p><strong>Thank you!</strong></p>`);
+  return message.join("");
+}
+
 const fulfilOrderProcessors = {
   "toastie": fulfilToastieOrders,
   "stash": fulfilStashOrders,
   "gym": fulfilGymOrders,
   "jcr_membership": fulfilJCRMembershipOrders,
-  "debt": fulfilDebtOrders
+  "debt": fulfilDebtOrders,
+  "gd2021": fulfilGreyDayOrders
 }
 
 router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {
