@@ -21,9 +21,16 @@ class StashStockPage extends React.Component {
       sizes: [],
       colours: [],
       selectedColours: {},
-      selectedItem: 1
+      selectedItem: 1,
+      stashPageText: "",
+      stashPageOpen: false,
+      disabled: false
     };
     this.itemColourChanged=this.itemColourChanged.bind(this);
+  }
+
+  onInputChange = e => {
+	  this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
   // Load the data once the element is ready
@@ -55,9 +62,34 @@ class StashStockPage extends React.Component {
     const stockloaded = await this.updateStockListing();
     const sizesloaded = await this.updateSizeListing();
     const coloursloaded = await this.updateColoursListing();
+
+    let stashInfoRes;
+
+    try {
+      stashInfoRes = await api.get("/stash/information");
+    } catch (error) {
+      this.setState({ status: 500, error: stashInfoRes.response.data.error });
+    }
+
+    this.setState({ stashPageOpen: stashInfoRes.data.open, stashPageText: stashInfoRes.data.message });
+
     this.setState({ stockloaded });
     this.setState({ sizesloaded });
     this.setState({ coloursloaded });
+  }
+
+  updateStashPageData = async () => {
+    this.setState({ disabled: true });
+    const { stashPageOpen, stashPageText } = this.state;
+
+    try {
+      await api.post("/stash/information", { open: stashPageOpen, message: stashPageText });
+    } catch (error) {
+      alert("Unable to update the information");
+    }
+
+    this.setState({ disabled: false });
+    return;
   }
 
   updateAll = async () => {
@@ -191,6 +223,42 @@ class StashStockPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Available Stash - Admin</h1>
+          <div className="border-b-2 py-4">
+            <h2 className="font-semibold text-3xl pb-4">Stash Information</h2>
+            <div className="pt-2 pb-2 border-b-2">
+              <label htmlFor="stashPageText" className="flex flex-row justify-start text-xl font-semibold">Stash Page Text</label>
+              <textarea
+                name="stashPageText"
+                value={this.state.stashPageText}
+                onChange={this.onInputChange}
+                className="border w-full rounded my-2 h-48 py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                disabled={this.state.disabled}
+                autoComplete=""
+                maxLength={30000}
+              />
+            </div>
+            <div className="pt-2 pb-2 border-b-2 flex flex-row items-center">
+              <label htmlFor="stashPageOpen" className="flex flex-row justify-start text-xl font-semibold flex-1 items-center">Stash Ordering Open</label>
+              <div className="flex flex-col items-center justify-center ml-2">
+                <input
+                  type="checkbox"
+                  name="stashPageOpen"
+                  checked={this.state.stashPageOpen}
+                  onChange={this.onInputChange}
+                  className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                  disabled={this.props.disabled}
+                  autoComplete=""
+                />
+              </div>
+            </div>
+            <div className="pt-2 pb-2 border-b-2">
+              <button
+                className="px-4 py-2 rounded text-xl bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                disabled={this.state.disabled}
+                onClick={this.updateStashPageData}
+              >Save Stash Information</button>
+            </div>
+          </div>
           <div className="border-b-2 border-t-2 py-4">
             <h2 className="font-semibold text-3xl pb-4">Manage Existing Items</h2>
             <span className="block lg:hidden pb-4">Your screen is too small to display all columns</span>

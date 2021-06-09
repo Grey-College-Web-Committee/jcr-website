@@ -28,6 +28,7 @@ class StashOrderCustomisation extends Model {}
 
 class ToastieStock extends Model {}
 class ToastieOrderContent extends Model {}
+class ToastieOrderTracker extends Model {}
 
 class Permission extends Model {}
 class PermissionLink extends Model {}
@@ -61,6 +62,8 @@ class EventGroupBooking extends Model {}
 // The individual record for each member of a group (i.e. to track their Stripe payments)
 class EventTicket extends Model {}
 
+class FormalDrink extends Model {}
+
 class CareersPost extends Model {}
 
 class Feedback extends Model {}
@@ -72,6 +75,9 @@ class BarDrink extends Model {}
 class BarMixer extends Model {}
 class BarOrder extends Model {}
 class BarOrderContent extends Model {}
+class BarBooking extends Model {}
+class BarBookingGuest extends Model {}
+class BarCordial extends Model {}
 
 class PersistentVariable extends Model {}
 
@@ -432,8 +438,31 @@ ToastieOrderContent.init({
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 1
+  },
+  completed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 }, { sequelize, timestamps: false });
+
+ToastieOrderTracker.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ShopOrder,
+      key: 'id'
+    }
+  },
+  completed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  tableNumber: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  }
+}, { sequelize });
 
 Permission.init({
   name: {
@@ -552,6 +581,10 @@ GymMembership.init({
   },
   household: {
     type: DataTypes.INTEGER,
+    allowNull: true
+  },
+  postcode: {
+    type: DataTypes.STRING,
     allowNull: true
   }
 }, { sequelize });
@@ -977,6 +1010,37 @@ EventTicket.init({
   }
 }, { sequelize });
 
+FormalDrink.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  household: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  dietary: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  wine: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  sharingWith: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  softDrink: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
 CareersPost.init({
   userId: {
     type: DataTypes.INTEGER,
@@ -1067,7 +1131,13 @@ BarDrinkType.init({
   },
   allowsMixer: {
     type: DataTypes.BOOLEAN,
-    allowNull: false
+    allowNull: false,
+    defaultValue: false
+  },
+  allowsCordial: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 }, { sequelize });
 
@@ -1086,10 +1156,6 @@ BarBaseDrink.init({
   description: {
     type: DataTypes.TEXT,
     allowNull: false
-  },
-  image: {
-    type: DataTypes.TEXT,
-    allowNull: false,
   },
   typeId: {
     type: DataTypes.INTEGER,
@@ -1129,6 +1195,21 @@ BarDrink.init({
 }, { sequelize });
 
 BarMixer.init({
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  price: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  }
+}, { sequelize });
+
+BarCordial.init({
   name: {
     type: DataTypes.TEXT,
     allowNull: false
@@ -1195,6 +1276,14 @@ BarOrderContent.init({
     allowNull: true,
     references: {
       model: BarMixer,
+      key: 'id'
+    }
+  },
+  cordialId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: BarCordial,
       key: 'id'
     }
   },
@@ -1352,6 +1441,41 @@ JCRFile.init({
   }
 }, { sequelize });
 
+BarBooking.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  date: {
+    type: DataTypes.DATE,
+    allowNull: false
+  },
+  requiredTables: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1
+  }
+}, { sequelize });
+
+BarBookingGuest.init({
+  bookingId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: BarBooking,
+      key: 'id'
+    }
+  },
+  name: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  }
+}, { sequelize });
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -1483,6 +1607,9 @@ BarOrderContent.belongsTo(BarDrink, { foreignKey: 'drinkId' });
 BarMixer.hasMany(BarOrderContent, { foreignKey: 'mixerId' });
 BarOrderContent.belongsTo(BarMixer, { foreignKey: 'mixerId' });
 
+BarCordial.hasMany(BarOrderContent, { foreignKey: 'cordialId' });
+BarOrderContent.belongsTo(BarCordial, { foreignKey: 'cordialId' });
+
 JCRRole.hasMany(JCRRoleUserLink, { foreignKey: 'roleId' });
 JCRRoleUserLink.belongsTo(JCRRole, { foreignKey: 'roleId' });
 
@@ -1501,4 +1628,16 @@ JCRFolder.belongsTo(JCRFolder, { foreignKey: 'parent' });
 JCRFolder.hasMany(JCRFile, { foreignKey: 'parent' });
 JCRFile.belongsTo(JCRFolder, { foreignKey: 'parent' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile };
+User.hasMany(BarBooking, { foreignKey: 'userId' });
+BarBooking.belongsTo(User, { foreignKey: 'userId' });
+
+BarBooking.hasMany(BarBookingGuest, { foreignKey: 'bookingId' });
+BarBookingGuest.belongsTo(BarBooking, { foreignKey: 'bookingId' });
+
+User.hasMany(FormalDrink, { foreignKey: 'userId' });
+FormalDrink.belongsTo(User, { foreignKey: 'userId' });
+
+ShopOrder.hasMany(ToastieOrderTracker, { foreignKey: 'orderId' });
+ToastieOrderTracker.belongsTo(ShopOrder, { foreignKey: 'orderId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, FormalDrink, ToastieOrderTracker };

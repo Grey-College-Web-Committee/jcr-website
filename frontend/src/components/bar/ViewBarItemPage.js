@@ -25,7 +25,9 @@ class ViewBarItemPage extends React.Component {
       currentPrice: 0,
       mixers: [],
       addedCount: 0,
-      tableNumberSet: localStorage.getItem("table_bar") !== null
+      tableNumberSet: localStorage.getItem("table_bar") !== null,
+      cordial: "",
+      cordials: []
     };
   }
 
@@ -33,9 +35,9 @@ class ViewBarItemPage extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), errorAdding: null })
   }
 
-  onSelectMixerOrSize = e => {
+  onSelectMixerOrSizeOrCordial = e => {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), errorAdding: null }, () => {
-      const { mixer, mixers, size, sizes, currentPrice } = this.state;
+      const { mixer, mixers, size, sizes, currentPrice, cordial, cordials } = this.state;
       let newPrice = 0;
 
       if(mixer !== "") {
@@ -44,6 +46,15 @@ class ViewBarItemPage extends React.Component {
 
         if(mixerRecords.length === 1) {
           newPrice += Number(mixerRecords[0].price);
+        }
+      }
+
+      if(cordial !== "") {
+        const cordialId = Number(cordial);
+        const cordialRecords = cordials.filter(m => m.id === cordialId);
+
+        if(cordialRecords.length === 1) {
+          newPrice += Number(cordialRecords[0].price);
         }
       }
 
@@ -79,7 +90,7 @@ class ViewBarItemPage extends React.Component {
       return;
     }
 
-    const { drink, mixers } = content.data;
+    const { drink, mixers, cordials } = content.data;
 
     const sizes = drink.BarDrinks.map(item => {
       return {
@@ -90,7 +101,7 @@ class ViewBarItemPage extends React.Component {
       }
     });
 
-    this.setState({ loaded: true, status: 200, sizes, drink, mixers });
+    this.setState({ loaded: true, status: 200, sizes, drink, mixers, cordials });
   }
 
   addToBag = () => {
@@ -98,7 +109,7 @@ class ViewBarItemPage extends React.Component {
     // refresh the cart
     this.barCart.get();
 
-    const { size, mixer, sizes, mixers, drink } = this.state;
+    const { size, mixer, sizes, mixers, drink, cordial, cordials } = this.state;
     let components = [];
 
     if(size === "") {
@@ -159,6 +170,41 @@ class ViewBarItemPage extends React.Component {
       }
     }
 
+    if(drink.BarDrinkType.allowsCordial) {
+      if(cordial === "") {
+        this.setState({ disabled: false, errorAdding: "You must select a cordial (or set it to none)" });
+        return;
+      }
+
+      const cordialId = Number(cordial);
+
+      if(cordialId === -1) {
+        components.push({
+          name: `Cordial: None`,
+          price: 0,
+          quantity: 1,
+          submissionInformation: {
+            type: "cordial",
+            isNone: true,
+            cordialId: -1
+          }
+        });
+      } else {
+        const cordialRecords = cordials.filter(m => m.id === cordialId);
+
+        components.push({
+          name: `Cordial: ${cordialRecords[0].name}`,
+          price:  Number(cordialRecords[0].price),
+          quantity: 1,
+          submissionInformation: {
+            type: "cordial",
+            isNone: false,
+            cordialId: cordialId
+          }
+        });
+      }
+    }
+
     const image = `/uploads/images/bar/${drink.image}`;
 
     this.barCart.addToCartRaw({
@@ -214,19 +260,10 @@ class ViewBarItemPage extends React.Component {
             </div>
             <div className="flex flex-row justify-center mx-2">
               <div className="w-full flex flex-col-reverse md:flex-row text-lg">
-                <div className="w-full md:w-1/2 flex justify-center flex-col mb-4 flex-grow-0 self-start">
-                  <div className="mb-4">
-                    <img
-                      src={`/uploads/images/bar/${drink.image}`}
-                      alt={drink.name}
-                      className="w-full"
-                    />
-                  </div>
-                </div>
                 <div className="w-full md:w-1/2 text-left md:p-4 flex flex-col">
                   <div className="pb-4">
                     <h1 className="font-semibold text-5xl pb-2">{drink.name}</h1>
-                    {this.state.currentPrice === 0 ? <p className="font-semibold text-xl">Price determined by size {drink.BarDrinkType.allowsMixer ? "and mixer" : ""}</p> : <p className="font-semibold text-xl">£{this.state.currentPrice.toFixed(2)}</p>}
+                    {this.state.currentPrice === 0 ? <p className="font-semibold text-xl">Price determined by size{drink.BarDrinkType.allowsMixer && drink.BarDrinkType.allowsCordial ? ", mixer and cordial" : (drink.BarDrinkType.allowsMixer ? " and mixer" : (drink.BarDrinkType.allowsCordial ? " and cordial" : ""))}</p> : <p className="font-semibold text-xl">£{this.state.currentPrice.toFixed(2)}</p>}
                     <p>{drink.description}</p>
                   </div>
                   <div className="pb-4 flex flex-row">
@@ -234,7 +271,7 @@ class ViewBarItemPage extends React.Component {
                     <select
                       name="size"
                       className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
-                      onChange={this.onSelectMixerOrSize}
+                      onChange={this.onSelectMixerOrSizeOrCordial}
                       value={this.state.size}
                       disabled={this.state.disabled}
                     >
@@ -251,7 +288,7 @@ class ViewBarItemPage extends React.Component {
                         <select
                           name="mixer"
                           className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
-                          onChange={this.onSelectMixerOrSize}
+                          onChange={this.onSelectMixerOrSizeOrCordial}
                           value={this.state.mixer}
                           disabled={this.state.disabled}
                         >
@@ -264,6 +301,31 @@ class ViewBarItemPage extends React.Component {
                               className={mixer.available ? "" : "bg-gray-100"}
                               value={mixer.id}
                             >{mixer.name} (+£{Number(mixer.price).toFixed(2)})</option>
+                          ))}
+                        </select>
+                      </div>
+                    ) : null
+                  }
+                  {
+                    drink.BarDrinkType.allowsCordial ? (
+                      <div className="pb-4 flex flex-row">
+                        <label htmlFor="cordial" className="w-40 inline-block font-semibold">Cordial:</label>
+                        <select
+                          name="cordial"
+                          className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
+                          onChange={this.onSelectMixerOrSizeOrCordial}
+                          value={this.state.cordial}
+                          disabled={this.state.disabled}
+                        >
+                          <option value="" disabled={true} hidden={true}>Choose Cordial...</option>
+                          <option value="-1">None (+£0.00)</option>
+                          {this.state.cordials.map((cordial, i) => (
+                            <option
+                              key={i}
+                              disabled={!cordial.available}
+                              className={cordial.available ? "" : "bg-gray-100"}
+                              value={cordial.id}
+                            >{cordial.name} (+£{Number(cordial.price).toFixed(2)})</option>
                           ))}
                         </select>
                       </div>

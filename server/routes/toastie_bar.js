@@ -4,7 +4,7 @@ const router = express.Router();
 const fileUpload = require('express-fileupload');
 const path = require('path');
 // The database models
-const { ToastieOrder, ToastieStock, ToastieOrderContent } = require("../database.models.js");
+const { ToastieOrder, ToastieStock, ToastieOrderContent, PersistentVariable } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
 
@@ -31,7 +31,24 @@ router.get("/stock", async (req, res) => {
     return;
   }
 
-  return res.status(200).json({ stock });
+  let openRecord;
+
+  // Check if the toastie bar is open too
+  try {
+    openRecord = await PersistentVariable.findOne({
+      where: {
+        key: "TOASTIE_OPEN"
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check open status" });
+  }
+
+  if(openRecord === null) {
+    return res.status(500).json({ error: "Unable to check open status - null" });
+  }
+
+  return res.status(200).json({ stock, open: openRecord.booleanStorage });
 });
 
 router.get("/stock/:id", async (req, res) => {

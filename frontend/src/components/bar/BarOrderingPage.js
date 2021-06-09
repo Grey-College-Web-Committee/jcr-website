@@ -29,7 +29,7 @@ class BarOrderingPage extends React.Component {
     };
 
     this.barCart = new BarCart();
-    this.validTableNumbers = [...Array(15).keys()].map(i => i + 1);
+    this.validTableNumbers = [...Array(20).keys()].map(i => i + 1);
   }
 
   onInputChange = e => {
@@ -140,7 +140,7 @@ class BarOrderingPage extends React.Component {
             <option disabled={true} hidden={true} value={-1}>Please choose an option...</option>
             {
               this.validTableNumbers.map(no => (
-                <option value={no}>Table #{no}</option>
+                <option value={no}>Table {no}</option>
               ))
             }
           </select>
@@ -183,6 +183,7 @@ class BarOrderingPage extends React.Component {
 
           let mixer = null;
           let size = null;
+          let cordial = null;
 
           let sizeComps = item.components.filter(comp => comp.submissionInformation.type === "size");
 
@@ -198,12 +199,20 @@ class BarOrderingPage extends React.Component {
             perItemPrice += mixerComps[0].price;
           }
 
+          let cordialComps = item.components.filter(comp => comp.submissionInformation.type === "cordial");
+
+          if(cordialComps.length !== 0) {
+            cordial = cordialComps[0].name;
+            perItemPrice += cordialComps[0].price;
+          }
+
           displayItems.push({
             name: item.name,
             perItemPrice,
             quantity: item.quantity,
             mixer,
             size,
+            cordial,
             hash: item.duplicateHash
           });
 
@@ -239,10 +248,13 @@ class BarOrderingPage extends React.Component {
                         {item.quantity} x {item.name} (£{item.perItemPrice.toFixed(2)} each)
                         <ul>
                           {
+                            item.size === null ? null : (<li>- {item.size}</li>)
+                          }
+                          {
                             item.mixer === null ? null : (<li>- {item.mixer}</li>)
                           }
                           {
-                            item.size === null ? null : (<li>- {item.size}</li>)
+                            item.cordial === null ? null : (<li>- {item.cordial}</li>)
                           }
                         </ul>
                       </li>
@@ -331,9 +343,11 @@ class BarOrderingPage extends React.Component {
 
       const mixerComp = components.filter(comp => comp.submissionInformation.type === "mixer");
       const sizeComp = components.filter(comp => comp.submissionInformation.type === "size");
+      const cordialComp = components.filter(comp => comp.submissionInformation.type === "cordial");
 
       let mixerId = null;
       let drinkId = null;
+      let cordialId = null;
 
       if(mixerComp.length !== 0) {
         mixerId = mixerComp[0].submissionInformation.mixerId;
@@ -345,9 +359,14 @@ class BarOrderingPage extends React.Component {
         drinkId = sizeComp[0].submissionInformation.drinkId;
       }
 
+      if(cordialComp.length !== 0) {
+        cordialId = cordialComp[0].submissionInformation.cordialId;
+      }
+
       return {
         mixerId,
         drinkId,
+        cordialId,
         quantity: item.quantity
       }
     });
@@ -395,6 +414,7 @@ class BarOrderingPage extends React.Component {
 
       let mixer = null;
       let size = null;
+      let cordial = null;
 
       let sizeComps = item.components.filter(comp => comp.submissionInformation.type === "size");
 
@@ -410,12 +430,20 @@ class BarOrderingPage extends React.Component {
         perItemPrice += mixerComps[0].price;
       }
 
+      let cordialComps = item.components.filter(comp => comp.submissionInformation.type === "cordial");
+
+      if(cordialComps.length !== 0) {
+        cordial = cordialComps[0].name;
+        perItemPrice += cordialComps[0].price;
+      }
+
       displayItems.push({
         name: item.name,
         perItemPrice,
         quantity: item.quantity,
         mixer,
         size,
+        cordial,
         hash: item.duplicateHash
       });
 
@@ -453,10 +481,13 @@ class BarOrderingPage extends React.Component {
                 {item.quantity} x {item.name} (£{item.perItemPrice.toFixed(2)} each)
                 <ul className="mb-2">
                   {
+                    item.size === null ? null : (<li>- {item.size}</li>)
+                  }
+                  {
                     item.mixer === null ? null : (<li>- {item.mixer}</li>)
                   }
                   {
-                    item.size === null ? null : (<li>- {item.size}</li>)
+                    item.cordial === null ? null : (<li>- {item.cordial}</li>)
                   }
                 </ul>
                 <div className="flex flex-row justify-between">

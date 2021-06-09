@@ -80,6 +80,15 @@ class BarAdminOverview extends React.Component {
               >View Live Orders</button>
             </Link>
           </div>
+          <div className="flex flex-col items-start mb-4">
+            <h2 className="font-semibold text-3xl pb-1">View Bookings</h2>
+            <p className="pb-1">This page will show you the table bookings.</p>
+            <Link to="/bar/admin/bookings">
+              <button
+                className="px-4 py-1 rounded bg-grey-500 text-white md:w-80 w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              >View Bookings</button>
+            </Link>
+          </div>
           <div>
             <h2 className="font-semibold text-3xl pb-1 text-left">Manage Drinks</h2>
             <table className="mx-auto border-2 text-left border-red-900 w-full">
@@ -127,6 +136,16 @@ class BarAdminOverview extends React.Component {
                       <button
                         className="px-4 py-1 rounded bg-red-900 text-white md:w-80 w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
                       >Manage Sizes</button>
+                    </Link>
+                  </td>
+                </tr>
+                <tr className="text-center border-b border-gray-400">
+                  <td className="p-2 border-r border-gray-400">Manage the cordials that are on offer including their availability</td>
+                  <td className="p-2 border-r border-gray-400">
+                    <Link to="/bar/admin/cordials">
+                      <button
+                        className="px-4 py-1 rounded bg-red-900 text-white md:w-80 w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                      >Manage Cordials</button>
                     </Link>
                   </td>
                 </tr>

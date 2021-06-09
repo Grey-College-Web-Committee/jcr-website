@@ -16,11 +16,7 @@ class HomePage extends React.Component {
               <div className="text-2xl">
                 <p>Welcome to the new Grey College JCR website!</p>
               </div>
-              {loggedIn ? (
-                <div className="text-xl">
-                  <p>You can now access Welfare services from the navigation bar.</p>
-                </div>
-              ) : (
+              {loggedIn ? null : (
                 <div className="text-xl">
                   <p>To get started, login using your Durham CIS account.</p>
                 </div>

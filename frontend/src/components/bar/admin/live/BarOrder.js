@@ -104,6 +104,7 @@ class BarOrder extends React.Component {
             <tr>
               <th className="p-2 font-semibold">Name</th>
               <th className="p-2 font-semibold">Mixer</th>
+              <th className="p-2 font-semibold">Cordial</th>
               <th className="p-2 font-semibold">Quantity</th>
               <th className="p-2 font-semibold">Completed</th>
             </tr>
@@ -114,6 +115,7 @@ class BarOrder extends React.Component {
                 <tr className={`text-center border-b border-gray-400 ${content.completed ? "bg-gray-200" : ""}`} key={content.id}>
                   <td className={`p-2 border-r border-gray-400 ${content.completed ? "line-through" : ""}`}>{content.name} ({content.size})</td>
                   <td className={`p-2 border-r border-gray-400 ${content.completed ? "line-through" : ""}`}>{content.mixer === null ? "N/A" : content.mixer}</td>
+                  <td className={`p-2 border-r border-gray-400 ${content.completed ? "line-through" : ""}`}>{content.cordial === null ? "N/A" : content.cordial}</td>
                   <td className={`p-2 border-r border-gray-400 ${content.completed ? "line-through" : ""}`}>{content.quantity}</td>
                   <td className="p-2 border-r border-gray-400">
                     {

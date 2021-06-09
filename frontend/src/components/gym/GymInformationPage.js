@@ -24,7 +24,8 @@ class GymInformationPage extends React.Component {
       householdHas: false,
       inBasket: this.cart.get().items.filter(item => item.shop === "gym").length !== 0,
       householdNumber: "",
-      currentGalleryImage: 0
+      currentGalleryImage: 0,
+      postcode: ""
     };
 
     this.membershipOptions = [
@@ -136,8 +137,25 @@ class GymInformationPage extends React.Component {
             <div className="pb-2">
               <p className="py-1">You must agree to the following conditions before you are able to add a membership to your cart.</p>
               <p className="py-1">Please read the Terms of Use by clicking the red text below.</p>
-              <p className="py-1 font-semibold">Selected Household: {this.state.householdNumber}</p>
+              <p className="py-1 font-semibold">Selected Household: {this.state.householdNumber === "0" || this.state.householdNumber === 0 ? "Liver Out" : this.state.householdNumber}</p>
             </div>
+            {
+              this.state.householdNumber === "0" || this.state.householdNumber === 0 ? (
+                <div className="pb-2">
+                  <label className="mr-2">Postcode:</label>
+                  <input
+                    type="text"
+                    name="postcode"
+                    value={this.state.postcode}
+                    onChange={this.onInputChange}
+                    className="w-full md:w-80 border rounded py-1 px-2 border-gray-400 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                    placeholder="Please enter your Durham postcode"
+                    disabled={this.props.disabled}
+                    autoComplete="postcode"
+                  />
+                </div>
+              ) : null
+            }
             <div className="pb-2 border-b-2 flex flex-row items-center justify-between">
               <label htmlFor="termsOfUse">I accept the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link></label>
               <div className="flex flex-col items-center justify-center ml-2">
@@ -210,19 +228,30 @@ class GymInformationPage extends React.Component {
                   basePrice: this.state.isMember ? option.price : option.nonMemberPrice,
                   quantity: 1,
                   submissionInformation: option.submissionInformation,
-                  components: [{
-                    name: `Household ${this.state.householdNumber}`,
-                    price: 0,
-                    quantity: 1,
-                    submissionInformation: {
-                      type: "household",
-                      value: this.state.householdNumber
+                  components: [
+                    {
+                      name: this.state.householdNumber === "0" || this.state.householdNumber === 0 ? "Liver Out" : `Household ${this.state.householdNumber}`,
+                      price: 0,
+                      quantity: 1,
+                      submissionInformation: {
+                        type: "household",
+                        value: this.state.householdNumber
+                      }
+                    },
+                    {
+                      name: `Postcode: ${this.state.householdNumber === "0" || this.state.householdNumber === 0 ? this.state.postcode.substring(0, 10) : "N/A"}`,
+                      price: 0,
+                      quantity: 1,
+                      submissionInformation: {
+                        type: "postcode",
+                        value: this.state.postcode.substring(0, 10)
+                      }
                     }
-                  }],
+                  ],
                   image: option.image,
                   upperLimit: 1
                 }}
-                disabled={membership !== null || !this.state.termsOfUse || !this.state.parq || !this.state.induction || !this.state.householdHas}
+                disabled={membership !== null || !this.state.termsOfUse || !this.state.parq || !this.state.induction || !this.state.householdHas || ((this.state.householdNumber === "0" || this.state.householdNumber === 0) && this.state.postcode.length < 6)}
                 buttonText={membership !== null ? "Already Purchased" : "Add To Bag"}
                 disableOnCondition={(items) => {
                   return items.filter(item => item.shop === "gym").length !== 0;
@@ -241,7 +270,7 @@ class GymInformationPage extends React.Component {
   renderHouseholdDiv = () => {
     return (
       <React.Fragment>
-        <h2 className="font-semibold text-4xl pb-2 text-left">Household Confirmation</h2>
+        <h2 className="font-semibold text-4xl pb-2 text-left">Purchase Membership</h2>
         <p className="py-1">As part of the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link>, at least one other member of your household must be using the gym with you. Please specify your household number below. This will be used to check that at least two members of the same household have a membership once the gym opens.</p>
         <p className="py-1">Once you have selected your household number you will be able to purchase a membership. If you select the wrong household number you will need to refresh the page!</p>
         <div className="flex flex-col w-auto my-2">
@@ -255,6 +284,7 @@ class GymInformationPage extends React.Component {
             disabled={this.state.disabled}
           >
             <option disabled={true} hidden={true} value="">Please choose an option...</option>
+            <option value={0}>Liver Out</option>
             {
               this.validHouseholdNumbers.map(no => (
                 <option value={no}>Household {no}</option>
@@ -310,7 +340,7 @@ class GymInformationPage extends React.Component {
           <div className="text-left my-2 text-lg">
             <p>Expires On: {dateFormat(new Date(membership.expiresAt), "dd/mm/yyyy")}</p>
             <p>Type: {resolvedType[membership.type]}</p>
-            <p>Household: {membership.household}</p>
+            <p>Household: {membership.household === 0 ? `Liver Out (Postcode: ${membership.postcode})` : membership.household}</p>
           </div>
         </React.Fragment>
       );
@@ -333,10 +363,10 @@ class GymInformationPage extends React.Component {
               <li>-	<span className="font-semibold">Main Weights Room</span> - complete with the: Shoulder Press, Leg Extension, Leg Curl, Leg Press and Smith machines. Multiple benches (including a Scott bench) with Bars, Dumbbells and Kettle Bells.</li>
               <li>-	<span className="font-semibold">Henry Dyson Room (Weights Room)</span> – complete with: Cable Station, Squat Rack and Treadmill.</li>
             </ul>
-            <p className="py-1">The Gym Opening Times are from <span className="font-semibold">08:00 until 22:00, 7 days per week.</span></p>
+            <p className="py-1">The Gym Opening Times are from <span className="font-semibold">09:00 until 22:00, 7 days per week.</span></p>
             <p className="py-1">For Easter Term 2021, users of the gym will need their ‘household leader’ to book ‘household’ gym slots as, unfortunately, the gym is too small to offer individual socially distanced exercise. Therefore, there must be a minimum of 2 people in your ‘household’ with an active gym membership.</p>
             <p className="py-1">Please be considerate to residents living above the Gym by not playing loud music early in the morning and evening.</p>
-            <p className="py-1">Gym members will need to complete the DUO induction training, quiz and PARQ form before being granted access to the Gym. DUO > Grey College > Grey JCR > Grey College Gym</p>
+            <p className="py-1 font-semibold">Gym members will need to complete the DUO induction training, quiz and PARQ form before being granted access to the Gym. DUO > Grey College > Grey JCR > Grey College Gym</p>
             <p className="py-1">The Gym is run and equipment owned by the JCR, please contact the FACSO, Will, at <a href="mailto:grey.treasurer@durham.ac.uk" className="underline font-semibold" target="_blank" rel="noopener noreferrer">grey.treasurer@durham.ac.uk</a> with any questions.</p>
           </div>
           <div className="flex flex-col mx-2 lg:flex-row lg:mx-0 mt-2">
@@ -346,7 +376,7 @@ class GymInformationPage extends React.Component {
                   <img
                     src={`/images/gym/gym-${this.state.currentGalleryImage}.jpg`}
                     alt="Grey Gym"
-                    className="h-auto w-auto"
+                    className="h-auto w-auto border-red-900 border-2"
                   />
                 </div>
               </div>

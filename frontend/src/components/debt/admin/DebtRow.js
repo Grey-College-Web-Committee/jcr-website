@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import api from '../../../utils/axiosConfig';
+import dateFormat from 'dateformat';
 
 class DebtRow extends React.Component {
   constructor(props) {
@@ -51,6 +52,7 @@ class DebtRow extends React.Component {
         <td className="p-2 border-r border-gray-400">{this.makeDisplayName(debt)}</td>
         <td className="p-2 border-r border-gray-400">{debt.username}</td>
         <td className="p-2 border-r border-gray-400">{debt.email || "Not Signed Up"}</td>
+        <td className="p-2 border-r border-gray-400">{debt.lastLogin ? dateFormat(debt.lastLogin, "dd/mm/yyyy HH:MM") : "Not Signed Up"}</td>
         <td className="p-2 border-r border-gray-400">{debt.description}</td>
         <td className="p-2 border-r border-gray-400">{Number(debt.amount).toFixed(2)}</td>
         <td className="p-2 border-r border-gray-400">

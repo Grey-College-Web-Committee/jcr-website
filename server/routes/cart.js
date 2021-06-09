@@ -2,20 +2,52 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address, Debt } = require("../database.models.js");
+const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address, Debt, PersistentVariable } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-const stashLock = new Date("2021-02-01T00:00:00Z");
-
 const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
-  // A toastie will have no global submission info
-  const isToastie = Object.keys(globalSubmissionInfo).length === 0;
+  // A toastie will have the table number
+  const isToastie = Object.keys(globalSubmissionInfo).length === 1;
   const hasComponents = componentSubmissionInfo.length !== 0;
+
+  let openRecord;
+
+  // Check if the toastie bar is open too
+  try {
+    openRecord = await PersistentVariable.findOne({
+      where: {
+        key: "TOASTIE_OPEN"
+      }
+    });
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to check open status"
+    };
+  }
+
+  if(openRecord === null) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to fetch open record"
+    };
+  }
+
+  if(!openRecord.booleanStorage) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "The Toastie Bar is currently closed."
+    };
+  }
 
   let modifiedParameters = globalOrderParameters;
 
   let totalPrice = 0;
+  let specialRates = {};
 
   if(isToastie) {
     if(!hasComponents) {
@@ -26,6 +58,8 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       };
     }
 
+    let firstSubOrderId = -1;
+
     for(let subOrderCount = 0; subOrderCount < quantity; subOrderCount++) {
       // Create an suborder id
       let subOrderIdInsert;
@@ -33,7 +67,8 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       try {
         subOrderIdInsert = await ShopOrderContent.create({
           orderId,
-          shop: "toastie"
+          shop: "toastie",
+          additional: JSON.stringify({ tableNumber: globalSubmissionInfo.tableNumber })
         });
       } catch (error) {
         return {
@@ -44,6 +79,11 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       }
 
       const subOrderId = subOrderIdInsert.id;
+
+      if(firstSubOrderId === -1) {
+        firstSubOrderId = subOrderId;
+      }
+
       const fillingIds = componentSubmissionInfo.map(obj => obj.id);
 
       let hasBread = false;
@@ -105,6 +145,9 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       }
     }
 
+    specialRates["name"] = `Toastie ${firstSubOrderId}`;
+    specialRates["gross"] = totalPrice;
+
     if(modifiedParameters.hasOwnProperty("toastie")) {
       if(modifiedParameters.toastie.hasOwnProperty("nonDiscountedToastieCount") && modifiedParameters.toastie.nonDiscountedToastieCount !== undefined && modifiedParameters.toastie.nonDiscountedToastieCount !== null) {
         modifiedParameters.toastie.nonDiscountedToastieCount += 1;
@@ -127,7 +170,8 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
     try {
       subOrderIdInsert = await ShopOrderContent.create({
         orderId,
-        shop: "toastie"
+        shop: "toastie",
+        additional: JSON.stringify({ tableNumber: globalSubmissionInfo.tableNumber })
       });
     } catch (error) {
       return {
@@ -183,6 +227,9 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 
     totalPrice += Number(price) * quantity;
 
+    specialRates["name"] = name;
+    specialRates["gross"] = totalPrice;
+
     if(modifiedParameters.hasOwnProperty("toastie")) {
       if(modifiedParameters.toastie.hasOwnProperty("nonDiscountedConfectionary") && modifiedParameters.toastie.nonDiscountedConfectionary !== undefined && modifiedParameters.toastie.nonDiscountedConfectionary !== null) {
         modifiedParameters.toastie.nonDiscountedConfectionary += 1;
@@ -194,14 +241,27 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 
   return {
     price: Number(totalPrice),
-    globalOrderParameters: modifiedParameters
+    globalOrderParameters: modifiedParameters,
+    specialRates
   };
 };
 
 const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
   const now = new Date();
 
-  if(now > stashLock) {
+  let stashOpenRecord;
+
+  try {
+    stashOpenRecord = await PersistentVariable.findOne({ where: { key: "STASH_OPEN" } });
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to get the stash open variable"
+    }
+  }
+
+  if(!stashOpenRecord.booleanStorage) {
     return {
       errorOccurred: true,
       status: 400,
@@ -297,7 +357,8 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
 
   const resolvedUnderShieldTexts = [
     "Grey College",
-    "Grey College MCR"
+    "Grey College MCR",
+    "Grey College 2021 Graduate"
   ];
 
   const underShieldText = resolvedUnderShieldTexts[Number(underShield[0].underShieldText)];
@@ -535,6 +596,21 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
     };
   }
 
+  const household = Number(householdComps[0].value);
+
+  // Used to get their postcode during covid
+  const postcodeComps = componentSubmissionInfo.filter(comp => comp.type === "postcode");
+
+  if(postcodeComps.length === 0 && household === 0) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "You must specify your postcode"
+    }
+  }
+
+  const postcode = postcodeComps[0].value;
+
   // Otherwise they don't have a membership so create one
 
   try {
@@ -543,7 +619,8 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
       userId: user.id,
       type,
       expiresAt: selectedExpiry,
-      household: householdComps[0].value
+      household,
+      postcode
     });
   } catch (error) {
     return {
@@ -741,7 +818,7 @@ const debtProcessor = async (globalOrderParameters, orderId, quantity, globalSub
   }
 
   return {
-    price: debtRecord.debt,
+    price: Number(debtRecord.debt),
     globalSubmissionInfo: globalSubmissionInfo,
     globalOrderParameters: globalOrderParameters
   };
@@ -1002,6 +1079,13 @@ router.post("/process", async (req, res) => {
     validatedPrices.push(3.6);
   }
 
+  let metadata = {
+    integration_check: "accept_a_payment",
+    orderId
+  };
+
+  let toastieGrosses = [];
+
   for(let i = 0; i < submittedCart.items.length; i++) {
     item = submittedCart.items[i];
     const { shop, quantity, globalSubmissionInfo, componentSubmissionInfo } = item;
@@ -1038,6 +1122,14 @@ router.post("/process", async (req, res) => {
     globalOrderParameters = result.globalOrderParameters;
     totalSpentByShop[shop] += result.price;
     validatedPrices.push(result.price);
+
+    if(result.hasOwnProperty("specialRates")) {
+      const { name, gross } = result.specialRates;
+      const realGross = Math.round(gross * 100);
+      metadata[`TB_${name}`] = realGross;
+      // metadata[`TB_${name}_net`] = Math.round(realGross - ((0.014 * realGross) + (20 / shopCount)));
+      toastieGrosses.push({ name, realGross });
+    }
   }
 
   Object.keys(usedShops).forEach(key => {
@@ -1048,24 +1140,37 @@ router.post("/process", async (req, res) => {
     }
   });
 
-  let metadata = {
-    integration_check: "accept_a_payment",
-    orderId,
-    usedShops: JSON.stringify(usedShops)
-  };
-
   if(debtInCart) {
     metadata["debt_username"] = user.username;
   }
 
+  metadata["usedShops"] = JSON.stringify(usedShops);
+
   const shopCount = Object.keys(totalSpentByShop).length;
+
+  let toastieExcess = 0;
+  let toastieGross = 0;
 
   Object.keys(totalSpentByShop).forEach(shop => {
     const shopGross = Math.round(totalSpentByShop[shop] * 100);
     metadata[shop] = shopGross;
     const shopNet = Math.round(shopGross - ((0.014 * shopGross) + (20 / shopCount)));
+
+    if(shop === "toastie") {
+      toastieExcess = shopGross - shopNet;
+      toastieGross = shopGross;
+    }
+
     metadata[`${shop}_net`] = shopNet;
   });
+
+  if(toastieGrosses.length !== 0 && toastieExcess !== 0) {
+    toastieGrosses.forEach(item => {
+      const proportion = item.realGross / toastieGross;
+      const diff = Math.round(toastieExcess * proportion);
+      metadata[`TB_${item.name}_net`] = item.realGross - diff;
+    });
+  }
 
   const totalAmount = validatedPrices.reduce((sum, price) => sum + price, 0);
   const totalAmountInPence = Math.round(totalAmount * 100);

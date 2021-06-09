@@ -64,7 +64,7 @@ class ElectionDetails extends React.Component {
     let result;
 
     try {
-      result = await api.post("/elections/create", { name, manifestoReleaseTime, votingOpenTime, votingCloseTime });
+      result = await api.post("/elections/create", { name, manifestoReleaseTime: new Date(manifestoReleaseTime), votingOpenTime: new Date(votingOpenTime), votingCloseTime: new Date(votingCloseTime) });
     } catch (error) {
       alert("Unable to create the election.");
       return;

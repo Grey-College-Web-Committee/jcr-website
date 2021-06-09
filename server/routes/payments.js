@@ -1,14 +1,14 @@
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
-const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking, Debt } = require("../database.models.js");
+const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking, Debt, ToastieOrderTracker } = require("../database.models.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 const bodyParser = require('body-parser');
 const mailer = require("../utils/mailer");
 const dateFormat = require("dateformat")
 
-const customerToastieEmail = (user, orderId, toasties, extras) => {
+const customerToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
@@ -17,9 +17,7 @@ const customerToastieEmail = (user, orderId, toasties, extras) => {
   message.push(`<h1>Order Received</h1>`);
   message.push(`<p>Hello ${firstName} ${lastName},</p>`);
   message.push(`<p>Your order has been confirmed and sent to the Toastie Bar.</p>`);
-  message.push(`<p>Please collect your order from the collection area outside the JCR.</p>`);
-  message.push(`<p>There shouldn't be a need to enter the JCR.</p>`);
-  message.push(`<p>Please come and collect it in about 10-15 minutes.</p>`);
+  message.push(`<p>Table Number: ${Number(tableNumber) === 0 ? "Collection" : tableNumber}</p>`);
   message.push(`<h2>Order Details</h2>`);
 
   if(toasties.length !== 0) {
@@ -54,7 +52,7 @@ const customerToastieEmail = (user, orderId, toasties, extras) => {
   return message.join("");
 }
 
-const staffToastieEmail = (user, orderId, toasties, extras) => {
+const staffToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
@@ -63,6 +61,7 @@ const staffToastieEmail = (user, orderId, toasties, extras) => {
   message.push(`<h1>Order Received</h1>`);
   message.push(`<p>Payment received at ${dateFormat(new Date(), "dd/mm/yyyy HH:MM")}</p>`);
   message.push(`<p>Ordered by: ${firstName} ${lastName}</p>`);
+  message.push(`<p>Table Number: ${Number(tableNumber) === 0 ? "Collection" : tableNumber}</p>`);
   message.push(`<h2>Order Details</h2>`);
 
   if(toasties.length !== 0) {
@@ -94,13 +93,19 @@ const staffToastieEmail = (user, orderId, toasties, extras) => {
   return message.join("");
 }
 
-const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
+const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
   let extras = [];
   let toasties = [];
+  let firstTableNumber = -1;
 
   for(let i = 0; i < relatedOrders.length; i++) {
     const order = relatedOrders[i];
-    const id = order.id;
+    const { id, additional } = order;
+    const tableNumber = JSON.parse(additional).tableNumber;
+
+    if(firstTableNumber === -1) {
+      firstTableNumber = tableNumber;
+    }
 
     let orderContent;
 
@@ -129,11 +134,78 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
   }
 
   // Now construct and send the emails
-  const staffEmail = staffToastieEmail(user, orderId, toasties, extras);
-  mailer.sendEmail(process.env.TOASTIE_BAR_EMAIL_TO, `Toastie Bar Order Received #${orderId}`, staffEmail);
+  // const staffEmail = staffToastieEmail(user, orderId, toasties, extras, firstTableNumber);
+  // mailer.sendEmail(process.env.TOASTIE_BAR_EMAIL_TO, `Toastie Bar Order Received #${orderId}`, staffEmail);
 
-  const customerEmail = customerToastieEmail(user, orderId, toasties, extras);
+  const customerEmail = customerToastieEmail(user, orderId, toasties, extras, firstTableNumber);
   mailer.sendEmail(user.email, `Toastie Bar Order Confirmation`, customerEmail);
+
+  let entry;
+
+  // Create the order tracker entry
+  try {
+    entry = await ToastieOrderTracker.create({
+      orderId,
+      completed: false,
+      tableNumber: Number(firstTableNumber)
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
+  const extrasFormatted = extras.map(extra => {
+    return {
+      toastie: false,
+      components: [
+        {
+          name: extra.name,
+          quantity: extra.quantity,
+          completed: false
+        }
+      ]
+    }
+  });
+
+  const toastiesFormatted = toasties.map(toastie => {
+    let components = [];
+
+    components.push({
+      name: toastie.bread.name,
+      quantity: 1,
+      completed: false
+    });
+
+    let fillings = toastie.fillings.map(filling => {
+      return {
+        name: filling.name,
+        quantity: 1,
+        completed: false
+      }
+    });
+
+    components = components.concat(fillings);
+
+    return {
+      toastie: true,
+      components
+    }
+  });
+
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+
+  const items = toastiesFormatted.concat(extrasFormatted);
+
+  // Send the order to all of the registered toastie clients
+  io.to("toastieOrderClients").emit("toastieNewOrder", {
+    completed: false,
+    id: orderId,
+    displayName: `${firstName} ${lastName}`,
+    tableNumber: Number(firstTableNumber),
+    createdAt: entry.createdAt,
+    items
+  });
 }
 
 const translateSize = (size) => {
@@ -184,8 +256,7 @@ const customerStashEmail = (user, orderId, relatedOrders, deliveryInformation) =
     message.push(`<p>${deliveryInformation.address.postcode}</p>`);
   } else {
     message.push(`<h2>Collection Information</h2>`);
-    message.push(`<p>You have opted to collect your stash from the JCR.</p>`);
-    message.push(`<p>Once the stash has arrived and is ready for the collection the JCR secretary will be in touch!</p>`);
+    message.push(`<p>Once the stash has arrived and is ready for collection the JCR secretary will be in touch!</p>`);
   }
 
   message.push(`<h2>Order Details</h2>`);
@@ -214,7 +285,7 @@ const customerStashEmail = (user, orderId, relatedOrders, deliveryInformation) =
   return message.join("");
 }
 
-const fulfilStashOrders = (user, orderId, relatedOrders, deliveryInformation) => {
+const fulfilStashOrders = (user, orderId, relatedOrders, deliveryInformation, io) => {
   const customerEmail = customerStashEmail(user, orderId, relatedOrders, deliveryInformation);
   mailer.sendEmail(user.email, `Stash Order Confirmation`, customerEmail);
 }
@@ -236,7 +307,22 @@ const customerGymEmail = (user, orderId, order) => {
   return message.join("");
 }
 
-const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
+const facsoGymEmail = (user, orderId, order) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Name: ${firstName} ${lastName},</p>`);
+  message.push(`<p>Username: ${user.username}</p>`);
+  message.push(`<p>Household: ${order.household === 0 || order.household === "0" ? "Liver Out" : order.household}</p>`);
+  message.push(`<p>Postcode: ${order.household === 0 || order.household === "0" ? order.postcode : "Liver In"}</p>`);
+  message.push(`<p>Expires on ${dateFormat(order.expiresAt, "dd/mm/yyyy")}</p>`);
+
+  return message.join("");
+}
+
+const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
   let membershipRecord;
 
   try {
@@ -257,6 +343,9 @@ const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation
 
   const customerEmail = customerGymEmail(user, orderId, membershipRecord);
   mailer.sendEmail(user.email, `Gym Membership Confirmation`, customerEmail);
+
+  const facsoEmail = facsoGymEmail(user, orderId, membershipRecord);
+  mailer.sendEmail("grey.treasurer@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
 }
 
 const customerJCRMembershipEmail = (user, orderId, expiresAt) => {
@@ -290,7 +379,7 @@ const facsoJCRMembershipEmail = (user, orderId, expiresAt) => {
   return message.join("");
 }
 
-const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
+const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
   if(relatedOrders.length !== 1) {
     console.log("Many memberships?");
     return;
@@ -380,7 +469,7 @@ const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryI
   mailer.sendEmail("grey.treasurer@durham.ac.uk", `New JCR Membership Purchased (${user.username})`, facsoEmail);
 }
 
-const fulfilDebtOrders = async (user, orderId, relatedOrders, deliveryInformation) => {
+const fulfilDebtOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
   // Remove the debt record and the debt permission
 
   let debtPermission;
@@ -420,6 +509,18 @@ const fulfilDebtOrders = async (user, orderId, relatedOrders, deliveryInformatio
   }
 
   // Could maybe send emails??
+  const debtFacsoEmail = createFacsoDebtEmail(user);
+  mailer.sendEmail("grey.treasurer@durham.ac.uk", `Debt Cleared (${user.username})`, debtFacsoEmail);
+}
+
+const debtFacsoEmail = (user) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>${firstName} ${lastName} (Username: ${user.username}) has cleared their debt</p>`);
+  return message.join("");
 }
 
 const awaitingEventPaymentsEmail = (user, notPaid, groupCreatedAtDate) => {
@@ -813,14 +914,14 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
         const relatedOrders = subOrders.filter(order => order.shop === shop);
 
         if(relatedOrders.length !== 0) {
-          await fulfilOrderProcessors[shop](user, orderId, relatedOrders, deliveryInformation);
+          await fulfilOrderProcessors[shop](user, orderId, relatedOrders, deliveryInformation, req.io);
         }
       });
 
       stashOrders = stashOrders.map(order => order.dataValues);
 
       if(stashOrders.length !== 0) {
-        fulfilOrderProcessors["stash"](user, orderId, stashOrders, deliveryInformation);
+        fulfilOrderProcessors["stash"](user, orderId, stashOrders, deliveryInformation, req.io);
       }
 
       break;

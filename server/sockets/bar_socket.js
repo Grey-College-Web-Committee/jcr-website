@@ -1,4 +1,4 @@
-const { User, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable } = require("../database.models.js");
+const { User, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, BarCordial } = require("../database.models.js");
 const { hasPermission } = require("../utils/permissionUtils.js");
 
 const setupEvents = (socket, io) => {
@@ -31,6 +31,9 @@ const setupEvents = (socket, io) => {
               {
                 model: BarMixer
               },
+              {
+                model: BarCordial
+              },
             ]
           },
           {
@@ -56,6 +59,7 @@ const setupEvents = (socket, io) => {
           name: item.BarDrink.BarBaseDrink.name,
           size: item.BarDrink.BarDrinkSize.name,
           mixer: item.mixerId === null ? null : item.BarMixer.name,
+          cordial: item.cordialId === null ? null : item.BarCordial.name,
           quantity: item.quantity,
           completed: item.completed
         };

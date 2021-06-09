@@ -11,7 +11,7 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, FormalDrink, ToastieOrderTracker } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sharedSession = require("express-socket.io-session");
@@ -39,6 +39,7 @@ const profileRoute = require("./routes/profile");
 // Required to deploy the static React files for production
 const path = require("path");
 const fs = require("fs");
+const FileType = require("file-type");
 
 // The cron jobs for the events system
 const eventsCron = require("./cron/events_cron");
@@ -47,11 +48,26 @@ const eventsCron = require("./cron/events_cron");
 const app = express();
 
 const http = require("http").Server(app);
-const io = require("socket.io")(http);
+const io = require("socket.io")(http, { transports: [ "websocket" ] });
+
+if(process.env.NODE_ENV === "production") {
+  console.log("Production Mode: Setting redis sockets");
+  const redis = require("redis");
+  const redisAdapter = require("socket.io-redis");
+  const pubClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST,
+    { auth_pass: process.env.REDIS_PASSWORD }
+  );
+  const subClient = pubClient.duplicate();
+
+  io.adapter(redisAdapter({ pubClient, subClient }));
+}
+
 const barSocket = require("./sockets/bar_socket");
+const toastieSocket = require("./sockets/toastie_socket");
 
 io.on("connection", socket => {
   barSocket.setupEvents(socket, io);
+  toastieSocket.setupEvents(socket, io);
 });
 
 // Tells express to recognise incoming requests as JSON
@@ -238,6 +254,7 @@ const requiredPermissions = [
 
   await ToastieStock.sync();
   await ToastieOrderContent.sync();
+  await ToastieOrderTracker.sync();
 
   await GymMembership.sync();
 
@@ -261,6 +278,7 @@ const requiredPermissions = [
   await EventTicketType.sync();
   await EventGroupBooking.sync();
   await EventTicket.sync();
+  await FormalDrink.sync();
 
   await CareersPost.sync();
 
@@ -271,8 +289,11 @@ const requiredPermissions = [
   await BarBaseDrink.sync();
   await BarDrink.sync();
   await BarMixer.sync();
+  await BarCordial.sync();
   await BarOrder.sync()
   await BarOrderContent.sync();
+  await BarBooking.sync();
+  await BarBookingGuest.sync();
 
   await PersistentVariable.sync();
 
@@ -303,6 +324,36 @@ const requiredPermissions = [
     },
     defaults: {
       key: "BAR_OPEN",
+      booleanStorage: false
+    }
+  });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "STASH_OPEN"
+    },
+    defaults: {
+      key: "STASH_OPEN",
+      booleanStorage: false
+    }
+  });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "STASH_MESSAGE"
+    },
+    defaults: {
+      key: "STASH_MESSAGE",
+      textStorage: "Welcome to the stash shop!"
+    }
+  });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "TOASTIE_OPEN"
+    },
+    defaults: {
+      key: "TOASTIE_OPEN",
       booleanStorage: false
     }
   });
@@ -418,16 +469,24 @@ app.get("/uploads/images/profile/:image", isLoggedIn, function(req, res) {
   res.sendFile(path.join(__dirname, `./uploads/images/profile/${image}`));
 });
 
-app.get("/uploads/jcr/:filename", isLoggedIn, function(req, res) {
-  const filename = req.params.filename;
+app.get("/uploads/jcr/:filename/:truename", isLoggedIn, async function(req, res) {
+  const { filename, truename } = req.params;
+  const filePath = path.join(__dirname, `./uploads/jcr/${filename}`);
+  let fileType;
 
-  fs.readFile(path.join(__dirname, `./uploads/jcr/${filename}`), (err, data) => {
+  try {
+    fileType = await FileType.fromFile(filePath);
+  } catch (error) {
+    return res.status(500).end();
+  }
+
+  fs.readFile(filePath, (err, data) => {
     if(err) {
-      res.status(404).end();
-    } else {
-      res.contentType("application/pdf");
-      res.send(data);
+      return res.status(404).end();
     }
+
+    res.contentType(fileType.mime);
+    res.send(data);
   });
 });
 
@@ -446,6 +505,17 @@ app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {
 
 app.get("/uploads/complaints/procedure", isLoggedIn, function(req, res) {
   fs.readFile(path.join(__dirname, "./uploads/complaints/procedure/complaints_procedure.pdf"), (err, data) => {
+    if(err) {
+      res.status(404).end();
+    } else {
+      res.contentType("application/pdf");
+      res.send(data);
+    }
+  });
+})
+
+app.get("/uploads/toasties/allergens", isLoggedIn, function(req, res) {
+  fs.readFile(path.join(__dirname, "./uploads/toastie/toastie-bar-allergens.pdf"), (err, data) => {
     if(err) {
       res.status(404).end();
     } else {

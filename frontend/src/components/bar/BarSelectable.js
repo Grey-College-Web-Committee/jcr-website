@@ -25,11 +25,6 @@ class BarSelectable extends React.Component {
 
     return (
       <div className="flex flex-col md:w-64 w-40 border-red-900 border-8 m-2">
-        <img
-          src={imageUrl}
-          alt={this.props.name}
-          className="flex border-red-900 border-b-8"
-        />
         <div className="flex flex-col justify-between text-lg font-semibold h-full">
           <div className="flex flex-col justify-center text-center">
             <span>{this.props.name}</span>

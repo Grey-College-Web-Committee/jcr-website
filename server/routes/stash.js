@@ -4,7 +4,7 @@ const router = express.Router();
 const fileUpload = require('express-fileupload');
 const path = require("path");
 // The database models
-const { User, Address, StashOrder, ShopOrder, StashStock, StashColours, StashSizeChart, StashItemColours, StashOrderCustomisation, StashCustomisations, StashStockImages } = require("../database.models.js");
+const { User, Address, StashOrder, ShopOrder, StashStock, StashColours, StashSizeChart, StashItemColours, StashOrderCustomisation, StashCustomisations, StashStockImages, PersistentVariable } = require("../database.models.js");
 const dateFormat = require("dateformat");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { hasPermission } = require("../utils/permissionUtils.js");
@@ -307,6 +307,30 @@ router.post("/export", async(req, res) => {
     ]
   });
 
+  const csvWriterGraduate = createCsvWriter({
+    path: `${csvPath}GraduateStashOrders-${fileLocation}.csv`,
+    header: [
+      { id: "name", title: "Name" },
+      { id: "code", title: "Code" },
+      { id: "quantity", title: "Quantity" },
+      { id: "size", title: "Size" },
+      { id: "colour", title: "Colour" },
+      { id: "shieldOrCrest", title: "Shield/Crest" },
+      { id: "underShieldText", title: "Under Shield/Crest Text" },
+      { id: "backPrint", title: "Back Print" },
+      { id: "backEmbroidery", title: "Back Embroidery" },
+      { id: "legPrint", title: "Leg Print" },
+      { id: "rightPrint", title: "Right Breast Print" },
+      { id: "paid", title: "Paid" },
+      { id: "deliveryOrCollection", title: "Delivery/Collection" },
+      { id: "recipient", title: "Delivery Recipient"},
+      { id: "line1", title: "Address Line 1"},
+      { id: "line2", title: "Address Line 2"},
+      { id: "city", title: "City"},
+      { id: "postcode", title: "Postcode"},
+    ]
+  });
+
   const csvWriterChecklist = createCsvWriter({
     path: `${csvPath}Checklist-${fileLocation}.csv`,
     header: [
@@ -333,9 +357,10 @@ router.post("/export", async(req, res) => {
 
   let csvRecordsJCR = [];
   let csvRecordsMCR = [];
+  let csvRecordsGraduate = [];
   let csvRecordsChecklist = [];
 
-  // We also need to separate out the MCR and JCR stash
+  // We also need to separate out the Graduate, MCR and JCR stash
   // This will be done by looking at the underShieldText
 
   // Start with the non-customised
@@ -343,8 +368,6 @@ router.post("/export", async(req, res) => {
   Object.keys(nonCustomisedHashes).forEach(key => {
     const item = nonCustomisedHashes[key];
     let record = {};
-    // If it equals "Grey College MCR" it is MCR stash otherwise it's JCR stash
-    let isJCR = item.underShieldText !== "Grey College MCR";
 
     record.name = item.StashStock.name;
     record.code = item.StashStock.manufacturerCode;
@@ -381,10 +404,12 @@ router.post("/export", async(req, res) => {
       record.postcode = "";
     }
 
-    if(isJCR) {
-      csvRecordsJCR.push(record);
-    } else {
+    if(item.underShieldText === "Grey College 2021 Graduate") {
+      csvRecordsGraduate.push(record);
+    } else if (item.underShieldText === "Grey College MCR") {
       csvRecordsMCR.push(record);
+    } else {
+      csvRecordsJCR.push(record);
     }
   });
 
@@ -402,7 +427,6 @@ router.post("/export", async(req, res) => {
 
   itemsWithCustomisation.forEach(item => {
     let record = {};
-    let isJCR = item.underShieldText !== "Grey College MCR";
 
     record.name = item.StashStock.name;
     record.code = item.StashStock.manufacturerCode;
@@ -445,10 +469,12 @@ router.post("/export", async(req, res) => {
       record[customisationValidChoiceHeadings[customisation.type]] = customisation.text;
     });
 
-    if(isJCR) {
-      csvRecordsJCR.push(record);
-    } else {
+    if(item.underShieldText === "Grey College 2021 Graduate") {
+      csvRecordsGraduate.push(record);
+    } else if (item.underShieldText === "Grey College MCR") {
       csvRecordsMCR.push(record);
+    } else {
+      csvRecordsJCR.push(record);
     }
   });
 
@@ -528,7 +554,7 @@ router.post("/export", async(req, res) => {
   /*
   * At this point we have:
   * - All records that have been paid for
-  * - Sorted into JCR / MCR
+  * - Sorted into JCR / MCR / Graduate
   * - Customised and Non-Customised
   * - Duplicates merged
   * We also have the checklist for JCR handout
@@ -543,6 +569,12 @@ router.post("/export", async(req, res) => {
 
   try {
     await csvWriterMCR.writeRecords(csvRecordsMCR);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+
+  try {
+    await csvWriterGraduate.writeRecords(csvRecordsGraduate);
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -608,6 +640,34 @@ router.get("/download/mcr/:file", async (req, res) => {
   const pathName = path.join(csvPath, `MCRStashOrders-${file}.csv`)
 
   return res.download(pathName, `MCRStashOrders-${file}.csv`, () => {
+    res.status(404).end();
+  });
+});
+
+router.get("/download/graduate/:file", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.export")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const file = req.params.file;
+
+  if(file === undefined || file === null) {
+    return res.status(400).json({ error: "Missing file" });
+  }
+
+  const split = file.split("-");
+  const millisecondsStr = split[0];
+
+  if(new Date().getTime() > Number(millisecondsStr) + 1000 * 60 * 60) {
+    return res.status(410).end();
+  }
+
+  const pathName = path.join(csvPath, `GraduateStashOrders-${file}.csv`)
+
+  return res.download(pathName, `GraduateStashOrders-${file}.csv`, () => {
     res.status(404).end();
   });
 });
@@ -1295,6 +1355,64 @@ router.delete("/stock/:productId", async (req, res) => {
 
   return res.status(204).end();
 });
+
+// Get whether the page is open and any display information
+router.get("/information", async (req, res) => {
+  let stashOpenRecord;
+
+  try {
+    stashOpenRecord = await PersistentVariable.findOne({ where: { key: "STASH_OPEN" } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the status of the stash shop" });
+  }
+
+  let stashMessageRecord;
+
+  try {
+    stashMessageRecord = await PersistentVariable.findOne({ where: { key: "STASH_MESSAGE" } })
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the message for the stash shop" });
+  }
+
+  return res.status(200).json({ open: stashOpenRecord.booleanStorage, message: stashMessageRecord.textStorage });
+});
+
+router.post("/information", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "stash.stock.edit")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { open, message } = req.body;
+
+  if(open === undefined || open === null) {
+    return res.status(400).json({ error: "Missing open" });
+  }
+
+  if(message === undefined || message === null) {
+    return res.status(400).json({ error: "Missing message" });
+  }
+
+  try {
+    await PersistentVariable.update({ booleanStorage: open }, {
+      where: { key: "STASH_OPEN" }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the stash shop open variable" });
+  }
+
+  try {
+    await PersistentVariable.update({ textStorage: message }, {
+      where: { key: "STASH_MESSAGE" }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the stash shop message variable" });
+  }
+
+  return res.status(204).end();
+})
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route

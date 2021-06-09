@@ -1,13 +1,14 @@
 // Get express
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
 // The database models
-const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable } = require("../database.models.js");
+const { User, Permission, PermissionLink, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, BarBooking, BarBookingGuest, BarCordial } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
-const upload = multer({ dest: "uploads/images/bar/" });
 const mailer = require("../utils/mailer");
+const dateFormat = require("dateformat");
+
+const maxTables = 20;
 
 router.get("/", async (req, res) => {
   // Don't need to be a JCR member for this
@@ -17,7 +18,7 @@ router.get("/", async (req, res) => {
 
   try {
     baseDrinks = await BarBaseDrink.findAll({
-      attributes: [ "id", "name", "image", "typeId", "available" ],
+      attributes: [ "id", "name", "typeId", "available" ],
       include: [ BarDrinkType ]
     });
   } catch (error) {
@@ -45,7 +46,7 @@ router.post("/admin/type", async (req, res) => {
   }
 
   // Basic validation
-  const { name, allowsMixer } = req.body;
+  const { name, allowsMixer, allowsCordial } = req.body;
 
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
@@ -55,11 +56,15 @@ router.post("/admin/type", async (req, res) => {
     return res.status(400).json({ error: "Missing allowsMixer" });
   }
 
+  if(allowsCordial === undefined || allowsCordial === null) {
+    return res.status(400).json({ error: "Missing allowsCordial" });
+  }
+
   // Make the new type and send it back
   let type;
 
   try {
-    type = await BarDrinkType.create({ name, allowsMixer });
+    type = await BarDrinkType.create({ name, allowsMixer, allowsCordial });
   } catch (error) {
     return res.status(500).json({ error: "Unable to create the type" });
   }
@@ -255,7 +260,7 @@ router.get("/admin/summary", async (req, res) => {
 
 });
 
-router.post("/admin/drink", upload.single("image"), async (req, res) => {
+router.post("/admin/drink", async (req, res) => {
   const { user } = req.session;
 
   // Must have permission
@@ -263,8 +268,7 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { name, description: descriptionUnchecked, sizeCheckboxes: sizeCheckboxesUnparsed, prices: pricesUnparsed, type, available } = req.body;
-  const image = req.file;
+  const { name, description: descriptionUnchecked, sizeCheckboxes, prices, type, available } = req.body;
 
   if(name === undefined || name === null || name.length === 0) {
     return res.status(400).json({ error: "Missing name" });
@@ -276,24 +280,16 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
     description = "";
   }
 
-  if(sizeCheckboxesUnparsed === undefined || sizeCheckboxesUnparsed === null) {
+  if(sizeCheckboxes === undefined || sizeCheckboxes === null) {
     return res.status(400).json({ error: "Missing sizeCheckboxes" });
   }
 
-  const sizeCheckboxes = JSON.parse(sizeCheckboxesUnparsed);
-
-  if(pricesUnparsed === undefined || pricesUnparsed === null) {
+  if(prices === undefined || prices === null) {
     return res.status(400).json({ error: "Missing prices" });
   }
 
-  const prices = JSON.parse(pricesUnparsed);
-
   if(type === undefined || type === null || type.length === 0) {
     return res.status(400).json({ error: "Missing type" });
-  }
-
-  if(image === undefined || image === null) {
-    return res.status(400).json({ error: "Missing image" });
   }
 
   if(available === undefined || available === null) {
@@ -315,7 +311,7 @@ router.post("/admin/drink", upload.single("image"), async (req, res) => {
   let baseDrink;
 
   try {
-    baseDrink = await BarBaseDrink.create({ name, description, image: image.filename, typeId: typeRecord.id, available });
+    baseDrink = await BarBaseDrink.create({ name, description, typeId: typeRecord.id, available });
   } catch (error) {
     console.log(error)
     return res.status(500).json({ error: "Unable to create the base drink" });
@@ -391,7 +387,7 @@ router.get("/drink/:id", async (req, res) => {
         },
         {
           model: BarDrinkType,
-          attributes: [ "name", "allowsMixer" ]
+          attributes: [ "name", "allowsMixer", "allowsCordial" ]
         }
       ]
     });
@@ -413,7 +409,17 @@ router.get("/drink/:id", async (req, res) => {
     }
   }
 
-  return res.status(200).json({ drink, mixers });
+  let cordials = [];
+
+  if(drink.BarDrinkType.allowsCordial) {
+    try {
+      cordials = await BarCordial.findAll();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to get the cordials" });
+    }
+  }
+
+  return res.status(200).json({ drink, mixers, cordials });
 })
 
 router.post("/order", async (req, res) => {
@@ -527,6 +533,28 @@ router.post("/order", async (req, res) => {
       }
     }
 
+    // Then verify the cordial
+
+    let cordial = null;
+
+    if(item.cordialId !== null && item.cordialId !== -1 && item.cordialId !== "-1") {
+      try {
+        cordial = await BarCordial.findOne({
+          where: { id: item.cordialId }
+        })
+      } catch (error) {
+        return res.status(500).json({ error: "Unable to get the cordial from the database" });
+      }
+
+      if(cordial === null) {
+        return res.status(400).json({ error: "Invalid cordialId" });
+      }
+
+      if(!cordial.available) {
+        return res.status(400).json({ error: `${cordial.name} is out of stock` });
+      }
+    }
+
     let realQuantity;
 
     try {
@@ -547,6 +575,10 @@ router.post("/order", async (req, res) => {
       perItemPrice += Number(mixer.price);
     }
 
+    if(cordial !== null) {
+      perItemPrice += Number(cordial.price);
+    }
+
     let orderPart;
 
     try {
@@ -554,6 +586,7 @@ router.post("/order", async (req, res) => {
         orderId: overallOrder.id,
         drinkId: drink.id,
         mixerId: mixer === null ? null : mixer.id,
+        cordialId: cordial === null ? null : cordial.id,
         quantity: realQuantity
       });
     } catch (error) {
@@ -561,7 +594,7 @@ router.post("/order", async (req, res) => {
     }
 
     totalPrice += perItemPrice * realQuantity;
-    orderContents.push({ id: orderPart.id, drink, mixer, perItemPrice, realQuantity });
+    orderContents.push({ id: orderPart.id, drink, mixer, cordial, perItemPrice, realQuantity });
   }
 
   overallOrder.totalPrice = totalPrice;
@@ -583,6 +616,7 @@ router.post("/order", async (req, res) => {
       name: item.drink.BarBaseDrink.name,
       size: item.drink.BarDrinkSize.name,
       mixer: item.mixer === null ? null : item.mixer.name,
+      cordial: item.cordial === null ? null : item.cordial.name,
       quantity: item.realQuantity,
       completed: false
     };
@@ -731,7 +765,7 @@ router.delete("/mixer/:id", async (req, res) => {
   return res.status(204).end();
 });
 
-router.post("/drink/update", upload.single("image"), async (req, res) => {
+router.post("/drink/update", async (req, res) => {
   const { user } = req.session;
 
   // Must have permission
@@ -870,7 +904,7 @@ router.post("/type/update/", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { id, name, allowsMixer } = req.body;
+  const { id, name, allowsMixer, allowsCordial } = req.body;
 
   if(id === undefined || id === null) {
     return res.status(400).json({ error: "Missing id" });
@@ -881,7 +915,11 @@ router.post("/type/update/", async (req, res) => {
   }
 
   if(allowsMixer === undefined || allowsMixer === null) {
-    return res.status(400).json({ error: "Missing available" });
+    return res.status(400).json({ error: "Missing allowsMixer" });
+  }
+
+  if(allowsCordial === undefined || allowsCordial === null) {
+    return res.status(400).json({ error: "Missing allowsCordial" });
   }
 
   let typeRecord;
@@ -900,11 +938,411 @@ router.post("/type/update/", async (req, res) => {
 
   typeRecord.name = name;
   typeRecord.allowsMixer = allowsMixer;
+  typeRecord.allowsCordial = allowsCordial;
 
   try {
     await typeRecord.save();
   } catch (error) {
     return res.status(500).json({ error: "Unable to update the type in the database" });
+  }
+
+  return res.status(204).end();
+});
+
+router.get("/book/available", async (req, res) => {
+  const { user } = req.session;
+  const daysInAdvance = 3;
+
+  let availableInfo = {};
+
+  // Collect information about available tables
+  for(let advDay = 0; advDay <= daysInAdvance; advDay++) {
+    // The date to check is advDays in the future
+    // We need it to be at 00:00:00 so use some formatting to get there
+    let dayDate = new Date();
+    dayDate.setDate(dayDate.getDate() + advDay);
+    dayDate = dateFormat(dayDate, "yyyy-mm-dd");
+    dayDate = Date.parse(dayDate);
+
+    const baseDate = new Date(dayDate);
+
+    const dayNumber = baseDate.getDay(); //dayDate.getDay();
+    // 0 = Sunday, 2 = Tuesday, 4 = Thursday
+
+    const blockedDays = [0, 2, 4];
+
+    // Reduced hours between 10th and 23rd May
+    if(baseDate >= new Date("2021-05-10") && baseDate <= new Date("2021-05-23")) {
+      if(blockedDays.includes(dayNumber)) {
+        availableInfo[dateFormat(dayDate, "yyyy-mm-dd")] = {
+          availableCount: 0,
+          bookingId: null,
+          open: false
+        };
+
+        continue;
+      }
+    }
+
+    // Get all the bookings for the day
+    let bookings;
+
+    try {
+      bookings = await BarBooking.findAll({ where: { date: dayDate } });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to check the existing bookings" });
+    }
+
+    // Larger groups use more than 1 table
+    const usedTables = bookings.map(booking => booking.requiredTables).reduce((a, b) => a + b, 0);
+
+    // Check if they have a booking already
+    let myBooking;
+
+    try {
+      myBooking = await BarBooking.findOne({ where: { userId: user.id, date: dayDate } });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to check your bookings" });
+    }
+
+    // maxTables tables in total
+    availableInfo[dateFormat(dayDate, "yyyy-mm-dd")] = {
+      availableCount: maxTables - usedTables,
+      bookingId: myBooking === null ? null : myBooking.id,
+      open: true
+    };
+  }
+
+  // Send the info back
+  return res.status(200).json({ availableInfo });
+});
+
+router.post("/book", async (req, res) => {
+  const { user } = req.session;
+  const { date: unparsedDate, guestNames: unparsedGuestNames } = req.body;
+
+  // Parse the date they want to book for
+  if(unparsedDate === undefined || unparsedDate === null) {
+    return res.status(400).json({ error: "Missing date" });
+  }
+
+  const date = Date.parse(unparsedDate);
+
+  // Handle the guest names
+  if(unparsedGuestNames === undefined || unparsedGuestNames === null || unparsedGuestNames.length === 0) {
+    return res.status(400).json({ error: "Missing guestNames" });
+  }
+
+  // Filter empty names and limit the size of each name
+  const guestNames = unparsedGuestNames.filter(name => name !== undefined && name !== null && name.length !== 0).map(name => name.substring(0, 255));
+
+  if(guestNames.length === 0) {
+    return res.status(400).json({ error: "Missing guestNames (post-filter)" });
+  }
+
+  // Check there is space available
+  let bookings;
+
+  try {
+    bookings = await BarBooking.findAll({ where: { date } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check bookings for the night" });
+  }
+
+  const usedTables = bookings.map(booking => booking.requiredTables).reduce((a, b) => a + b, 0);
+
+  // No space :(
+  if(usedTables >= maxTables) {
+    return res.status(400).json({ error: "There are no more tables available for this night" });
+  }
+
+  // If their guest list is of [1, 5] then use 1 table if it is [6, 11] then use 2 tables
+  if(usedTables >= maxTables - 1 && guestNames.length >= 6) {
+    return res.status(400).json({ error: "2 tables are required to book for a group of more than 6" });
+  }
+
+  // Check if they have a booking
+  let booking;
+
+  try {
+    booking = await BarBooking.findOne({ where: { userId: user.id, date }});
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check if user already has a booking for the night" });
+  }
+
+  // User already has a booking for this night
+  if(booking !== null) {
+    return res.status(400).json({ error: "You already have a table booked" });
+  }
+
+  let requiredTables = 1;
+  const totalPeople = guestNames.length + 1;
+
+  if(1 <= totalPeople && totalPeople <= 6) {
+    requiredTables = 1;
+  } else if (7 <= totalPeople && totalPeople <= 12) {
+    requiredTables = 2;
+  } else {
+    requiredTables = 2;
+  }
+
+  // Make the booking
+  let newBooking;
+
+  try {
+    newBooking = await BarBooking.create({ userId: user.id, date, requiredTables });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create booking" });
+  }
+
+  // Add the guests
+
+  for(const guestName of guestNames) {
+    try {
+      await BarBookingGuest.create({ bookingId: newBooking.id, name: guestName });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to add guest to booking" });
+    }
+  }
+
+  // Email confirmation
+  const customerEmail = createBarBookingEmail(user, dateFormat(date, "dd/mm/yyyy"), guestNames);
+  mailer.sendEmail(user.email, `Bar Table Booking`, customerEmail);
+
+  // Return the ID
+  return res.status(200).json({ bookingId: newBooking.id });
+});
+
+router.post("/book/cancel", async (req, res) => {
+  const { user } = req.session;
+  const { id } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing ID" });
+  }
+
+  let booking;
+
+  try {
+    booking = await BarBooking.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the booking" });
+  }
+
+  if(booking === null) {
+    return res.status(400).json({ error: "Invalid ID" });
+  }
+
+  if(booking.userId !== user.id) {
+    return res.status(403).json({ error: "You cannot delete another user's booking" });
+  }
+
+  // Remove the guests
+  try {
+    await BarBookingGuest.destroy({ where: { bookingId: booking.id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the booking guests" });
+  }
+
+  const date = booking.date;
+
+  try {
+    await BarBooking.destroy({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the booking" });
+  }
+
+  const cancelEmail = createBarCancelEmail(user, dateFormat(date, "dd/mm/yyyy"));
+  mailer.sendEmail(user.email, "Bar Booking Cancelled", cancelEmail);
+
+  return res.status(204).end();
+});
+
+router.post("/book/admin/view", async(req, res) => {
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { date: unparsedDate } = req.body;
+
+  if(unparsedDate === undefined || unparsedDate === null) {
+    return res.status(400).json({ error: "Missing date" });
+  }
+
+  const date = Date.parse(unparsedDate);
+
+  let bookings;
+
+  try {
+    bookings = await BarBooking.findAll({
+      where: { date },
+      include: [ User, BarBookingGuest ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to list the bookings" });
+  }
+
+  return res.status(200).json({ bookings });
+});
+
+router.post("/admin/cordial", async (req, res) => {
+  // Creates a new cordial
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Basic validation
+  const { name, available, price: priceUnchecked } = req.body;
+
+  if(name === undefined || name === null || name.length === 0) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(available === undefined || available === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
+  if(priceUnchecked === undefined || priceUnchecked === null) {
+    return res.status(400).json({ error: "Missing price" });
+  }
+
+  let price;
+
+  try {
+    price = parseFloat(priceUnchecked);
+  } catch (error) {
+    return res.status(400).json({ error: "Non-numeric price" });
+  }
+
+  if(isNaN(price)) {
+    return res.status(400).json({ error: "Non-numeric price - NaN" });
+  }
+
+  if(price <= 0) {
+    return res.status(400).json({ error: "Positive prices only" });
+  }
+
+  // Make the new type and send it back
+  let cordial;
+
+  try {
+    cordial = await BarCordial.create({ name, available, price });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the cordial" });
+  }
+
+  return res.status(200).json({ cordial });
+});
+
+router.get("/admin/cordials", async (req, res) => {
+  // Lists the sizes of drinks
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Just find them all and send it back
+  let cordials;
+
+  try {
+    cordials = await BarCordial.findAll();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to list the cordials" });
+  }
+
+  return res.status(200).json({ cordials });
+});
+
+router.post("/cordial/update/", async (req, res) => {
+  // Change details about a cordial
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, available, price } = req.body;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  if(name === undefined || name === null) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  if(available === undefined || available === null) {
+    return res.status(400).json({ error: "Missing available" });
+  }
+
+  if(price === undefined || price === null) {
+    return res.status(400).json({ error: "Missing price" });
+  }
+
+  let cordialRecord;
+
+  try {
+    cordialRecord = await BarCordial.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the cordial from the database" });
+  }
+
+  if(cordialRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  cordialRecord.name = name;
+  cordialRecord.price = price;
+  cordialRecord.available = available;
+
+  try {
+    await cordialRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the cordial in the database" });
+  }
+
+  return res.status(204).end();
+});
+
+router.delete("/cordial/:id", async (req, res) => {
+  // Must have permission
+  if(!hasPermission(req.session, "bar.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.params;
+
+  if(id === undefined || id === null) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let cordialRecord;
+
+  try {
+    cordialRecord = await BarCordial.findOne({
+      where: { id }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the cordial from the database" });
+  }
+
+  if(cordialRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  try {
+    await cordialRecord.destroy();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the cordial" });
   }
 
   return res.status(204).end();
@@ -922,12 +1360,53 @@ const createBarCustomerEmail = (user, orderContents, totalPrice, tableNumber) =>
   message.push(`<ul>`);
 
   orderContents.forEach(item => {
-    message.push(`<li>${item.realQuantity} x ${item.drink.BarBaseDrink.name} (${item.drink.BarDrinkSize.name}${item.mixer === null ? "" : ", Mixer: " + item.mixer.name})</li>`);
+    message.push(`<li>${item.realQuantity} x ${item.drink.BarBaseDrink.name} (${item.drink.BarDrinkSize.name}${item.mixer === null ? "" : ", Mixer: " + item.mixer.name}${item.cordial === null ? "" : ", Cordial: " + item.cordial.name})</li>`);
   });
 
   message.push(`</ul>`);
   message.push(`<p>Total: £${totalPrice.toFixed(2)}`);
   message.push(`<p>Thank you!</p>`);
+
+  return message.join("");
+}
+
+const createBarBookingEmail = (user, date, guestNames) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
+  message.push(`<p>Your bar table booking has been confirmed for ${date}.</p>`);
+
+  if(guestNames.length !== 0) {
+    message.push(`<p>Your confirmed guests are:</p>`);
+    message.push(`<ul>`);
+
+    guestNames.forEach(name => {
+      message.push(`<li>${name}</li>`)
+    });
+
+    message.push(`</ul>`);
+  }
+
+  message.push(`<p>When you are in the bar please use the drink order QR code on your table to take you to a website where you can order your drinks. Drinks will then be brought to your table by a member of our bar staff. Please note that last orders will be called earlier than usual to ensure you have time to drink up before closing.</p>`)
+  message.push(`<p>To ensure the best experience for all of us we ask you also to please respect the rules in place and stay at your tables instead of mingling between tables. Quite simply, if the bar is found to not be meeting COVID regulations then we will be forced to shut down which is not in any of our best interests.</p>`);
+  message.push(`<p>As per University Regulations we are required to carry out <span className="font-semibold">track and trace</span> and also ask for proof of a <span className="font-semibold">negative LFT test within the last 4 days.</span></p>`);
+
+  message.push(`<p>Thank you!</p>`);
+
+  return message.join("");
+}
+
+const createBarCancelEmail = (user, date) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
+  message.push(`<p>Your bar table booking for ${date} has been cancelled.</p>`);
 
   return message.join("");
 }

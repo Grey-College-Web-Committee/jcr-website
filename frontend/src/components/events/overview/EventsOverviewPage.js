@@ -100,7 +100,12 @@ class EventsOverviewPage extends React.Component {
               this.state.events.length === 0 ? (<p>There are no events yet! Check back soon!</p>) : null
             }
             {
-              this.state.events.map((record, i) => (
+              this.state.events.sort((a, b) => {
+                const aDate = new Date(a.date);
+                const bDate = new Date(b.date);
+
+                return aDate < bDate ? 1 : (aDate > bDate ? -1 : 0)
+              }).map((record, i) => (
                 <div key={i} className="border-2 border-grey-300 p-2 text-left mt-4">
                   <div className="flex flex-col md:flex-row">
                     {

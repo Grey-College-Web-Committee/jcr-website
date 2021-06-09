@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Redirect, Switch, Link } from 'react-router-dom';
 import authContext from './utils/authContext.js';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
@@ -42,6 +42,9 @@ import EventsGroupBookingPage from './components/events/book/EventsGroupBookingP
 import EventsPaymentPage from './components/events/payment/EventsPaymentPage';
 import EventsMyBookingsOverview from './components/events/my/EventsMyBookingsOverview';
 import EventsMyBookingPage from './components/events/my/EventsMyBookingPage';
+import EventsFreeReqPage from './components/events/free/EventsFreeReqPage';
+import DrinkPreOrderPage from './components/events/drinks/DrinkPreOrderPage';
+import AdminDrinkPreOrderPage from './components/events/drinks/AdminDrinkPreOrderPage';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
 
@@ -49,6 +52,7 @@ import SpinnerTestPage from './components/common/SpinnerTestPage';
 
 import BarOrderingPage from './components/bar/BarOrderingPage';
 import ViewBarItemPage from './components/bar/ViewBarItemPage';
+import BarBookingPage from './components/bar/book/BarBookingPage';
 
 // To add a new page import it like above
 
@@ -58,9 +62,13 @@ import BarAdminManageSizes from './components/bar/admin/BarAdminManageSizes';
 import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
 import BarAdminOverview from './components/bar/admin/BarAdminOverview';
 import BarAdminLive from './components/bar/admin/live/BarAdminLive';
+import BarAdminViewBookings from './components/bar/admin/BarAdminViewBookings';
+import BarAdminManageCordials from './components/bar/admin/BarAdminManageCordials';
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
+import ToastieAdminLive from './components/toastie_bar/admin/live/ToastieAdminLive';
+import ToastieBarOverview from './components/toastie_bar/admin/ToastieBarOverview';
 import StashStockPage from './components/stash/admin/StashStockPage';
 import StashImagesPage from './components/stash/admin/ImagesPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
@@ -131,7 +139,9 @@ class App extends React.Component {
       user,
       hideBody: false,
       ref: "/",
-      disableScrollBody: false
+      disableScrollBody: false,
+      debtPopupActive: false,
+      lastPage: null
     };
   }
 
@@ -238,8 +248,45 @@ class App extends React.Component {
     return this.state.user.permissions.includes(permission.toLowerCase());
   }
 
+  closeDebtPopup = () => {
+    if(!this.state.user.permissions.includes("debt.has")) {
+      return;
+    }
+
+    this.setState({ debtPopupActive: false });
+
+    setTimeout(() => {
+      if(this.state.user === undefined || this.state.user === null) {
+        return;
+      }
+
+      const location = window.location.pathname;
+      const ignoredLocs = ["/debt", "/checkout", "/elections", "/election", "/feedback", "/complaints"]
+      let dontBlock = false;
+
+      for(const loc of ignoredLocs) {
+        if(location.startsWith(loc)) {
+          dontBlock = true;
+          break;
+        }
+      }
+
+      if(dontBlock) {
+        this.setState({ debtPopupActive: false });
+
+        setTimeout(() => {
+          this.closeDebtPopup();
+        }, 10000);
+
+        return;
+      }
+
+      this.setState({ debtPopupActive: true });
+    }, 5000);
+  }
+
   loginUser = (user, ref) => {
-    this.setState({ user, ref });
+    this.setState({ user, ref, debtPopupActive: user.permissions.includes("debt.has") });
   }
 
   logoutUser = () => {
@@ -295,6 +342,33 @@ class App extends React.Component {
         <authContext.Provider value={this.state.user}>
           <Router>
             <div className="min-h-full h-full flex flex-col">
+              {
+                this.state.debtPopupActive ? (
+                  <div className={`w-screen p-4 h-screen top-0 left-0 fixed overflow-y-auto overflow-x-hidden bg-red-900 white block z-20 ${Math.random()}`}>
+                    <div className="mx-auto flex flex-column items-center justify-center">
+                      <div className="my-auto bg-white p-4">
+                        <h1 className="my-1 font-semibold text-2xl">Outstanding Debt</h1>
+                        <p className="my-1">You currently have an outstanding debt. Until this has been cleared your access to JCR services is limited.</p>
+                        <p className="my-1">The JCR has contacted you on multiple occasions. You must clear your debt as soon as possible.</p>
+                        <p className="my-1">(If you have just cleared your debt please logout and back in!)</p>
+                        <p className="my-1 font-semibold">Please clear your debt!</p>
+                        <Link to="/debt">
+                          <button
+                            className="my-1 px-4 py-1 rounded bg-grey-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                            onClick={this.closeDebtPopup}
+                          >Click here to clear your debt</button>
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="mx-auto w-auto">
+                      <button
+                        onClick={this.closeDebtPopup}
+                        className="text-xl text-red-500"
+                      >X</button>
+                    </div>
+                  </div>
+                ) : null
+              }
               <CookieAccept />
               <NavBar
                 hideBody={this.hideBody}
@@ -321,8 +395,14 @@ class App extends React.Component {
                     <Route exact path="/memberships/join" render={() => (
                       this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
                     )} />
+                    <Route exact path="/toasties/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin") )
+                    )} />
                     <Route exact path="/toasties/stock" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/stock") )
+                    )} />
+                    <Route exact path="/toasties/live" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/live") )
                     )} />
                     <Route exact path="/toasties/images" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/images") )
@@ -429,6 +509,12 @@ class App extends React.Component {
                     <Route exact path="/complaints/view/:id" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("complaints.manage") ? ( <ComplaintViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/complaints/admin") )
                     )} />
+                    <Route exact path="/events/drinks" render={() => (
+                      this.isLoggedIn() ? <DrinkPreOrderPage /> : this.loginRef("/events/drinks")
+                    )} />
+                    <Route exact path="/events/drinks/admin" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("events.manage") ? <AdminDrinkPreOrderPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/drinks/admin") )
+                    )} />
                     <Route exact path="/events/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsManagePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin") )
                     )} />
@@ -471,6 +557,9 @@ class App extends React.Component {
                     <Route exact path="/events/bookings/payment/:id" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsPaymentPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/bookings/payment/${props.match.params.id}`) )
                     )} />
+                    <Route exact path="/events/bookings/free/:id" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsFreeReqPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/bookings/free/${props.match.params.id}`) )
+                    )} />
                     <Route exact path="/checkout/" render={() => (
                       this.isLoggedIn() ? ( <CheckoutPage /> ) : ( this.loginRef("/checkout") )
                     )} />
@@ -489,6 +578,9 @@ class App extends React.Component {
                     <Route exact path="/bar/view/:id" render={(props) => (
                       this.isLoggedIn() ? ( <ViewBarItemPage {...props} /> ) : ( this.loginRef(`/bar/view/${props.id}`) )
                     )} />
+                    <Route exact path="/bar/book" render={() => (
+                      this.isLoggedIn() ? ( <BarBookingPage /> ) : ( this.loginRef("/bar/book") )
+                    )} />
                     <Route exact path="/bar/admin/overview" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/overview") )
                     )} />
@@ -504,8 +596,14 @@ class App extends React.Component {
                     <Route exact path="/bar/admin/drinks" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageDrinks /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/drinks") )
                     )} />
+                    <Route exact path="/bar/admin/cordials" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageCordials /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/cordials") )
+                    )} />
                     <Route exact path="/bar/admin/live" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/live") )
+                    )} />
+                    <Route exact path="/bar/admin/bookings" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminViewBookings /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/bookings") )
                     )} />
                     <Route exact path="/jcr/committees" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <ViewCommitteesPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees") )
@@ -525,6 +623,10 @@ class App extends React.Component {
                     <Route exact path="/my/profile" render={() => (
                       this.isLoggedIn() ? ( <MyProfile /> ) : ( this.loginRef("/my/profile") )
                     )} />
+                    <Route exact path="/bookings" component={() => {
+                      window.location.replace("https://outlook.office365.com/owa/calendar/GreyCollegeRoomBookings@durhamuniversity.onmicrosoft.com/bookings/");
+                      return null;
+                    }} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />
                     )} />
