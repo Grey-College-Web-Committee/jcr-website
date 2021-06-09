@@ -9,6 +9,8 @@ const { User, Permission, PermissionLink } = require("../database.models.js");
 const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/profile/" });
 
+const sharp = require("sharp");
+
 router.get("/", async (req, res) => {
   const { user } = req.session;
 
@@ -45,7 +47,7 @@ router.post("/picture", upload.single("image"), async (req, res) => {
     return res.status(400).json({ error: "Missing image" });
   }
 
-  if(!["image/jpeg", "image/gif", "image/png"].includes(image.mimetype)) {
+  if(!["image/jpeg", "image/png"].includes(image.mimetype)) {
     try {
       await fs.unlink(`uploads/images/profile/${image.filename}`, (err) => {});
     } catch (error) {
@@ -63,7 +65,26 @@ router.post("/picture", upload.single("image"), async (req, res) => {
       return res.status(500).json({ error: "Unable to delete an image from the file system" });
     }
 
-    return res.status(400).json({ error: "You can only upload images up to 2MB" });
+    return res.status(400).json({ error: "You can only upload images up to 4MB" });
+  }
+
+  // Convert to jpg and decrease file size
+  let buffer;
+
+  try {
+    buffer = await sharp(`uploads/images/profile/${image.filename}`)
+                  .withMetadata()
+                  .jpeg({ quality: 60 })
+                  .toBuffer();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to compress the image" });
+  }
+
+  try {
+    await fs.writeFile(`uploads/images/profile/${image.filename}`, buffer);
+  } catch (error) {
+    console.log({error})
+    return res.status(500).json({ error: "Unable to save the compressed image" });
   }
 
   let userRecord;

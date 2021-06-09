@@ -11,21 +11,24 @@ class RoleRow extends React.Component {
       deleted: false,
       edited: false,
       name: this.props.role.name,
+      description: this.props.role.description,
+      videoUrl: this.props.role.videoUrl,
       assignedUsers: this.props.role.JCRRoleUserLinks.map(entry => entry.User),
       assignedCommittees: this.props.role.JCRCommitteeRoleLinks,
       username: "",
       selectedCommittee: "",
-      committeePosition: 0
+      committeePosition: 0,
+      descriptionEnabled: this.props.role.descriptionEnabled
     }
   }
 
   saveRow = async () => {
     this.setState({ disabled: true });
 
-    const { name } = this.state;
+    const { name, description, videoUrl, descriptionEnabled } = this.state;
 
     try {
-      await api.post("/jcr/role/update", { id: this.props.role.id, name });
+      await api.post("/jcr/role/update", { id: this.props.role.id, name, description, videoUrl, descriptionEnabled });
     } catch (error) {
       alert(error.response.data.error);
       this.setState({ disabled: false });
@@ -156,15 +159,52 @@ class RoleRow extends React.Component {
     return (
       <tr className="text-center border-b border-gray-400">
         <td className="p-2 border-r border-gray-400">
-          <input
-            type="text"
-            name="name"
-            value={this.state.name}
-            className="w-full border border-grey-500 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-            onChange={this.onInputChange}
-            autoComplete=""
-            maxLength={255}
-          />
+          <div className="flex flex-col items-start">
+            <span className="text-left">Name:</span>
+            <input
+              type="text"
+              name="name"
+              value={this.state.name}
+              className="w-full border border-grey-500 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+              onChange={this.onInputChange}
+              autoComplete=""
+              maxLength={255}
+            />
+          </div>
+          <div className="flex flex-row items-start py-2 align-middle">
+            <span className="text-left">Description / Video Enabled:</span>
+            <input
+              type="checkbox"
+              name="descriptionEnabled"
+              checked={this.state.descriptionEnabled}
+              className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              onChange={this.onInputChange}
+            />
+          </div>
+          <div className="flex flex-col items-start w-full h-full">
+            <span className="text-left">Description:</span>
+            <textarea
+              name="description"
+              value={this.state.description}
+              onChange={this.onInputChange}
+              className="border w-full h-48 rounded my-2 py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+              disabled={this.state.disabled}
+              autoComplete=""
+              maxLength={5000}
+            />
+          </div>
+          <div className="flex flex-col items-start">
+            <span className="text-left">Video URL: <span className="font-semibold">(must start with https://)</span></span>
+            <input
+              type="text"
+              name="videoUrl"
+              value={this.state.videoUrl}
+              className="w-full border border-grey-500 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+              onChange={this.onInputChange}
+              autoComplete=""
+              maxLength={2000}
+            />
+          </div>
         </td>
         <td className="p-2 border-r border-gray-400">
           <ul className="text-left list-disc list-inside px-2">
