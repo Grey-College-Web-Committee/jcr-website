@@ -224,7 +224,7 @@ router.post("/role/update", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { id, name, description, videoUrl } = req.body;
+  const { id, name, description, videoUrl, descriptionEnabled } = req.body;
 
   if(id === undefined || id === null) {
     return res.status(400).json({ error: "Missing id" });
@@ -246,6 +246,10 @@ router.post("/role/update", async (req, res) => {
     return res.status(400).json({ error: "Video URL must start with https://" });
   }
 
+  if(descriptionEnabled === undefined) {
+    return res.status(400).json({ error: "Missing descriptionEnabled" });
+  }
+
   let role;
 
   try {
@@ -261,6 +265,7 @@ router.post("/role/update", async (req, res) => {
   role.name = name;
   role.description = description;
   role.videoUrl = videoUrl;
+  role.descriptionEnabled = descriptionEnabled;
 
   try {
     await role.save();

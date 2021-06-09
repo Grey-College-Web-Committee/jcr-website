@@ -17,17 +17,18 @@ class RoleRow extends React.Component {
       assignedCommittees: this.props.role.JCRCommitteeRoleLinks,
       username: "",
       selectedCommittee: "",
-      committeePosition: 0
+      committeePosition: 0,
+      descriptionEnabled: this.props.role.descriptionEnabled
     }
   }
 
   saveRow = async () => {
     this.setState({ disabled: true });
 
-    const { name, description, videoUrl } = this.state;
+    const { name, description, videoUrl, descriptionEnabled } = this.state;
 
     try {
-      await api.post("/jcr/role/update", { id: this.props.role.id, name, description, videoUrl });
+      await api.post("/jcr/role/update", { id: this.props.role.id, name, description, videoUrl, descriptionEnabled });
     } catch (error) {
       alert(error.response.data.error);
       this.setState({ disabled: false });
@@ -168,6 +169,16 @@ class RoleRow extends React.Component {
               onChange={this.onInputChange}
               autoComplete=""
               maxLength={255}
+            />
+          </div>
+          <div className="flex flex-row items-start py-2 align-middle">
+            <span className="text-left">Description / Video Enabled:</span>
+            <input
+              type="checkbox"
+              name="descriptionEnabled"
+              checked={this.state.descriptionEnabled}
+              className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              onChange={this.onInputChange}
             />
           </div>
           <div className="flex flex-col items-start w-full h-full">

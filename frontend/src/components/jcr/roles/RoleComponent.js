@@ -160,7 +160,10 @@ class RoleComponent extends React.Component {
       return (
         <React.Fragment>
           { this.renderDescription() }
-          <div className="border-2 border-red-900" onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible })}}>
+          <div
+            className={`border-2 border-red-900 ${this.props.role.descriptionEnabled ? "cursor-pointer" : "cursor-auto"}`}
+            onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible && this.props.role.descriptionEnabled })}}
+          >
             <img
               src="/images/default_avatar.png"
               alt="Vacant Picture"
@@ -178,7 +181,10 @@ class RoleComponent extends React.Component {
     return (
       <React.Fragment>
         { this.renderDescription() }
-        <div className="border-2 border-red-900" onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible })}}>
+        <div
+          className={`border-2 border-red-900 ${this.props.role.descriptionEnabled ? "cursor-pointer" : "cursor-auto"}`}
+          onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible && this.props.role.descriptionEnabled })}}
+        >
           <img
             src={user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
             alt="User Profile Picture"
