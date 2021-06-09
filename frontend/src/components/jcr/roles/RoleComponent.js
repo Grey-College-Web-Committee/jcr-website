@@ -172,6 +172,11 @@ class RoleComponent extends React.Component {
             <div className="p-1">
               <p className="font-semibold">{role.name}</p>
               <p>Vacant</p>
+              {
+                this.props.role.descriptionEnabled ? (
+                  <p className="italic text-sm">Click for more info!</p>
+                ) : null
+              }
             </div>
           </div>
         </React.Fragment>
@@ -193,6 +198,11 @@ class RoleComponent extends React.Component {
           <div className="p-1">
             <p className="font-semibold">{role.name}</p>
             <p>{this.makeDisplayName(user)}</p>
+            {
+              this.props.role.descriptionEnabled ? (
+                <p className="italic text-sm">Click for more info!</p>
+              ) : null
+            }
           </div>
         </div>
       </React.Fragment>
