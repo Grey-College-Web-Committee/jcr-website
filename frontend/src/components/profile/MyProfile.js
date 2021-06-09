@@ -168,7 +168,7 @@ class MyProfile extends React.Component {
           </div>
           <div className="text-left">
             <h2 className="font-semibold text-2xl">Profile Picture</h2>
-            <p className="py-1">You can change your profile picture on the website. This will appear on the committees and roles page if you have a role within the JCR. It is limited to a 2MB file and it is advised to upload an image with near equal height and width to prevent it being squashed!</p>
+            <p className="py-1">You can change your profile picture on the website. This will appear on the committees and roles page if you have a role within the JCR. It is limited to a 4MB file (which will be compressed on upload). You should upload an image with near equal height and width to prevent it being squashed!</p>
             <div className="w-48">
               <h3 className="py-1 text-xl">Current Picture:</h3>
               <img
