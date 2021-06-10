@@ -5,6 +5,7 @@ const router = express.Router();
 const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address, Debt, PersistentVariable, GreyDayGuest } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { Op } = require("sequelize");
 
 const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
   // A toastie will have the table number
@@ -925,6 +926,49 @@ const greyDayProcessor = async (globalOrderParameters, orderId, quantity, global
       errorOccurred: true,
       status: 400,
       error: "There are no more guest tickets available for Grey Day"
+    };
+  }
+
+  // It is possible that if two people are in the process of completing the checkout then
+  // we could end up with the number of tickets exceeding the maximum
+  // So I check for ShopOrderContent with shop = "gd2021" within the past 5 minutes and use that with the count too
+
+  let inProgressCheckouts;
+  let lastFiveMins = new Date();
+  lastFiveMins.setMinutes(lastFiveMins.getMinutes() - 5);
+
+  try {
+    inProgressCheckouts = await ShopOrderContent.findAll({
+      where: {
+        shop: "gd2021",
+        createdAt: {
+          [Op.gt]: lastFiveMins
+        }
+      },
+      include: [
+        {
+          model: ShopOrder,
+          required: true,
+          where: {
+            paid: false
+          }
+        }
+      ]
+    });
+  } catch (error) {
+    console.log({error})
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "There are no more guest tickets available for Grey Day"
+    };
+  }
+
+  if(availableTickets - inProgressCheckouts.length <= 0) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "Ticket supply is running low and somebody else has the final ticket in checkout. Please try again in 5 minutes."
     };
   }
 
