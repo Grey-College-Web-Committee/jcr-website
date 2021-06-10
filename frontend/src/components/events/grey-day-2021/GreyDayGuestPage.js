@@ -111,7 +111,7 @@ class GreyDayGuestPage extends React.Component {
                 image="/images/grey_crest.svg"
                 cartData={{
                   shop: "gd2021",
-                  name: "Grey Day Non-Member Ticket",
+                  name: "Grey Day Guest Ticket",
                   basePrice: 10,
                   quantity: 1,
                   submissionInformation: {
@@ -202,7 +202,7 @@ class GreyDayGuestPage extends React.Component {
         <div className="flex flex-col justify-start">
           <div className="container mx-auto text-center p-4 md:w-3/5">
             <h1 className="font-semibold text-5xl pb-4">Grey Day Guest Tickets</h1>
-            <p className="text-left">Grey Day is fully sold out! There are no more tickets available.</p>
+            <p>Grey Day is fully sold out! There are no more tickets available.</p>
           </div>
         </div>
       )
@@ -226,7 +226,7 @@ class GreyDayGuestPage extends React.Component {
             <h1 className="font-semibold text-5xl pb-4">Grey Day Guest Tickets</h1>
             <div className="text-left">
               <p className="pb-1">Grey Day is an annual event hosted on Grey Lawn celebrating all things Grey. There will be great entertainment, performances, food, and hopefully good weather! Tickets for JCR members have already been released and we are now accepting guest bookings.</p>
-              <p className="pb-1">If you are a current of member of Grey College (regardless of JCR membership) <a href="/accounts/login?ref=/events/grey-day-2021-guests" className="font-semibold underline">please login here</a> to purchase a ticket.</p>
+              <p className="pb-1">If you are a current of member of Grey College (regardless of JCR membership) <a href="/accounts/login?ref=/events/grey-day-2021-guests" className="font-semibold underline">please login</a> to purchase a ticket.</p>
               <p className="pb-1">For recent graduates, please either ask a current JCR member to book you on as a guest or contact the current FACSO, Will Morrice (grey.treasurer@durham.ac.uk), or the Events Manager Ellie Reid (grey.events@durham.ac.uk)</p>
             </div>
           </div>

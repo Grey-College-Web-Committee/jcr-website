@@ -320,12 +320,17 @@ router.post("/export", async(req, res) => {
   }).forEach(ticket => {
     let record = {};
 
+
+    let firstName = ticket.User.firstNames.split(",")[0];
+    firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+    const lastName = ticket.User.surname.charAt(0).toUpperCase() + ticket.User.surname.substr(1).toLowerCase();
+
     record.username = ticket.User.username;
     record.self = ticket.selfBooking;
     record.bookerFirstNames = ticket.User.firstNames;
     record.bookerSurname = ticket.User.surname;
     record.createdAt = dateFormat(ticket.createdAt, "dd/mm/yyyy");
-    record.guestName = ticket.guestName;
+    record.guestName = ticket.selfBooking ? `${firstName} ${lastName}`: ticket.guestName;
 
     csvRecords.push(record);
   });
