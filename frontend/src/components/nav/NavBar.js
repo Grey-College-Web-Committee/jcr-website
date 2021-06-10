@@ -51,7 +51,15 @@ class NavBar extends React.Component {
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: false
-        }
+        },
+        {
+          displayName: "Grey Day Guests",
+          url: "/events/grey-day-2021-guests",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
       ];
 
       baseOptions = baseOptions.concat(loggedOutOptions);

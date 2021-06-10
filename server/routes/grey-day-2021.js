@@ -40,10 +40,28 @@ router.get("/", async (req, res) => {
 
   const availableTickets = maxTickets - purchasedTicketRecords.length;
 
+  let openRecord;
+
+  try {
+    openRecord = await PersistentVariable.findOne({
+      where: {
+        key: "GREY_DAY_GUEST_OPEN"
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the guest ticket" });
+  }
+
+  if(openRecord === null) {
+    return res.status(500).json({ error: "Null PV record for GREY_DAY_GUEST_OPEN" });
+  }
+
+  const greyDayBookingOpen = openRecord.booleanStorage
+
   // Here we need to check if they are a logged in user or not
 
   if(!(req.session && req.session.user && req.cookies.user_sid)) {
-    return res.status(200).json({ loggedIn: false, availableTickets, hasGreyDayBooking: false, hasGuestTicket: false });
+    return res.status(200).json({ loggedIn: false, availableTickets, hasGreyDayBooking: false, hasGuestTicket: false, greyDayBookingOpen });
   }
 
   const { user } = req.session;
@@ -98,13 +116,9 @@ router.get("/", async (req, res) => {
     return res.status(500).json({ error: "Unable to check the ticket purchase status for guests of the user" });
   }
 
-  console.log({myGuestTicket})
-
   const hasGuestTicket = myGuestTicket !== null
 
-  // TODO
-
-  return res.status(200).json({ loggedIn: true, availableTickets, hasGreyDayBooking, hasGuestTicket });
+  return res.status(200).json({ loggedIn: true, availableTickets, hasGreyDayBooking, hasGuestTicket, greyDayBookingOpen });
 });
 
 router.get("/admin", async (req, res) => {
