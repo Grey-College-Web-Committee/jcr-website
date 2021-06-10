@@ -16,7 +16,9 @@ class GreyDayGuestAdminPagePage extends React.Component {
       greyDayEventId: 0,
       maxTickets: 0,
       maxTicketsTemp: 0,
-      disabled: false
+      disabled: false,
+      downloadPrepared: false,
+      downloadLoc: null
     };
 
     // Change this to your permission
@@ -111,6 +113,24 @@ class GreyDayGuestAdminPagePage extends React.Component {
     window.location.reload();
   }
 
+  prepareDownload = async () => {
+    this.setState({ disabled: true });
+
+    let result;
+
+    try {
+      result = await api.post("/gd2021/export");
+    } catch (error) {
+      alert("Unable to prepare the exported details for download");
+      this.setState({ disabled: false });
+      return;
+    }
+
+    const { fileLocation } = result.data;
+
+    this.setState({ disabled: false, downloadLoc: fileLocation, downloadPrepared: true });
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -124,13 +144,13 @@ class GreyDayGuestAdminPagePage extends React.Component {
       );
     }
 
-    const { availableTickets, greyDayBookingOpen, greyDayEventId, maxTickets } = this.state;
+    const { availableTickets, greyDayBookingOpen, greyDayEventId, maxTickets, downloadPrepared } = this.state;
 
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Manage Grey Day Guest Tickets</h1>
-          <div className="flex flex-col items-start mb-2">
+          <div className="flex flex-col items-start mb-2 border-gray-400 border-2 my-2 p-1">
             <h2 className="text-2xl font-semibold">Booking Open Status</h2>
             <p className="text-left font-semibold text-lg py-1 mr-2">Open Status: { greyDayBookingOpen ? "Open" : "Closed" }</p>
             <button
@@ -139,7 +159,7 @@ class GreyDayGuestAdminPagePage extends React.Component {
               disabled={this.state.disabled}
             >{ greyDayBookingOpen ? "Set Closed" : "Set Open" }</button>
           </div>
-          <div className="flex flex-col items-start mb-2">
+          <div className="flex flex-col items-start mb-2 border-gray-400 border-2 my-2 p-1">
             <h2 className="text-2xl font-semibold">Ticket Availability</h2>
             <p className="text-left font-semibold text-lg py-1 mr-2">Tickets Available: {availableTickets} / {maxTickets}</p>
             <div className="pt-2 pb-2">
@@ -162,6 +182,25 @@ class GreyDayGuestAdminPagePage extends React.Component {
               className={`px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
               disabled={this.state.disabled}
             >Save Max Tickets</button>
+          </div>
+          <div className="flex flex-col items-start mb-2 border-gray-400 border-2 my-2 p-1">
+            <h2 className="text-2xl font-semibold">Export Guests</h2>
+            <p className="mb-1">Click the button below once to prepare the download, once it is ready the button will turn green. Click it again to download the file.</p>
+            {
+              downloadPrepared ? (
+                <a href={`/api/gd2021/download/${this.state.downloadLoc}`} download target="_self">
+                  <button
+                    className={`px-4 py-1 rounded bg-green-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                  >Download Guests</button>
+                </a>
+              ) : (
+                <button
+                  onClick={this.prepareDownload}
+                  className={`px-4 py-1 rounded bg-gray-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                  disabled={this.state.disabled}
+                >Prepare Download</button>
+              )
+            }
           </div>
         </div>
       </div>
