@@ -66,12 +66,12 @@ class GreyDayGuestPage extends React.Component {
   renderSelfGuest = () => {
     return (
       <div>
-        <p className="font-semibold">You do not have a Grey Day ticket. You can book a ticket for yourself for £10. To do so, add the item below to your bag.</p>
+        <p className="font-semibold">You do not have a Grey Day ticket. You can book a ticket for yourself for £10. To do so, add the item below to your bag and checkout.</p>
         <div className="flex flex-col items-center">
           <GenericCartableItem
             name="Grey Day Non-Member Ticket"
             price={10}
-            image="/images/grey_crest.svg"
+            image="/images/grey_day_21.png"
             cartData={{
               shop: "gd2021",
               name: "Grey Day Non-Member Ticket",
@@ -108,7 +108,7 @@ class GreyDayGuestPage extends React.Component {
                 name="Grey Day Guest Ticket"
                 description={`Guest Name: ${this.state.guestName}`}
                 price={10}
-                image="/images/grey_crest.svg"
+                image="/images/grey_day_21.png"
                 cartData={{
                   shop: "gd2021",
                   name: "Grey Day Guest Ticket",
@@ -225,7 +225,7 @@ class GreyDayGuestPage extends React.Component {
           <div className="container mx-auto text-center p-4 md:w-3/5">
             <h1 className="font-semibold text-5xl pb-4">Grey Day Guest Tickets</h1>
             <div className="text-left">
-              <p className="pb-1">Grey Day is an annual event hosted on Grey Lawn celebrating all things Grey. There will be great entertainment, performances, food, and hopefully good weather! Tickets for JCR members have already been released and we are now accepting guest bookings.</p>
+              <p className="pb-1">Grey Day is an annual event hosted on Grey Lawn celebrating all things Grey. The events starts at 2pm on 27th June 2021. There will be great entertainment, performances, food, and hopefully good weather! Tickets for JCR members have already been released and we are now accepting guest bookings.</p>
               <p className="pb-1">If you are a current of member of Grey College (regardless of JCR membership) <a href="/accounts/login?ref=/events/grey-day-2021-guests" className="font-semibold underline">please login</a> to purchase a ticket.</p>
               <p className="pb-1">For recent graduates, please either ask a current JCR member to book you on as a guest or contact the current FACSO, Will Morrice (grey.treasurer@durham.ac.uk), or the Events Manager Ellie Reid (grey.events@durham.ac.uk)</p>
             </div>
@@ -240,7 +240,7 @@ class GreyDayGuestPage extends React.Component {
           <div className="container mx-auto text-center p-4 md:w-3/5">
             <h1 className="font-semibold text-5xl pb-4">Grey Day Guest Tickets</h1>
             <div className="text-left">
-              <p className="pb-1">Grey Day is an annual event hosted on Grey Lawn celebrating all things Grey. There will be great entertainment, performances, food, and hopefully good weather! Tickets for JCR members have already been released and we are now accepting guest bookings.</p>
+              <p className="pb-1">Grey Day is an annual event hosted on Grey Lawn celebrating all things Grey. The events starts at 2pm on 27th June 2021. There will be great entertainment, performances, food, and hopefully good weather! Tickets for JCR members have already been released and we are now accepting guest bookings.</p>
               <p className="pb-1">You can book yourself on as you are not a JCR member. Tickets cost £10.</p>
               <p className="pb-1">Tickets Remaining: { this.state.availableTickets }</p>
               { this.renderSelfGuest() }
@@ -254,8 +254,13 @@ class GreyDayGuestPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4 md:w-3/5">
           <h1 className="font-semibold text-5xl pb-4">Grey Day Guest Tickets</h1>
+          <img
+            src="/images/grey_day_banner.jpg"
+            alt="Grey Day Banner"
+            className="md:block hidden md:mb-2"
+          />
           <div className="text-left">
-            <p className="pb-1">Grey Day is an annual event hosted on Grey Lawn celebrating all things Grey. There will be great entertainment, performances, food, and hopefully good weather! Tickets for JCR members have already been released and we are now accepting guest bookings.</p>
+            <p className="pb-1">Grey Day is an annual event hosted on Grey Lawn celebrating all things Grey. The events starts at 2pm on 27th June 2021. There will be great entertainment, performances, food, and hopefully good weather! Tickets for JCR members have already been released and we are now accepting guest bookings.</p>
             <p className="pb-1">You can either book yourself on if you are not a JCR member or you can book a single guest onto the event with you. Guest tickets are £10.</p>
             <p className="pb-1">Tickets Remaining: { this.state.availableTickets }</p>
             {
