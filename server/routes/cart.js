@@ -2,9 +2,10 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address, Debt, PersistentVariable } = require("../database.models.js");
+const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address, Debt, PersistentVariable, GreyDayGuest } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { Op } = require("sequelize");
 
 const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
   // A toastie will have the table number
@@ -824,13 +825,213 @@ const debtProcessor = async (globalOrderParameters, orderId, quantity, globalSub
   };
 }
 
+const greyDayProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
+  // selfTicket
+  if(!globalSubmissionInfo.hasOwnProperty("selfTicket")) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No selfTicket"
+    };
+  }
+
+  if(globalSubmissionInfo.selfTicket === undefined) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No selfTicket"
+    };
+  }
+
+  if(globalSubmissionInfo.selfTicket === null) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No selfTicket"
+    };
+  }
+
+  // guestName
+  if(!globalSubmissionInfo.hasOwnProperty("guestName")) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No guestName"
+    };
+  }
+
+  if(globalSubmissionInfo.guestName === undefined) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No guestName"
+    };
+  }
+
+  if(globalSubmissionInfo.guestName === null) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "No guestName"
+    };
+  }
+
+  // Check there are tickets available
+  // Max guest tickets
+  let maxTicketRecord;
+
+  try {
+    maxTicketRecord = await PersistentVariable.findOne({
+      where: {
+        key: "GREY_DAY_TICKETS"
+      }
+    });
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to fetch the max number of tickets"
+    };
+  }
+
+  if(maxTicketRecord === null) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Null PV record for GREY_DAY_TICKETS"
+    };
+  }
+
+  const maxTickets = Number(maxTicketRecord.intStorage);
+
+  // Count of purchased tickets
+
+  let purchasedTicketRecords;
+
+  try {
+    purchasedTicketRecords = await GreyDayGuest.findAll();
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to fetch the purchased guest tickets"
+    };
+  }
+
+  const availableTickets = maxTickets - purchasedTicketRecords.length;
+
+  // No more tickets
+  if(availableTickets <= 0) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "There are no more guest tickets available for Grey Day"
+    };
+  }
+
+  // It is possible that if two people are in the process of completing the checkout then
+  // we could end up with the number of tickets exceeding the maximum
+  // So I check for ShopOrderContent with shop = "gd2021" within the past 5 minutes and use that with the count too
+
+  let inProgressCheckouts;
+  let lastFiveMins = new Date();
+  lastFiveMins.setMinutes(lastFiveMins.getMinutes() - 5);
+
+  try {
+    inProgressCheckouts = await ShopOrderContent.findAll({
+      where: {
+        shop: "gd2021",
+        createdAt: {
+          [Op.gt]: lastFiveMins
+        }
+      },
+      include: [
+        {
+          model: ShopOrder,
+          required: true,
+          where: {
+            paid: false
+          }
+        }
+      ]
+    });
+  } catch (error) {
+    console.log({error})
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "There are no more guest tickets available for Grey Day"
+    };
+  }
+
+  if(availableTickets - inProgressCheckouts.length <= 0) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "Ticket supply is running low and somebody else has the final ticket in checkout. Please try again in 5 minutes."
+    };
+  }
+
+  // Check they don't already have a guest ticket
+
+  let existingGuestTicket;
+
+  try {
+    existingGuestTicket = await GreyDayGuest.findOne({
+      where: {
+        userId: user.id
+      }
+    });
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to check for existing guest tickets"
+    };
+  }
+
+  if(existingGuestTicket !== null) {
+    return {
+      errorOccurred: true,
+      status: 400,
+      error: "You have already booked a guest ticket"
+    };
+  }
+
+  const ticketDetails = {
+    selfTicket: globalSubmissionInfo.selfTicket,
+    guestName: globalSubmissionInfo.guestName
+  };
+
+  try {
+    await ShopOrderContent.create({
+      orderId,
+      shop: "gd2021",
+      additional: JSON.stringify(ticketDetails)
+    });
+  } catch (error) {
+    return {
+      errorOccurred: true,
+      status: 500,
+      error: "Unable to create new sub order for ticket"
+    };
+  }
+
+  return {
+    price: 10,
+    globalSubmissionInfo: globalSubmissionInfo,
+    globalOrderParameters: globalOrderParameters
+  };
+}
+
 // Required
 const shopProcessors = {
   "toastie": toastieProcessor,
   "stash": stashProcessor,
   "gym": gymProcessor,
   "jcr_membership": jcrMembershipProcessor,
-  "debt": debtProcessor
+  "debt": debtProcessor,
+  "gd2021": greyDayProcessor
 };
 
 // Optional

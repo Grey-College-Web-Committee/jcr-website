@@ -51,7 +51,15 @@ class NavBar extends React.Component {
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: false
-        }
+        },
+        {
+          displayName: "Grey Day Guests",
+          url: "/events/grey-day-2021-guests",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
       ];
 
       baseOptions = baseOptions.concat(loggedOutOptions);
@@ -100,16 +108,21 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
+              displayName: "Media",
+              url: "/media",
+              requiredPermission: "jcr.member"
+            },
+            {
               displayName: "Career Angels",
               url: "/careers",
-              requiredPermission: "jcr.member",
+              requiredPermission: "jcr.member"
             }
           ],
         },
         {
-          displayName: "Shop",
+          displayName: "Services",
           url: null,
-          requiredPermission: "jcr.member",
+          requiredPermission: null,
           staticImage: null,
           dropdown: [
             {
@@ -121,16 +134,18 @@ class NavBar extends React.Component {
               displayName: "Stash",
               url: "/stash",
               requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "Gym",
+              url: "/gym",
+              requiredPermission: null
+            },
+            {
+              displayName: "Room Bookings",
+              url: "/bookings",
+              requiredPermission: null
             }
           ],
-        },
-        {
-          displayName: "Gym",
-          url: "/gym",
-          requiredPermission: null,
-          staticImage: null,
-          dropdown: null,
-          alwaysDisplayed: false
         },
         {
           displayName: "Elections",
@@ -139,14 +154,6 @@ class NavBar extends React.Component {
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: false
-        },
-        {
-          displayName: "Media",
-          url: "/media",
-          requiredPermission: "jcr.member",
-          staticImage: null,
-          dropdown: null,
-          alwaysDisplayed: null
         },
         {
           displayName: "Welfare",
@@ -170,6 +177,14 @@ class NavBar extends React.Component {
         {
           displayName: "Events",
           url: "/events",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
+          displayName: "Grey Day Guests",
+          url: "/events/grey-day-2021-guests",
           requiredPermission: null,
           staticImage: null,
           dropdown: null,
@@ -200,14 +215,6 @@ class NavBar extends React.Component {
               requiredPermission: null
             }
           ],
-          alwaysDisplayed: null
-        },
-        {
-          displayName: "Room Bookings",
-          url: "/bookings",
-          requiredPermission: null,
-          staticImage: null,
-          dropdown: null,
           alwaysDisplayed: null
         },
         {

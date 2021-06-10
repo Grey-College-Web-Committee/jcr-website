@@ -38,6 +38,7 @@ GenericCartableItem.propTypes = {
   name: PropTypes.string.isRequired,
   price: PropTypes.number.isRequired,
   image: PropTypes.string.isRequired,
+  cartData: PropTypes.object.isRequired,
   description: PropTypes.string,
   disabled: PropTypes.bool,
   buttonText: PropTypes.string,

@@ -133,6 +133,13 @@ class EventsManagePage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Manage Events</h1>
           <div className="flex flex-col items-start mb-2">
+            <h2 className="text-left text-3xl font-semibold">Grey Day Guest Tickets</h2>
+            <Link to="/events/grey-day-2021-guests/admin">
+              <button
+                className="px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 my-2"
+              >Manage Grey Day Guests</button>
+            </Link>
+
             <h2 className="text-left text-3xl font-semibold">Create Event</h2>
             <Link to="/events/admin/create">
               <button
