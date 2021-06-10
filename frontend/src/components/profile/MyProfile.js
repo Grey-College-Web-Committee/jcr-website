@@ -181,12 +181,12 @@ class MyProfile extends React.Component {
                 <ImageUploader
                   withIcon={false}
                   buttonText={"Choose Image"}
-                  imgExtension={['.jpg', '.png']}
+                  imgExtension={['.jpg', '.png', '.jpeg']}
                   singleImage={true}
                   onChange={this.onImageDrop}
                   disabled={this.state.disabled}
                   maxFileSize={4194304}
-                  label="Max file size: 4mb, accepts jpg or png"
+                  label="Max file size: 4mb, accepts jpg, jpeg or png"
                 />
               </div>
               {
