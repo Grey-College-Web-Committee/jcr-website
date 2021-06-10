@@ -379,6 +379,16 @@ const requiredPermissions = [
       intStorage: 0
     }
   });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "GREY_DAY_GUEST_OPEN"
+    },
+    defaults: {
+      key: "GREY_DAY_GUEST_OPEN",
+      booleanStorage: false
+    }
+  });
 })();
 
 console.log("NODE_APP_INSTANCE:", process.env.NODE_APP_INSTANCE);

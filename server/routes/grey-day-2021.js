@@ -68,10 +68,6 @@ router.get("/", async (req, res) => {
 
   const greyDayEventId = Number(eventIdRecord.intStorage);
 
-  if(maxTicketRecord === null) {
-    return res.status(500).json({ error: "Null PV record for GREY_DAY_TICKETS" });
-  }
-
   // Check if they have a Grey Day ticket themselves
   let myGreyDayRecord;
 
@@ -109,6 +105,90 @@ router.get("/", async (req, res) => {
   // TODO
 
   return res.status(200).json({ loggedIn: true, availableTickets, hasGreyDayBooking, hasGuestTicket });
+});
+
+router.get("/admin", async (req, res) => {
+  // Here we need to check if they are a logged in user or not
+
+  if(!(req.session && req.session.user && req.cookies.user_sid)) {
+    return res.status(200).json({ loggedIn: false, availableTickets, hasGreyDayBooking: false, hasGuestTicket: false });
+  }
+
+  // Must have permission
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Max guest tickets
+  let maxTicketRecord;
+
+  try {
+    maxTicketRecord = await PersistentVariable.findOne({
+      where: {
+        key: "GREY_DAY_TICKETS"
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the max number of tickets" });
+  }
+
+  if(maxTicketRecord === null) {
+    return res.status(500).json({ error: "Null PV record for GREY_DAY_TICKETS" });
+  }
+
+  const maxTickets = Number(maxTicketRecord.intStorage);
+
+  // Count of purchased tickets
+
+  let purchasedTicketRecords;
+
+  try {
+    purchasedTicketRecords = await GreyDayGuest.findAll();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the purchased guest tickets" });
+  }
+
+  const availableTickets = maxTickets - purchasedTicketRecords.length;
+
+  // First get the event ID
+  let eventIdRecord;
+
+  try {
+    eventIdRecord = await PersistentVariable.findOne({
+      where: {
+        key: "GREY_DAY_EVENT_ID"
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the event ID" });
+  }
+
+  if(eventIdRecord === null) {
+    return res.status(500).json({ error: "Null PV record for GREY_DAY_EVENT_ID" });
+  }
+
+  const greyDayEventId = Number(eventIdRecord.intStorage);
+
+  // Get the open status
+  let openRecord;
+
+  try {
+    openRecord = await PersistentVariable.findOne({
+      where: {
+        key: "GREY_DAY_GUEST_OPEN"
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the open status" });
+  }
+
+  if(openRecord === null) {
+    return res.status(500).json({ error: "Null PV record for GREY_DAY_GUEST_OPEN" });
+  }
+
+  const greyDayBookingOpen = openRecord.booleanStorage;
+
+  return res.status(200).json({ greyDayEventId, maxTickets, availableTickets, greyDayBookingOpen })
 });
 
 // Set the module export to router so it can be used in server.js

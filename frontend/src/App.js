@@ -46,6 +46,7 @@ import EventsFreeReqPage from './components/events/free/EventsFreeReqPage';
 import DrinkPreOrderPage from './components/events/drinks/DrinkPreOrderPage';
 import AdminDrinkPreOrderPage from './components/events/drinks/AdminDrinkPreOrderPage';
 import GreyDayGuestPage from './components/events/grey-day-2021/GreyDayGuestPage';
+import GreyDayGuestAdminPage from './components/events/grey-day-2021/GreyDayGuestAdminPage';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
 
@@ -551,6 +552,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/events/grey-day-2021-guests" render={() => (
                       <GreyDayGuestPage />
+                    )} />
+                    <Route exact path="/events/grey-day-2021-guests/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <GreyDayGuestAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/grey-day-2021-guests/admin") )
                     )} />
                     <Route exact path="/events/event/:id/book/:type" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsGroupBookingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/event/${props.match.params.id}`) )
