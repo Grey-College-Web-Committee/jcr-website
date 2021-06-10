@@ -191,6 +191,11 @@ class GreyDayGuestPage extends React.Component {
         <div className="flex flex-col justify-start">
           <div className="container mx-auto text-center p-4 md:w-3/5">
             <h1 className="font-semibold text-5xl pb-4">Grey Day Guest Tickets</h1>
+            <img
+              src="/images/grey_day_banner.jpg"
+              alt="Grey Day Banner"
+              className="md:block hidden md:mb-2"
+            />
             <p className="text-left">Grey Day guest ticket booking is not currently open. Please check for emails from the Events Manager to find out when they will be available!</p>
           </div>
         </div>
@@ -202,6 +207,11 @@ class GreyDayGuestPage extends React.Component {
         <div className="flex flex-col justify-start">
           <div className="container mx-auto text-center p-4 md:w-3/5">
             <h1 className="font-semibold text-5xl pb-4">Grey Day Guest Tickets</h1>
+            <img
+              src="/images/grey_day_banner.jpg"
+              alt="Grey Day Banner"
+              className="md:block hidden md:mb-2"
+            />
             <p>Grey Day is fully sold out! There are no more tickets available.</p>
           </div>
         </div>
@@ -213,6 +223,11 @@ class GreyDayGuestPage extends React.Component {
         <div className="flex flex-col justify-start">
           <div className="container mx-auto text-center p-4 md:w-3/5">
             <h1 className="font-semibold text-5xl pb-4">Grey Day Guest Tickets</h1>
+            <img
+              src="/images/grey_day_banner.jpg"
+              alt="Grey Day Banner"
+              className="md:block hidden md:mb-2"
+            />
             <p className="text-center">You have already booked a guest ticket.</p>
           </div>
         </div>
@@ -224,10 +239,17 @@ class GreyDayGuestPage extends React.Component {
         <div className="flex flex-col justify-start">
           <div className="container mx-auto text-center p-4 md:w-3/5">
             <h1 className="font-semibold text-5xl pb-4">Grey Day Guest Tickets</h1>
+            <img
+              src="/images/grey_day_banner.jpg"
+              alt="Grey Day Banner"
+              className="md:block hidden md:mb-2"
+            />
             <div className="text-left">
-              <p className="pb-1">Grey Day is an annual event hosted on Grey Lawn celebrating all things Grey. The events starts at 2pm on 27th June 2021. There will be great entertainment, performances, food, and hopefully good weather! Tickets for JCR members have already been released and we are now accepting guest bookings.</p>
-              <p className="pb-1">If you are a current of member of Grey College (regardless of JCR membership) <a href="/accounts/login?ref=/events/grey-day-2021-guests" className="font-semibold underline">please login</a> to purchase a ticket.</p>
-              <p className="pb-1">For recent graduates, please either ask a current JCR member to book you on as a guest or contact the current FACSO, Will Morrice (grey.treasurer@durham.ac.uk), or the Events Manager Ellie Reid (grey.events@durham.ac.uk)</p>
+              <p className="pb-1">Grey Day is an annual event hosted on Grey Lawn celebrating all things Grey. The events starts at 2pm on 27th June 2021. There will be great entertainment, performances, food, and hopefully good weather! Tickets for JCR members have already been released and we are now accepting guest bookings. The price for a ticket is £10.</p>
+              <h2 className="font-semibold text-2xl mb-1">Current Members of Grey College</h2>
+              <p className="pb-1">If you are a current of member of Grey College (regardless of JCR membership) <a href="/accounts/login?ref=/events/grey-day-2021-guests" className="font-semibold underline">please login</a> to purchase a ticket. If you are a JCR member and have already purchased a ticket you can book a single guest on to the event for £10. If you are not a JCR member and would like to attend you can book yourself on to the event for £10 (or you can be booked on by a JCR member as their guest).</p>
+              <h2 className="font-semibold text-2xl mb-1">Recent Graduates</h2>
+              <p className="pb-1">For recent graduates, please either ask a current JCR member to book you on as a guest or contact the current FACSO, Will Morrice, and the Events Manager, Ellie Reid, <a href="mailto:grey.events@durham.ac.uk?cc=grey.treasurer@durham.ac.uk&subject=Grey%20Day%202021%20-%20Recent%20Graduate" target="_blank" rel="noopener noreferrer" className="font-semibold underline">by email by clicking here.</a></p>
             </div>
           </div>
         </div>
@@ -239,6 +261,11 @@ class GreyDayGuestPage extends React.Component {
         <div className="flex flex-col justify-start">
           <div className="container mx-auto text-center p-4 md:w-3/5">
             <h1 className="font-semibold text-5xl pb-4">Grey Day Guest Tickets</h1>
+            <img
+              src="/images/grey_day_banner.jpg"
+              alt="Grey Day Banner"
+              className="md:block hidden md:mb-2"
+            />
             <div className="text-left">
               <p className="pb-1">Grey Day is an annual event hosted on Grey Lawn celebrating all things Grey. The events starts at 2pm on 27th June 2021. There will be great entertainment, performances, food, and hopefully good weather! Tickets for JCR members have already been released and we are now accepting guest bookings.</p>
               <p className="pb-1">You can book yourself on as you are not a JCR member. Tickets cost £10.</p>
