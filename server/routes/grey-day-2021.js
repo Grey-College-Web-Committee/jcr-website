@@ -191,6 +191,68 @@ router.get("/admin", async (req, res) => {
   return res.status(200).json({ greyDayEventId, maxTickets, availableTickets, greyDayBookingOpen })
 });
 
+router.post("/update/max", async (req, res) => {
+  // Here we need to check if they are a logged in user or not
+
+  if(!(req.session && req.session.user && req.cookies.user_sid)) {
+    return res.status(200).json({ loggedIn: false, availableTickets, hasGreyDayBooking: false, hasGuestTicket: false });
+  }
+
+  // Must have permission
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { maxTickets } = req.body;
+
+  if(maxTickets === undefined || maxTickets === null) {
+    return res.status(400).json({ error: "Missing maxTickets" });
+  }
+
+  try {
+    await PersistentVariable.update({ intStorage: maxTickets }, {
+      where: {
+        key: "GREY_DAY_TICKETS"
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the maxTickets" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/update/open", async (req, res) => {
+  // Here we need to check if they are a logged in user or not
+
+  if(!(req.session && req.session.user && req.cookies.user_sid)) {
+    return res.status(200).json({ loggedIn: false, availableTickets, hasGreyDayBooking: false, hasGuestTicket: false });
+  }
+
+  // Must have permission
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { open } = req.body;
+
+  if(open === undefined || open === null) {
+    return res.status(400).json({ error: "Missing open" });
+  }
+
+  try {
+    await PersistentVariable.update({ booleanStorage: open }, {
+      where: {
+        key: "GREY_DAY_GUEST_OPEN"
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the open status" });
+  }
+
+  return res.status(204).end();
+});
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;

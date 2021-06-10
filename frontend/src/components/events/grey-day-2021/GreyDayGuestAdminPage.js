@@ -10,7 +10,13 @@ class GreyDayGuestAdminPagePage extends React.Component {
     this.state = {
       loaded: false,
       status: 0,
-      error: ""
+      error: "",
+      availableTickets: 0,
+      greyDayBookingOpen: false,
+      greyDayEventId: 0,
+      maxTickets: 0,
+      maxTicketsTemp: 0,
+      disabled: false
     };
 
     // Change this to your permission
@@ -64,6 +70,47 @@ class GreyDayGuestAdminPagePage extends React.Component {
     this.setState({ loaded: true, availableTickets, greyDayBookingOpen, greyDayEventId, maxTickets, maxTicketsTemp: maxTickets });
   }
 
+  toggleOpen = async () => {
+    this.setState({ disabled: true });
+    const { greyDayBookingOpen } = this.state;
+
+    try {
+      await api.post("/gd2021/update/open", {
+        open: !greyDayBookingOpen
+      });
+    } catch (error) {
+      alert("There was an error updating the open status");
+      this.setState({ disabled: false });
+      return;
+    }
+
+    this.setState({ disabled: false, greyDayBookingOpen: !greyDayBookingOpen });
+  }
+
+  updateMaxTickets = async () => {
+    this.setState({ disabled: true });
+
+    const { maxTicketsTemp } = this.state;
+
+    if(maxTicketsTemp <= 0) {
+      alert("You must set a positive amount of tickets");
+      this.setState({ disabled: false });
+      return;
+    }
+
+    try {
+      await api.post("/gd2021/update/max", {
+        maxTickets: maxTicketsTemp
+      });
+    } catch (error) {
+      alert("There was an error setting the max number of tickets");
+      this.setState({ disabled: false });
+      return;
+    }
+
+    window.location.reload();
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -89,6 +136,7 @@ class GreyDayGuestAdminPagePage extends React.Component {
             <button
               onClick={this.toggleOpen}
               className={`px-4 py-1 rounded ${ greyDayBookingOpen ? "bg-red-700" : "bg-green-700" } text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+              disabled={this.state.disabled}
             >{ greyDayBookingOpen ? "Set Closed" : "Set Open" }</button>
           </div>
           <div className="flex flex-col items-start mb-2">
@@ -112,6 +160,7 @@ class GreyDayGuestAdminPagePage extends React.Component {
             <button
               onClick={this.updateMaxTickets}
               className={`px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+              disabled={this.state.disabled}
             >Save Max Tickets</button>
           </div>
         </div>
