@@ -3,6 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
+import SportsAndSocsItem from './SportsAndSocsItem';
 
 class SportsAndSocsPage extends React.Component {
   constructor(props) {
@@ -13,7 +14,8 @@ class SportsAndSocsPage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      content: []
+      content: [],
+      sportsAndSocs: []
     };
   }
 
@@ -47,13 +49,15 @@ class SportsAndSocsPage extends React.Component {
     let content;
 
     try {
-      content = await api.get("/some/path");
+      content = await api.get("/sportsandsocs");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
     }
 
-    this.setState({ loaded: true, status: 200, content: content });
+    const { sportsAndSocs } = content.data;
+
+    this.setState({ loaded: true, status: 200, sportsAndSocs });
   }
 
   render () {
@@ -79,6 +83,15 @@ class SportsAndSocsPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Sports and Societies</h1>
+          <div className="grid grid-cols-1 gap-1 md:grid-cols-2 lg:grid-cols-3 2xl:gap-4 auto-rows-fr">
+            {
+              this.state.sportsAndSocs.map((entry, i) => (
+                <SportsAndSocsItem
+                  {...entry}
+                />
+              ))
+            }
+          </div>
         </div>
       </div>
     );

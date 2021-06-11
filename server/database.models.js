@@ -1512,11 +1512,7 @@ SportAndSoc.init({
     type: DataTypes.TEXT,
     allowNull: true
   },
-  mainFacebook: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  socialFacebook: {
+  facebook: {
     type: DataTypes.TEXT,
     allowNull: true
   },
@@ -1532,7 +1528,7 @@ SportAndSoc.init({
     type: DataTypes.TEXT,
     allowNull: false
   }
-}, { sequelize }); 
+}, { sequelize });
 
 // Associations are necessary to allow joins between tables
 
