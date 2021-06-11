@@ -11,7 +11,7 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, FormalDrink, ToastieOrderTracker, GreyDayGuest } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, FormalDrink, ToastieOrderTracker, GreyDayGuest, SportAndSoc } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sharedSession = require("express-socket.io-session");
@@ -36,6 +36,7 @@ const barRoute = require("./routes/bar");
 const jcrRoute = require("./routes/jcr");
 const profileRoute = require("./routes/profile");
 const greyDayRoute = require("./routes/grey-day-2021");
+const sportsAndSocsRoute = require("./routes/sportsandsocs");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -227,6 +228,11 @@ const requiredPermissions = [
     name: "Manage JCR Files",
     description: "Allows a user to manage the files uploaded for the JCR",
     internal: "jcr.files"
+  },
+  {
+    name: "Manage Sports and Socs",
+    description: "Allows a user to manage the Sports and Socs page",
+    internal: "sportsandsocs.manage"
   }
 ];
 
@@ -306,6 +312,8 @@ const requiredPermissions = [
 
   await JCRFolder.sync();
   await JCRFile.sync();
+
+  await SportAndSoc.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
@@ -449,6 +457,7 @@ app.use("/api/feedback", isLoggedIn, feedbackRoute);
 app.use("/api/bar", isLoggedIn, barRoute);
 app.use("/api/jcr", isLoggedIn, jcrRoute);
 app.use("/api/profile", isLoggedIn, profileRoute);
+app.use("/api/sportsandsocs", isLoggedIn, sportsAndSocsRoute)
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
