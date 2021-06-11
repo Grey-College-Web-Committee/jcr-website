@@ -114,7 +114,7 @@ import CreateNewRolePage from './components/jcr/roles/admin/CreateNewRolePage';
 import ManageJCRFilesPage from './components/jcr/files/admin/ManageJCRFilesPage';
 
 import SportsAndSocsPage from './components/sportsandsocs/SportsAndSocsPage';
-import SportsAndSocsAdminPage from './components/sportsandsocs/SportsAndSocsAdminPage';
+import SportsAndSocsAdminPage from './components/sportsandsocs/admin/SportsAndSocsAdminPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 

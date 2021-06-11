@@ -1508,7 +1508,7 @@ SportAndSoc.init({
     type: DataTypes.TEXT,
     allowNull: true
   },
-  contactEmail: {
+  email: {
     type: DataTypes.TEXT,
     allowNull: true
   },

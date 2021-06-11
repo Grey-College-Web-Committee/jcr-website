@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
-import api from '../../utils/axiosConfig';
-import LoadingHolder from '../common/LoadingHolder';
+import api from '../../../utils/axiosConfig';
+import LoadingHolder from '../../common/LoadingHolder';
+import NewSportsAndSocsForm from './NewSportsAndSocsForm';
 
 class SportsAndSocsAdminPage extends React.Component {
   constructor(props) {
@@ -53,6 +54,10 @@ class SportsAndSocsAdminPage extends React.Component {
     this.setState({ loaded: true });
   }
 
+  onCreate = (record) => {
+
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -69,7 +74,8 @@ class SportsAndSocsAdminPage extends React.Component {
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Title Here</h1>
+          <h1 className="font-semibold text-5xl pb-4">Manage Sports and Socs</h1>
+          <NewSportsAndSocsForm />
         </div>
       </div>
     );
