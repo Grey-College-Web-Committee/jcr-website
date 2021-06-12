@@ -13,7 +13,8 @@ class SportsAndSocsItem extends React.Component {
   render () {
     const { revealed } = this.state;
     const { name, description, email, facebook, instagram, discord, type } = this.props;
-    const hasShowMore = description.length >= 100;
+    const maxChars = 180;
+    const hasShowMore = description.length >= maxChars;
 
     return (
       <div className="border-gray-400 border text-left p-2 flex flex-col justify-between">
@@ -26,11 +27,11 @@ class SportsAndSocsItem extends React.Component {
                 <p>{description}</p>
               ) : (
                 <React.Fragment>
-                  <p>{description.substring(0, 100)}
+                  <p>{description.substring(0, maxChars)}
                     {
                       hasShowMore ? (
                         <React.Fragment>
-                          ... <span className="font-semibold underline cursor-pointer" onClick={() => this.setState({ revealed: true })}>click to reveal more...</span>
+                          ... <span className="font-semibold underline cursor-pointer" onClick={() => this.setState({ revealed: true })}>show more...</span>
                         </React.Fragment>
                       ) : null
                     }
