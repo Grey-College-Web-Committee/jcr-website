@@ -15,7 +15,9 @@ class SportsAndSocsPage extends React.Component {
       status: 0,
       error: "",
       content: [],
-      sportsAndSocs: []
+      sportsAndSocs: [],
+      typeFilter: "any",
+      nameFilter: ""
     };
   }
 
@@ -57,7 +59,11 @@ class SportsAndSocsPage extends React.Component {
 
     const { sportsAndSocs } = content.data;
 
-    this.setState({ loaded: true, status: 200, sportsAndSocs });
+    let sortedSaSs = sportsAndSocs.sort((a, b) => {
+      return a.name > b.name ? 1 : (a.name < b.name ? -1 : 0)
+    })
+
+    this.setState({ loaded: true, status: 200, sportsAndSocs: sortedSaSs });
   }
 
   render () {
@@ -79,13 +85,44 @@ class SportsAndSocsPage extends React.Component {
       );
     }
 
+    const { nameFilter, typeFilter } = this.state;
+
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Sports and Societies</h1>
+          <div className="text-left mb-2">
+            <h2 className="font-semibold text-2xl">Filter</h2>
+            <p>You can filter the sports and societies below by changing the filter options. Changes will automatically take effect.</p>
+            <div className="py-1">
+              <label for="nameFilter" className="w-12 inline-block mr-1">Name:</label>
+              <input
+                className={`w-full md:w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400`}
+                type="text"
+                name="nameFilter"
+                value={this.state.nameFilter}
+                onChange={this.onInputChange}
+              />
+            </div>
+            <div className="py-1">
+              <label for="typeFilter" className="w-12 inline-block mr-1">Type: </label>
+              <select
+                className={`w-full md:w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400`}
+                name="typeFilter"
+                value={this.state.typeFilter}
+                onChange={this.onInputChange}
+              >
+                <option value="any">Any</option>
+                <option value="Sport">Sport</option>
+                <option value="Society">Society</option>
+              </select>
+            </div>
+          </div>
           <div className="grid grid-cols-1 gap-1 md:grid-cols-2 lg:grid-cols-3 2xl:gap-4 auto-rows-fr">
             {
-              this.state.sportsAndSocs.map((entry, i) => (
+              this.state.sportsAndSocs.filter(entry => {
+                return entry.name.toLowerCase().includes(nameFilter.toLowerCase()) && (typeFilter === "any" || entry.type === typeFilter)
+              }).map((entry, i) => (
                 <SportsAndSocsItem
                   {...entry}
                 />

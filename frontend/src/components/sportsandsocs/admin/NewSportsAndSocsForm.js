@@ -90,7 +90,7 @@ class NewSportsAndSocsForm extends React.Component {
             <span className="flex flex-row justify-start text-sm mb-1">This must be a durham.ac.uk email address.</span>
             <span className="flex flex-row justify-start text-sm mb-2">({255 - this.state.email.length} characters remaining)</span>
             <input
-              type="text"
+              type="email"
               name="email"
               value={this.state.email}
               onChange={this.onInputChange}
@@ -156,7 +156,6 @@ class NewSportsAndSocsForm extends React.Component {
               <option value="" hidden={true} disabled={true}>Please select an option...</option>
               <option value="Sport">Sport</option>
               <option value="Society">Society</option>
-              <option value="Committee">Committee</option>
             </select>
           </div>
           <div className="pt-2 pb-2 border-b-2">
