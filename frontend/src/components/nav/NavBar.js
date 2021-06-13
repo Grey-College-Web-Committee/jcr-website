@@ -121,6 +121,21 @@ class NavBar extends React.Component {
               displayName: "Career Angels",
               url: "/careers",
               requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "MCR",
+              url: "/mcr",
+              requiredPermission: null
+            },
+            {
+              displayName: "Make a Complaint",
+              url: "/complaints",
+              requiredPermission: null
+            },
+            {
+              displayName: "Trust",
+              url: "/jcr/trust",
+              requiredPermission: "jcr.member"
             }
           ],
         },

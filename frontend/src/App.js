@@ -108,6 +108,7 @@ import MyProfile from './components/profile/MyProfile';
 
 import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage';
 import JCRFileListingPage from './components/jcr/files/JCRFileListingPage';
+import JCRTrustPage from './components/jcr/trust/JCRTrustPage';
 
 import CreateNewCommitteePage from './components/jcr/roles/admin/CreateNewCommitteePage';
 import CreateNewRolePage from './components/jcr/roles/admin/CreateNewRolePage';
@@ -631,6 +632,9 @@ class App extends React.Component {
                     <Route exact path="/jcr/files/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.files") ? ( <ManageJCRFilesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files/manage") )
                     )} />
+                    <Route exact path="/jcr/trust" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <JCRTrustPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/jcr/trust") )
+                    )} />
                     <Route exact path="/my/profile" render={() => (
                       this.isLoggedIn() ? ( <MyProfile /> ) : ( this.loginRef("/my/profile") )
                     )} />
@@ -644,6 +648,10 @@ class App extends React.Component {
                     <Route exact path="/sportsandsocs/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? ( <SportsAndSocsAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/sportsandsocs/admin") )
                     )} />
+                    <Route exact path="/mcr" component={() => {
+                      window.location.replace("https://community.dur.ac.uk/grey.mcr/");
+                      return null;
+                    }} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />
                     )} />
