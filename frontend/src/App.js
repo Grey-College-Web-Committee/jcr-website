@@ -113,6 +113,9 @@ import CreateNewCommitteePage from './components/jcr/roles/admin/CreateNewCommit
 import CreateNewRolePage from './components/jcr/roles/admin/CreateNewRolePage';
 import ManageJCRFilesPage from './components/jcr/files/admin/ManageJCRFilesPage';
 
+import SportsAndSocsPage from './components/sportsandsocs/SportsAndSocsPage';
+import SportsAndSocsAdminPage from './components/sportsandsocs/admin/SportsAndSocsAdminPage';
+
 const stripePromise = loadStripe(config.stripe.publicKey);
 
 class App extends React.Component {
@@ -623,7 +626,7 @@ class App extends React.Component {
                       this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewRolePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/roles/manage") )
                     )} />
                     <Route exact path="/jcr/files" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <JCRFileListingPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <JCRFileListingPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/jcr/files") )
                     )} />
                     <Route exact path="/jcr/files/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.files") ? ( <ManageJCRFilesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files/manage") )
@@ -635,6 +638,12 @@ class App extends React.Component {
                       window.location.replace("https://outlook.office365.com/owa/calendar/GreyCollegeRoomBookings@durhamuniversity.onmicrosoft.com/bookings/");
                       return null;
                     }} />
+                    <Route exact path="/sportsandsocs" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <SportsAndSocsPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/sportsandsocs") )
+                    )} />
+                    <Route exact path="/sportsandsocs/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? ( <SportsAndSocsAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/sportsandsocs/admin") )
+                    )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />
                     )} />

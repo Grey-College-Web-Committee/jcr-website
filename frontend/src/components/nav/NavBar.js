@@ -108,6 +108,11 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
+              displayName: "Sports And Socs",
+              url: "/sportsandsocs",
+              requiredPermission: "jcr.member"
+            },
+            {
               displayName: "Media",
               url: "/media",
               requiredPermission: "jcr.member"
@@ -312,6 +317,11 @@ class NavBar extends React.Component {
               url: "/toasties/admin",
               requiredPermission: "toastie.stock.edit"
             },
+            {
+              displayName: "Manage Sports and Socs",
+              url: "/sportsandsocs/admin",
+              requiredPermission: "sportsandsocs.manage"
+            }
           ],
           alwaysDisplayed: false
         },
