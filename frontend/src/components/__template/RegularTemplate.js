@@ -77,7 +77,7 @@ class RegularTemplate extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
-        <div className="container mx-auto text-center p-4">
+        <div className="md:w-3/5 container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Page Title</h1>
         </div>
       </div>

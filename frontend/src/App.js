@@ -117,6 +117,8 @@ import ManageJCRFilesPage from './components/jcr/files/admin/ManageJCRFilesPage'
 import SportsAndSocsPage from './components/sportsandsocs/SportsAndSocsPage';
 import SportsAndSocsAdminPage from './components/sportsandsocs/admin/SportsAndSocsAdminPage';
 
+import TechPage from './components/tech/TechPage';
+
 const stripePromise = loadStripe(config.stripe.publicKey);
 
 class App extends React.Component {
@@ -652,6 +654,9 @@ class App extends React.Component {
                       window.location.replace("https://community.dur.ac.uk/grey.mcr/");
                       return null;
                     }} />
+                    <Route exact path="/tech" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <TechPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/tech") )
+                    )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />
                     )} />
