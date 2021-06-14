@@ -141,6 +141,11 @@ class NavBar extends React.Component {
               displayName: "Tech",
               url: "/tech",
               requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "Facilities",
+              url: "/facilities",
+              requiredPermission: "jcr.member"
             }
           ],
         },

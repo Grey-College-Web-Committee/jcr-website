@@ -118,6 +118,7 @@ import SportsAndSocsPage from './components/sportsandsocs/SportsAndSocsPage';
 import SportsAndSocsAdminPage from './components/sportsandsocs/admin/SportsAndSocsAdminPage';
 
 import TechPage from './components/tech/TechPage';
+import FacilitiesPage from './components/facilities/FacilitiesPage';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -656,6 +657,9 @@ class App extends React.Component {
                     }} />
                     <Route exact path="/tech" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <TechPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/tech") )
+                    )} />
+                    <Route exact path="/facilities" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <FacilitiesPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/facilities") )
                     )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />
