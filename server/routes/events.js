@@ -1623,6 +1623,7 @@ router.get("/export/:eventId", async (req, res) => {
   let header = [
     { id: "name", title: "Name" },
     { id: "username", title: "Username" },
+    { id: "year", title: "Year Group" },
     { id: "ticketType", title: "Ticket Type" },
     { id: "guest", title: "Is Guest?" },
     { id: "groupId", title: "Group ID" },
@@ -1669,6 +1670,7 @@ router.get("/export/:eventId", async (req, res) => {
         record.name = ticket.guestName;
         record.username = ticket.guestUsername;
         record.guest = "Yes";
+        record.year = "Guest";
       } else {
         // Normalise the name for displaying
         const split = ticket.User.firstNames.split(",");
@@ -1680,6 +1682,7 @@ router.get("/export/:eventId", async (req, res) => {
         record.name = `${firstName} ${surname}`;
         record.username = ticket.User.username;
         record.guest = "No";
+        record.year = ticket.User.year;
       }
 
       // Store some extra basic details
