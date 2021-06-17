@@ -43,10 +43,6 @@ import EventsPaymentPage from './components/events/payment/EventsPaymentPage';
 import EventsMyBookingsOverview from './components/events/my/EventsMyBookingsOverview';
 import EventsMyBookingPage from './components/events/my/EventsMyBookingPage';
 import EventsFreeReqPage from './components/events/free/EventsFreeReqPage';
-import DrinkPreOrderPage from './components/events/drinks/DrinkPreOrderPage';
-import AdminDrinkPreOrderPage from './components/events/drinks/AdminDrinkPreOrderPage';
-import GreyDayGuestPage from './components/events/grey-day-2021/GreyDayGuestPage';
-import GreyDayGuestAdminPage from './components/events/grey-day-2021/GreyDayGuestAdminPage';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
 
@@ -518,12 +514,6 @@ class App extends React.Component {
                     <Route exact path="/complaints/view/:id" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("complaints.manage") ? ( <ComplaintViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/complaints/admin") )
                     )} />
-                    <Route exact path="/events/drinks" render={() => (
-                      this.isLoggedIn() ? <DrinkPreOrderPage /> : this.loginRef("/events/drinks")
-                    )} />
-                    <Route exact path="/events/drinks/admin" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("events.manage") ? <AdminDrinkPreOrderPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/drinks/admin") )
-                    )} />
                     <Route exact path="/events/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsManagePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin") )
                     )} />
@@ -556,12 +546,6 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/events/terms" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsTermsPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/terms") )
-                    )} />
-                    <Route exact path="/events/grey-day-2021-guests" render={() => (
-                      <GreyDayGuestPage />
-                    )} />
-                    <Route exact path="/events/grey-day-2021-guests/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <GreyDayGuestAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/grey-day-2021-guests/admin") )
                     )} />
                     <Route exact path="/events/event/:id/book/:type" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsGroupBookingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/event/${props.match.params.id}`) )
