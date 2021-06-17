@@ -52,13 +52,15 @@ class SpecialPhoenixEventPage extends React.Component {
     let content;
 
     try {
-      content = await api.get("/some/path");
+      content = await api.get("/phoenix");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
     }
 
-    this.setState({ loaded: true, status: 200, content: content });
+    const { booked } = content.data;
+
+    this.setState({ loaded: true, status: 200, booked });
   }
 
   renderNonGuest = () => {
@@ -200,6 +202,18 @@ class SpecialPhoenixEventPage extends React.Component {
       return (
         <LoadingHolder />
       );
+    }
+
+    if(this.state.booked) {
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="md:w-3/5 container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-4">Phoenix Festival</h1>
+            <p>You have already booked a ticket for this event. Please check your email for confirmation.</p>
+            <p>If you believe this is an error please contact grey.website@durham.ac.uk</p>
+          </div>
+        </div>
+      )
     }
 
     if(this.state.paymentSt === 1) {

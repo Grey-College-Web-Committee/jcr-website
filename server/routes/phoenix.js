@@ -9,8 +9,22 @@ const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // Called at the base path of your route with HTTP method GET
 router.get("/", async (req, res) => {
+  let { user } = req.session;
+  let ticket;
+
+  try {
+    ticket = await SpecialPhoenixEvent.findOne({
+      where: {
+        userId: user.id,
+        paid: true
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find any existing bookings" });
+  }
+
   // Returns a 200 status code with a short JSON response
-  return res.status(200).json({ success: true });
+  return res.status(200).json({ booked: ticket !== null });
 });
 
 router.post("/create", async (req, res) => {
