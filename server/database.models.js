@@ -62,6 +62,8 @@ class EventGroupBooking extends Model {}
 // The individual record for each member of a group (i.e. to track their Stripe payments)
 class EventTicket extends Model {}
 
+class SpecialPhoenixEvent extends Model {}
+
 class FormalDrink extends Model {}
 // Special table for the 2021 Grey Day due to COVID changes
 class GreyDayGuest extends Model {}
@@ -1530,6 +1532,38 @@ SportAndSoc.init({
   }
 }, { sequelize });
 
+SpecialPhoenixEvent.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  stripePaymentId: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
+  },
+  paid: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
+  diet: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  guestName: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  guestDiet: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
+}, { sequelize });
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -1697,4 +1731,7 @@ ToastieOrderTracker.belongsTo(ShopOrder, { foreignKey: 'orderId' });
 User.hasMany(GreyDayGuest, { foreignKey: 'userId' });
 GreyDayGuest.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, FormalDrink, ToastieOrderTracker, GreyDayGuest, SportAndSoc };
+User.hasMany(SpecialPhoenixEvent, { foreignKey: 'userId' });
+SpecialPhoenixEvent.belongsTo(User, { foreignKey: 'userId' });
+
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, FormalDrink, ToastieOrderTracker, GreyDayGuest, SportAndSoc, SpecialPhoenixEvent };

@@ -47,6 +47,7 @@ import DrinkPreOrderPage from './components/events/drinks/DrinkPreOrderPage';
 import AdminDrinkPreOrderPage from './components/events/drinks/AdminDrinkPreOrderPage';
 import GreyDayGuestPage from './components/events/grey-day-2021/GreyDayGuestPage';
 import GreyDayGuestAdminPage from './components/events/grey-day-2021/GreyDayGuestAdminPage';
+import SpecialPhoenixEventPage from './components/phoenix/SpecialPhoenixEventPage';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
 
@@ -640,6 +641,9 @@ class App extends React.Component {
                     }} />
                     <Route exact path="/sportsandsocs" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <SportsAndSocsPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/sportsandsocs") )
+                    )} />
+                    <Route exact path="/phoenix-2021" render={() => (
+                      this.isLoggedIn() ? <SpecialPhoenixEventPage /> : this.loginRef("/phoenix-2021")
                     )} />
                     <Route exact path="/sportsandsocs/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? ( <SportsAndSocsAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/sportsandsocs/admin") )
