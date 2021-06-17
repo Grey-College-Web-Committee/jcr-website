@@ -11,7 +11,7 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, FormalDrink, ToastieOrderTracker, GreyDayGuest, SportAndSoc } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sharedSession = require("express-socket.io-session");
@@ -35,7 +35,6 @@ const feedbackRoute = require("./routes/feedback");
 const barRoute = require("./routes/bar");
 const jcrRoute = require("./routes/jcr");
 const profileRoute = require("./routes/profile");
-const greyDayRoute = require("./routes/grey-day-2021");
 const sportsAndSocsRoute = require("./routes/sportsandsocs");
 
 // Required to deploy the static React files for production
@@ -285,8 +284,6 @@ const requiredPermissions = [
   await EventTicketType.sync();
   await EventGroupBooking.sync();
   await EventTicket.sync();
-  await FormalDrink.sync();
-  await GreyDayGuest.sync();
 
   await CareersPost.sync();
 
@@ -367,36 +364,6 @@ const requiredPermissions = [
       booleanStorage: false
     }
   });
-
-  await PersistentVariable.findOrCreate({
-    where: {
-      key: "GREY_DAY_TICKETS"
-    },
-    defaults: {
-      key: "GREY_DAY_TICKETS",
-      intStorage: 0
-    }
-  });
-
-  await PersistentVariable.findOrCreate({
-    where: {
-      key: "GREY_DAY_EVENT_ID"
-    },
-    defaults: {
-      key: "GREY_DAY_EVENT_ID",
-      intStorage: 0
-    }
-  });
-
-  await PersistentVariable.findOrCreate({
-    where: {
-      key: "GREY_DAY_GUEST_OPEN"
-    },
-    defaults: {
-      key: "GREY_DAY_GUEST_OPEN",
-      booleanStorage: false
-    }
-  });
 })();
 
 console.log("NODE_APP_INSTANCE:", process.env.NODE_APP_INSTANCE);
@@ -439,7 +406,6 @@ const isLoggedIn = (req, res, next) => {
 app.use("/api/auth", authRoute);
 app.use("/api/stripe", paymentsRoute);
 // Special route does not require login
-app.use("/api/gd2021", greyDayRoute);
 app.use("/api/stash", isLoggedIn, stashRoute);
 app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
 app.use("/api/permissions", isLoggedIn, permissionsRoute);

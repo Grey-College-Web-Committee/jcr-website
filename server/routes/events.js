@@ -5,7 +5,7 @@ const path = require("path");
 const multer = require("multer");
 const router = express.Router();
 // The database models
-const { User, Permission, PermissionLink, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, FormalDrink } = require("../database.models.js");
+const { User, Permission, PermissionLink, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/events/" });
