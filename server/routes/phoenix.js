@@ -163,6 +163,7 @@ router.post("/export", async(req, res) => {
       { id: "username", title: "Username" },
       { id: "bookerFirstNames", title: "First Names" },
       { id: "bookerSurname", title: "Surname" },
+      { id: "year", title: "Year" },
       { id: "diet", title: "Dietary Requirements" },
       { id: "guestName", title: "Guest Name" },
       { id: "guestDiet", title: "Guest Dietary Requirements"},
@@ -188,6 +189,7 @@ router.post("/export", async(req, res) => {
     record.username = ticket.User.username;
     record.bookerFirstNames = ticket.User.firstNames;
     record.bookerSurname = ticket.User.surname;
+    record.year = ticket.User.year;
     record.diet = ticket.diet;
     record.guestName = ticket.guestName === null ? "" : ticket.guestName;
     record.guestDiet = ticket.guestDiet === null ? "" : ticket.guestDiet;
