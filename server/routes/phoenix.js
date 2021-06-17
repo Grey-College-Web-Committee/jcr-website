@@ -50,6 +50,11 @@ router.post("/create", async (req, res) => {
   }
 
   let { user } = req.session;
+
+  if(hasPermission(req.session, "debt.has")) {
+    return res.status(400).json({ error: "You currently have a debt owed to the JCR" });
+  }
+
   let existingBookings;
 
   try {

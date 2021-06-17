@@ -20,7 +20,8 @@ class SpecialPhoenixEventPage extends React.Component {
       disabled: false,
       paymentSt: 0,
       myDiet: "select",
-      guestDiet: "select"
+      guestDiet: "select",
+      debtor: false
     };
   }
 
@@ -43,6 +44,10 @@ class SpecialPhoenixEventPage extends React.Component {
     if(membershipCheck.data.user.permissions) {
       if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
         this.setState({ isMember: false });
+      }
+
+      if(membershipCheck.data.user.permissions.includes("debt.has")) {
+        this.setState({ debtor: true });
       }
     } else {
       this.setState({ isMember: false });
@@ -202,6 +207,17 @@ class SpecialPhoenixEventPage extends React.Component {
       return (
         <LoadingHolder />
       );
+    }
+
+    if(this.state.debtor) {
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="md:w-3/5 container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-4">Phoenix Festival</h1>
+            <p className="text-lg font-semibold">You currently have an outstanding debt owed to the JCR. You cannot book on this event until this has been cleared.</p>
+          </div>
+        </div>
+      )
     }
 
     if(this.state.booked) {
