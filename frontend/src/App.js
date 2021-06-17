@@ -47,6 +47,8 @@ import DrinkPreOrderPage from './components/events/drinks/DrinkPreOrderPage';
 import AdminDrinkPreOrderPage from './components/events/drinks/AdminDrinkPreOrderPage';
 import GreyDayGuestPage from './components/events/grey-day-2021/GreyDayGuestPage';
 import GreyDayGuestAdminPage from './components/events/grey-day-2021/GreyDayGuestAdminPage';
+import SpecialPhoenixEventPage from './components/phoenix/SpecialPhoenixEventPage';
+import SpecialPhoenixEventAdmin from './components/phoenix/SpecialPhoenixEventAdmin';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
 
@@ -559,6 +561,9 @@ class App extends React.Component {
                     <Route exact path="/events/grey-day-2021-guests/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <GreyDayGuestAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/grey-day-2021-guests/admin") )
                     )} />
+                    <Route exact path="/phoenix-2021/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <SpecialPhoenixEventAdmin /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/phoenix-2021/admin") )
+                    )} />
                     <Route exact path="/events/event/:id/book/:type" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsGroupBookingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/event/${props.match.params.id}`) )
                     )} />
@@ -640,6 +645,9 @@ class App extends React.Component {
                     }} />
                     <Route exact path="/sportsandsocs" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <SportsAndSocsPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/sportsandsocs") )
+                    )} />
+                    <Route exact path="/phoenix-2021" render={() => (
+                      this.isLoggedIn() ? <SpecialPhoenixEventPage /> : this.loginRef("/phoenix-2021")
                     )} />
                     <Route exact path="/sportsandsocs/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? ( <SportsAndSocsAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/sportsandsocs/admin") )

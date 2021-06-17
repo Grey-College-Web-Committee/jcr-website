@@ -51,15 +51,7 @@ class NavBar extends React.Component {
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: false
-        },
-        {
-          displayName: "Grey Day Guests",
-          url: "/events/grey-day-2021-guests",
-          requiredPermission: null,
-          staticImage: null,
-          dropdown: null,
-          alwaysDisplayed: null
-        },
+        }
       ];
 
       baseOptions = baseOptions.concat(loggedOutOptions);
@@ -188,8 +180,8 @@ class NavBar extends React.Component {
           alwaysDisplayed: null
         },
         {
-          displayName: "Grey Day Guests",
-          url: "/events/grey-day-2021-guests",
+          displayName: "Phoenix Festival Tickets",
+          url: "/phoenix-2021",
           requiredPermission: null,
           staticImage: null,
           dropdown: null,
@@ -285,6 +277,11 @@ class NavBar extends React.Component {
             {
               displayName: "Manage Events",
               url: "/events/admin",
+              requiredPermission: "events.manage"
+            },
+            {
+              displayName: "Manage Phoenix Festival",
+              url: "/phoenix-2021/admin",
               requiredPermission: "events.manage"
             },
             {
