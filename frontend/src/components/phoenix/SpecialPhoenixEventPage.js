@@ -254,7 +254,7 @@ class SpecialPhoenixEventPage extends React.Component {
           <h1 className="font-semibold text-5xl pb-4">Phoenix Festival</h1>
           <p className="text-left py-1">Phoenix Festival is a special event taking place this year at Hardwick Hall Hotel. Please check your emails for more details!</p>
           <p className="text-left py-1 font-semibold">Tickets for this event are non-refundable once purchased, which includes, but is not limited to, if you are unable to attend due to COVID-19 isolation requirements.</p>
-          <p className="text-left py-1">Tickets are subsidised for JCR and cost £55. If you are a JCR member you can also book a guest on to the event with you. You must do this at the same time that you purchase your ticket. Guest tickets cost £65 and are limited to one per JCR member.</p>
+          <p className="text-left py-1">Tickets are subsidised for JCR members and cost £55. If you are a JCR member you can also book a guest on to the event with you. You must do this at the same time that you purchase your ticket. Guest tickets cost £65 and are limited to one per JCR member.</p>
           <p className="text-left py-1">If you are not a JCR member but are a member of the college you can book on to the event as well for £65. Guest tickets are not available for non-JCR members.</p>
           <div className="pt-2 pb-2 border-b-2">
             <label htmlFor="name" className="flex flex-row justify-start text-xl font-semibold">Ticket Type</label>
