@@ -280,6 +280,11 @@ class NavBar extends React.Component {
               requiredPermission: "events.manage"
             },
             {
+              displayName: "Manage Phoenix Festival",
+              url: "/phoenix-2021/admin",
+              requiredPermission: "events.manage"
+            },
+            {
               displayName: "Export Events",
               url: "/events/admin/export",
               requiredPermission: "events.export"

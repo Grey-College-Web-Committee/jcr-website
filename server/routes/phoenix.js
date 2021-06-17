@@ -6,6 +6,11 @@ const { User, Permission, PermissionLink, SpecialPhoenixEvent } = require("../da
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const createCsvWriter = require("csv-writer").createObjectCsvWriter;
+const dateFormat = require("dateformat");
+const path = require("path");
+
+const csvPath = path.join(__dirname, "../exports/phoenix/");
 
 // Called at the base path of your route with HTTP method GET
 router.get("/", async (req, res) => {
@@ -127,6 +132,103 @@ router.post("/create", async (req, res) => {
   const clientSecret = paymentIntent.client_secret;
 
   return res.status(200).json({ totalCost, clientSecret });
+});
+
+router.post("/export", async(req, res) => {
+  // Must have permission
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let guests;
+
+  try {
+    guests = await SpecialPhoenixEvent.findAll({
+      include: [ User ],
+      where: {
+        paid: true
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the guests" });
+  }
+
+  const currentDate = new Date();
+  const time = currentDate.getTime();
+  const fileLocation = `${time}`;
+
+  const csvWriter = createCsvWriter({
+    path: `${csvPath}PhoenixFestival-${fileLocation}.csv`,
+    header: [
+      { id: "username", title: "Username" },
+      { id: "bookerFirstNames", title: "First Names" },
+      { id: "bookerSurname", title: "Surname" },
+      { id: "diet", title: "Dietary Requirements" },
+      { id: "guestName", title: "Guest Name" },
+      { id: "guestDiet", title: "Guest Dietary Requirements"},
+      { id: "paid", title: "Paid"}
+    ]
+  });
+
+  let csvRecords = [];
+
+  guests.sort((a, b) => {
+    const aName = a.User.surname.toLowerCase();
+    const bName = b.User.surname.toLowerCase();
+
+    return aName > bName ? 1 : (aName < bName ? -1 : 0);
+  }).forEach(ticket => {
+    let record = {};
+
+
+    let firstName = ticket.User.firstNames.split(",")[0];
+    firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+    const lastName = ticket.User.surname.charAt(0).toUpperCase() + ticket.User.surname.substr(1).toLowerCase();
+
+    record.username = ticket.User.username;
+    record.bookerFirstNames = ticket.User.firstNames;
+    record.bookerSurname = ticket.User.surname;
+    record.diet = ticket.diet;
+    record.guestName = ticket.guestName === null ? "" : ticket.guestName;
+    record.guestDiet = ticket.guestDiet === null ? "" : ticket.guestDiet;
+    record.paid = ticket.paid;
+
+    csvRecords.push(record);
+  });
+
+  try {
+    await csvWriter.writeRecords(csvRecords);
+  } catch (error) {
+    return res.status(500).end({ error });
+  }
+
+  return res.status(200).json({ fileLocation });
+});
+
+router.get("/download/:file", async (req, res) => {
+  // Must have permission
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const file = req.params.file;
+
+  if(file === undefined || file === null) {
+    return res.status(400).json({ error: "Missing file" });
+  }
+
+  const split = file.split("-");
+  const millisecondsStr = split[0];
+
+  if(new Date().getTime() > Number(millisecondsStr) + 1000 * 60 * 60) {
+    return res.status(410).end();
+  }
+
+  const pathName = path.join(csvPath, `PhoenixFestival-${file}.csv`)
+
+  return res.download(pathName, `PhoenixFestival-${file}.csv`, () => {
+    res.status(404).end();
+  });
 });
 
 // Set the module export to router so it can be used in server.js
