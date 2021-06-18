@@ -1,0 +1,38 @@
+[
+  {
+    "desktop_title": "Grey College Charity Fashion Show",
+    "mobile_title": "GCCFS",
+    "description_text": "Find out more about the annual charity fashion show",
+    "button_text": "Find out more →",
+    "button_link": "https://www.gccfs.co.uk/",
+    "button_target": "_blank",
+    "image": "/images/home/gccfs_1900_600.png"
+  },
+  {
+    "desktop_title": "Life at Grey",
+    "mobile_title": "Life at Grey",
+    "description_text": "",
+    "button_text": "Find out more →",
+    "button_link": "",
+    "button_target": "_self",
+    "image": "/images/home/gd_1600_505.png"
+  },
+  {
+    "desktop_title": "Grey Bar",
+    "mobile_title": "Grey Bar",
+    "description_text": "",
+    "button_text": "Find out more →",
+    "button_link": "/bar/book",
+    "button_target": "_self",
+    "image": "/images/home/bar_1870_590.png"
+  },
+  {
+    "desktop_title": "Sports and Societies",
+    "mobile_title": "Sports and Societies",
+    "description_text": "",
+    "button_text": "Find out more →",
+    "button_link": "/sportsandsocs",
+    "button_target": "_self",
+    "image": "/images/home/sports_1900_600.png"
+  }
+]
