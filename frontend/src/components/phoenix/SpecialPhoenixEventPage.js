@@ -272,6 +272,9 @@ class SpecialPhoenixEventPage extends React.Component {
   }
 
   render () {
+    const lockDate = new Date("2021-06-18T23:00:00Z");
+    const now = new Date();
+
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
         return (
@@ -293,6 +296,32 @@ class SpecialPhoenixEventPage extends React.Component {
           </div>
         </div>
       )
+    }
+
+    if(now > lockDate) {
+      if(this.state.booked) {
+        return (
+          <div className="flex flex-col justify-start">
+            <div className="md:w-3/5 container mx-auto text-center p-4">
+              <h1 className="font-semibold text-5xl pb-4">Phoenix Festival</h1>
+              <p className="py-1 text-left md:text-center">You have already booked a ticket for this event. Please check your email for confirmation.</p>
+              <p className="py-1 text-left md:text-center">Ticket sales have now closed. You can sell your ticket or purchase additional guest tickets if they are available from other resellers.</p>
+              <p className="py-1 text-left md:text-center"><a href="https://docs.google.com/spreadsheets/d/18RIeEX6OHlC1sf50VuDb_VQLhIPcXjHgG7PMEghjeCY/edit?usp=sharing" className="font-semibold underline">For more information about purchasing tickets from resellers or selling your ticket, please click here.</a></p>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className="flex flex-col justify-start">
+          <div className="md:w-3/5 container mx-auto text-center p-4">
+            <h1 className="font-semibold text-5xl pb-4">Phoenix Festival</h1>
+            <p className="py-1 text-left md:text-center">You do not have a ticket for this event.</p>
+            <p className="py-1 text-left md:text-center"> Ticket sales have now closed but they can be purchased from resellers.</p>
+            <p className="py-1 text-left md:text-center"><a href="https://docs.google.com/spreadsheets/d/18RIeEX6OHlC1sf50VuDb_VQLhIPcXjHgG7PMEghjeCY/edit?usp=sharing" className="font-semibold underline">For more information about purchasing tickets from resellers, please click here.</a></p>
+          </div>
+        </div>
+      );
     }
 
     if(this.state.booked) {

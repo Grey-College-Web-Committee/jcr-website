@@ -33,6 +33,12 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
+  const lockDate = new Date("2021-06-18T23:00:00Z");
+
+  if(new Date() > lockDate) {
+    return res.status(400).json({ error: "Tickets sales have already closed" });
+  }
+
   const { guestName, myDiet, guestDiet } = req.body;
 
   if(myDiet === undefined || myDiet === null || myDiet.length === 0) {
@@ -298,6 +304,12 @@ router.get("/capture", async (req, res) => {
 })
 
 router.post("/additional", async (req, res) => {
+  const lockDate = new Date("2021-06-18T23:00:00Z");
+
+  if(new Date() > lockDate) {
+    return res.status(400).json({ error: "Tickets sales have already closed" });
+  }
+
   const { guestName, guestDiet } = req.body;
 
   if(!hasPermission(req.session, "jcr.member")) {
