@@ -1565,6 +1565,10 @@ SpecialPhoenixEvent.init({
   captured: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  additional: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize });
 

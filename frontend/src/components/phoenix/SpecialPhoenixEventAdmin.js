@@ -139,10 +139,11 @@ class SpecialPhoenixEventAdmin extends React.Component {
             <h2 className="text-2xl font-semibold">Capture Payments</h2>
             <p className="mb-1">Use this periodically to capture any outstanding payments (doesn't recapture those that have already been captured)</p>
             <p className="mb-1">This may take a short while to complete.</p>
+            <p className="mb-1">Temporarily disabled</p>
             <button
               className={`px-4 py-1 rounded bg-green-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
               onClick={this.capturePayments}
-              disabled={this.state.disabled}
+              disabled={this.state.disabled || true}
             >Capture Payments</button>
             {
               this.state.captured ? (

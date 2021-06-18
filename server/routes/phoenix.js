@@ -170,6 +170,7 @@ router.post("/export", async(req, res) => {
       { id: "bookerSurname", title: "Surname" },
       { id: "year", title: "Year" },
       { id: "diet", title: "Dietary Requirements" },
+      { id: "additional", title: "Guest Ticket Only?" },
       { id: "guestName", title: "Guest Name" },
       { id: "guestDiet", title: "Guest Dietary Requirements"},
       { id: "paid", title: "Paid"}
@@ -195,7 +196,8 @@ router.post("/export", async(req, res) => {
     record.bookerFirstNames = ticket.User.firstNames;
     record.bookerSurname = ticket.User.surname;
     record.year = ticket.User.year;
-    record.diet = ticket.diet;
+    record.diet = ticket.additional ? "N/A" : ticket.diet;
+    record.additional = ticket.additional;
     record.guestName = ticket.guestName === null ? "" : ticket.guestName;
     record.guestDiet = ticket.guestDiet === null ? "" : ticket.guestDiet;
     record.paid = ticket.paid;
@@ -294,6 +296,102 @@ router.get("/capture", async (req, res) => {
 
   return res.status(200).json({ stripeFailures, databaseFailures, successes });
 })
+
+router.post("/additional", async (req, res) => {
+  const { guestName, guestDiet } = req.body;
+
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(401).json({ error: "You must be a JCR member to book a guest" });
+  }
+
+  if(hasPermission(req.session, "debt.has")) {
+    return res.status(400).json({ error: "You currently have a debt owed to the JCR" });
+  }
+
+  if(guestName === undefined || guestName === null || guestName === "") {
+    return res.status(400).json({ error: "Missing guestName" });
+  }
+
+  if(guestDiet === undefined || guestDiet === null || guestDiet.length === 0) {
+    return res.status(400).json({ error: "Missing guestDiet" });
+  }
+
+  let { user } = req.session;
+
+  // check they have a paid for ticket
+
+  let bookerTicket;
+
+  try {
+    bookerTicket = await SpecialPhoenixEvent.findOne({
+      where: {
+        paid: true,
+        userId: user.id
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check for existing ticket" });
+  }
+
+  if(bookerTicket === null) {
+    return res.status(400).json({ error: "You must book yourself a ticket first" });
+  }
+
+  let guestTicket;
+
+  // make the guest ticket
+  try {
+    guestTicket = await SpecialPhoenixEvent.create({
+      userId: user.id,
+      guestName,
+      paid: false,
+      diet: "none",
+      guestDiet,
+      additional: true
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create the event booking" });
+  }
+
+  const totalCost = 6500;
+
+  let metadata = {
+    ticketId: guestTicket.id,
+    phoenix_event: totalCost,
+    phoenix_event_net: Math.round(totalCost - ((0.014 * totalCost) + 20)),
+    event_name: "Phoenix Ball Replacement",
+    guestTicket: true
+  }
+
+  let paymentIntent;
+
+  try {
+    paymentIntent = await stripe.paymentIntents.create({
+      amount: totalCost,
+      currency: "gbp",
+      payment_method_types: ["card"],
+      capture_method: "manual",
+      receipt_email: user.email,
+      metadata,
+      description: `Phoenix Ball Replacement Event Ticket (Guest)`
+    });
+  } catch (error) {
+    console.log({error})
+    return res.status(500).json({ error: "Unable to create the payment intent" });
+  }
+
+  guestTicket.stripePaymentId = paymentIntent.id;
+
+  try {
+    await guestTicket.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the payment intent ID" });
+  }
+
+  const clientSecret = paymentIntent.client_secret;
+
+  return res.status(200).json({ totalCost, clientSecret });
+});
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
