@@ -1561,6 +1561,10 @@ SpecialPhoenixEvent.init({
   guestDiet: {
     type: DataTypes.TEXT,
     allowNull: true
+  },
+  captured: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize });
 

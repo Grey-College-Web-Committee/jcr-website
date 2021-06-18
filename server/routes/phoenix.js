@@ -238,6 +238,63 @@ router.get("/download/:file", async (req, res) => {
   });
 });
 
+router.get("/capture", async (req, res) => {
+  // Must have permission
+  if(!hasPermission(req.session, "events.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Find all tickets that are marked paid but haven't been captured
+  let tickets;
+
+  try {
+    tickets = await SpecialPhoenixEvent.findAll({
+      where: {
+        paid: true,
+        captured: false
+      },
+      include: [ User ]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to select the records for capture" });
+  }
+
+  if(tickets.length === 0) {
+    return res.status(400).json({ error: "There are no records to capture" });
+  }
+
+  let stripeFailures = [];
+  let databaseFailures = [];
+  let successes = 0;
+
+  // Loop each one, capture and update
+  for(let ticket of tickets) {
+    // Capture each payment
+    // https://stripe.com/docs/payments/capture-later
+    try {
+      await stripe.paymentIntents.capture(ticket.stripePaymentId);
+    } catch (error) {
+      stripeFailures.push(ticket.User.username);
+      continue;
+    }
+
+    try {
+      await SpecialPhoenixEvent.update({ captured: true }, {
+        where: {
+          id: ticket.id
+        }
+      });
+    } catch (error) {
+      databaseFailures.push(ticket.User.username);
+      continue;
+    }
+
+    successes += 1;
+  }
+
+  return res.status(200).json({ stripeFailures, databaseFailures, successes });
+})
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;

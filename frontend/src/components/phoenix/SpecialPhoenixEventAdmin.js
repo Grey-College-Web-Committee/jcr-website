@@ -13,7 +13,11 @@ class SpecialPhoenixEventAdmin extends React.Component {
       error: "",
       disabled: false,
       downloadPrepared: false,
-      downloadLoc: null
+      downloadLoc: null,
+      successes: 0,
+      stripeFailures: [],
+      databaseFailures: [],
+      captured: false
     };
 
     // Change this to your permission
@@ -74,6 +78,24 @@ class SpecialPhoenixEventAdmin extends React.Component {
     this.setState({ disabled: false, downloadLoc: fileLocation, downloadPrepared: true });
   }
 
+  capturePayments = async () => {
+    this.setState({ disabled: true, captured: false });
+
+    let result;
+
+    try {
+      result = await api.get("/phoenix/capture");
+    } catch (error) {
+      alert(error.response.data.error);
+      this.setState({ disabled: false });
+      return;
+    }
+
+    const { stripeFailures, databaseFailures, successes } = result.data;
+
+    this.setState({ disabled: false, stripeFailures, databaseFailures, successes, captured: true });
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -101,6 +123,7 @@ class SpecialPhoenixEventAdmin extends React.Component {
                 <a href={`/api/phoenix/download/${this.state.downloadLoc}`} download target="_self">
                   <button
                     className={`px-4 py-1 rounded bg-green-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+                    disabled={this.state.disabled}
                   >Download Guests</button>
                 </a>
               ) : (
@@ -110,6 +133,40 @@ class SpecialPhoenixEventAdmin extends React.Component {
                   disabled={this.state.disabled}
                 >Prepare Download</button>
               )
+            }
+          </div>
+          <div className="flex flex-col items-start mb-2 border-gray-400 border-2 my-2 p-1">
+            <h2 className="text-2xl font-semibold">Capture Payments</h2>
+            <p className="mb-1">Use this periodically to capture any outstanding payments (doesn't recapture those that have already been captured)</p>
+            <p className="mb-1">This may take a short while to complete.</p>
+            <button
+              className={`px-4 py-1 rounded bg-green-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
+              onClick={this.capturePayments}
+              disabled={this.state.disabled}
+            >Capture Payments</button>
+            {
+              this.state.captured ? (
+                <div className="text-left p-2">
+                  <h3 className="text-lg font-semibold">Result</h3>
+                  <p className="py-1">Successes: {this.state.successes}</p>
+                  <p className="py-1">Stripe Failures: {this.state.stripeFailures.length}</p>
+                  {
+                    this.state.stripeFailures.length === 0 ? null : (
+                      <pre>
+                        {JSON.stringify(this.state.stripeFailures)}
+                      </pre>
+                    )
+                  }
+                  <p className="py-1">Database Failures: {this.state.databaseFailures.length}</p>
+                  {
+                    this.state.databaseFailures.length === 0 ? null : (
+                      <pre>
+                        {JSON.stringify(this.state.databaseFailures)}
+                      </pre>
+                    )
+                  }
+                </div>
+              ) : null
             }
           </div>
         </div>
