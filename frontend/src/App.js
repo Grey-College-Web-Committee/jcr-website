@@ -473,7 +473,7 @@ class App extends React.Component {
                       this.isLoggedIn() ? (this.hasPermission("elections.manage") ? ( <ElectionEditPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/elections/admin") )
                     )} />
                     <Route exact path="/welfare/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfarePage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/welfare") )
+                      <WelfarePage />
                     )} />
                     <Route exact path="/welfare/message" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareMessagingPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/welfare/message") )
@@ -630,7 +630,7 @@ class App extends React.Component {
                       return null;
                     }} />
                     <Route exact path="/sportsandsocs" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <SportsAndSocsPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/sportsandsocs") )
+                      <SportsAndSocsPage />
                     )} />
                     <Route exact path="/sportsandsocs/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? ( <SportsAndSocsAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/sportsandsocs/admin") )

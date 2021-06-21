@@ -45,20 +45,43 @@ class NavBar extends React.Component {
     if(user === undefined || user === null) {
       const loggedOutOptions = [
         {
-          displayName: "Login",
-          url: "/accounts/login",
+          displayName: "Grey",
+          url: null,
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: [
+            {
+              displayName: "Facilities",
+              url: "/facilities",
+              requiredPermission: null
+            },
+            {
+              displayName: "MCR",
+              url: "/mcr",
+              requiredPermission: null
+            },
+            {
+              displayName: "Sports And Socs",
+              url: "/sportsandsocs",
+              requiredPermission: null
+            }
+          ]
+        },
+        {
+          displayName: "Welfare",
+          url: "/welfare",
           requiredPermission: null,
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: false
         },
         {
-          displayName: "Grey Day Guests",
-          url: "/events/grey-day-2021-guests",
+          displayName: "Login",
+          url: "/accounts/login",
           requiredPermission: null,
           staticImage: null,
           dropdown: null,
-          alwaysDisplayed: null
+          alwaysDisplayed: false
         },
       ];
 
@@ -87,6 +110,29 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Grey",
+          url: null,
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: [
+            {
+              displayName: "Facilities",
+              url: "/facilities",
+              requiredPermission: null
+            },
+            {
+              displayName: "MCR",
+              url: "/mcr",
+              requiredPermission: null
+            },
+            {
+              displayName: "Sports And Socs",
+              url: "/sportsandsocs",
+              requiredPermission: null
+            }
+          ]
+        },
+        {
           displayName: "JCR",
           url: null,
           requiredPermission: null,
@@ -108,11 +154,6 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
-              displayName: "Sports And Socs",
-              url: "/sportsandsocs",
-              requiredPermission: "jcr.member"
-            },
-            {
               displayName: "Media",
               url: "/media",
               requiredPermission: "jcr.member"
@@ -121,11 +162,6 @@ class NavBar extends React.Component {
               displayName: "Career Angels",
               url: "/careers",
               requiredPermission: "jcr.member"
-            },
-            {
-              displayName: "MCR",
-              url: "/mcr",
-              requiredPermission: null
             },
             {
               displayName: "Make a Complaint",
@@ -142,11 +178,6 @@ class NavBar extends React.Component {
               url: "/tech",
               requiredPermission: "jcr.member"
             },
-            {
-              displayName: "Facilities",
-              url: "/facilities",
-              requiredPermission: "jcr.member"
-            }
           ],
         },
         {

@@ -62,7 +62,7 @@ class HomeSlideshow extends React.Component {
     if(autoChangeId !== null) {
       window.clearTimeout(autoChangeId);
     }
-  
+
     if(resumeAutoId !== null) {
       window.clearTimeout(resumeAutoId);
     }
@@ -82,7 +82,7 @@ class HomeSlideshow extends React.Component {
           src={selected.image}
           className="w-full h-auto relative z-0"
         ></img>
-        <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-auto flex flex-col items-end text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-between">
+      <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-auto flex-col items-end text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-between md:flex hidden">
           <h2 className="font-bold text-4xl">{selected.desktop_title}</h2>
           <a href={selected.button_link} target={selected.button_target}>
             <button
@@ -90,15 +90,23 @@ class HomeSlideshow extends React.Component {
             >{selected.button_text}</button>
           </a>
         </div>
+        <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-1/4 flex flex-row justify-between text-white bg-grey-500 bg-opacity-75 border-t-2 border-b-2 border-red-900 md:hidden items-center">
+          <h2 className="font-bold text-2xl">{selected.mobile_title}</h2>
+          <a href={selected.button_link} target={selected.button_target}>
+            <button
+              className="font-semibold text-lg"
+            >{selected.button_text}</button>
+          </a>
+        </div>
         <div className="absolute z-10 top-0 left-0 w-full h-full flex flex-row justify-between text-white items-center text-2xl hover:z-30">
           <div
-            className="h-full hover:bg-grey-500 hover:bg-opacity-25 cursor-pointer p-4 flex flex-col justify-center"
+            className="h-full md:hover:bg-grey-500 md:hover:bg-opacity-25 cursor-pointer p-4 flex flex-col justify-center"
             onClick={() => this.moveSlide(-1, true)}
           >
             ←
           </div>
           <div
-            className="h-full hover:bg-grey-500 hover:bg-opacity-25 cursor-pointer p-4 flex flex-col justify-center"
+            className="h-full md:hover:bg-grey-500 md:hover:bg-opacity-25 cursor-pointer p-4 flex flex-col justify-center"
             onClick={() => this.moveSlide(1, true)}
           >
             →

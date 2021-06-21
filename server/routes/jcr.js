@@ -10,6 +10,10 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/jcr/" });
 
 router.post("/committee", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -40,6 +44,10 @@ router.post("/committee", async (req, res) => {
 });
 
 router.get("/committees", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -56,6 +64,10 @@ router.get("/committees", async (req, res) => {
 });
 
 router.post("/committee/update", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -99,6 +111,10 @@ router.post("/committee/update", async (req, res) => {
 })
 
 router.delete("/committee/:id", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -119,6 +135,10 @@ router.delete("/committee/:id", async (req, res) => {
 });
 
 router.post("/role", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -175,6 +195,10 @@ router.post("/role", async (req, res) => {
 });
 
 router.get("/roles/manage", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -220,6 +244,10 @@ router.get("/roles/manage", async (req, res) => {
 });
 
 router.post("/role/update", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -277,6 +305,10 @@ router.post("/role/update", async (req, res) => {
 })
 
 router.delete("/role/:id", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -297,6 +329,10 @@ router.delete("/role/:id", async (req, res) => {
 });
 
 router.delete("/role/:roleId/user/:userId", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -323,6 +359,10 @@ router.delete("/role/:roleId/user/:userId", async (req, res) => {
 });
 
 router.post("/role/user", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -386,6 +426,10 @@ router.post("/role/user", async (req, res) => {
 });
 
 router.delete("/role/committeeLink/:committeeLinkId", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -418,6 +462,10 @@ router.delete("/role/committeeLink/:committeeLinkId", async (req, res) => {
 });
 
 router.post("/role/committeeLink", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -475,10 +523,6 @@ router.post("/role/committeeLink", async (req, res) => {
 });
 
 router.get("/committees/basic", async (req, res) => {
-  if(!hasPermission(req.session, "jcr.member")) {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
-  }
-
   let committees;
 
   try {
@@ -492,24 +536,35 @@ router.get("/committees/basic", async (req, res) => {
   return res.status(200).json({ committees });
 });
 
-router.get("/committee/name/welfare", async (req, res) => {
-  if(!hasPermission(req.session, "jcr.member")) {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
+router.get("/committee/name/:name", async (req, res) => {
+  const { name } = req.params;
+
+  if(name === undefined || name === null) {
+    return res.status(400).json({ error: "Missing name" });
+  }
+
+  const matches = {
+    "welfare": "Welfare",
+    "exec": "Executive Committee"
+  }
+
+  if(!Object.keys(matches).includes(name)) {
+    return res.status(400).json({ error: `Invalid identifier ${name}` });
   }
 
   let committee;
 
   try {
     committee = await JCRCommittee.findOne({
-      where: { name: "Welfare" },
-      attributes: [ "id" ]
+      where: { name: matches[name] },
+      attributes: [ "id", "name", "description" ]
     });
   } catch (error) {
-    return res.status(500).json({ error: "Unable to find the welfare team" });
+    return res.status(500).json({ error: "Unable to find the committee" });
   }
 
   if(committee === null) {
-    return res.status(400).json({ error: "Unable to load the welfare team" });
+    return res.status(400).json({ error: "Unable to load the committee" });
   }
 
   let committeeMembers;
@@ -544,10 +599,6 @@ router.get("/committee/name/welfare", async (req, res) => {
 });
 
 router.get("/committee/:id", async (req, res) => {
-  if(!hasPermission(req.session, "jcr.member")) {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
-  }
-
   const { id } = req.params;
 
   if(id === undefined || id === null) {
@@ -601,8 +652,8 @@ router.get("/committee/:id", async (req, res) => {
 })
 
 router.get("/structure", async (req, res) => {
-  if(!hasPermission(req.session, "jcr.member")) {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
   }
 
   let rootDir;
@@ -723,6 +774,10 @@ const recurseTree = async (currentFolder) => {
 }
 
 router.post("/folder", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.files")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -756,6 +811,10 @@ router.post("/folder", async (req, res) => {
 });
 
 router.post("/file", upload.single("file"), async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.files")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -799,6 +858,10 @@ router.post("/file", upload.single("file"), async (req, res) => {
 });
 
 router.post("/file/update", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.files")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -847,6 +910,10 @@ router.post("/file/update", async (req, res) => {
 });
 
 router.delete("/file/:id", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   // Must have permission
   if(!hasPermission(req.session, "jcr.files")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
@@ -888,6 +955,10 @@ router.delete("/file/:id", async (req, res) => {
 })
 
 router.post("/folder/update", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "jcr.files")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -937,6 +1008,10 @@ router.post("/folder/update", async (req, res) => {
 });
 
 router.delete("/folder/:id", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   // Must have permission
   if(!hasPermission(req.session, "jcr.files")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });

@@ -10,7 +10,7 @@
   },
   {
     "desktop_title": "Life at Grey",
-    "mobile_title": "Life at Grey",
+    "mobile_title": "About",
     "description_text": "",
     "button_text": "Find out more →",
     "button_link": "",
@@ -19,16 +19,16 @@
   },
   {
     "desktop_title": "Grey Bar",
-    "mobile_title": "Grey Bar",
+    "mobile_title": "Bar",
     "description_text": "",
-    "button_text": "Find out more →",
+    "button_text": "Book now →",
     "button_link": "/bar/book",
     "button_target": "_self",
     "image": "/images/home/bar_1870_590.png"
   },
   {
     "desktop_title": "Sports and Societies",
-    "mobile_title": "Sports and Societies",
+    "mobile_title": "Sports",
     "description_text": "",
     "button_text": "Find out more →",
     "button_link": "/sportsandsocs",

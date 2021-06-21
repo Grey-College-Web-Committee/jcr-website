@@ -85,7 +85,7 @@ class RoleComponent extends React.Component {
           <div className="flex flex-row justify-between mb-1 align-middle px-2">
             <h2 className="text-2xl font-semibold">{role.name}</h2>
             <button
-              onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible }) }}
+              onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible && this.props.clickable }) }}
               className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
             >Close</button>
           </div>
@@ -180,8 +180,8 @@ class RoleComponent extends React.Component {
         <React.Fragment>
           { this.renderDescription() }
           <div
-            className={`border-2 border-red-900 ${this.props.role.descriptionEnabled ? "cursor-pointer" : "cursor-auto"}`}
-            onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible && this.props.role.descriptionEnabled })}}
+            className={`border-2 border-red-900 ${this.props.role.descriptionEnabled && this.props.clickable ? "cursor-pointer" : "cursor-auto"}`}
+            onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible && this.props.role.descriptionEnabled && this.props.clickable })}}
           >
             <img
               src="/images/default_avatar.png"
@@ -192,7 +192,7 @@ class RoleComponent extends React.Component {
               <p className="font-semibold">{role.name}</p>
               <p>Vacant</p>
               {
-                this.props.role.descriptionEnabled ? (
+                this.props.role.descriptionEnabled && this.props.clickable ? (
                   <p className="italic text-sm">Click for more info!</p>
                 ) : null
               }
@@ -206,8 +206,8 @@ class RoleComponent extends React.Component {
       <React.Fragment>
         { this.renderDescription() }
         <div
-          className={`border-2 border-red-900 ${this.props.role.descriptionEnabled ? "cursor-pointer" : "cursor-auto"}`}
-          onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible && this.props.role.descriptionEnabled })}}
+          className={`border-2 border-red-900 ${this.props.role.descriptionEnabled && this.props.clickable ? "cursor-pointer" : "cursor-auto"}`}
+          onClick={() => { this.setState({ descriptionVisible: !this.state.descriptionVisible && this.props.role.descriptionEnabled && this.props.clickable })}}
         >
           <img
             src={user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
@@ -218,7 +218,7 @@ class RoleComponent extends React.Component {
             <p className="font-semibold">{role.name}</p>
             <p>{this.makeDisplayName(user)}</p>
             {
-              this.props.role.descriptionEnabled ? (
+              this.props.role.descriptionEnabled && this.props.clickable ? (
                 <p className="italic text-sm">Click for more info!</p>
               ) : null
             }

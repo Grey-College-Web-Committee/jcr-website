@@ -421,9 +421,9 @@ app.use("/api/debt", isLoggedIn, debtRoute);
 app.use("/api/careers", isLoggedIn, careersRoute);
 app.use("/api/feedback", isLoggedIn, feedbackRoute);
 app.use("/api/bar", isLoggedIn, barRoute);
-app.use("/api/jcr", isLoggedIn, jcrRoute);
+app.use("/api/jcr", jcrRoute);
 app.use("/api/profile", isLoggedIn, profileRoute);
-app.use("/api/sportsandsocs", isLoggedIn, sportsAndSocsRoute)
+app.use("/api/sportsandsocs", sportsAndSocsRoute)
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
@@ -473,7 +473,7 @@ app.get("/uploads/images/bar/:image", isLoggedIn, function(req, res) {
   res.sendFile(path.join(__dirname, `./uploads/images/bar/${image}`));
 });
 
-app.get("/uploads/images/profile/:image", isLoggedIn, function(req, res) {
+app.get("/uploads/images/profile/:image", function(req, res) {
   const image = req.params.image;
   res.sendFile(path.join(__dirname, `./uploads/images/profile/${image}`));
 });

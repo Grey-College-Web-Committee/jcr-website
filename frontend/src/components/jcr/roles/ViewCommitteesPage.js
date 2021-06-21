@@ -142,6 +142,7 @@ class ViewCommitteesPage extends React.Component {
                     role={entry.JCRRole}
                     user={link.User}
                     vacant={false}
+                    clickable={true}
                   />
                 ))}
                 {entry.JCRRole.JCRRoleUserLinks.length === 0 ? (
@@ -150,6 +151,7 @@ class ViewCommitteesPage extends React.Component {
                     role={entry.JCRRole}
                     user={null}
                     vacant={true}
+                    clickable={true}
                   />
                 ): null}
               </React.Fragment>
