@@ -10,8 +10,6 @@ class SportsAndSocsPage extends React.Component {
     super(props);
 
     this.state = {
-      isMember: true,
-      isLoggedIn: true,
       loaded: false,
       status: 0,
       error: "",
@@ -28,27 +26,6 @@ class SportsAndSocsPage extends React.Component {
 
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
-    let membershipCheck;
-    let skipChecks = false;
-
-    try {
-      membershipCheck = await api.get("/auth/verify");
-    } catch (error) {
-      skipChecks = true;
-      this.setState({ isLoggedIn: false });
-    }
-
-    // Ensure they are an admin
-    if(!skipChecks) {
-      if(membershipCheck.data.user.permissions) {
-        if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
-          this.setState({ isMember: false });
-        }
-      } else {
-        this.setState({ isMember: false });
-      }
-    }
-
     // Once the component is ready we can query the API
     let content;
 
@@ -72,7 +49,7 @@ class SportsAndSocsPage extends React.Component {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
         return (
-         <Redirect to={`/errors/${this.state.status}`} />
+          <Redirect to={`/errors/${this.state.status}`} />
         );
       }
 

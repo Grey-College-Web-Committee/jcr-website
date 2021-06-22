@@ -7,12 +7,27 @@ const { User, Permission, PermissionLink, SportAndSoc } = require("../database.m
 const { hasPermission } = require("../utils/permissionUtils.js");
 
 router.get("/", async (req, res) => {
+  // Only get the email addresses if they are logged in
+  const allowEmails = req.session.user && req.cookies.user_sid;
+
   let sportsAndSocs;
 
-  try {
-    sportsAndSocs = await SportAndSoc.findAll();
-  } catch (error) {
-    return res.status(500).json({ error: "Unable to fetch the sports and socs" });
+  if(!allowEmails) {
+    try {
+      sportsAndSocs = await SportAndSoc.findAll({
+        attributes: {
+          exclude: [ "email" ]
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to fetch the sports and socs" });
+    }
+  } else {
+    try {
+      sportsAndSocs = await SportAndSoc.findAll();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to fetch the sports and socs" });
+    }
   }
 
   // Returns a 200 status code with a short JSON response
