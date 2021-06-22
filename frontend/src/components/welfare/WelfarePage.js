@@ -6,9 +6,13 @@ import LoadingHolder from '../common/LoadingHolder';
 import PersonElement from './PersonElement';
 
 const bios = {
-  "TUITE": "Hey, my name is Fiona I'm a second year studying human geography. You'll find me playing netball (badly) eating all the college yogurt or colouring in, I do take geography after all...",
-  "DOCHERTY": "Hi I’m Lucy, I’m a first year studying Psychology. You can usually find me in Grey bar with my friends (always with a toastie in hand, of course), playing hockey, or in the Billy B trying to understand statistics. I’m so happy to be on the welfare team this year and look forward to meeting you all!",
-  "DANDY": "Hi everyone, I’m Joe a second year engineer. I’m so excited to be a part of welfare this year and I can’t wait to meet you all! When I’m not building bridges (or whatever engineers are supposed to be doing) I’m playing dodgeball for both university and Grey teams."
+  "TUITE": "Hey, my name is Fiona I'm a third year studying human geography. You'll find me playing netball (badly) eating all the college yogurt or colouring in, I do take geography after all...",
+  "DOCHERTY": "Hi I’m Lucy, I’m a third year studying Psychology. You can usually find me in Grey bar with my friends (always with a toastie in hand, of course), playing hockey, or in the Billy B trying to understand statistics. I’m so happy to be on the welfare team this year and look forward to meeting you all!",
+  "DANDY": "Hi everyone, I’m Joe a second year engineer. I’m so excited to be a part of welfare this year and I can’t wait to meet you all! When I’m not building bridges (or whatever engineers are supposed to be doing) I’m playing dodgeball for both university and Grey teams.",
+  "COTTRILL": "Hi my name is Amy and I study English and History. You can normally find me attempting to play mixed lacrosse, hunting for some mandarin yogurts in the canteen or in the Billy B reading Austen! I’m so excited to be on the welfare team this year and getting more involved in life at Grey!",
+  "VAUGHAN": "Hi I’m Emily and I study music. You’ll probably see me playing the trumpet somewhere or at grey bar with my friends. I’m so excited to be on welfare this year and I can’t wait to meet everyone!",
+  "TENBROEK": "Hi I’m Emilie a second year English and History student and I’m so excited to be part of welfare this year. I love reading, baking and walks with my friends. I’m always up for an excuse not to write my essays, so come and say hello any time!",
+  "MEAD": "Hello, I’m Johnny, I’m a 3rd BSc geography student and am excited to be one of your welfare officers this year. I enjoy running, cats, food and love playing frisbee and I am always down for a good chat"
 }
 
 class WelfarePage extends React.Component {
