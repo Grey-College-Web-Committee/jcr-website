@@ -74,4 +74,8 @@ class NewRowForm extends React.Component {
   }
 }
 
+NewRowForm.propTypes = {
+  onCreate: PropTypes.func.isRequired
+}
+
 export default NewRowForm;

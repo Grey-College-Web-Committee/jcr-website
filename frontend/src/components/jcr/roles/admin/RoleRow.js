@@ -316,4 +316,9 @@ class RoleRow extends React.Component {
   }
 }
 
+RoleRow.propTypes = {
+  role: PropTypes.object.isRequired,
+  committees: PropTypes.array.isRequired
+}
+
 export default RoleRow;

@@ -48,6 +48,7 @@ class SportsAndSocsItem extends React.Component {
                 <img
                   src="/images/socials/email.png"
                   className="w-auto h-8"
+                  alt="Email"
                 />
               </a>
             )
@@ -58,6 +59,7 @@ class SportsAndSocsItem extends React.Component {
                 <img
                   src="/images/socials/f_logo_RGB-Blue_100.png"
                   className="w-auto h-8"
+                  alt="Facebook"
                 />
               </a>
             )
@@ -68,6 +70,7 @@ class SportsAndSocsItem extends React.Component {
                 <img
                   src="/images/socials/Instagram_Glyph_Gradient_RGB.png"
                   className="w-auto h-8"
+                  alt="Instagram"
                 />
               </a>
             )
@@ -78,6 +81,7 @@ class SportsAndSocsItem extends React.Component {
                 <img
                   src="/images/socials/icon_clyde_blurple_RGB.png"
                   className="w-auto h-8"
+                  alt="Discord"
                 />
               </a>
             )
@@ -86,6 +90,16 @@ class SportsAndSocsItem extends React.Component {
       </div>
     )
   }
+}
+
+SportsAndSocsItem.propTypes = {
+  name: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  email: PropTypes.string.isRequired,
+  facebook: PropTypes.string.isRequired,
+  instagram: PropTypes.string.isRequired,
+  discord: PropTypes.string.isRequired,
+  type: PropTypes.string.isRequired
 }
 
 export default SportsAndSocsItem;

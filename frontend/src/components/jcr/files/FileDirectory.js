@@ -34,11 +34,12 @@ class FileDirectory extends React.Component {
           this.props.subFolders.sort((a, b) => {
             return a.details.name > b.details.name ? 1 : (a.details.name < b.details.name ? -1 : 0)
           }).map((subfolder, i) => (
-            <div className="my-1">
+            <div className="my-1" key={i}>
               <div className="flex flex-row items-center cursor-pointer" onClick={() => this.toggleOpen(i)}>
                 <img
                   src={this.state.open[i] ? "/images/files/folder_open.png" : "/images/files/folder_closed.png"}
                   className="h-8 w-8"
+                  alt="Folder"
                 />
                 <span className="ml-2">{subfolder.details.name}</span>
               </div>
@@ -56,11 +57,12 @@ class FileDirectory extends React.Component {
           this.props.files.sort((a, b) => {
             return a.name > b.name ? 1 : (a.name < b.name ? -1 : 0)
           }).map((file, i) => (
-            <a className="" href={`/uploads/jcr/${file.realFileName}/${file.name}`} target="_blank">
+            <a href={`/uploads/jcr/${file.realFileName}/${file.name}`} target="_blank" key={i} rel="noopener noreferrer">
               <div className="flex flex-row my-1 items-center">
                 <img
                   src="/images/files/file.png"
                   className="h-8 w-8"
+                  alt="File"
                 />
                 <span className="ml-2">{file.name}</span>
               </div>
@@ -70,6 +72,15 @@ class FileDirectory extends React.Component {
       </div>
     );
   }
+}
+
+FileDirectory.propTypes = {
+  details: PropTypes.any,
+  files: PropTypes.array.isRequired,
+  leaf: PropTypes.bool.isRequired,
+  parentOpen: PropTypes.bool.isRequired,
+  subFolders: PropTypes.array.isRequired,
+  topLevel: PropTypes.bool.isRequired
 }
 
 export default FileDirectory;

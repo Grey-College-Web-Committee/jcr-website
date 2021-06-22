@@ -219,4 +219,8 @@ class SportsAndSocsRow extends React.Component {
   }
 }
 
+SportsAndSocsRow.propTypes = {
+  record: PropTypes.object.isRequired
+}
+
 export default SportsAndSocsRow;

@@ -119,4 +119,8 @@ class CordialRow extends React.Component {
   }
 }
 
+CordialRow.propTypes = {
+  cordial: PropTypes.object.isRequired
+}
+
 export default CordialRow;

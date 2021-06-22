@@ -58,8 +58,6 @@ class FileRow extends React.Component {
   }
 
   render () {
-    const { file } = this.props;
-
     if(this.state.deleted) {
       return null;
     }
@@ -122,6 +120,11 @@ class FileRow extends React.Component {
       </tr>
     );
   }
+}
+
+FileRow.propTypes = {
+  file: PropTypes.object.isRequired,
+  folders: PropTypes.array.isRequired
 }
 
 export default FileRow;

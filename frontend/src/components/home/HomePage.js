@@ -88,7 +88,6 @@ class HomePage extends React.Component {
   }
 
   render () {
-    const loggedIn = this.context !== undefined && this.context !== null;
     const { execMembers } = this.state;
 
     return (
@@ -130,12 +129,14 @@ class HomePage extends React.Component {
                 <img
                   className="w-14 h-14"
                   src="/images/socials/Instagram_Glyph_Gradient_RGB.png"
+                  alt="Instagram Logo"
                 />
               </a>
               <a href="https://www.facebook.com/greycollegejcr" target="_blank" rel="noopener noreferrer">
                 <img
                   className="w-14 h-14"
                   src="/images/socials/f_logo_RGB-Blue_100.png"
+                  alt="Facebook Logo"
                 />
               </a>
             </div>
@@ -168,10 +169,12 @@ class HomePage extends React.Component {
                 src="/images/home/events_collage.jpg"
                 style={{width: "500px"}}
                 className="h-auto hidden lg:block ml-2"
+                alt="Events Collage"
               />
               <img
                 src="/images/home/events_collage.jpg"
                 className="w-full h-auto lg:hidden"
+                alt="Events Collage"
               />
             </div>
           </div>

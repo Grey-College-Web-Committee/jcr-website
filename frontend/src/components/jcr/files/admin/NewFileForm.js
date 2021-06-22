@@ -134,4 +134,9 @@ class NewFileForm extends React.Component {
   }
 }
 
+NewFileForm.propTypes = {
+  folders: PropTypes.array.isRequired,
+  onCreate: PropTypes.func.isRequired
+}
+
 export default NewFileForm;

@@ -19,7 +19,6 @@ class DrinkRow extends React.Component {
       name: this.props.baseDrink.name,
       description: this.props.baseDrink.description,
       typeId: this.props.baseDrink.typeId,
-      available: this.props.baseDrink.available,
       edited: false,
       prices
     }
@@ -174,6 +173,12 @@ class DrinkRow extends React.Component {
       </tr>
     );
   }
+}
+
+DrinkRow.propTypes = {
+  baseDrink: PropTypes.object.isRequired,
+  types: PropTypes.array.isRequired,
+  sizes: PropTypes.array.isRequired
 }
 
 export default DrinkRow;

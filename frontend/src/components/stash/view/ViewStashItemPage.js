@@ -8,7 +8,6 @@ import Cart from '../../cart/Cart';
 class ViewStashItemPage extends React.Component {
   constructor(props) {
     super(props);
-    const now = new Date();
 
     this.cart = new Cart();
     this.state = {

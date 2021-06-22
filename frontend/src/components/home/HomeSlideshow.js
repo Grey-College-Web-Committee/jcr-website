@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import data from './HomeSlideshowContent';
 
 class HomeSlideshow extends React.Component {
@@ -88,11 +87,13 @@ class HomeSlideshow extends React.Component {
           src={selected.image}
           className="w-full h-auto relative z-0 lg:block hidden"
           onLoad={() => this.setState({ firstImageLoaded: true })}
+          alt="Slideshow"
         ></img>
         <img
           src={selected.mobile_image}
           className="w-full h-auto relative z-0 block lg:hidden"
           onLoad={() => this.setState({ firstImageLoaded: true })}
+          alt="Slideshow"
         ></img>
         <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-auto flex-col items-end text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-between md:flex hidden">
           <h2 className="font-bold text-4xl">{selected.desktop_title}</h2>

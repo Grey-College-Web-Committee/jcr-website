@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
@@ -68,7 +68,7 @@ class SportsAndSocsPage extends React.Component {
             <p>At Grey, we offer one of the widest range of Sports and Societies (more commonly referred to as 'Sport and Socs') out of any other colleges in Durham. From the mainstream, to the downright bizarre, we are confident that there will be at least one to suit your taste! If you want to start your own society or sports team then you just need to register it with the JCR.
               {
                 this.state.isLoggedIn ? (
-                  <span>To do this, please <a href="mailto:grey.sportssocieties@durham.ac.uk?subject=New%20Sport%20or%20Society" target="_blank" className="font-semibold underline">email the Sports and Socs Officer by clicking here.</a></span>
+                  <span>To do this, please <a href="mailto:grey.sportssocieties@durham.ac.uk?subject=New%20Sport%20or%20Society" target="_blank" className="font-semibold underline" rel="noopener noreferrer">email the Sports and Socs Officer by clicking here.</a></span>
                 ) : null
               }
             </p>

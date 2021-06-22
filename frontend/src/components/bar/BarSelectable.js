@@ -21,8 +21,6 @@ class BarSelectable extends React.Component {
       >Unavailable</button>
     );
 
-    const imageUrl = `/uploads/images/bar/${this.props.image}`;
-
     return (
       <div className="flex flex-col md:w-64 w-40 border-red-900 border-8 m-2">
         <div className="flex flex-col justify-between text-lg font-semibold h-full">

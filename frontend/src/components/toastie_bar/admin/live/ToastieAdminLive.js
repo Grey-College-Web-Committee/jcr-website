@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
 import socketIOClient from 'socket.io-client';

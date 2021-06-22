@@ -109,4 +109,13 @@ class MemberSearch extends React.Component {
   }
 }
 
+MemberSearch.propTypes = {
+  title: PropTypes.string.isRequired,
+  ticketTypeId: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
+  disabled: PropTypes.bool.isRequired,
+  addMember: PropTypes.func.isRequired,
+  rejectIf: PropTypes.func.isRequired,
+  disabledMessage: PropTypes.string.isRequired
+}
+
 export default MemberSearch;

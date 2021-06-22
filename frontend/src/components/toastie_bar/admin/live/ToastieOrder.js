@@ -94,4 +94,11 @@ class ToastieOrder extends React.Component {
   }
 }
 
+ToastieOrder.propTypes = {
+  order: PropTypes.object.isRequired,
+  completed: PropTypes.bool.isRequired,
+  updateOrderCompleted: PropTypes.func.isRequired,
+  showCompleted: PropTypes.bool.isRequired
+}
+
 export default ToastieOrder;

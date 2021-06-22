@@ -37,7 +37,7 @@ class ViewBarItemPage extends React.Component {
 
   onSelectMixerOrSizeOrCordial = e => {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), errorAdding: null }, () => {
-      const { mixer, mixers, size, sizes, currentPrice, cordial, cordials } = this.state;
+      const { mixer, mixers, size, sizes, cordial, cordials } = this.state;
       let newPrice = 0;
 
       if(mixer !== "") {

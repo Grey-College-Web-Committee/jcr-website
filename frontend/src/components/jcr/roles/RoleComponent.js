@@ -94,7 +94,7 @@ class RoleComponent extends React.Component {
               <div className="border-2 border-red-900">
                 <img
                   src={vacant || user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
-                  alt="User Profile Picture"
+                  alt="User Profile"
                   className="w-auto"
                 />
                 <div className="p-1">
@@ -185,7 +185,7 @@ class RoleComponent extends React.Component {
           >
             <img
               src="/images/default_avatar.png"
-              alt="Vacant Picture"
+              alt="Vacant"
               className="w-auto"
             />
             <div className="p-1">
@@ -211,7 +211,7 @@ class RoleComponent extends React.Component {
         >
           <img
             src={user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
-            alt="User Profile Picture"
+            alt="User Profile"
             className="w-auto"
           />
           <div className="p-1">
@@ -227,6 +227,13 @@ class RoleComponent extends React.Component {
       </React.Fragment>
     )
   }
+}
+
+RoleComponent.propTypes = {
+  role: PropTypes.object.isRequired,
+  user: PropTypes.object.isRequired,
+  vacant: PropTypes.bool.isRequired,
+  clickable: PropTypes.bool.isRequired
 }
 
 export default RoleComponent;

@@ -439,8 +439,6 @@ class CheckoutPage extends React.Component {
   }
 
   isReadyForPayment = () => {
-    const now = new Date();
-
     if(!this.state.requiresDeliveryOption) {
       return true;
     }

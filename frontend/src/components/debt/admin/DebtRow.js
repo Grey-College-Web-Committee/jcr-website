@@ -67,4 +67,9 @@ class DebtRow extends React.Component {
   }
 }
 
+DebtRow.propTypes = {
+  debt: PropTypes.object.isRequired,
+  onDelete: PropTypes.func.isRequired
+}
+
 export default DebtRow;

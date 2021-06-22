@@ -70,7 +70,7 @@ class PersonElement extends React.Component {
       >
         <img
           src={user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
-          alt="User Profile Picture"
+          alt="User Profile"
           className="w-auto"
         />
         <div className="p-1">

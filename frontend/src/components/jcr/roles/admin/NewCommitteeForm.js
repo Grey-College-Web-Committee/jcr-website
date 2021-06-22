@@ -89,4 +89,8 @@ class NewCommitteeForm extends React.Component {
   }
 }
 
+NewCommitteeForm.propTypes = {
+  onCreate: PropTypes.func.isRequired
+}
+
 export default NewCommitteeForm;

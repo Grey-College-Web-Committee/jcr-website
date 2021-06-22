@@ -156,10 +156,8 @@ class EventsAdminBookingPage extends React.Component {
 
     const packaged = Object.keys(group).map(k => group[k]);
 
-    let result;
-
     try {
-      result = await api.post("/events/booking/admin", { group: packaged, ticketTypeId });
+      await api.post("/events/booking/admin", { group: packaged, ticketTypeId });
     } catch (error) {
       alert(error.response.data.error);
       return;

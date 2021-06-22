@@ -3,9 +3,6 @@ import { Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
-import CountdownClock from '../../common/CountdownClock';
-import CheckoutForm from '../../checkout/CheckoutForm';
-import dateFormat from 'dateformat';
 
 class EventsFreeReqPage extends React.Component {
   constructor(props) {
@@ -176,7 +173,7 @@ class EventsFreeReqPage extends React.Component {
     // This will actually create the components to be rendered in the form
     Object.keys(requiredInfoStructure).forEach((ek, i) => {
       const element = requiredInfoStructure[ek];
-      const { name, required, type } = element;
+      const { name, type } = element;
       let htmlElement = null;
 
       // Need to handle each type separately

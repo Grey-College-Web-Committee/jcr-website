@@ -156,4 +156,11 @@ class AddGuest extends React.Component {
   }
 }
 
+AddGuest.propTypes = {
+  disabled: PropTypes.bool.isRequired,
+  addGuest: PropTypes.func.isRequired,
+  rejectIf: PropTypes.func.isRequired,
+  disabledMessage: PropTypes.string.isRequired,
+}
+
 export default AddGuest;

@@ -41,8 +41,6 @@ class TypeRow extends React.Component {
   }
 
   render () {
-    const { type } = this.props;
-
     return (
       <tr className="text-center border-b border-gray-400">
         <td className="p-2 border-r border-gray-400">
@@ -84,6 +82,10 @@ class TypeRow extends React.Component {
       </tr>
     )
   }
+}
+
+TypeRow.propTypes = {
+  type: PropTypes.object.isRequired
 }
 
 export default TypeRow;

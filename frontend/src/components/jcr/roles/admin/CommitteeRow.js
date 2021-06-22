@@ -103,4 +103,8 @@ class CommitteeRow extends React.Component {
   }
 }
 
+CommitteeRow.propTypes = {
+  committee: PropTypes.object.isRequired
+}
+
 export default CommitteeRow;

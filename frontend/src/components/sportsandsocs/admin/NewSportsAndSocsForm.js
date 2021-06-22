@@ -171,4 +171,8 @@ class NewSportsAndSocsForm extends React.Component {
   }
 }
 
+NewSportsAndSocsForm.propTypes = {
+  onCreate: PropTypes.func.isRequired
+}
+
 export default NewSportsAndSocsForm;

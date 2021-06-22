@@ -105,4 +105,9 @@ class NewFolderForm extends React.Component {
   }
 }
 
+NewFolderForm.propTypes = {
+  folders: PropTypes.array.isRequired,
+  onCreate: PropTypes.func.isRequired
+}
+
 export default NewFolderForm;

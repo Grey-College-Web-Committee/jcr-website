@@ -249,10 +249,8 @@ class BarBookingPage extends React.Component {
   cancelBooking = async (date, id) => {
     this.setState({ disabled: true });
 
-    let result;
-
     try {
-      result = await api.post("/bar/book/cancel", { id });
+      await api.post("/bar/book/cancel", { id });
     } catch (error) {
       alert(error.response.data.error);
       this.setState({ disabled: false });

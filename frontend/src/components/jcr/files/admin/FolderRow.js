@@ -109,4 +109,9 @@ class FolderRow extends React.Component {
   }
 }
 
+FolderRow.propTypes = {
+  folder: PropTypes.object.isRequired,
+  folders: PropTypes.array.isRequired
+}
+
 export default FolderRow;

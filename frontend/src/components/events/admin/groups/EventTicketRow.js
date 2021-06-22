@@ -101,4 +101,10 @@ class EventTicketRow extends React.Component {
   }
 }
 
+EventTicketRow.propTypes = {
+  ticket: PropTypes.object.isRequired,
+  requiresInformation: PropTypes.bool.isRequired,
+  leadBooker: PropTypes.object.isRequired,
+}
+
 export default EventTicketRow;

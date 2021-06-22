@@ -37,8 +37,6 @@ class SizeRow extends React.Component {
   }
 
   render () {
-    let { size } = this.props;
-
     return (
       <tr className="text-center border-b border-gray-400">
         <td className="p-2 border-r border-gray-400">
@@ -62,6 +60,10 @@ class SizeRow extends React.Component {
       </tr>
     );
   }
+}
+
+SizeRow.propTypes = {
+  size: PropTypes.object.isRequired
 }
 
 export default SizeRow;

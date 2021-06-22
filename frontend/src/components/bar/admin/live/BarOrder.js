@@ -137,4 +137,12 @@ class BarOrder extends React.Component {
   }
 }
 
+BarOrder.propTypes = {
+  order: PropTypes.object.isRequired,
+  updateContentCompleted: PropTypes.func.isRequired,
+  updateOrderPaid: PropTypes.func.isRequired,
+  updateOrderCompleted: PropTypes.func.isRequired,
+  completed: PropTypes.bool.isRequired
+}
+
 export default BarOrder;

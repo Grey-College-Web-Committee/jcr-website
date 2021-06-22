@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
 import socketIOClient from 'socket.io-client';
@@ -183,7 +183,7 @@ class BarAdminLive extends React.Component {
       );
     }
 
-    const { activeOrders, refreshKey, connected, showCompleted, completedOrders, openForOrders } = this.state;
+    const { activeOrders, refreshKey, showCompleted, completedOrders, openForOrders } = this.state;
 
     let knownKeys = Object.keys(activeOrders).map(key => {
       return {

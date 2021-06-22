@@ -119,4 +119,8 @@ class MixerRow extends React.Component {
   }
 }
 
+MixerRow.propTypes = {
+  mixer: PropTypes.object.isRequired
+}
+
 export default MixerRow;

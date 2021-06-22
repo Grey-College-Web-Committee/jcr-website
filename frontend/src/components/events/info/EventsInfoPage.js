@@ -128,7 +128,7 @@ class EventsInfoPage extends React.Component {
     }
 
     const { galleryImages, currentGalleryImage } = this.state;
-    const { name, description, date } = this.state.event;
+    const { name, description } = this.state.event;
     const bannerImages = this.state.event.EventImages.filter(img => img.position === "banner");
 
     if(bannerImages.length === 0) {

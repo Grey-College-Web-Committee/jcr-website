@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
@@ -151,7 +151,7 @@ class MyProfile extends React.Component {
       );
     }
 
-    const { user, isMember } = this.state;
+    const { user } = this.state;
 
     return (
       <div className="flex flex-col justify-start">
@@ -173,7 +173,7 @@ class MyProfile extends React.Component {
               <h3 className="py-1 text-xl">Current Picture:</h3>
               <img
                 src={user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
-                alt="Your Profile Picture"
+                alt="Your Profile"
                 className="h-auto w-48 border-red-900 border-2"
               />
               <h3 className="py-1 text-xl">Change Picture:</h3>
@@ -195,7 +195,7 @@ class MyProfile extends React.Component {
                     <p>Selected Image:</p>
                     <img
                       src={this.state.temporaryImageSrc}
-                      alt="Uploaded Image"
+                      alt="Uploaded"
                     />
                     <button
                       className="px-4 py-1 mt-2 rounded text-lg bg-grey-500 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
