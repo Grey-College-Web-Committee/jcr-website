@@ -7,16 +7,27 @@ const { User, Permission, PermissionLink, SportAndSoc } = require("../database.m
 const { hasPermission } = require("../utils/permissionUtils.js");
 
 router.get("/", async (req, res) => {
-  if(!hasPermission(req.session, "jcr.member")) {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
-  }
+  // Only get the email addresses if they are logged in
+  const allowEmails = req.session.user && req.cookies.user_sid;
 
   let sportsAndSocs;
 
-  try {
-    sportsAndSocs = await SportAndSoc.findAll();
-  } catch (error) {
-    return res.status(500).json({ error: "Unable to fetch the sports and socs" });
+  if(!allowEmails) {
+    try {
+      sportsAndSocs = await SportAndSoc.findAll({
+        attributes: {
+          exclude: [ "email" ]
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to fetch the sports and socs" });
+    }
+  } else {
+    try {
+      sportsAndSocs = await SportAndSoc.findAll();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to fetch the sports and socs" });
+    }
   }
 
   // Returns a 200 status code with a short JSON response
@@ -24,6 +35,10 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/create", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "sportsandsocs.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -70,6 +85,10 @@ router.post("/create", async (req, res) => {
 });
 
 router.post("/update", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "sportsandsocs.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
@@ -138,6 +157,10 @@ router.post("/update", async (req, res) => {
 });
 
 router.delete("/:id", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
   if(!hasPermission(req.session, "sportsandsocs.manage")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }

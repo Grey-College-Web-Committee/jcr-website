@@ -7,7 +7,7 @@ class DropdownMenu extends React.Component {
     const visibility = this.props.active ? "visible" : "invisible";
 
     return (
-      <div className={`absolute z-10 mt-4 ${visibility}`}>
+      <div className={`absolute z-40 mt-4 ${visibility}`}>
         <ul className="flex flex-col bg-red-900 text-white">
           {this.props.items.map((item, i) => (
             <DropdownElement

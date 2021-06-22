@@ -43,10 +43,10 @@ class SportsAndSocsItem extends React.Component {
         </div>
         <div className="border-t border-gray-400 pt-2 flex flex-row justify-end">
           {
-            email === null || email.length === 0 ? null : (
+            email === undefined || email === null || email.length === 0 ? null : (
               <a className="ml-2" href={`mailto:${email}?subject=${name} - Info`} target="_blank" rel="noopener noreferrer">
                 <img
-                  src="/images/socials/gmail.png"
+                  src="/images/socials/email.png"
                   className="w-auto h-8"
                 />
               </a>

@@ -45,6 +45,55 @@ class NavBar extends React.Component {
     if(user === undefined || user === null) {
       const loggedOutOptions = [
         {
+          displayName: "JCR",
+          url: null,
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: [
+            {
+              displayName: "Roles and Committees",
+              url: "/jcr/committees",
+              requiredPermission: null
+            },
+            {
+              displayName: "Sports And Socs",
+              url: "/sportsandsocs",
+              requiredPermission: null
+            },
+            {
+              displayName: "Trust",
+              url: "/jcr/trust",
+              requiredPermission: null
+            },
+            {
+              displayName: "Tech",
+              url: "/tech",
+              requiredPermission: null
+            },
+            {
+              displayName: "MCR",
+              url: "/mcr",
+              requiredPermission: null
+            },
+          ],
+        },
+        {
+          displayName: "Welfare",
+          url: "/welfare",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false
+        },
+        {
+          displayName: "Facilities",
+          url: "/facilities",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false
+        },
+        {
           displayName: "Login",
           url: "/accounts/login",
           requiredPermission: null,
@@ -95,14 +144,24 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
-              displayName: "Feedback",
-              url: "/feedback",
+              displayName: "Sports And Socs",
+              url: "/sportsandsocs",
               requiredPermission: null
             },
             {
-              displayName: "Sports And Socs",
-              url: "/sportsandsocs",
+              displayName: "Trust",
+              url: "/jcr/trust",
               requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "Tech",
+              url: "/tech",
+              requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "MCR",
+              url: "/mcr",
+              requiredPermission: null
             },
             {
               displayName: "Media",
@@ -113,15 +172,30 @@ class NavBar extends React.Component {
               displayName: "Career Angels",
               url: "/careers",
               requiredPermission: "jcr.member"
-            }
+            },
+            {
+              displayName: "Feedback",
+              url: "/feedback",
+              requiredPermission: null
+            },
+            {
+              displayName: "Make a Complaint",
+              url: "/complaints",
+              requiredPermission: null
+            },
           ],
         },
         {
-          displayName: "Services",
+          displayName: "Services and Facilities",
           url: null,
           requiredPermission: null,
           staticImage: null,
           dropdown: [
+            {
+              displayName: "Facilities",
+              url: "/facilities",
+              requiredPermission: null
+            },
             {
               displayName: "Toasties",
               url: "/toasties",
@@ -174,14 +248,6 @@ class NavBar extends React.Component {
         {
           displayName: "Events",
           url: "/events",
-          requiredPermission: null,
-          staticImage: null,
-          dropdown: null,
-          alwaysDisplayed: null
-        },
-        {
-          displayName: "Phoenix Festival Tickets",
-          url: "/phoenix-2021",
           requiredPermission: null,
           staticImage: null,
           dropdown: null,
@@ -288,11 +354,6 @@ class NavBar extends React.Component {
               displayName: "Export Events",
               url: "/events/admin/export",
               requiredPermission: "events.export"
-            },
-            {
-              displayName: "Export Preferences and Pre-Orders",
-              url: "/events/drinks/admin",
-              requiredPermission: "events.manage"
             },
             {
               displayName: "Manage Debts",

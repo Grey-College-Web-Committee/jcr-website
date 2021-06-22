@@ -11,7 +11,6 @@ class ViewCommitteesPage extends React.Component {
     super(props);
 
     this.state = {
-      isMember: true,
       loaded: false,
       status: 0,
       error: "",
@@ -29,26 +28,6 @@ class ViewCommitteesPage extends React.Component {
 
   // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
-    let membershipCheck;
-
-    try {
-      membershipCheck = await api.get("/auth/verify");
-    } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
-      return;
-    }
-
-    // Ensure they are an admin
-    if(membershipCheck.data.user.permissions) {
-      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
-        this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
-        return;
-      }
-    } else {
-      this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
-      return;
-    }
-
     // Once the component is ready we can query the API
     let content;
 
@@ -142,6 +121,7 @@ class ViewCommitteesPage extends React.Component {
                     role={entry.JCRRole}
                     user={link.User}
                     vacant={false}
+                    clickable={true}
                   />
                 ))}
                 {entry.JCRRole.JCRRoleUserLinks.length === 0 ? (
@@ -150,6 +130,7 @@ class ViewCommitteesPage extends React.Component {
                     role={entry.JCRRole}
                     user={null}
                     vacant={true}
+                    clickable={true}
                   />
                 ): null}
               </React.Fragment>
@@ -166,12 +147,6 @@ class ViewCommitteesPage extends React.Component {
         return (
          <Redirect to={`/errors/${this.state.status}`} />
         );
-      }
-
-      if(!this.state.isMember) {
-        return (
-          <Redirect to="/membership" />
-        )
       }
 
       return (
