@@ -86,7 +86,7 @@ class HomeSlideshow extends React.Component {
           <h2 className="font-bold text-4xl">{selected.desktop_title}</h2>
           <a href={selected.button_link} target={selected.button_target}>
             <button
-              className="font-semibold p-2 text-2xl mt-4 bg-red-900 bg-opacity-50 hover:bg-opacity-75 transition-all focus:outline-none rounded-lg hover:shadow-inner"
+              className="font-semibold p-2 text-2xl mt-4 bg-red-900 bg-opacity-50 hover:bg-opacity-75 transition-all focus:outline-none rounded-lg hover:shadow-inner duration-700 ease-in-out"
             >{selected.button_text}</button>
           </a>
         </div>
