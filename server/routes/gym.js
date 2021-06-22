@@ -60,7 +60,7 @@ router.get("/active", async (req, res) => {
   return res.status(200).json({ membership: null });
 });
 
-router.get("/export", async(req, res) => {
+router.post("/export", async(req, res) => {
   // Admin only
   const { user } = req.session;
 
