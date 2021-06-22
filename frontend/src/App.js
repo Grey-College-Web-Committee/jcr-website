@@ -46,8 +46,6 @@ import EventsFreeReqPage from './components/events/free/EventsFreeReqPage';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
 
-import SpinnerTestPage from './components/common/SpinnerTestPage';
-
 import BarOrderingPage from './components/bar/BarOrderingPage';
 import ViewBarItemPage from './components/bar/ViewBarItemPage';
 import BarBookingPage from './components/bar/book/BarBookingPage';
@@ -502,9 +500,6 @@ class App extends React.Component {
                     <Route exact path="/careers/edit/:id" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("careers.manage") ? <CareersEditPost {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
                     )} />
-                    <Route exact path="/spinner/" render={() => (
-                      this.isLoggedIn() ? ( <SpinnerTestPage /> ) : ( this.loginRef("/spinner") )
-                    )} />
                     <Route exact path="/complaints" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ComplaintsPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/complaints") )
                     )} />
@@ -605,7 +600,7 @@ class App extends React.Component {
                       this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminViewBookings /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/bookings") )
                     )} />
                     <Route exact path="/jcr/committees" render={(props) => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <ViewCommitteesPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees") )
+                      <ViewCommitteesPage {...props} />
                     )} />
                     <Route exact path="/jcr/committees/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewCommitteePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees/manage") )
@@ -614,13 +609,13 @@ class App extends React.Component {
                       this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewRolePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/roles/manage") )
                     )} />
                     <Route exact path="/jcr/files" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <JCRFileListingPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/jcr/files") )
+                      this.isLoggedIn() ? <JCRFileListingPage /> : this.loginRef("/jcr/files")
                     )} />
                     <Route exact path="/jcr/files/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.files") ? ( <ManageJCRFilesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files/manage") )
                     )} />
                     <Route exact path="/jcr/trust" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <JCRTrustPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/jcr/trust") )
+                      <JCRTrustPage />
                     )} />
                     <Route exact path="/my/profile" render={() => (
                       this.isLoggedIn() ? ( <MyProfile /> ) : ( this.loginRef("/my/profile") )
@@ -640,10 +635,10 @@ class App extends React.Component {
                       return null;
                     }} />
                     <Route exact path="/tech" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <TechPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/tech") )
+                      <TechPage />
                     )} />
                     <Route exact path="/facilities" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? ( <FacilitiesPage /> ) : ( <Redirect to="/memberships/join" /> )) : ( this.loginRef("/facilities") )
+                      <FacilitiesPage />
                     )} />
                     <Route exact path="/errors/:code" render={(props) => (
                       <ErrorPage {...props} />

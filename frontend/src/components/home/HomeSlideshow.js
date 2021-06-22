@@ -9,7 +9,8 @@ class HomeSlideshow extends React.Component {
     this.state = {
       position: 0,
       autoChangeId: null,
-      resumeAutoId: null
+      resumeAutoId: null,
+      firstImageLoaded: false
     }
   }
 
@@ -78,18 +79,20 @@ class HomeSlideshow extends React.Component {
   }
 
   render () {
-    const { position } = this.state;
+    const { position, firstImageLoaded } = this.state;
     const selected = data[position];
 
     return (
-      <div className="relative">
+      <div className={`relative ${firstImageLoaded ? "" : "hidden"}`}>
         <img
           src={selected.image}
           className="w-full h-auto relative z-0 lg:block hidden"
+          onLoad={() => this.setState({ firstImageLoaded: true })}
         ></img>
         <img
           src={selected.mobile_image}
           className="w-full h-auto relative z-0 block lg:hidden"
+          onLoad={() => this.setState({ firstImageLoaded: true })}
         ></img>
         <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-auto flex-col items-end text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-between md:flex hidden">
           <h2 className="font-bold text-4xl">{selected.desktop_title}</h2>
@@ -103,7 +106,7 @@ class HomeSlideshow extends React.Component {
           <h2 className="font-bold text-2xl">{selected.mobile_title}</h2>
           <a href={selected.button_link} target={selected.button_target}>
             <button
-              className="font-semibold text-lg"
+              className="font-semibold text-xl"
             >{selected.button_text}</button>
           </a>
         </div>

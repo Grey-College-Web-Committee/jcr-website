@@ -104,17 +104,17 @@ class HomePage extends React.Component {
               <Link to="/sportsandsocs">
                 <button
                   className="bg-white rounded text-grey-500 font-semibold text-2xl p-2 w-full"
-                >Find out more!</button>
+                >See More →</button>
               </Link>
             </div>
             <div className="w-full lg:w-1/2 border-white border-opacity-25 border-2 p-2 lg:mx-4 hover:border-opacity-100 transition-all ease-in-out duration-700 lg:my-0 my-2 flex flex-col justify-between">
               <div>
                 <h2 className="font-semibold text-4xl">Events</h2>
                 <p className="py-4 text-lg">The JCR organises events throughout the year for the members of the JCR. Most of these are led by the Events Manager and the Events Committee. They offer many events throughout the year such as the Winter Ball, Grey Day, Phoenix Ball, and many others. There are also a few other big events throughout the year such as the The President's Guest Night, the Sportsperson Formal, and the Grey College Charity Fashion Show.</p>
-                  <button
-                    className="bg-white rounded text-grey-500 font-semibold text-2xl p-2 w-full"
-                    onClick={this.scrollToEvents}
-                  >See what's on offer</button>
+                <button
+                  className="bg-white rounded text-grey-500 font-semibold text-2xl p-2 w-full"
+                  onClick={this.scrollToEvents}
+                >See More →</button>
               </div>
             </div>
           </div>
@@ -162,7 +162,7 @@ class HomePage extends React.Component {
                   <li>George Palmer Rugby 7s</li>
                 </ul>
                 <p className="py-1 text-lg">As well as large events throughout the year the JCR also hosts Formals which are fancy dinners organised by the Vice President that occur every few weeks in term time. During these, you'll have to wear your gown so it is the perfect chance to look your best in pictures for your family and friends back home.</p>
-                <p className="py-1 text-lg">Formals are really popular, with tickets selling out quickly – a testament to how fun they are! These are often themed events such as a Christmas Formal, Burns' Night, Valentine's, Sportspersons and Stress-Less. Even if you miss out, it's worth heading down to the Greyhound afterwards, as it is always packed with loads of people.</p>
+                <p className="py-1 text-lg">Formals are really popular, with tickets selling out quickly – a testament to how fun they are! These are often themed events such as the Christmas, Burns' Night, Valentine's, Sportspersons and Stress-Less Formals. Even if you miss out, it's worth heading down to the Greyhound afterwards, as it is always packed with loads of people.</p>
               </div>
               <img
                 src="/images/home/events_collage.jpg"

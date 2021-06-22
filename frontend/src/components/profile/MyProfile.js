@@ -163,7 +163,7 @@ class MyProfile extends React.Component {
             <p><span className="font-semibold">Email:</span> { user.email }</p>
             <p><span className="font-semibold">Year:</span> { user.year }</p>
             <p><span className="font-semibold">Membership Details:</span> { user.membershipExpiresAt === null ? "Not a member" : `Expires at ${dateFormat(user.membershipExpiresAt, "dd/mm/yyyy HH:MM")}`}</p>
-            <p><span className="font-semibold">Honourary Life Member:</span> { user.hlm ? "Yes" : "No" }</p>
+            <p><span className="font-semibold">Honorary Life Member:</span> { user.hlm ? "Yes" : "No" }</p>
             <p><span className="font-semibold">Consented for events:</span> { user.eventConsent ? "Yes" : "No" }</p>
           </div>
           <div className="text-left">

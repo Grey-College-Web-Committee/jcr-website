@@ -45,14 +45,29 @@ class NavBar extends React.Component {
     if(user === undefined || user === null) {
       const loggedOutOptions = [
         {
-          displayName: "Grey",
+          displayName: "JCR",
           url: null,
           requiredPermission: null,
           staticImage: null,
           dropdown: [
             {
-              displayName: "Facilities",
-              url: "/facilities",
+              displayName: "Roles and Committees",
+              url: "/jcr/committees",
+              requiredPermission: null
+            },
+            {
+              displayName: "Sports And Socs",
+              url: "/sportsandsocs",
+              requiredPermission: null
+            },
+            {
+              displayName: "Trust",
+              url: "/jcr/trust",
+              requiredPermission: null
+            },
+            {
+              displayName: "Tech",
+              url: "/tech",
               requiredPermission: null
             },
             {
@@ -60,16 +75,19 @@ class NavBar extends React.Component {
               url: "/mcr",
               requiredPermission: null
             },
-            {
-              displayName: "Sports And Socs",
-              url: "/sportsandsocs",
-              requiredPermission: null
-            }
-          ]
+          ],
         },
         {
           displayName: "Welfare",
           url: "/welfare",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false
+        },
+        {
+          displayName: "Facilities",
+          url: "/facilities",
           requiredPermission: null,
           staticImage: null,
           dropdown: null,
@@ -110,29 +128,6 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
-          displayName: "Grey",
-          url: null,
-          requiredPermission: null,
-          staticImage: null,
-          dropdown: [
-            {
-              displayName: "Facilities",
-              url: "/facilities",
-              requiredPermission: null
-            },
-            {
-              displayName: "MCR",
-              url: "/mcr",
-              requiredPermission: null
-            },
-            {
-              displayName: "Sports And Socs",
-              url: "/sportsandsocs",
-              requiredPermission: null
-            }
-          ]
-        },
-        {
           displayName: "JCR",
           url: null,
           requiredPermission: null,
@@ -149,8 +144,23 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
-              displayName: "Feedback",
-              url: "/feedback",
+              displayName: "Sports And Socs",
+              url: "/sportsandsocs",
+              requiredPermission: null
+            },
+            {
+              displayName: "Trust",
+              url: "/jcr/trust",
+              requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "Tech",
+              url: "/tech",
+              requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "MCR",
+              url: "/mcr",
               requiredPermission: null
             },
             {
@@ -164,28 +174,28 @@ class NavBar extends React.Component {
               requiredPermission: "jcr.member"
             },
             {
+              displayName: "Feedback",
+              url: "/feedback",
+              requiredPermission: null
+            },
+            {
               displayName: "Make a Complaint",
               url: "/complaints",
               requiredPermission: null
             },
-            {
-              displayName: "Trust",
-              url: "/jcr/trust",
-              requiredPermission: "jcr.member"
-            },
-            {
-              displayName: "Tech",
-              url: "/tech",
-              requiredPermission: "jcr.member"
-            },
           ],
         },
         {
-          displayName: "Services",
+          displayName: "Services and Facilities",
           url: null,
           requiredPermission: null,
           staticImage: null,
           dropdown: [
+            {
+              displayName: "Facilities",
+              url: "/facilities",
+              requiredPermission: null
+            },
             {
               displayName: "Toasties",
               url: "/toasties",
