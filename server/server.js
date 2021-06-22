@@ -37,7 +37,6 @@ const barRoute = require("./routes/bar");
 const jcrRoute = require("./routes/jcr");
 const profileRoute = require("./routes/profile");
 const sportsAndSocsRoute = require("./routes/sportsandsocs");
-const phoenixRoute = require("./routes/phoenix");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -313,8 +312,6 @@ const requiredPermissions = [
   await JCRFile.sync();
 
   await SportAndSoc.sync();
-
-  await SpecialPhoenixEvent.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({

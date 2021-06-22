@@ -773,74 +773,6 @@ const fulfilOrderProcessors = {
   "debt": fulfilDebtOrders
 }
 
-const handlePhoenixBallReplacement = async (ticketId, isGuest) => {
-  let ticket;
-
-  try {
-    ticket = await SpecialPhoenixEvent.findOne({
-      where: { id: ticketId },
-      include: [ User ]
-    });
-  } catch (error) {
-    return false;
-  }
-
-  if(ticket === null) {
-    return false;
-  }
-
-  ticket.paid = true;
-
-  try {
-    await ticket.save();
-  } catch (error) {
-    return false;
-  }
-
-  if(ticket.additional) {
-    const pfGuestEmail = createPhoenixGuestEmail(ticket);
-    mailer.sendEmail(ticket.User.email, `Phoenix Festival Guest Ticket`, pfGuestEmail);
-  } else {
-    const pfEmail = createPhoenixEmail(ticket);
-    mailer.sendEmail(ticket.User.email, `Phoenix Festival Ticket`, pfEmail);
-  }
-}
-
-const createPhoenixEmail = (ticket) => {
-  let firstName = ticket.User.firstNames.split(",")[0];
-  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
-  const lastName = ticket.User.surname.charAt(0).toUpperCase() + ticket.User.surname.substr(1).toLowerCase();
-  let message = [];
-
-  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
-  message.push(`<p>This email is confirmation of your ticket for the Phoenix Festival.</p>`);
-  message.push(`<p>Dietary Requirements: ${ticket.diet.charAt(0).toUpperCase()}${ticket.diet.substr(1).toLowerCase()}</p>`);
-
-  if(ticket.guestName !== null && ticket.guestName !== "" && ticket.guestName.length !== 0) {
-    message.push(`<p>Guest Name: ${ticket.guestName}</p>`);
-    message.push(`<p>Guest Dietary Requirements: ${ticket.guestDiet.charAt(0).toUpperCase()}${ticket.guestDiet.substr(1).toLowerCase()}</p>`);
-  }
-
-  message.push(`<p><strong>Thank you!</strong></p>`);
-  return message.join("");
-}
-
-const createPhoenixGuestEmail = (ticket) => {
-  let firstName = ticket.User.firstNames.split(",")[0];
-  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
-  const lastName = ticket.User.surname.charAt(0).toUpperCase() + ticket.User.surname.substr(1).toLowerCase();
-  let message = [];
-
-  message.push(`<p>Hello ${firstName} ${lastName},</p>`);
-  message.push(`<p>This email is confirmation of your guest ticket for the Phoenix Festival.</p>`);
-
-  message.push(`<p>Guest Name: ${ticket.guestName}</p>`);
-  message.push(`<p>Guest Dietary Requirements: ${ticket.guestDiet.charAt(0).toUpperCase()}${ticket.guestDiet.substr(1).toLowerCase()}</p>`);
-
-  message.push(`<p><strong>Thank you!</strong></p>`);
-  return message.join("");
-}
-
 router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
@@ -858,12 +790,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
     case "payment_intent.succeeded":
       if(!paymentIntent.metadata) {
         return res.status(400).end();
-      }
-
-      if(paymentIntent.metadata.hasOwnProperty("event_name")) {
-        if(paymentIntent.metadata.event_name === "Phoenix Ball Replacement") {
-          return res.status(204).end();
-        }
       }
 
       // Happens for the GCCFS donations from SquareSpace
@@ -1006,19 +932,6 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
 
       if(!paymentIntent.metadata) {
         return res.status(400).end();
-      }
-
-      console.log(paymentIntent.metadata);
-
-      if(paymentIntent.metadata.hasOwnProperty("event_name")) {
-        if(paymentIntent.metadata.event_name === "Phoenix Ball Replacement") {
-          const { ticketId } = paymentIntent.metadata;
-          const isGuest = paymentIntent.metadata.hasOwnProperty("guestTicket");
-
-          const pbRes = await handlePhoenixBallReplacement(ticketId, isGuest);
-
-          return res.status(204).end();
-        }
       }
 
       // Make sure we have a ticketId

@@ -1476,46 +1476,6 @@ SportAndSoc.init({
   }
 }, { sequelize });
 
-SpecialPhoenixEvent.init({
-  userId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  stripePaymentId: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-    defaultValue: null
-  },
-  paid: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  diet: {
-    type: DataTypes.TEXT,
-    allowNull: false
-  },
-  guestName: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  guestDiet: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  captured: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  additional: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  }
-}, { sequelize });
-
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -1678,4 +1638,3 @@ ShopOrder.hasMany(ToastieOrderTracker, { foreignKey: 'orderId' });
 ToastieOrderTracker.belongsTo(ShopOrder, { foreignKey: 'orderId' });
 
 module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc };
-
