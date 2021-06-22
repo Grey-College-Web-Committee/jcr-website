@@ -100,7 +100,7 @@ class NavBar extends React.Component {
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: false
-        },
+        }
       ];
 
       baseOptions = baseOptions.concat(loggedOutOptions);
@@ -343,6 +343,11 @@ class NavBar extends React.Component {
             {
               displayName: "Manage Events",
               url: "/events/admin",
+              requiredPermission: "events.manage"
+            },
+            {
+              displayName: "Manage Phoenix Festival",
+              url: "/phoenix-2021/admin",
               requiredPermission: "events.manage"
             },
             {

@@ -627,6 +627,9 @@ class App extends React.Component {
                     <Route exact path="/sportsandsocs" render={() => (
                       <SportsAndSocsPage />
                     )} />
+                    <Route exact path="/phoenix-2021" render={() => (
+                      this.isLoggedIn() ? <SpecialPhoenixEventPage /> : this.loginRef("/phoenix-2021")
+                    )} />
                     <Route exact path="/sportsandsocs/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? ( <SportsAndSocsAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/sportsandsocs/admin") )
                     )} />
