@@ -16,7 +16,12 @@ class HomeSlideshow extends React.Component {
   componentDidMount = () => {
     // Force preload the images
     data.forEach(entry => {
-      new Image().src = entry.image;
+      // lg is 1024px
+      if(window.screen.width < 1024) {
+        new Image().src = entry.mobile_image
+      } else {
+        new Image().src = entry.image;
+      }
     });
 
     const autoChangeId = window.setTimeout(this.autoScroll, 5000);
@@ -80,7 +85,11 @@ class HomeSlideshow extends React.Component {
       <div className="relative">
         <img
           src={selected.image}
-          className="w-full h-auto relative z-0"
+          className="w-full h-auto relative z-0 lg:block hidden"
+        ></img>
+        <img
+          src={selected.mobile_image}
+          className="w-full h-auto relative z-0 block lg:hidden"
         ></img>
         <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-auto flex-col items-end text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-between md:flex hidden">
           <h2 className="font-bold text-4xl">{selected.desktop_title}</h2>
@@ -112,18 +121,20 @@ class HomeSlideshow extends React.Component {
             →
           </div>
         </div>
-        <div className="absolute z-10 top-0 left-0 w-full h-auto flex flex-row justify-center text-white items-center mt-2">
-          {
-            data.map((_, i) => {
-              return (
-                <div
-                  key={i}
-                  className={`border-2 border-collapse border-white rounded-full w-3 h-3 ml-2 ${position === i ? "bg-white" : "border-opacity-50 cursor-pointer"}`}
-                  onClick={() => position !== i && this.setPosition(i)}
-                ></div>
-              )
-            })
-          }
+        <div className="absolute z-10 top-0 left-0 w-full h-auto flex flex-col items-center text-white items-center mt-2">
+          <div className="flex flex-row">
+            {
+              data.map((_, i) => {
+                return (
+                  <div
+                    key={i}
+                    className={`border-2 border-collapse border-white rounded-full w-3 h-3 ml-2 ${position === i ? "bg-white" : "border-opacity-50 cursor-pointer"}`}
+                    onClick={() => position !== i && this.setPosition(i)}
+                  ></div>
+                )
+              })
+            }
+          </div>
         </div>
       </div>
     )
