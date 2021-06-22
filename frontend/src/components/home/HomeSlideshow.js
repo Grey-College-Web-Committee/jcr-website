@@ -82,7 +82,7 @@ class HomeSlideshow extends React.Component {
           src={selected.image}
           className="w-full h-auto relative z-0"
         ></img>
-      <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-auto flex-col items-end text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-between md:flex hidden">
+        <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-auto flex-col items-end text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-between md:flex hidden">
           <h2 className="font-bold text-4xl">{selected.desktop_title}</h2>
           <a href={selected.button_link} target={selected.button_target}>
             <button

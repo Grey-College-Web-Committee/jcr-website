@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import HomeSlideshow from './HomeSlideshow';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
@@ -120,13 +121,42 @@ class HomePage extends React.Component {
             </div>
           </div>
         </div>
-        <div className="w-full p-2">
+        <div className="w-full p-2 flex flex-col">
           <h2 className="font-semibold text-3xl">Life at Grey</h2>
           <p className="py-1">Grey College offers a huge amount of opportunities and many of them are organised by the Junior Common Room (JCR) which consists of the majority of students studying at Grey College. Add some stuff... To do:</p>
-          <ul>
-            <li>Sports</li>
-            <li>Events</li>
-          </ul>
+          <div className="flex lg:flex-row flex-col-reverse border-red-900">
+            <div className="w-full lg:w-3/5 py-1">
+              <h3 className="font-semibold text-2xl">Sports and Societies</h3>
+              <p>Some text about sports and societies...</p>
+            </div>
+            <div className="w-full lg:w-2/5">
+              <div className="relative">
+                <img
+                  src="/images/home/sports_1900_600.png"
+                  className="w-full h-auto relative z-0"
+                ></img>
+              <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-auto flex-col items-end text-white justify-end md:flex hidden">
+                  <Link to="/sportsandsocs">
+                    <button
+                      className="font-semibold p-2 text-2xl mt-4 bg-grey-900 bg-opacity-90 hover:bg-opacity-100 transition-all focus:outline-none rounded-lg hover:shadow-inner"
+                    >See what's on offer →</button>
+                </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex lg:flex-row-reverse flex-col-reverse border-red-900">
+            <div className="w-full lg:w-3/5 py-1">
+              <h3 className="font-semibold text-2xl">Events</h3>
+              <p>Some text about events...</p>
+            </div>
+            <div className="w-full lg:w-2/5">
+              <img
+                src="/images/home/sports_1900_600.png"
+                className="w-full h-auto relative z-0"
+              ></img>
+            </div>
+          </div>
         </div>
       </div>
     );
