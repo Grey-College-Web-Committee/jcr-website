@@ -37,11 +37,8 @@ class HomePage extends React.Component {
   scrollToEvents = e => {
     e.preventDefault();
 
-    // Deals with different behaviour on iOS Safari and Google Chrome on desktop
-    const screenOffset = window.screen.width <= 700 ? 0 : window.screen.height / 2;
-
     window.scrollTo({
-      top: this.eventsSection.current.offsetTop + screenOffset,
+      top: this.eventsSection.current.offsetTop,
       left: 0,
       behavior: "smooth"
     });

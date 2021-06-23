@@ -248,7 +248,7 @@ class NavBar extends React.Component {
         {
           displayName: "Events",
           url: "/events",
-          requiredPermission: null,
+          requiredPermission: "jcr.member",
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: null
@@ -294,7 +294,7 @@ class NavBar extends React.Component {
             {
               displayName: "My Bookings",
               url: "/my/bookings",
-              requiredPermission: null
+              requiredPermission: "jcr.member"
             },
             {
               displayName: "Logout",
