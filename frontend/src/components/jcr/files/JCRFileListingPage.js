@@ -10,7 +10,6 @@ class JCRFileListingPage extends React.Component {
     super(props);
 
     this.state = {
-      isMember: true,
       loaded: false,
       status: 0,
       error: "",
@@ -30,18 +29,7 @@ class JCRFileListingPage extends React.Component {
     try {
       membershipCheck = await api.get("/auth/verify");
     } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
-      return;
-    }
-
-    // Ensure they are an admin
-    if(membershipCheck.data.user.permissions) {
-      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
-        this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
-        return;
-      }
-    } else {
-      this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
+      this.setState({ status: error.response.status, error: "Unable to verify membership status" });
       return;
     }
 
@@ -65,12 +53,6 @@ class JCRFileListingPage extends React.Component {
         return (
          <Redirect to={`/errors/${this.state.status}`} />
         );
-      }
-
-      if(!this.state.isMember) {
-        return (
-          <Redirect to="/membership" />
-        )
       }
 
       return (

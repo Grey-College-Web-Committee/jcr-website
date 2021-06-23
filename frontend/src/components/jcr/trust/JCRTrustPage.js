@@ -124,7 +124,7 @@ class JCRTrustPage extends React.Component {
               <p className="py-1">The Vice President is the most senior student in the JCR, and their main role is to deputise the president. As well as sitting on the trustee board, the vice president also has joint responsibility for organising freshers’ week with the Senior Frep. The Vice President also has responsibility of organising the college formals which JCR members attend.</p>
             </div>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">Emily Price - Student Trustee</h3>
+              <h3 className="text-xl font-semibold">Patrick Chorley - Student Trustee</h3>
               <p className="py-1">The student trustee is elected at the first meeting of the Michaelmas term in October. The main role of the student trustee is to provide student representation to the trustee board on the current issues facing the JCR. Other responsibilities the student trustee has are:</p>
               <ul className="list-inside list-disc p-1">
                 <li>Managing the JCR risk register</li>
