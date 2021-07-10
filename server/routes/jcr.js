@@ -652,10 +652,6 @@ router.get("/committee/:id", async (req, res) => {
 })
 
 router.get("/structure", async (req, res) => {
-  if(!req.session.user || !req.cookies.user_sid) {
-    return res.status(401).json({ error: "Not logged in" });
-  }
-
   let rootDir;
 
   // Get all the folders in the root directory

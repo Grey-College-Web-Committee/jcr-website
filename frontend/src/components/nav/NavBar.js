@@ -56,6 +56,11 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
+              displayName: "Core Documents",
+              url: "/jcr/files",
+              requiredPermission: null
+            },
+            {
               displayName: "Sports And Socs",
               url: "/sportsandsocs",
               requiredPermission: null

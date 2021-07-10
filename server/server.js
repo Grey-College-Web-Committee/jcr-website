@@ -480,7 +480,7 @@ app.get("/uploads/images/profile/:image", function(req, res) {
   res.sendFile(path.join(__dirname, `./uploads/images/profile/${image}`));
 });
 
-app.get("/uploads/jcr/:filename/:truename", isLoggedIn, async function(req, res) {
+app.get("/uploads/jcr/:filename/:truename", async function(req, res) {
   const { filename, truename } = req.params;
   const filePath = path.join(__dirname, `./uploads/jcr/${filename}`);
   let fileType;

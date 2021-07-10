@@ -609,7 +609,7 @@ class App extends React.Component {
                       this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewRolePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/roles/manage") )
                     )} />
                     <Route exact path="/jcr/files" render={() => (
-                      this.isLoggedIn() ? <JCRFileListingPage /> : this.loginRef("/jcr/files")
+                      <JCRFileListingPage />
                     )} />
                     <Route exact path="/jcr/files/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.files") ? ( <ManageJCRFilesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files/manage") )
