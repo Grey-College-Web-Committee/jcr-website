@@ -215,8 +215,8 @@ class RoleComponent extends React.Component {
             className="w-auto"
           />
           <div className="p-1">
-            <p className="font-semibold">{role.name}</p>
-            <p>{this.makeDisplayName(user)}</p>
+            <p className="font-semibold md:break-normal break-all">{role.name}</p>
+            <p className="md:break-normal break-all">{this.makeDisplayName(user)}</p>
             {
               this.props.role.descriptionEnabled && this.props.clickable ? (
                 <p className="italic text-sm">Click for more info!</p>

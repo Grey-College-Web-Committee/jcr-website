@@ -145,7 +145,7 @@ class HomePage extends React.Component {
         <div className="w-full px-2 lg:px-12 py-2 flex flex-col items-center bg-red-900 text-white">
           <div className="w-full px-2 lg:px-0 lg:w-3/5 flex flex-col">
             <h2 className="font-semibold text-5xl pb-1" ref={this.eventsSection}>Events</h2>
-            <div className="flex lg:flex-row flex-col justify-between">
+            <div className="flex flex-col justify-between">
               <div className="lg:py-0 pb-2">
                 <p className="py-1 text-lg">Events in Grey are organised by students, with a wide variety throughout the year. They're primarily organised by the Events Manager, but everyone can get involved, by being a chair of an event, or just by being a member of Events Committee. Just ask around if you're interested.</p>
                 <p className="py-1 text-lg">There are so many events and formals on at Grey throughout the year, some of the highlights of the year are:</p>
@@ -162,17 +162,13 @@ class HomePage extends React.Component {
                 <p className="py-1 text-lg">As well as large events throughout the year the JCR also hosts Formals which are fancy dinners organised by the Vice President that occur every few weeks in term time. During these, you'll have to wear your gown so it is the perfect chance to look your best in pictures for your family and friends back home.</p>
                 <p className="py-1 text-lg">Formals are really popular, with tickets selling out quickly – a testament to how fun they are! These are often themed events such as the Christmas, Burns' Night, Valentine's, Sportspersons and Stress-Less Formals. Even if you miss out, it's worth heading down to the Greyhound afterwards, as it is always packed with loads of people.</p>
               </div>
-              <img
-                src="/images/home/events_collage.jpg"
-                style={{width: "500px"}}
-                className="h-auto hidden lg:block ml-2"
-                alt="Events Collage"
-              />
-              <img
-                src="/images/home/events_collage.jpg"
-                className="w-full h-auto lg:hidden"
-                alt="Events Collage"
-              />
+              <div className="w-full h-auto">
+                <img
+                  src="/images/home/events_collage.jpg"
+                  className="w-full h-auto"
+                  alt="Events Collage"
+                />
+              </div>
             </div>
           </div>
         </div>
