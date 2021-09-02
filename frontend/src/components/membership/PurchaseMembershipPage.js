@@ -105,7 +105,7 @@ class PurchaseMembershipPage extends React.Component {
               price={56}
               name="1 Year Membership"
               image="/images/grey_crest.svg"
-              description="(expires 01/08/2021)"
+              description="(expires 01/08/2022)"
               cartData={{
                 shop: "jcr_membership",
                 name: "1 Year JCR Membership",
@@ -127,7 +127,7 @@ class PurchaseMembershipPage extends React.Component {
               price={112}
               name="2 Year Membership"
               image="/images/grey_crest.svg"
-              description="(expires 01/08/2022)"
+              description="(expires 01/08/2023)"
               cartData={{
                 shop: "jcr_membership",
                 name: "2 Year JCR Membership",
@@ -149,7 +149,7 @@ class PurchaseMembershipPage extends React.Component {
               price={168}
               name="3 Year Membership"
               image="/images/grey_crest.svg"
-              description="(expires 01/08/2023)"
+              description="(expires 01/08/2024)"
               cartData={{
                 shop: "jcr_membership",
                 name: "3 Year JCR Membership",
@@ -171,7 +171,7 @@ class PurchaseMembershipPage extends React.Component {
               price={208}
               name="4 Year Membership"
               image="/images/grey_crest.svg"
-              description="(expires 01/08/2024)"
+              description="(expires 01/08/2025)"
               cartData={{
                 shop: "jcr_membership",
                 name: "4 Year JCR Membership",

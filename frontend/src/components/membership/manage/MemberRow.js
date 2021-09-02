@@ -10,7 +10,7 @@ class MemberRow extends React.Component {
     this.state = {
       loaded: false,
       record: {},
-      expiry: "2021-08-01",
+      expiry: "2022-08-01",
       disabled: false,
       hlm: "no"
     };
