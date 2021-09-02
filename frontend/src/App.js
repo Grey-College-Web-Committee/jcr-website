@@ -12,6 +12,7 @@ import CookieAccept from './components/legal/CookieAccept';
 
 import LoginPage from './components/accounts/LoginPage';
 import LogoutPage from './components/accounts/LogoutPage';
+import RegisterPage from './components/accounts/register/RegisterPage';
 import ErrorPage from './components/errors/ErrorPage';
 import HomePage from './components/home/HomePage';
 import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
@@ -387,6 +388,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/cookies" render={() => (
                       <CookiesPage />
+                    )} />
+                    <Route exact path="/accounts/register" render={(props) => (
+                      this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <RegisterPage {...props} /> )
                     )} />
                     <Route exact path="/accounts/login" render={(props) => (
                       this.isLoggedIn() ? ( <Redirect to={this.state.ref} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )
