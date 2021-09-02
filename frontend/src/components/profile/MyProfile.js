@@ -18,7 +18,8 @@ class MyProfile extends React.Component {
       user: null,
       imageUpload: null,
       temporaryImageSrc: null,
-      disabled: false
+      disabled: false,
+      roles: []
     };
   }
 
@@ -58,7 +59,16 @@ class MyProfile extends React.Component {
       return;
     }
 
-    this.setState({ loaded: true, status: 200, isMember, user: content.data.user });
+    let roles;
+
+    try {
+      roles = await api.get(`/jcr/by-user/${this.context.username}`);
+    } catch (error) {
+      this.setState({ loaded: false, status: error.response.status });
+      return;
+    }
+
+    this.setState({ loaded: true, status: 200, isMember, user: content.data.user, roles: roles.data });
   }
 
   onImageDrop = (image) => {
@@ -157,54 +167,95 @@ class MyProfile extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4 md:w-3/5 w-full">
           <h1 className="font-semibold text-5xl pb-4">My Profile</h1>
-          <div className="text-left mb-2">
-            <h2 className="font-semibold text-2xl">My Details</h2>
-            <p><span className="font-semibold">Names:</span> { user.firstNames } { user.surname } (Displays as: { this.makeDisplayName(user) })</p>
-            <p><span className="font-semibold">Email:</span> { user.email }</p>
-            <p><span className="font-semibold">Year:</span> { user.year }</p>
-            <p><span className="font-semibold">Membership Details:</span> { user.membershipExpiresAt === null ? "Not a member" : `Expires at ${dateFormat(user.membershipExpiresAt, "dd/mm/yyyy HH:MM")}`}</p>
-            <p><span className="font-semibold">Honorary Life Member:</span> { user.hlm ? "Yes" : "No" }</p>
-            <p><span className="font-semibold">Consented for events:</span> { user.eventConsent ? "Yes" : "No" }</p>
-          </div>
-          <div className="text-left">
-            <h2 className="font-semibold text-2xl">Profile Picture</h2>
-            <p className="py-1">You can change your profile picture on the website. This will appear on the committees and roles page if you have a role within the JCR. It is limited to a 4MB file (which will be compressed on upload). You should upload an image with near equal height and width to prevent it being squashed!</p>
-            <div className="w-48">
-              <h3 className="py-1 text-xl">Current Picture:</h3>
-              <img
-                src={user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
-                alt="Your Profile"
-                className="h-auto w-48 border-red-900 border-2"
-              />
-              <h3 className="py-1 text-xl">Change Picture:</h3>
-              <div className="pb-1">
-                <ImageUploader
-                  withIcon={false}
-                  buttonText={"Choose Image"}
-                  imgExtension={['.jpg', '.png', '.jpeg']}
-                  singleImage={true}
-                  onChange={this.onImageDrop}
-                  disabled={this.state.disabled}
-                  maxFileSize={4194304}
-                  label="Max file size: 4mb, accepts jpg, jpeg or png"
-                />
+          <div className="flex md:flex-row flex-col">
+            <div className="text-left m-0 md:mr-2 md:my-2 md:w-1/2 text-lg flex flex-col">
+              <div>
+                <h2 className="font-semibold text-2xl">My Details</h2>
+                <p><span className="font-semibold">Names:</span> { user.firstNames } { user.surname } (Displays as: { this.makeDisplayName(user) })</p>
+                <p><span className="font-semibold">Email:</span> { user.email }</p>
+                <p><span className="font-semibold">Year:</span> { user.year }</p>
+                <p><span className="font-semibold">Membership Details:</span> { user.membershipExpiresAt === null ? "Not a member" : `Expires at ${dateFormat(user.membershipExpiresAt, "dd/mm/yyyy HH:MM")}`}</p>
+                <p><span className="font-semibold">Honorary Life Member:</span> { user.hlm ? "Yes" : "No" }</p>
+                <p><span className="font-semibold">Consented for events:</span> { user.eventConsent ? "Yes" : "No" }</p>
               </div>
-              {
-                this.state.imageUpload === null ? null : (
-                  <div className="flex flex-col items-center">
-                    <p>Selected Image:</p>
+              <div className="mt-2">
+                <h2 className="font-semibold text-2xl">My Roles</h2>
+                {
+                  this.state.roles.length === 0 ? (
+                    <p>You do not have any roles to display.</p>
+                  ) : (
+                    <ul className="list-inside list-disc">
+                      {
+                        this.state.roles.map((roleLink, i) => (
+                          <li key={i}>
+                            <span className="font-semibold">{roleLink.JCRRole.name}</span> (since {dateFormat(roleLink.createdAt, "dd/mm/yyyy")})
+                            {
+                              roleLink.JCRRole.JCRCommitteeRoleLinks && roleLink.JCRRole.JCRCommitteeRoleLinks.length !== 0 ? (
+                                <ul className="list-inside ml-3">
+                                  {
+                                    roleLink.JCRRole.JCRCommitteeRoleLinks.map((comLink, j) => (
+                                      <li key={j}>- Member of {comLink.JCRCommittee.name}</li>
+                                    ))
+                                  }
+                                </ul>
+                              ) : (
+                                <span>No Com</span>
+                              )
+                            }
+                          </li>
+                        ))
+                      }
+                    </ul>
+                  )
+                }
+              </div>
+              <div className="mt-2">
+              </div>
+            </div>
+            <div className="flex flex-row justify-center md:justify-end md:w-1/2">
+              <div className="text-left">
+                <h3 className="font-semibold text-2xl">Profile Picture</h3>
+                <p className="my-1">Your profile picture will only be displayed if you are a member of a committee or have another role within the JCR.</p>
+                <p>It is recommended to select a profile picture that is roughly square to avoid it becoming squashed or too small when displayed.</p>
+                <div className="flex flex-row justify-center mt-4">
+                  <div className="w-64">
                     <img
-                      src={this.state.temporaryImageSrc}
-                      alt="Uploaded"
+                      src={user.profilePicture === null ? "/images/default_avatar.png" : `/uploads/images/profile/${user.profilePicture}`}
+                      alt="Your Profile"
+                      className="h-auto  border-red-900 border-2"
                     />
-                    <button
-                      className="px-4 py-1 mt-2 rounded text-lg bg-grey-500 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                      onClick={this.uploadProfilePicture}
-                      disabled={this.state.disabled}
-                    >Save Profile Picture</button>
+                    <h3 className="py-1 text-xl">Change Picture:</h3>
+                    <div className="pb-1">
+                      <ImageUploader
+                        withIcon={false}
+                        buttonText={"Choose Image"}
+                        imgExtension={['.jpg', '.png', '.jpeg']}
+                        singleImage={true}
+                        onChange={this.onImageDrop}
+                        disabled={this.state.disabled}
+                        maxFileSize={4194304}
+                        label="Max file size: 4mb, accepts jpg, jpeg or png"
+                      />
+                    </div>
+                    {
+                      this.state.imageUpload === null ? null : (
+                        <div className="flex flex-col items-center">
+                          <p className="font-semibold text-xl">Selected Image:</p>
+                          <img
+                            src={this.state.temporaryImageSrc}
+                            alt="Uploaded"
+                          />
+                          <button
+                            className="px-4 py-1 mt-2 rounded text-lg bg-grey-500 text-white w-full md:w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+                            onClick={this.uploadProfilePicture}
+                            disabled={this.state.disabled}
+                          >Save Profile Picture</button>
+                        </div>
+                      )
+                    }
                   </div>
-                )
-              }
+                </div>
+              </div>
             </div>
           </div>
         </div>
