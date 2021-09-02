@@ -1,3 +1,7 @@
+/**
+* This file handles everything related to the authentication of users
+**/
+
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
@@ -300,7 +304,9 @@ router.post("/login", async (req, res) => {
   res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email, hlm: user.hlm, firstNames: user.firstNames, surname: user.surname, displayName }, message: "Successfully authenticated" });
 });
 
+// Called when a user logs out
 router.post("/logout", async (req, res) => {
+  // Deletes their session on the server side and removes the cookie
   if(req.session.user && req.cookies.user_sid) {
     req.session.destroy(() => {});
     return res.clearCookie("user_sid").status(200).json({ message: "Logged out" });
@@ -309,12 +315,15 @@ router.post("/logout", async (req, res) => {
   return res.status(200).json({ message: "User was not logged in" });
 });
 
+// Called to get basic information about the logged in user
 router.get("/verify", async (req, res) => {
+  // Retrieves their permissions and basic information
   if(req.session.user && req.cookies.user_sid && req.session.permissions) {
     const { user, permissions } = req.session;
     return res.status(200).json({ user: { userId: user.id, username: user.username, permissions: permissions } });
   }
 
+  // User isn't logged in in this case
   return res.status(401).end();
 })
 

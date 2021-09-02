@@ -10,8 +10,10 @@ const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 const dateFormat = require("dateformat");
 const path = require("path");
 
+// This will be where exported CSVs are stored
 const csvPath = path.join(__dirname, "../exports/gym/");
 
+// Checks if the user has an active gym membership
 router.get("/active", async (req, res) => {
   const { user } = req.session;
 
@@ -46,6 +48,7 @@ router.get("/active", async (req, res) => {
     };
   }
 
+  // Check if there is an unexpired membership
   if(existingMemberships.length !== 0) {
     const currentDate = new Date();
     const unexpiredMemberships = existingMemberships.filter(membership => membership.expiresAt > currentDate);
@@ -60,6 +63,7 @@ router.get("/active", async (req, res) => {
   return res.status(200).json({ membership: null });
 });
 
+// Exports all gym memberships between two dates
 router.post("/export", async(req, res) => {
   // Admin only
   const { user } = req.session;
@@ -117,11 +121,14 @@ router.post("/export", async(req, res) => {
     ]
   });
 
+  // Prepare the information to write it to a file
   const currentDate = new Date();
   const time = currentDate.getTime();
+  // Timestamp it to avoid clases, uses UNIX timestamp
   const fileLocation = `${time}-${dateFormat(startDate, "yyyy-mm-dd")}-to-${dateFormat(endDate, "yyyy-mm-dd")}`;
   const fileNamePart = expiredOnly ? "ExpiredGymMemberships" : "AllGymMemberships";
 
+  // Prepare the CSV writer
   const csvWriter = createCsvWriter({
     path: `${csvPath}${fileNamePart}-${fileLocation}.csv`,
     header: [
@@ -139,12 +146,14 @@ router.post("/export", async(req, res) => {
 
   let csvRecords = [];
 
+  // Order it by surname
   orders.sort((a, b) => {
     const aName = a.User.surname.toLowerCase();
     const bName = b.User.surname.toLowerCase();
 
     return aName > bName ? 1 : (aName < bName ? -1 : 0);
   }).forEach(order => {
+    // Put each record as an entry in the CSV
     let record = {};
 
     record.username = order.User.username;
@@ -161,20 +170,23 @@ router.post("/export", async(req, res) => {
     csvRecords.push(record);
   });
 
+  // Save it to a file
   try {
     await csvWriter.writeRecords(csvRecords);
   } catch (error) {
     return res.status(500).end({ error });
   }
 
+  // Send the name of the file back
   return res.status(200).json({ fileLocation });
 });
 
+// Download the file for all membership (rather than expired only)
 router.get("/download/all/:file", async (req, res) => {
   // Admin only
   const { user } = req.session;
 
-  if(!hasPermission(req.session, "stash.export")) {
+  if(!hasPermission(req.session, "gym.export")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
@@ -187,22 +199,25 @@ router.get("/download/all/:file", async (req, res) => {
   const split = file.split("-");
   const millisecondsStr = split[0];
 
+  // If it has been an hour then this file has expired so it can't be downloaded
   if(new Date().getTime() > Number(millisecondsStr) + 1000 * 60 * 60) {
     return res.status(410).end();
   }
 
   const pathName = path.join(csvPath, `AllGymMemberships-${file}.csv`)
 
+  // Send the file back
   return res.download(pathName, `AllGymMemberships-${file}.csv`, () => {
     res.status(404).end();
   });
 });
 
+// Download the expired membership file
 router.get("/download/expired/:file", async (req, res) => {
   // Admin only
   const { user } = req.session;
 
-  if(!hasPermission(req.session, "stash.export")) {
+  if(!hasPermission(req.session, "gym.export")) {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
@@ -215,12 +230,14 @@ router.get("/download/expired/:file", async (req, res) => {
   const split = file.split("-");
   const millisecondsStr = split[0];
 
+  // File has expired and can no longer be downloaded
   if(new Date().getTime() > Number(millisecondsStr) + 1000 * 60 * 60) {
     return res.status(410).end();
   }
 
   const pathName = path.join(csvPath, `ExpiredGymMemberships-${file}.csv`)
 
+  // Send the file back
   return res.download(pathName, `ExpiredGymMemberships-${file}.csv`, () => {
     res.status(404).end();
   });

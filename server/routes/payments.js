@@ -1,3 +1,7 @@
+/**
+* This file handles the data received from Stripe when a user pays.
+**/
+
 // Get express and the defined models for use in the endpoints
 const express = require("express");
 const router = express.Router();
@@ -10,6 +14,7 @@ const bodyParser = require('body-parser');
 const mailer = require("../utils/mailer");
 const dateFormat = require("dateformat")
 
+// Basic function to prepare an email to be sent
 const customerToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -54,6 +59,7 @@ const customerToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
   return message.join("");
 }
 
+// Basic function to prepare an email to be sent
 const staffToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -100,6 +106,7 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
   let toasties = [];
   let firstTableNumber = -1;
 
+  // Prepares the order to be sent to the toastie bar
   for(let i = 0; i < relatedOrders.length; i++) {
     const order = relatedOrders[i];
     const { id, additional } = order;
@@ -134,10 +141,6 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
       toasties.push({ quantity: 1, bread, fillings });
     }
   }
-
-  // Now construct and send the emails
-  // const staffEmail = staffToastieEmail(user, orderId, toasties, extras, firstTableNumber);
-  // mailer.sendEmail(process.env.TOASTIE_BAR_EMAIL_TO, `Toastie Bar Order Received #${orderId}`, staffEmail);
 
   const customerEmail = customerToastieEmail(user, orderId, toasties, extras, firstTableNumber);
   mailer.sendEmail(user.email, `Toastie Bar Order Confirmation`, customerEmail);
@@ -193,13 +196,14 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
     }
   });
 
+  // Create their display name
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
 
   const items = toastiesFormatted.concat(extrasFormatted);
 
-  // Send the order to all of the registered toastie clients
+  // Send the order to all of the registered toastie clients via the websocke
   io.to("toastieOrderClients").emit("toastieNewOrder", {
     completed: false,
     id: orderId,
@@ -210,6 +214,7 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
   });
 }
 
+// Convert size into display names
 const translateSize = (size) => {
   switch(size) {
     case "WS8":
@@ -229,6 +234,7 @@ const translateSize = (size) => {
   }
 }
 
+// Basic function to prepare an email to be sent
 const customerStashEmail = (user, orderId, relatedOrders, deliveryInformation) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -288,10 +294,12 @@ const customerStashEmail = (user, orderId, relatedOrders, deliveryInformation) =
 }
 
 const fulfilStashOrders = (user, orderId, relatedOrders, deliveryInformation, io) => {
+  // Simply sends a confirmation email
   const customerEmail = customerStashEmail(user, orderId, relatedOrders, deliveryInformation);
   mailer.sendEmail(user.email, `Stash Order Confirmation`, customerEmail);
 }
 
+// Basic function to prepare an email to be sent
 const customerGymEmail = (user, orderId, order) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -309,6 +317,7 @@ const customerGymEmail = (user, orderId, order) => {
   return message.join("");
 }
 
+// Basic function to prepare an email to be sent
 const facsoGymEmail = (user, orderId, order) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -325,6 +334,7 @@ const facsoGymEmail = (user, orderId, order) => {
 }
 
 const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
+  // Just checks for the membership and sends emails
   let membershipRecord;
 
   try {
@@ -350,6 +360,7 @@ const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation
   mailer.sendEmail("grey.treasurer@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
 }
 
+// Basic function to prepare an email to be sent
 const customerJCRMembershipEmail = (user, orderId, expiresAt) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -367,6 +378,7 @@ const customerJCRMembershipEmail = (user, orderId, expiresAt) => {
   return message.join("");
 }
 
+// Basic function to prepare an email to be sent
 const facsoJCRMembershipEmail = (user, orderId, expiresAt) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -382,6 +394,7 @@ const facsoJCRMembershipEmail = (user, orderId, expiresAt) => {
 }
 
 const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
+  // Some of these checks are obsolete
   if(relatedOrders.length !== 1) {
     console.log("Many memberships?");
     return;
@@ -394,6 +407,7 @@ const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryI
     return;
   }
 
+  // Needs updating yearly
   const currentMembershipOptions = {
     one_year: {
       expires: new Date("2022-08-01"),
@@ -426,6 +440,7 @@ const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryI
     return;
   }
 
+  // Update the user record to reflect their status
   userRecord.membershipExpiresAt = currentMembershipOptions[type].expires;
 
   try {
@@ -437,6 +452,7 @@ const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryI
 
   let permissionRecord;
 
+  // Gives them the permission needed to access some pages on the website
   try {
     permissionRecord = await Permission.findOne({
       where: {
@@ -464,6 +480,7 @@ const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryI
     return;
   }
 
+  // Send confirmation emails
   const customerEmail = customerJCRMembershipEmail(user, orderId, currentMembershipOptions[type].expires);
   mailer.sendEmail(user.email, `JCR Membership Confirmation`, customerEmail);
 
@@ -510,11 +527,12 @@ const fulfilDebtOrders = async (user, orderId, relatedOrders, deliveryInformatio
     return;
   }
 
-  // Could maybe send emails??
+  // Sends the FACSO an email
   const debtFacsoEmail = createFacsoDebtEmail(user);
   mailer.sendEmail("grey.treasurer@durham.ac.uk", `Debt Cleared (${user.username})`, debtFacsoEmail);
 }
 
+// Basic function to prepare an email to be sent
 const createFacsoDebtEmail = (user) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -525,6 +543,7 @@ const createFacsoDebtEmail = (user) => {
   return message.join("");
 }
 
+// Basic function to prepare an email to be sent
 const awaitingEventPaymentsEmail = (user, notPaid, groupCreatedAtDate) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
@@ -562,6 +581,9 @@ const awaitingEventPaymentsEmail = (user, notPaid, groupCreatedAtDate) => {
 }
 
 const processEventHold = async (ticketId) => {
+  // Event tickets are different as we place a hold on their card
+  // This sends emails and then eventually takes the money once all of the holds
+  // are placed
   let purchasedTicket;
 
   // Get the ticket related to the ticketId
@@ -709,6 +731,7 @@ const processEventHold = async (ticketId) => {
   };
 }
 
+// Basic function to prepare an email to be sent
 const createCompletedEventPaymentEmail = (ticket) => {
   // This email will be sent once we capture the hold amount
   let firstName = ticket.User.firstNames.split(",")[0];
@@ -724,6 +747,7 @@ const createCompletedEventPaymentEmail = (ticket) => {
   return message.join("");
 }
 
+// Basic function to prepare an email to be sent
 const sendCompletedEventPaymentEmail = async (ticketId) => {
   let purchasedTicket;
 
@@ -765,6 +789,7 @@ const sendCompletedEventPaymentEmail = async (ticketId) => {
   }
 }
 
+// If you add a new shop you need to add the fulfil function to here
 const fulfilOrderProcessors = {
   "toastie": fulfilToastieOrders,
   "stash": fulfilStashOrders,
@@ -773,6 +798,7 @@ const fulfilOrderProcessors = {
   "debt": fulfilDebtOrders
 }
 
+// bodyParser is needed as otherwise Stripe isn't able to verify the signature which is important
 router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
 

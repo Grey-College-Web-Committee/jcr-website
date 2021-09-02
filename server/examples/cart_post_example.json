@@ -1,0 +1,69 @@
+{
+  "submissionCart": {
+    "items": [
+      {
+        "shop": "stash",
+        "quantity": 1,
+        "globalSubmissionInfo": {
+          "id": 5
+        },
+        "componentSubmissionInfo": [
+          {
+            "type": "size",
+            "size": "M"
+          },
+          {
+            "type": "shieldOrCrest",
+            "shieldOrCrest": "0"
+          },
+          {
+            "type": "underShieldText",
+            "underShieldText": "0"
+          },
+          {
+            "type": "colour",
+            "colour": "3"
+          }
+        ]
+      },
+      {
+        "shop": "stash",
+        "quantity": 1,
+        "globalSubmissionInfo": {
+          "id": 28
+        },
+        "componentSubmissionInfo": [
+          {
+            "type": "size",
+            "size": "WS8"
+          },
+          {
+            "type": "shieldOrCrest",
+            "shieldOrCrest": "1"
+          },
+          {
+            "type": "underShieldText",
+            "underShieldText": "1"
+          },
+          {
+            "type": "customisation",
+            "typeId": "0",
+            "text": "Grey College"
+          }
+        ]
+      }
+    ]
+  },
+  "delivery": {
+    "required": true,
+    "option": "collection",
+    "address": {
+      "recipient": "",
+      "line1": "",
+      "line2": "",
+      "city": "",
+      "postcode": ""
+    }
+  },
+  "tableNumber": null
+}

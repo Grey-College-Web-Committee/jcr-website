@@ -1,3 +1,53 @@
+/**
+* This file processes the users shopping cart and converts it into database entries that can
+* then be altered by payments.js. This is a reasonably complex process.
+*
+* The basic premise is that each component of the website that requires some form of payment
+* is designated as an individual shop and the shops have a shared shopping cart which is sent
+* here.
+*
+* Each of these shops then has a processor (and optionally a post processor which I will come
+* to later). The processor for each shop is where the heavy lifting happens. The format of
+* the shopping cart when it is sent to the /process endpoint can be found at
+* examples/cart_post_example.json which is an example of a stash order. Processors have a
+* specific function signature:
+*
+* const shopProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {};
+*
+* If the processor is successful then it should return the following format:
+*
+* return {
+*   price: <price as a number in pounds>,
+*   globalSubmissionInfo: globalSubmissionInfo,
+*   globalOrderParameters: globalOrderParameters
+* };
+*
+* and in the case of error:
+*
+* return {
+*   errorOccurred: true,
+*   status: 500,
+*   error: "Unable to check open status"
+* };
+*
+* globalSubmissionInfo and globalOrderParameters are special parameters can pass information
+* between shops and into the main shopping cart processor
+*
+* The rest of the /process endpoint handles calculation of the total price and creates the
+* metadata that the FACSO can then download from Stripe to use in finanical reports.
+* It also generates the payment intent which is returned to the client enabling them to
+* pay for their items.
+*
+* Note: It is fairly convoluted in places but the full functionality of the shopping cart
+* was decided immediately and this is the result of trying to allow flexibility while
+* ensuring everything works correctly!
+*
+* Note on post processors: These aren't very important. The idea was that there would be a
+* discount on toasties if someone also purchased a drink or confectionary but this was low
+* priority and eventually broke and got ignored. They're left in in case they eventually
+* are needed again
+**/
+
 // Get express
 const express = require("express");
 const router = express.Router();
@@ -7,6 +57,7 @@ const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrd
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { Op } = require("sequelize");
 
+// Enables ordering of toasties
 const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
   // A toastie will have the table number
   const isToastie = Object.keys(globalSubmissionInfo).length === 1;
@@ -50,7 +101,9 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
   let totalPrice = 0;
   let specialRates = {};
 
+  // Handles toasties separately to other items such as drinks
   if(isToastie) {
+    // Must have something in it not just bread
     if(!hasComponents) {
       return {
         errorOccurred: true,
@@ -63,6 +116,8 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 
     for(let subOrderCount = 0; subOrderCount < quantity; subOrderCount++) {
       // Create an suborder id
+      // This section does seem long but all it is doing is preparing the toastie
+      // and converting it to database entries so they can be accessed by the toastie bar
       let subOrderIdInsert;
 
       try {
@@ -146,9 +201,11 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       }
     }
 
+    // This is used for metadata later in the process endpoint
     specialRates["name"] = `Toastie ${firstSubOrderId}`;
     specialRates["gross"] = totalPrice;
 
+    // Stuff for the discount that seems to be broken
     if(modifiedParameters.hasOwnProperty("toastie")) {
       if(modifiedParameters.toastie.hasOwnProperty("nonDiscountedToastieCount") && modifiedParameters.toastie.nonDiscountedToastieCount !== undefined && modifiedParameters.toastie.nonDiscountedToastieCount !== null) {
         modifiedParameters.toastie.nonDiscountedToastieCount += 1;
@@ -185,6 +242,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
     const subOrderId = subOrderIdInsert.id;
     const extraId = globalSubmissionInfo.id;
 
+    // Just performs some checks to make sure everything is available
     let extraRecord;
 
     try {
@@ -228,6 +286,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
 
     totalPrice += Number(price) * quantity;
 
+    // Metadata
     specialRates["name"] = name;
     specialRates["gross"] = totalPrice;
 
@@ -247,7 +306,10 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
   };
 };
 
+// Enables ordering of stash
 const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
+  // Important to note that each ITEM is individually put through this processor
+  // First check the stash shop is actually open
   const now = new Date();
 
   let stashOpenRecord;
@@ -294,6 +356,7 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
     };
   }
 
+  // Get the ID of the product
   const productId = globalSubmissionInfo.id;
 
   let productRecord;
@@ -312,6 +375,7 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
     };
   }
 
+  // Check it is a valid item
   if(productRecord === null) {
     return {
       errorOccurred: true,
@@ -323,6 +387,8 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
   let total = Number(productRecord.price);
   let stashOrder;
 
+  // Handle the size, shield and customisation
+  // This is essentially manipulation of the JSON datta
   const sizeComponent = componentSubmissionInfo.filter(component => component.type === "size");
 
   if(sizeComponent.length !== 1) {
@@ -458,6 +524,8 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
   };
 }
 
+// Attempts to apply a discount to toasties in certain circumstances
+// Doesn't seem to be working at the moment though
 const toastiePostProcessor = (globalOrderParameters) => {
   const { toastie } = globalOrderParameters;
 
@@ -474,7 +542,9 @@ const toastiePostProcessor = (globalOrderParameters) => {
   return 0;
 }
 
+// Enables purchasing of gym memberships
 const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
+  // Basic validation - type is whether it is a term or year long membership
   if(!globalSubmissionInfo.hasOwnProperty("type")) {
     return {
       errorOccurred: true,
@@ -509,6 +579,7 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
     }
   }
 
+  // The available options to purchase - needs yearly update
   const currentMembershipOptions = {
     full_year: {
       expires: new Date("2021-07-01"),
@@ -522,6 +593,8 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
     }
   };
 
+  // Same ideas as JCR membership
+  // stops purchasing of invalid memberships
   if(!Object.keys(currentMembershipOptions).includes(type)) {
     return {
       errorOccurred: true,
@@ -574,6 +647,7 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
     };
   }
 
+  // Make sure they don't have a membership already
   if(existingMemberships.length !== 0) {
     const unexpiredMemberships = existingMemberships.filter(membership => membership.expiresAt > currentDate);
 
@@ -614,6 +688,9 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
 
   // Otherwise they don't have a membership so create one
 
+  // Note the membership cannot be trusted until they check out fully which can be checked
+  // by including ShopOrder when selecting GymMemberships
+  // this was poor design but it does work you just need to take care if making changes
   try {
     await GymMembership.create({
       orderId,
@@ -631,6 +708,7 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
     };
   }
 
+  // Create the shop order
   try {
     await ShopOrderContent.create({
       orderId,
@@ -652,7 +730,9 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
   };
 }
 
+// Enables purchasing of JCR memberships
 const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
+  // Type is whether it is a one, two, three or four year membership
   if(!globalSubmissionInfo.hasOwnProperty("type")) {
     return {
       errorOccurred: true,
@@ -687,6 +767,7 @@ const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, 
     }
   }
 
+  // Purchasable options, needs updating yearly currentl
   const currentMembershipOptions = {
     one_year: {
       expires: new Date("2021-08-01"),
@@ -748,6 +829,7 @@ const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, 
 
   const { membershipExpiresAt } = userRecord;
 
+  // Check that they don't already have a membership
   if(membershipExpiresAt !== null) {
     const membershipExpiresAtDate = new Date(membershipExpiresAt);
 
@@ -761,7 +843,6 @@ const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, 
   }
 
   // Create the order entry
-
   try {
     await ShopOrderContent.create({
       orderId,
@@ -784,7 +865,10 @@ const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, 
   };
 }
 
+// Used for paying off debt
 const debtProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
+  // Quite a simple processor
+  // Just checks if they have debt, if so it is added to the order
   let debtRecord;
 
   try {
@@ -825,7 +909,7 @@ const debtProcessor = async (globalOrderParameters, orderId, quantity, globalSub
   };
 }
 
-// Required
+// Required - put the shop name and the processor function in here
 const shopProcessors = {
   "toastie": toastieProcessor,
   "stash": stashProcessor,
@@ -839,6 +923,7 @@ const shopPostProcessors = {
   "toastie": toastiePostProcessor
 };
 
+// Self-explanatory, these shops require a JCR membership to use
 const requiresMembershipShops = [
   "toastie",
   "stash"
@@ -846,11 +931,12 @@ const requiresMembershipShops = [
 
 // Called at the base path of your route with HTTP method POST
 router.post("/process", async (req, res) => {
-  // User only
+  // Logged in only
   const { user } = req.session;
   const isMember = user.membershipExpiresAt !== null && new Date(user.membershipExpiresAt) > new Date();
   const submittedCart = req.body.submissionCart;
 
+  // Validate some basic data from the cart
   if(!submittedCart.hasOwnProperty("items")) {
     return res.status(400).json({ error: "Missing items (no property)" });
   }
@@ -871,6 +957,7 @@ router.post("/process", async (req, res) => {
     return res.status(400).json({ error: "Missing items (empty)" });
   }
 
+  // Get the names of every shop that is registered in this file
   const validShops = Object.keys(shopProcessors);
 
   //Validate each first then we'll process all at once
@@ -968,13 +1055,18 @@ router.post("/process", async (req, res) => {
 
   const debtInCart = submittedCart.items.filter(item => item.shop === "debt").length !== 0;
 
+  // Debtors cannot check out unless they have their debt in their cart
   if(debtRecord !== null && !debtInCart) {
     return res.status(402).json({ error: "Debtor" });
   }
 
-  // Now we check the delivery addres
+  // Delivery is left over from the Covid-19 lockdowns
+  // It is left in in case it is needed again
+  // It is disabled on the frontend instead
+  // Now we check the delivery address
   const delivery = req.body.delivery;
 
+  // All of this belows validates the delivery information if it is needed
   if(!delivery.hasOwnProperty("required")) {
     return res.status(400).json({ error: "Missing required (no property)" });
   }
@@ -1027,8 +1119,8 @@ router.post("/process", async (req, res) => {
     }
   }
 
-  // TODO: Implement some check to make sure the address is real?
-  // Address is validated
+  // Address is validated, could add checks that it is a real address
+  // But delivery isn't really an option anymore
 
   let addressRecord = null;
 
@@ -1056,6 +1148,10 @@ router.post("/process", async (req, res) => {
     deliveryAddressId = addressRecord.id;
   }
 
+  // Create the overarching order related to the cart that can be used in the Stripe webhook
+  // to link the payment to the order
+  // You should never trust a ShopOrder unless it is marked as paid!
+  // stripeId alone is not enough to verify payment!
   try {
     dbOrderRecord = await ShopOrder.create({ userId: user.id,  deliveryOption: delivery.option, deliveryAddressId });
   } catch (error) {
@@ -1065,10 +1161,12 @@ router.post("/process", async (req, res) => {
   const orderId = dbOrderRecord.id;
   let globalOrderParameters = {};
 
+  // Prepare the global parameters object
   validShops.forEach((item, i) => {
     globalOrderParameters[item] = {};
   });
 
+  // Track which shops are used so they can be added to the metadata
   let usedShops = [];
   let totalSpentByShop = {};
 
@@ -1080,11 +1178,13 @@ router.post("/process", async (req, res) => {
     validatedPrices.push(3.6);
   }
 
+  // Begin constructing the metadata
   let metadata = {
     integration_check: "accept_a_payment",
     orderId
   };
 
+  // Toasties need a slightly different breakdown and this handles this
   let toastieGrosses = [];
 
   for(let i = 0; i < submittedCart.items.length; i++) {
@@ -1095,8 +1195,10 @@ router.post("/process", async (req, res) => {
       totalSpentByShop[shop] = 0;
     }
 
+    // Process each item from the cart in the corresponding shop
     const result = await shopProcessors[shop](globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user);
 
+    // Keep track of everything that is being used
     if(!usedShops.includes(shop)) {
       usedShops.push(shop);
     }
@@ -1133,6 +1235,7 @@ router.post("/process", async (req, res) => {
     }
   }
 
+  // This applies the post processor
   Object.keys(usedShops).forEach(key => {
     if(Object.keys(shopPostProcessors).includes(key)) {
       const priceAdjustment = shopPostProcessors[key](globalOrderParameters);
@@ -1141,6 +1244,7 @@ router.post("/process", async (req, res) => {
     }
   });
 
+  // Used to help the FACSO track debt payments
   if(debtInCart) {
     metadata["debt_username"] = user.username;
   }
@@ -1149,6 +1253,7 @@ router.post("/process", async (req, res) => {
 
   const shopCount = Object.keys(totalSpentByShop).length;
 
+  // Special toastie information for the metadata
   let toastieExcess = 0;
   let toastieGross = 0;
 
@@ -1173,6 +1278,7 @@ router.post("/process", async (req, res) => {
     });
   }
 
+  // Create a Stripe payment intent so they can actually pay for the items
   const totalAmount = validatedPrices.reduce((sum, price) => sum + price, 0);
   const totalAmountInPence = Math.round(totalAmount * 100);
   const paymentIntent = await stripe.paymentIntents.create({
@@ -1189,6 +1295,7 @@ router.post("/process", async (req, res) => {
     totalAmountInPence
   };
 
+  // Send back the information needed for checkout
   return res.status(200).json(serverResponse);
 });
 
