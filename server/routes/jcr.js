@@ -522,6 +522,57 @@ router.post("/role/committeeLink", async (req, res) => {
   return res.status(200).json({ assignedCommittee: joinedRecord });
 });
 
+router.get("/by-user/:username", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  const { username } = req.params;
+
+  if(!username) {
+    return res.status(400).json({ error: "Missing username" });
+  }
+
+  let userRecord;
+
+  try {
+    userRecord = await User.findOne({ where: { username } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to query user record" });
+  }
+
+  if(userRecord === null) {
+    return res.status(400).json({ error: "Invalid username" });
+  }
+
+  let result;
+
+  try {
+    result = await JCRRoleUserLink.findAll({
+      where: {
+        userId: userRecord.id
+      },
+      attributes: [ "createdAt" ],
+      include: [{
+        model: JCRRole,
+        attributes: [ "name" ],
+        include: [{
+          model: JCRCommitteeRoleLink,
+          attributes: [ "createdAt" ],
+          include: [{
+            model: JCRCommittee,
+            attributes: [ "name" ]
+          }]
+        }]
+      }]
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to query database" });
+  }
+
+  return res.status(200).json(result);
+});
+
 router.get("/committees/basic", async (req, res) => {
   let committees;
 
