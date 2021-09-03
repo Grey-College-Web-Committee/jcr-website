@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import qs from 'qs';
-
+import { Link } from 'react-router-dom';
 import api from '../../utils/axiosConfig';
 import LoginForm from './LoginForm';
 
@@ -72,13 +72,16 @@ class LoginPage extends React.Component {
       <div className="flex flex-col justify-center">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Login</h1>
-          <p className="pb-4">You must be a member of Grey College to login</p>
+          <p className="pb-2">You must be a member of Grey College to login.</p>
+          <Link to="/accounts/register">
+            <p className="pb-2 font-semibold underline">Don't have an account? Click here to register!</p>
+          </Link>
           <LoginForm
             disabled={this.state.disabled}
             updateMessage={this.updateMessage}
             attemptLogin={this.attemptLogin}
           />
-          <div className={`mx-auto w-64 pb-4 pt-2 border-t-2 ${showErrors}`}>
+          <div className={`mx-auto md:w-80 w-4/5 pb-4 pt-2 border-t-2 ${showErrors}`}>
             <span>{this.state.message}</span>
           </div>
         </div>
