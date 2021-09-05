@@ -79,8 +79,19 @@ router.post("/login", async (req, res) => {
   // We have no need to store the password (or its hash) so can simply ignore it
 
   // Set the last login time and save
-  const lastLogin = new Date();
-  user.lastLogin = lastLogin;
+  const upgradeDate = new Date("2021-09-05 16:00:00Z");
+  const now = new Date();
+
+  // Promote their year group
+  if(new Date(user.lastLogin) < upgradeDate) {
+    const { year } = user;
+
+    if(year !== 4 && year !== "4") {
+      user.year = Number(year) + 1;
+    }
+  }
+
+  user.lastLogin = now;
 
   const { membershipExpiresAt } = user;
 
