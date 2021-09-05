@@ -25,6 +25,19 @@ router.post("/login", async (req, res) => {
 
   username = username.toLowerCase();
 
+  let user;
+
+  try {
+    // Only create a new entry if one doesn't exist
+    user = await User.findOne({ where: { username } });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error: Unable to find user. Database error." });
+  }
+
+  if(user === null) {
+    return res.status(401).json({ message: "You must register for an account first", requiresRegister: true });
+  }
+
   if(password === undefined || password === null || typeof password !== "string") {
     return res.status(400).json({ message: "Missing password" });
   }
@@ -33,7 +46,7 @@ router.post("/login", async (req, res) => {
   // https://www.dur.ac.uk/its/password/validator
   // Providing headers 'Authorization' = 'Basic {{base64 encoded string 'username:password'}}'
 
-  if(username !== "nonmem" && username !== "test11" && username !== "test22" && username !== "test33") {
+  if(username !== "nonmem") {// && username !== "test11" && username !== "test22" && username !== "test33") {
     const details = Buffer.from(`${username}:${password}`);
     const b64data = details.toString("base64");
     const authHeader = `Basic ${b64data}`;
@@ -64,130 +77,57 @@ router.post("/login", async (req, res) => {
 
   // We will error if we do not receive a 200 status so we can assume we are validated from here
   // We have no need to store the password (or its hash) so can simply ignore it
-  let user;
 
-  try {
-    // Only create a new entry if one doesn't exist
-    user = await User.findOne({ where: { username } });
-  } catch (error) {
-    return res.status(500).json({ message: "Server error: Unable to find user. Database error." });
+  // Set the last login time and save
+  const lastLogin = new Date();
+  user.lastLogin = lastLogin;
+
+  const { membershipExpiresAt } = user;
+
+  // Their JCR membership has expired
+  if(membershipExpiresAt !== null) {
+    const membershipExpiresAtDate = new Date(membershipExpiresAt);
+
+    if(membershipExpiresAtDate < new Date()) {
+      user.membershipExpiresAt = null;
+
+      // Now remove the permission
+      let permissionRecord;
+
+      try {
+        permissionRecord = await Permission.findOne({
+          where: {
+            internal: "jcr.member"
+          }
+        });
+      } catch (error) {
+        console.log({error});
+        return res.status(500).json({ message: "Server error: Unable to find permission record" });
+      }
+
+      if(permissionRecord === null) {
+        console.log("NULL PR");
+        return res.status(500).json({ message: "Server error: Missing permission record" });
+      }
+
+      try {
+        await PermissionLink.destroy({
+          where: {
+            grantedToId: user.id,
+            permissionId: permissionRecord.id
+          }
+        });
+      } catch (error) {
+        console.log({error});
+        return res.status(500).json({ message: "Server error: Unable to delete membership." });
+      }
+    }
   }
 
-  const lastLogin = new Date();
-
-  if(user == null) {
-    let details;
-
-    try {
-      details = await axios.get(`https://community.dur.ac.uk/grey.jcr/itsuserdetailsjson.php?username=${username}`);
-    } catch (error) {
-      return res.status(500).json({ message: "Unable to fetch details about this user from the university" });
-    }
-
-    const { current_staff, current_student } = details.data;
-
-    if(current_staff === "1" && current_student === "0") {
-      const { email, surname, firstnames, department } = details.data;
-
-      if(!department.toLowerCase().startsWith("grey college")) {
-        return res.status(403).json({ message: "Only staff at Grey College can access this website" });
-      }
-
-      try {
-        // Create a new user record
-        user = await User.create({ username, email, surname, firstNames: firstnames, year: 4, email, lastLogin, membershipExpiresAt: null });
-      } catch (error) {
-        return res.status(500).json({ message: "Server error: Unable to create a new staff user. Database error." });
-      }
-    } else {
-      const { email, surname, firstnames, college, status } = details.data;
-      let { studyyear } = details.data;
-
-      if(college.toLowerCase() !== "grey college") {
-        return res.status(403).json({ message: "You must be a member of Grey College to access this website" });
-      }
-
-      // Single year PGs will have status 2, I think phds are status 3?
-      if(status === "2" || status === 2 || status === "3" || status === 3) {
-        studyyear = 4;
-      }
-
-      try {
-        // Create a new user record
-        user = await User.create({ username, email, surname, firstNames: firstnames, year: studyyear, email, lastLogin, membershipExpiresAt: null });
-      } catch (error) {
-        return res.status(500).json({ message: "Server error: Unable to create a new user. Database error." });
-      }
-    }
-  } else {
-    // There was an issue with non-integrated masters students being recognised as freshers
-    // rather than finalists. This fixes that.
-    if(new Date(user.lastLogin) < new Date("2021-06-08 03:00:00Z") && username !== "nonmem") {// && username !== "nonmem" && !username.startsWith("test")) {
-      let details;
-
-      try {
-        details = await axios.get(`https://community.dur.ac.uk/grey.jcr/itsuserdetailsjson.php?username=${username}`);
-      } catch (error) {
-        return res.status(500).json({ message: "Unable to fetch details about this user from the university" });
-      }
-
-      const { status } = details.data;
-
-      if(status === "2" || status === 2 || status === "3" || status === 3) {
-        user.year = 4;
-      }
-    }
-
-    // Set the last login time and save
-    user.lastLogin = lastLogin;
-
-    const { membershipExpiresAt } = user;
-
-    // Their JCR membership has expired
-    if(membershipExpiresAt !== null) {
-      const membershipExpiresAtDate = new Date(membershipExpiresAt);
-
-      if(membershipExpiresAtDate < new Date()) {
-        user.membershipExpiresAt = null;
-
-        // Now remove the permission
-        let permissionRecord;
-
-        try {
-          permissionRecord = await Permission.findOne({
-            where: {
-              internal: "jcr.member"
-            }
-          });
-        } catch (error) {
-          console.log({error});
-          return res.status(500).json({ message: "Server error: Unable to find permission record" });
-        }
-
-        if(permissionRecord === null) {
-          console.log("NULL PR");
-          return res.status(500).json({ message: "Server error: Missing permission record" });
-        }
-
-        try {
-          await PermissionLink.destroy({
-            where: {
-              grantedToId: user.id,
-              permissionId: permissionRecord.id
-            }
-          });
-        } catch (error) {
-          console.log({error});
-          return res.status(500).json({ message: "Server error: Unable to delete membership." });
-        }
-      }
-    }
-
-    try {
-      await user.save();
-    } catch (error) {
-      return res.status(500).json({ message: "Server error: Unable to update last login. Database error." });
-    }
+  try {
+    await user.save();
+  } catch (error) {
+    return res.status(500).json({ message: "Server error: Unable to update last login. Database error." });
   }
 
   const lookupEmail = user.dataValues.email.trim().toLowerCase();

@@ -49,7 +49,12 @@ class LoginPage extends React.Component {
           message = "Please enter a username and password.";
           break;
         case 401:
-          message = "Login failed. Please check your username and password."
+          if(error.response.data.requiresRegister) {
+            message = "You must register for an account first.";
+            break;
+          }
+
+          message = "Login failed. Please check your username and password.";
           break;
         default:
           // Use the error response message for more consistent debugging
