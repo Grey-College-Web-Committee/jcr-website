@@ -351,11 +351,6 @@ class NavBar extends React.Component {
               requiredPermission: "events.manage"
             },
             {
-              displayName: "Manage Phoenix Festival",
-              url: "/phoenix-2021/admin",
-              requiredPermission: "events.manage"
-            },
-            {
               displayName: "Export Events",
               url: "/events/admin/export",
               requiredPermission: "events.export"
@@ -384,6 +379,11 @@ class NavBar extends React.Component {
               displayName: "Manage Sports and Socs",
               url: "/sportsandsocs/admin",
               requiredPermission: "sportsandsocs.manage"
+            },
+            {
+              displayName: "Manage Applications",
+              url: "/accounts/admin",
+              requiredPermission: "users.manage"
             }
           ],
           alwaysDisplayed: false
