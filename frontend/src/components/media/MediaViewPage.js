@@ -72,7 +72,13 @@ class MediaPage extends React.Component {
   }
 
   getVideoiFrameFromPartialUrl(partialUrl){
-    return(<iframe src={'https://www.youtube.com/embed/'+partialUrl} className="sm:w-96 sm:h-52 w-64 h-32" frameBorder='no' allowFullScreen title='video'/>)
+    let url = `https://www.youtube.com/embed/${partialUrl}`;
+
+    if(partialUrl.toLowerCase().startsWith("https://")) {
+      url = partialUrl;
+    }
+
+    return(<iframe src={url} className="sm:w-96 sm:h-52 w-64 h-32" frameBorder='no' allowFullScreen title='video'/>)
   }
 
   getLatestJCRPodcast(){
@@ -95,8 +101,8 @@ class MediaPage extends React.Component {
         </div>
       );
     }
-    else { 
-      return ( 
+    else {
+      return (
         <div className="xl:w-8/12 w-11/12 md:rounded-r-full rounded-r-lg bg-red-900 bg-opacity-90 my-3 py-3 px-5 flex float-left text-left justify-start">
           <div className="text-left w-11/12 float-left">
             <h2 className="self-center font-semibold text-3xl py-3 text-white">JCR Podcast - Coming Soon!</h2>
@@ -127,8 +133,8 @@ class MediaPage extends React.Component {
         </div>
       );
     }
-    else { 
-      return ( 
+    else {
+      return (
         <div className="xl:w-8/12 w-11/12 md:rounded-l-full rounded-l-lg bg-gray-400 my-3 py-3 px-5 flex float-right text-right justify-end">
           <div className="text-right w-11/12 float-right">
             <h2 className="font-semibold text-3xl py-3 text-gray-900">Grey Matter Podcast - Coming Soon!</h2>
