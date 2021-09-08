@@ -77,7 +77,7 @@ class RegisterPage extends React.Component {
             <div className="border-red-900 border flex flex-col w-full p-2">
               <h2 className="text-2xl text-center md:text-left py-1 border-b border-grey-500">Step 1 / 3 - Verification</h2>
               <p className="py-1 text-left">Welcome to the Grey JCR website! This page will take you through the process of registering for an account.</p>
-              <p className="py-1 text-left">Before registering we need to verify your Durham University account. To do this, please enter your CIS login details below. These details are not stored and are sent to the University's servers to verify your identity. When you login to the Grey JCR website you will use these credentials (and they will be handled in the same way).</p>
+              <p className="py-1 text-left">Before registering we need to verify your Durham University account. To do this, please enter your CIS login details below. These details are sent to the University's servers to verify your identity. When you login to the Grey JCR website you will use these credentials (and they will be handled in the same way).</p>
               <LoginForm
                 buttonText="Verify"
                 attemptLogin={this.verifyLoginDetails}
@@ -90,7 +90,7 @@ class RegisterPage extends React.Component {
           <div className="border-red-900 border flex flex-col w-full p-2">
             <h2 className="text-2xl text-center md:text-left py-1 border-b border-grey-500">Application Awaiting Approval</h2>
             <p className="py-1 text-left">You have already submitted an application for an account. Once your account has been approved you will receive an email to your Durham University email address.</p>
-            <p className="pt-1 text-left">Your application was submitted at { dateFormat(this.state.date, "dd/mm/yyyy HH:MM") }. If it has been more than a week since you submitted it please contact grey.website@durham.ac.uk</p>
+            <p className="pt-1 text-left">Your application was submitted at { dateFormat(this.state.date, "dd/mm/yyyy HH:MM") }. If it has been more than a week since you submitted it please contact grey.website@durham.ac.uk. Please note that approval may be delayed outside of term time.</p>
           </div>
         );
       case "already_have_account":
@@ -206,7 +206,7 @@ class RegisterPage extends React.Component {
           <div className="border-red-900 border flex flex-col w-full p-2">
             <h2 className="text-2xl text-center md:text-left py-1 border-b border-grey-500">Step 3 / 3 - Await Approval</h2>
             <p className="py-1 text-left">Thank you for registering for an account.</p>
-            <p className="pt-1 text-left">We will now review your details to ensure that you are a member of Grey College. You will receive an email once it has been approved! This typically takes less than 24 hours but may take longer during busy periods.</p>
+            <p className="pt-1 text-left">We will now review your details to ensure that you are a member of Grey College. You will receive an email once it has been approved! This typically takes less than 48 hours during term time but may take longer during busy periods. Outside of term time applications will be approved periodically.</p>
           </div>
         );
       case "loading":

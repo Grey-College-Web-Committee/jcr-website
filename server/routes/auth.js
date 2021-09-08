@@ -143,45 +143,45 @@ router.post("/login", async (req, res) => {
 
   const lookupEmail = user.dataValues.email.trim().toLowerCase();
 
-  if(prepaidEmails.includes(lookupEmail) && user.membershipExpiresAt === null) {
-    // They have a membership from before. Now grant it.
-
-    const prepaidExpiryDate = new Date(prepaidMemberships[lookupEmail]);
-
-    user.membershipExpiresAt = prepaidExpiryDate;
-
-    try {
-      await user.save();
-    } catch (error) {
-      return res.status(500).json({ error: "Unable to grant membership" });
-    }
-
-    let permissionRecord;
-
-    try {
-      permissionRecord = await Permission.findOne({
-        where: {
-          internal: "jcr.member"
-        }
-      });
-    } catch (error) {
-      return res.status(500).json({ error: "Unable to find membership permission" });
-    }
-
-    if(permissionRecord === null) {
-      return res.status(500).json({ error: "Unable to locate permission" });
-    }
-
-    try {
-      await PermissionLink.create({
-        grantedToId: user.id,
-        permissionId: permissionRecord.id,
-        grantedById: 1
-      });
-    } catch (error) {
-      return res.status(500).json({ error: "Unable to link membership" });
-    }
-  }
+  // if(prepaidEmails.includes(lookupEmail) && user.membershipExpiresAt === null) {
+  //   // They have a membership from before. Now grant it.
+  //
+  //   const prepaidExpiryDate = new Date(prepaidMemberships[lookupEmail]);
+  //
+  //   user.membershipExpiresAt = prepaidExpiryDate;
+  //
+  //   try {
+  //     await user.save();
+  //   } catch (error) {
+  //     return res.status(500).json({ error: "Unable to grant membership" });
+  //   }
+  //
+  //   let permissionRecord;
+  //
+  //   try {
+  //     permissionRecord = await Permission.findOne({
+  //       where: {
+  //         internal: "jcr.member"
+  //       }
+  //     });
+  //   } catch (error) {
+  //     return res.status(500).json({ error: "Unable to find membership permission" });
+  //   }
+  //
+  //   if(permissionRecord === null) {
+  //     return res.status(500).json({ error: "Unable to locate permission" });
+  //   }
+  //
+  //   try {
+  //     await PermissionLink.create({
+  //       grantedToId: user.id,
+  //       permissionId: permissionRecord.id,
+  //       grantedById: 1
+  //     });
+  //   } catch (error) {
+  //     return res.status(500).json({ error: "Unable to link membership" });
+  //   }
+  // }
 
   let debtRecord;
 
@@ -443,7 +443,8 @@ router.post("/register", async (req, res) => {
     return res.status(500).json({ stage: "server_error", message: "Server error creating application" });
   }
 
-  mailer.sendEmail("grey.website@durham.ac.uk", `New Account Application`, "A new application for a user account has been received on the Grey JCR website.");
+  // Was getting spammed by new applications
+  // mailer.sendEmail("grey.website@durham.ac.uk", `New Account Application`, "A new application for a user account has been received on the Grey JCR website.");
 
   return res.status(200).json({ stage: "awaiting_verification", message: "Application logged" });
 });
@@ -483,7 +484,7 @@ const prepareApprovedEmail = (username) => {
     `<p>Hello ${username},</p>`,
     "<p>Your application for membership to the Grey JCR website has been approved.</p>",
     "<p>You can now login to the website.</p>",
-    "<p>If you have already purchased a JCR membership please email grey.website@durham.ac.uk to have it added to your account.</p>",
+    "<p>If you have already purchased a JCR membership this will be added to your account in the coming weeks.</p>",
     "<p>Thank you.</p>"
   ].join("");
 }
