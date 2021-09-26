@@ -147,7 +147,7 @@ class EventsInfoPage extends React.Component {
             <img
               src={`/uploads/images/events/${bannerImage.image}`}
               alt={bannerImage.caption}
-              className="w-full hidden md:block"
+              className="w-full hidden"
             />
           </div>
           <div className="flex flex-col md:flex-row">
