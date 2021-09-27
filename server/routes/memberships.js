@@ -159,7 +159,7 @@ const customerJCRGrantedEmail = (user, expiresAt) => {
   message.push(`<h1>JCR Membership Approved</h1>`);
   message.push(`<p>Hello ${firstName} ${lastName},</p>`);
   message.push(`<p>Your membership has been confirmed and registered with the JCR.</p>`);
-  message.push(`<p>Please logout and back into the website to gain access to the JCR services!</p>`);
+  message.push(`<p>Please logout and back into the website. This gives you access to events bookings, election voting, stash and many other services.</p>`);
   message.push(`<p>Your membership will expire on ${dateFormat(expiresAt, "dd/mm/yyyy")}.</p>`);
   message.push(`<p><strong>Thank you!</strong></p>`);
 
@@ -238,8 +238,8 @@ router.post("/grant", async (req, res) => {
 
   // Send the user an email to let them know
 
-  //const customerEmail = customerJCRGrantedEmail(userRecord, membershipExpiresAt);
-  //mailer.sendEmail(userRecord.email, `JCR Membership Approved`, customerEmail);
+  const customerEmail = customerJCRGrantedEmail(userRecord, membershipExpiresAt);
+  mailer.sendEmail(userRecord.email, `JCR Membership Approved`, customerEmail);
   return res.status(204).end();
 });
 
