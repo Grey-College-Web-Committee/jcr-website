@@ -99,6 +99,7 @@ class PendingUserApplication extends Model {}
 
 class SwappingCredit extends Model {}
 class SwappingCreditLog extends Model {}
+class SwappingPair extends Model {}
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -1532,6 +1533,26 @@ SwappingCreditLog.init({
   type: {
     type: DataTypes.STRING,
     allowNull: false
+  }
+}, { sequelize });
+
+SwappingPair.init({
+  first: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  second: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  position: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  count: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
   }
 }, { sequelize });
 
