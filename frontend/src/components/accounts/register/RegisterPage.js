@@ -12,6 +12,7 @@ class RegisterPage extends React.Component {
     this.state = {
       stage: "verify",
       username: "",
+      password: "",
       firstName: "",
       surname: "",
       year: "1",
@@ -37,7 +38,7 @@ class RegisterPage extends React.Component {
         return;
       }
 
-      this.setState({ stage: "error" })
+      this.setState({ stage: "error", message: error.response.data.message })
       return;
     }
 
@@ -62,7 +63,7 @@ class RegisterPage extends React.Component {
         return;
       }
 
-      this.setState({ stage: "error", password: null })
+      this.setState({ stage: "error", password: null, message: error.response.data.message })
       return;
     }
 
@@ -216,12 +217,28 @@ class RegisterPage extends React.Component {
             <LoadingHolder />
           </div>
         )
+      case "invalid_details":
+        return (
+          <div className="border-red-900 border flex flex-col w-full p-2">
+            <h2 className="text-2xl text-center md:text-left py-1 border-b border-grey-500">Invalid Details</h2>
+            <p className="py-1 text-left">Your username or password were not recognised. Please try again.</p>
+            <button
+              className="w-full p-1 mt-1 bg-red-900 text-white"
+              onClick={() => this.setState({ stage: "verify", username: "", password: "" })}
+            >Try Again</button>
+          </div>
+        );
       case "error":
       default:
         return (
           <div className="border-red-900 border flex flex-col w-full p-2">
             <h2 className="text-2xl text-center md:text-left py-1 border-b border-grey-500">Error Occurred</h2>
             <p className="pt-1 text-left">There was an issue submitting your application. Please try again later.</p>
+            {
+              this.state.message ? (
+                <p className="pt-2 text-left">{this.state.message}</p>
+              ) : null
+            }
           </div>
         )
     }
