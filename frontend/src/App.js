@@ -48,6 +48,7 @@ import EventsMyBookingsOverview from './components/events/my/EventsMyBookingsOve
 import EventsMyBookingPage from './components/events/my/EventsMyBookingPage';
 import EventsFreeReqPage from './components/events/free/EventsFreeReqPage';
 import SwappingPage from './components/swapping/SwappingPage';
+import SwappingAdminPage from './components/swapping/SwappingAdminPage';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
 
@@ -552,6 +553,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/events/swapping" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <SwappingPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/swapping") )
+                    )} />
+                    <Route exact path="/events/swapping/admin" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("events.swapping") ? <SwappingAdminPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/swapping/admin") )
                     )} />
                     <Route exact path="/events/terms" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsTermsPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/terms") )

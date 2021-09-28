@@ -60,6 +60,47 @@ router.post("/donate", async (req, res) => {
   });
 });
 
+router.get("/credit", async (req, res) => {
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "jcr.member")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Get their credit record
+  let creditRecord;
+  let created;
+
+  try {
+    [creditRecord, created] = await SwappingCredit.findOrCreate({
+      where: {
+        userId: user.id
+      },
+      defaults: {
+        userId: user.id,
+        credit: 0
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check credit" });
+  }
+
+  let history;
+
+  try {
+    history = await SwappingCreditLog.findAll({
+      where: {
+        userId: user.id
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check log" });
+  }
+
+  return res.status(200).json({ credit: creditRecord.credit, history });
+})
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;

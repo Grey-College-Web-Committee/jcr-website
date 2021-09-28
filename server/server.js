@@ -239,11 +239,16 @@ const requiredPermissions = [
     name: "Manage Users",
     description: "Allows a user to approve and reject registration applications",
     internal: "users.manage"
+  },
+  {
+    name: "Manage Swapping",
+    description: "Allows a user to control formal swapping",
+    internal: "events.swapping"
   }
 ];
 
 // Initialise the tables
-(async() => {
+(async () => {
   await sequelizeSessionStore.sync();
 
   await User.sync();

@@ -384,6 +384,11 @@ class NavBar extends React.Component {
               displayName: "Manage Applications",
               url: "/accounts/admin",
               requiredPermission: "users.manage"
+            },
+            {
+              displayName: "Manage Swapping",
+              url: "/events/swapping/admin",
+              requiredPermission: "events.swapping"
             }
           ],
           alwaysDisplayed: false

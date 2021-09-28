@@ -4,6 +4,8 @@ import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
 import CheckoutForm from '../checkout/CheckoutForm';
+import DoubleTable from './DoubleTable';
+import dateFormat from 'dateformat';
 
 class SwappingPage extends React.Component {
   constructor(props) {
@@ -19,7 +21,9 @@ class SwappingPage extends React.Component {
       processingDonation: false,
       disabled: false,
       totalAmountInPence: 0,
-      clientSecret: null
+      clientSecret: null,
+      credit: 0,
+      history: []
     };
   }
 
@@ -77,13 +81,20 @@ class SwappingPage extends React.Component {
     let content;
 
     try {
-      content = await api.get("/some/path");
+      content = await api.get("/swapping/credit");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
     }
 
-    this.setState({ loaded: true, status: 200, content: content });
+    const { credit, history } = content.data;
+    const sortedHistory = history.sort((a, b) => {
+      const ad = new Date(a.updatedAt);
+      const bd = new Date(b.updatedAt);
+      return -(ad > bd  ? 1 : (ad < bd ? -1 : 0));
+    })
+
+    this.setState({ loaded: true, status: 200, credit, history: sortedHistory });
   }
 
   displayTrueDonation = () => {
@@ -102,7 +113,18 @@ class SwappingPage extends React.Component {
   }
 
   onPaymentSuccess = () => {
+    let { credit, totalAmountInPence } = this.state;
 
+    credit = Number(credit) + Number(totalAmountInPence);
+
+    this.setState({ awaitingConfirmation: true, processingDonation: false, donationAmount: 5, totalAmountInPence: 0, clientSecret: null, disabled: false, credit })
+  }
+
+  resolveType = (type) => {
+    switch(type) {
+      case "donation": return "Donated"
+      default: return "Something"
+    }
   }
 
   render () {
@@ -127,8 +149,8 @@ class SwappingPage extends React.Component {
     return (
       <div className="flex flex-col justify-start">
         <div className="md:w-3/5 container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Formal Swapping</h1>
-          <p className="md:hidden py-1 font-semibold text-lg">Please note this webpage may be difficult to use on mobile devices.</p>
+          <h1 className="font-semibold text-5xl pb-2">Formal Swapping</h1>
+          <p className="md:hidden py-1 font-semibold text-lg">This webpage was designed for use on a computer, it may still work on mobile devices but functionality is not guaranteed.</p>
           <div className="text-left mb-2">
             <h2 className="font-semibold text-3xl">What is this?</h2>
             <p className="pt-1">For certain events or formals throughout the year (e.g. Valentine{"'"}s Formal) it is possible for members of the JCR to determine the seating plan for the meal! Pairs of people sign on to the formal and they can then be swapped with other pairs on the formal. The price for swapping is determined by the number of times that the specific pair has already been swapped. The price for the swap is the highest value of the two pairs that you wish to swap. Swapping starts at £0.20 and doubles each time. The money spent on swapping (minus transaction fees) is donated to charity.</p>
@@ -136,10 +158,17 @@ class SwappingPage extends React.Component {
           <div className="text-left">
             <h2 className="font-semibold text-3xl">Swapping Credit</h2>
             <p className="pt-1">To get started with swapping you need to make a donation via the JCR. The amount you donate will then be given to you as credit to spend on swapping. You can add credit to your account below. <span className="font-semibold">Please note donations are final and any excess credit will not be refunded during or after the swapping period concludes.</span></p>
-            <div className="flex flex-col md:flex-row py-2">
+            <div className="flex flex-col md:flex-row py-2 overflow-hidden md:h-48">
               <div className="md:w-1/2 w-full md:mb-0 mb-2 md:mr-2 mr-0">
-                <h3 className="text-xl font-semibold">Existing Credit</h3>
-                <p>£X.XX</p>
+                <p className="text-xl font-semibold">Current Credit: £{ (Number(this.state.credit) / 100).toFixed(2) }</p>
+                <h3 className="font-semibold md:block hidden">History</h3>
+                <div className="overflow-y-auto flex flex-col justify-start h-full md:block hidden">
+                  {
+                    this.state.history.map((record, i) => (
+                      <div>{dateFormat(record.createdAt, "dd/mm/yyyy HH:MM")}: {this.resolveType(record.type)} £{(Number(record.amount) / 100).toFixed(2)}</div>
+                    ))
+                  }
+                </div>
               </div>
               <div className="md:ml-2 pb-2 md:w-1/2 w-full flex flex-col">
                 {
@@ -182,6 +211,30 @@ class SwappingPage extends React.Component {
                   )
                 }
               </div>
+            </div>
+          </div>
+          <div className="pt-2 flex-col">
+            <h2 className="font-semibold text-3xl text-left pb-2">Current Arrangement</h2>
+            <div className="text-left">
+              <h3 className="font-semibold text-2xl pb-1">Make a Swap</h3>
+              <div className="flex flex-row items-center">
+                <span>Swap</span>
+                <select
+                  className="mx-1 w-64 border border-gray-400 disabled:opacity-50"
+                />
+                <span>with</span>
+                <select
+                  className="mx-1 w-64 border border-gray-400 disabled:opacity-50"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <DoubleTable />
+              <DoubleTable />
+              <DoubleTable />
+              <DoubleTable />
+              <DoubleTable />
+              <DoubleTable />
             </div>
           </div>
         </div>
