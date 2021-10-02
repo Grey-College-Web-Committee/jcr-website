@@ -34,7 +34,7 @@ const setupEvents = (socket, io) => {
       return {};
     }
 
-    io.to("swapClients").emit("updateUserCount", { users: io.sockets.adapter.rooms.get("swapClients").size });
+    io.to("swapClients").emit("updateUserCount", { users: io.sockets.adapter.rooms.get("swapClients") ? io.sockets.adapter.rooms.get("swapClients").size : 1 });
     socket.emit("swapInitialPositions", { positions, open: openRecord.booleanStorage, users: io.sockets.adapter.rooms.get("swapClients").size });
   });
 
@@ -53,8 +53,7 @@ const setupEvents = (socket, io) => {
       return;
     }
 
-    const { firstPairId, secondPairId } = data;
-    console.log({ firstPairId, secondPairId });
+    const { firstPairId, secondPairId, flipFirst, flipSecond } = data;
 
     let firstPairRecord;
 
@@ -126,6 +125,19 @@ const setupEvents = (socket, io) => {
     secondPairRecord.position = firstPos;
     secondPairRecord.count += 1;
 
+    // Do the flips if needed too
+    if(flipFirst) {
+      const firstPerson = firstPairRecord.first;
+      firstPairRecord.first = firstPairRecord.second;
+      firstPairRecord.second = firstPerson;
+    }
+
+    if(flipSecond) {
+      const firstPerson = secondPairRecord.first;
+      secondPairRecord.first = secondPairRecord.second;
+      secondPairRecord.second = firstPerson;
+    }
+
     try {
       await firstPairRecord.save();
       await secondPairRecord.save();
@@ -180,7 +192,7 @@ const setupEvents = (socket, io) => {
   });
 
   socket.on("disconnect", async () => {
-    io.to("swapClients").emit("updateUserCount", { users: io.sockets.adapter.rooms.get("swapClients").size });
+    io.to("swapClients").emit("updateUserCount", { users: io.sockets.adapter.rooms.get("swapClients") ? io.sockets.adapter.rooms.get("swapClients").size : 1 });
   })
 }
 

@@ -33,7 +33,9 @@ class SwappingPage extends React.Component {
       firstPair: -1,
       secondPair: -1,
       users: 0,
-      swappingError: ""
+      swappingError: "",
+      flipFirst: false,
+      flipSecond: false
     };
 
     this.socket = undefined;
@@ -98,6 +100,8 @@ class SwappingPage extends React.Component {
     this.socket.on("swappingUpdate", this.onPositionUpdate);
     // Called when the swap is successful
     this.socket.on("swappingSuccess", this.onSwapSuccess);
+    // Called when the status of swapping changes
+    this.socket.on("swappingOpenClose", this.onSwappingToggled);
 
     this.setState({ loaded: true, status: 200, credit, history: sortedHistory });
   }
@@ -123,7 +127,6 @@ class SwappingPage extends React.Component {
   }
 
   onPositionUpdate = (data) => {
-    console.log("pos update")
     const { positions } = data;
     const pairs = positions.map(pos => {
       return {
@@ -138,7 +141,11 @@ class SwappingPage extends React.Component {
 
   onSwapSuccess = (data) => {
     const { history, credit } = data;
-    this.setState({ disabled: false, history, credit, firstPair: -1, secondPair: -1 });
+    this.setState({ disabled: false, history, credit, firstPair: -1, secondPair: -1, flipFirst: false, flipSecond: false });
+  }
+
+  onSwappingToggled = (data) => {
+
   }
 
   // Actions
@@ -169,7 +176,7 @@ class SwappingPage extends React.Component {
 
   performSwap = async () => {
     this.setState({ disabled: true, swappingError: "" });
-    const { firstPair, secondPair, credit } = this.state;
+    const { firstPair, secondPair, credit, flipFirst, flipSecond } = this.state;
 
     // Only a basic check we will check this again server side
     const totalPriceInPence = this.calculateTotalPrice() * 100;
@@ -179,7 +186,7 @@ class SwappingPage extends React.Component {
       return;
     }
 
-    this.socket.emit("performSwap", { firstPairId: firstPair, secondPairId: secondPair });
+    this.socket.emit("performSwap", { firstPairId: firstPair, secondPairId: secondPair, flipFirst, flipSecond });
   }
 
   onPaymentSuccess = () => {
@@ -375,6 +382,28 @@ class SwappingPage extends React.Component {
                       ))
                     }
                   </select>
+                  <div className="flex flex-row">
+                    <span>Flip First Pair?</span>
+                    <input
+                      type="checkbox"
+                      name="flipFirst"
+                      className="h-6 w-6 ml-1"
+                      disabled={this.state.disabled}
+                      checked={this.state.flipFirst}
+                      onChange={this.onInputChange}
+                    />
+                  </div>
+                  <div className="flex flex-row ml-1">
+                    <span>Flip Second Pair?</span>
+                    <input
+                      type="checkbox"
+                      name="flipSecond"
+                      className="h-6 w-6 ml-1"
+                      disabled={this.state.disabled}
+                      checked={this.state.flipSecond}
+                      onChange={this.onInputChange}
+                    />
+                  </div>
                 </div>
                 {
                   this.state.firstPair !== -1 && this.state.secondPair !== -1 ? (

@@ -12,6 +12,7 @@ class SingleTable extends React.Component {
     this.clearAnimation = undefined;
   }
 
+  // Used to find out which ones have been changed so they can be pulsed
   componentDidUpdate = (prevProps, prevState, snapshot) => {
     const { pairs } = this.props;
     const oldPairs = prevProps.pairs;
@@ -30,10 +31,15 @@ class SingleTable extends React.Component {
     }
 
     if(updatedIndexes.length !== 0) {
-      this.setState({ updatedIndexes });
-      this.clearAnimation = window.setTimeout(() => {
-        this.setState({ updatedIndexes: [] })
-      }, 1000);
+      if(this.clearAnimation) {
+        window.clearTimeout(this.clearAnimation);
+      }
+
+      this.setState({ updatedIndexes }, () => {
+        this.clearAnimation = window.setTimeout(() => {
+          this.setState({ updatedIndexes: [] })
+        }, 1000);
+      });
     }
   }
 
