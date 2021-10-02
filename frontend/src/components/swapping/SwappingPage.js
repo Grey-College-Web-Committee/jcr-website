@@ -32,7 +32,8 @@ class SwappingPage extends React.Component {
       pairs: [],
       firstPair: -1,
       secondPair: -1,
-      users: 0
+      users: 0,
+      swappingError: ""
     };
 
     this.socket = undefined;
@@ -91,6 +92,12 @@ class SwappingPage extends React.Component {
     this.socket.on("swapInitialPositions", this.setupInitialPositions);
     // Called when the user count updates
     this.socket.on("updateUserCount", ({ users }) => this.setState({ users }));
+    // Called when there is an error with the swap
+    this.socket.on("swappingError", this.onSwapError);
+    // Called when there is an update to the positions
+    this.socket.on("swappingUpdate", this.onPositionUpdate);
+    // Called when the swap is successful
+    this.socket.on("swappingSuccess", this.onSwapSuccess);
 
     this.setState({ loaded: true, status: 200, credit, history: sortedHistory });
   }
@@ -108,6 +115,30 @@ class SwappingPage extends React.Component {
     });
 
     this.setState({ positions, open, pairs, users, ready: true });
+  }
+
+  onSwapError = (data) => {
+    const { error } = data;
+    this.setState({ swappingError: error, disabled: false });
+  }
+
+  onPositionUpdate = (data) => {
+    console.log("pos update")
+    const { positions } = data;
+    const pairs = positions.map(pos => {
+      return {
+        id: pos.id,
+        names: `${pos.first} & ${pos.second}`,
+        count: pos.count
+      }
+    });
+
+    this.setState({ positions, pairs, refresh: new Date() }, () => console.log(this.state.positions));
+  }
+
+  onSwapSuccess = (data) => {
+    const { history, credit } = data;
+    this.setState({ disabled: false, history, credit, firstPair: -1, secondPair: -1 });
   }
 
   // Actions
@@ -137,7 +168,18 @@ class SwappingPage extends React.Component {
   }
 
   performSwap = async () => {
+    this.setState({ disabled: true, swappingError: "" });
+    const { firstPair, secondPair, credit } = this.state;
 
+    // Only a basic check we will check this again server side
+    const totalPriceInPence = this.calculateTotalPrice() * 100;
+
+    if(totalPriceInPence > credit) {
+      this.setState({ swappingError: "You cannot complete this swap as you do not have enough credit.", disabled: false });
+      return;
+    }
+
+    this.socket.emit("performSwap", { firstPairId: firstPair, secondPairId: secondPair });
   }
 
   onPaymentSuccess = () => {
@@ -172,6 +214,7 @@ class SwappingPage extends React.Component {
   resolveType = (type) => {
     switch(type) {
       case "donation": return "Donated"
+      case "swap": return "Made a swap costing"
       default: return "Something"
     }
   }
@@ -226,14 +269,14 @@ class SwappingPage extends React.Component {
           <div className="text-left">
             <h2 className="font-semibold text-3xl">Swapping Credit</h2>
             <p className="pt-1">To get started with swapping you need to make a donation via the JCR. The amount you donate will then be given to you as credit to spend on swapping. You can add credit to your account below. <span className="font-semibold">Please note donations are final and any excess credit will not be refunded during or after the swapping period concludes.</span></p>
-            <div className="flex flex-col md:flex-row py-2 overflow-hidden md:h-48">
-              <div className="md:w-1/2 w-full md:mb-0 mb-2 md:mr-2 mr-0">
+            <div className="flex flex-col md:flex-row py-2 overflow-hidden">
+              <div className="md:w-1/2 w-full md:mb-0 mb-2 md:mr-2 mr-0 h-full">
                 <p className="text-xl font-semibold">Current Credit: £{ (Number(this.state.credit) / 100).toFixed(2) }</p>
                 <h3 className="font-semibold md:block hidden">History</h3>
-                <div className="overflow-y-auto flex flex-col justify-start h-full md:block hidden">
+                <div className="overflow-y-auto flex flex-col justify-start md:block hidden h-56">
                   {
                     this.state.history.map((record, i) => (
-                      <div>{dateFormat(record.createdAt, "dd/mm/yyyy HH:MM")}: {this.resolveType(record.type)} £{(Number(record.amount) / 100).toFixed(2)}</div>
+                      <div key={i}>{dateFormat(record.createdAt, "dd/mm/yyyy HH:MM")}: {this.resolveType(record.type)} £{(Number(record.amount) / 100).toFixed(2)}</div>
                     ))
                   }
                 </div>
@@ -335,19 +378,25 @@ class SwappingPage extends React.Component {
                 </div>
                 {
                   this.state.firstPair !== -1 && this.state.secondPair !== -1 ? (
-                    <div className="flex flex-row items-center">
+                    <div className="flex flex-row items-center my-2">
                       <span>Total Swap Cost: £{this.calculateTotalPrice().toFixed(2)}</span>
                       <button
-                        className="ml-2 bg-red-900 text-white p-1 rounded"
+                        className="ml-2 bg-red-900 text-white p-1 rounded disabled:opacity-50"
                         onClick={this.performSwap}
+                        disabled={this.state.disabled}
                       >Confirm Swap</button>
                     </div>
+                  ) : null
+                }
+                {
+                  this.state.swappingError ? (
+                    <p className="mb-2 text-red-900 font-semibold">{this.state.swappingError}</p>
                   ) : null
                 }
               </div>
             </div>
             <TableLayout
-              key={this.state.refresh}
+              refreshKey={this.state.refresh}
               positions={this.state.positions}
             />
           </div>

@@ -92,7 +92,8 @@ router.get("/credit", async (req, res) => {
     history = await SwappingCreditLog.findAll({
       where: {
         userId: user.id
-      }
+      },
+      order: [[ "updatedAt", "DESC" ]]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to check log" });

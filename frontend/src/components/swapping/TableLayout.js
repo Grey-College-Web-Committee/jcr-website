@@ -7,7 +7,7 @@ class TableLayout extends React.Component {
     super(props);
 
     this.state = {
-
+      refreshKey: this.props.refreshKey
     }
 
     this.maxPairsPerTable = 2;
@@ -28,7 +28,7 @@ class TableLayout extends React.Component {
 
       if(2 * i + 1 >= tableData.length) {
         renders.push(
-          <div className="flex flex-col md:flex-row justify-start">
+          <div className="flex flex-col md:flex-row justify-start" key={i}>
             <SingleTable
               pairs={firstTable}
               left={true}
@@ -42,7 +42,7 @@ class TableLayout extends React.Component {
       const secondTable = tableData[2 * i + 1];
 
       renders.push(
-        <div className="flex flex-col md:flex-row justify-between">
+        <div className="flex flex-col md:flex-row justify-between" key={i}>
           <SingleTable
             pairs={firstTable}
             left={true}
@@ -60,7 +60,7 @@ class TableLayout extends React.Component {
 
   render () {
     return (
-      <div className="flex flex-col">
+      <div className="flex flex-col transition-all">
         { this.renderTables() }
       </div>
     )
