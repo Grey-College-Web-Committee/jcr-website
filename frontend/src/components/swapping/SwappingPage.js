@@ -6,6 +6,7 @@ import LoadingHolder from '../common/LoadingHolder';
 import CheckoutForm from '../checkout/CheckoutForm';
 import DoubleTable from './DoubleTable';
 import dateFormat from 'dateformat';
+import socketIOClient from 'socket.io-client';
 
 class SwappingPage extends React.Component {
   constructor(props) {
@@ -23,12 +24,22 @@ class SwappingPage extends React.Component {
       totalAmountInPence: 0,
       clientSecret: null,
       credit: 0,
-      history: []
+      history: [],
+      positions: [],
+      open: false,
+      ready: false
     };
+
+    this.socket = undefined;
   }
 
   onInputChange = e => {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
+  }
+
+  componentWillUnmount = () => {
+    // Want to end the connection when it unmounts
+    this.socket.disconnect();
   }
 
   makeDonation = async () => {
@@ -53,6 +64,11 @@ class SwappingPage extends React.Component {
 
     const { totalAmountInPence, clientSecret } = result.data;
     this.setState({ totalAmountInPence, clientSecret, processingDonation: true });
+  }
+
+  setupInitialPositions = (data) => {
+    const { positions, open } = data;
+    this.setState({ positions, open, ready: true });
   }
 
   // Call the API here initially and then use this.setState to render the content
@@ -94,6 +110,13 @@ class SwappingPage extends React.Component {
       return -(ad > bd  ? 1 : (ad < bd ? -1 : 0));
     })
 
+    const protocol = window.location.protocol.toLowerCase() === "https:" ? "wss" : "ws";
+    this.socket = socketIOClient(`${protocol}://${window.location.host}`);//, { transports: [ "websocket" ]});
+    this.socket.emit("subscribeToSwap", {});
+
+    // Called when swapInitialPositions is received on initial connection
+    this.socket.on("swapInitialPositions", this.setupInitialPositions);
+
     this.setState({ loaded: true, status: 200, credit, history: sortedHistory });
   }
 
@@ -128,7 +151,7 @@ class SwappingPage extends React.Component {
   }
 
   render () {
-    if(!this.state.loaded) {
+    if(!this.state.loaded || !this.state.ready) {
       if(this.state.status !== 200 && this.state.status !== 0) {
         return (
          <Redirect to={`/errors/${this.state.status}`} />

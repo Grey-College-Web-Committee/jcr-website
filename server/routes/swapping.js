@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 // The database models
-const { User, Permission, PermissionLink, SwappingCredit, SwappingCreditLog } = require("../database.models.js");
+const { User, Permission, PermissionLink, SwappingCredit, SwappingCreditLog, SwappingPair, PersistentVariable } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -99,6 +99,43 @@ router.get("/credit", async (req, res) => {
   }
 
   return res.status(200).json({ credit: creditRecord.credit, history });
+})
+
+// Create the initial pairings
+router.post("/initial", async (req, res) => {
+  const { user } = req.session;
+
+  // Must have permission
+  if(!hasPermission(req.session, "events.swapping")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { initialPairs } = req.body;
+
+  // Check there are no pairs
+  let existingPairs;
+
+  try {
+    existingPairs = await SwappingPair.findAll();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch existing pairs" });
+  }
+
+  if(existingPairs.length !== 0) {
+    return res.status(400).json({ error: "There already exists pairs. Please clear them before uploading a new set of pairs." });
+  }
+
+  for(let position = 0; position < initialPairs.length; position++) {
+    const { first, second } = initialPairs[position];
+
+    try {
+      await SwappingPair.create({ first, second, position, count: 0 });
+    } catch (error) {
+      return res.status(500).json({ error: `Unable to create pair for ${first} and ${second}` });
+    }
+  }
+
+  return res.status(204).end();
 })
 
 // Set the module export to router so it can be used in server.js

@@ -51,7 +51,7 @@ const eventsCron = require("./cron/events_cron");
 const app = express();
 
 const http = require("http").Server(app);
-const io = require("socket.io")(http, { transports: [ "websocket" ] });
+const io = require("socket.io")(http);//, { transports: [ "websocket" ] });
 
 if(process.env.NODE_ENV === "production") {
   console.log("Production Mode: Setting redis sockets");
@@ -67,10 +67,12 @@ if(process.env.NODE_ENV === "production") {
 
 const barSocket = require("./sockets/bar_socket");
 const toastieSocket = require("./sockets/toastie_socket");
+const swappingSocket = require("./sockets/swapping_socket");
 
 io.on("connection", socket => {
   barSocket.setupEvents(socket, io);
   toastieSocket.setupEvents(socket, io);
+  swappingSocket.setupEvents(socket, io);
 });
 
 // Tells express to recognise incoming requests as JSON
@@ -382,6 +384,16 @@ const requiredPermissions = [
       booleanStorage: false
     }
   });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "SWAPPING_OPEN"
+    },
+    defaults: {
+      key: "SWAPPING_OPEN",
+      booleanStorage: false
+    }
+  })
 })();
 
 console.log("NODE_APP_INSTANCE:", process.env.NODE_APP_INSTANCE);
