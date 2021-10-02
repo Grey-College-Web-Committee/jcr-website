@@ -4,9 +4,9 @@ import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
 import CheckoutForm from '../checkout/CheckoutForm';
-import DoubleTable from './DoubleTable';
 import dateFormat from 'dateformat';
 import socketIOClient from 'socket.io-client';
+import TableLayout from './TableLayout';
 
 class SwappingPage extends React.Component {
   constructor(props) {
@@ -27,51 +27,24 @@ class SwappingPage extends React.Component {
       history: [],
       positions: [],
       open: false,
-      ready: false
+      ready: false,
+      refresh: new Date(),
+      pairs: [],
+      firstPair: -1,
+      secondPair: -1,
+      users: 0
     };
 
     this.socket = undefined;
   }
 
-  onInputChange = e => {
-    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
-  }
+  // Loading and unloading
 
   componentWillUnmount = () => {
     // Want to end the connection when it unmounts
     this.socket.disconnect();
   }
 
-  makeDonation = async () => {
-    const { donationAmount } = this.state;
-
-    if(!donationAmount || Number(donationAmount) < 2 || Number(donationAmount) > 100) {
-      alert("Invalid amount");
-      return;
-    }
-
-    this.setState({ disabled: true });
-
-    // Now get the payment intent
-    let result;
-
-    try {
-      result = await api.post("/swapping/donate", { amount: donationAmount });
-    } catch (error) {
-      alert(error.response.data.error);
-      return;
-    }
-
-    const { totalAmountInPence, clientSecret } = result.data;
-    this.setState({ totalAmountInPence, clientSecret, processingDonation: true });
-  }
-
-  setupInitialPositions = (data) => {
-    const { positions, open } = data;
-    this.setState({ positions, open, ready: true });
-  }
-
-  // Call the API here initially and then use this.setState to render the content
   componentDidMount = async () => {
     let membershipCheck;
 
@@ -116,8 +89,69 @@ class SwappingPage extends React.Component {
 
     // Called when swapInitialPositions is received on initial connection
     this.socket.on("swapInitialPositions", this.setupInitialPositions);
+    // Called when the user count updates
+    this.socket.on("updateUserCount", ({ users }) => this.setState({ users }));
 
     this.setState({ loaded: true, status: 200, credit, history: sortedHistory });
+  }
+
+  // Socket events
+
+  setupInitialPositions = (data) => {
+    const { positions, open, users } = data;
+    const pairs = positions.map(pos => {
+      return {
+        id: pos.id,
+        names: `${pos.first} & ${pos.second}`,
+        count: pos.count
+      }
+    });
+
+    this.setState({ positions, open, pairs, users, ready: true });
+  }
+
+  // Actions
+
+  makeDonation = async () => {
+    const { donationAmount } = this.state;
+
+    if(!donationAmount || Number(donationAmount) < 2 || Number(donationAmount) > 100) {
+      alert("Invalid amount");
+      return;
+    }
+
+    this.setState({ disabled: true });
+
+    // Now get the payment intent
+    let result;
+
+    try {
+      result = await api.post("/swapping/donate", { amount: donationAmount });
+    } catch (error) {
+      alert(error.response.data.error);
+      return;
+    }
+
+    const { totalAmountInPence, clientSecret } = result.data;
+    this.setState({ totalAmountInPence, clientSecret, processingDonation: true });
+  }
+
+  performSwap = async () => {
+
+  }
+
+  onPaymentSuccess = () => {
+    let { credit, totalAmountInPence } = this.state;
+
+    credit = Number(credit) + Number(totalAmountInPence);
+
+    this.setState({ awaitingConfirmation: true, processingDonation: false, donationAmount: 5, totalAmountInPence: 0, clientSecret: null, disabled: false, credit })
+  }
+
+  // Helpers
+
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
   displayTrueDonation = () => {
@@ -135,19 +169,30 @@ class SwappingPage extends React.Component {
     )
   }
 
-  onPaymentSuccess = () => {
-    let { credit, totalAmountInPence } = this.state;
-
-    credit = Number(credit) + Number(totalAmountInPence);
-
-    this.setState({ awaitingConfirmation: true, processingDonation: false, donationAmount: 5, totalAmountInPence: 0, clientSecret: null, disabled: false, credit })
-  }
-
   resolveType = (type) => {
     switch(type) {
       case "donation": return "Donated"
       default: return "Something"
     }
+  }
+
+  calculatePairPrice = (pairDetails) => {
+    return 0.2 * 2 ** pairDetails.count
+  }
+
+  calculateTotalPrice = () => {
+    const { firstPair, secondPair, pairs } = this.state;
+    const firstPairDetails = pairs.filter(p => `${p.id}` === `${firstPair}`)[0];
+    const secondPairDetails = pairs.filter(p => `${p.id}` === `${secondPair}`)[0];
+
+    //console.log({firstPairDetails, secondPairDetails})
+
+    const firstPairPrice = this.calculatePairPrice(firstPairDetails);
+    const secondPairPrice = this.calculatePairPrice(secondPairDetails);
+
+    //console.log({firstPairPrice, secondPairPrice})
+
+    return firstPairPrice > secondPairPrice ? firstPairPrice : secondPairPrice;
   }
 
   render () {
@@ -171,7 +216,7 @@ class SwappingPage extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
-        <div className="md:w-3/5 container mx-auto text-center p-4">
+        <div className="md:w-4/5 container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-2">Formal Swapping</h1>
           <p className="md:hidden py-1 font-semibold text-lg">This webpage was designed for use on a computer, it may still work on mobile devices but functionality is not guaranteed.</p>
           <div className="text-left mb-2">
@@ -238,27 +283,73 @@ class SwappingPage extends React.Component {
           </div>
           <div className="pt-2 flex-col">
             <h2 className="font-semibold text-3xl text-left pb-2">Current Arrangement</h2>
+            <p className="text-left">There {this.state.users === 1 ? "is" : "are"} currently {this.state.users} {this.state.users === 1 ? "person" : "people"} here.</p>
             <div className="text-left">
               <h3 className="font-semibold text-2xl pb-1">Make a Swap</h3>
-              <div className="flex flex-row items-center">
-                <span>Swap</span>
-                <select
-                  className="mx-1 w-64 border border-gray-400 disabled:opacity-50"
-                />
-                <span>with</span>
-                <select
-                  className="mx-1 w-64 border border-gray-400 disabled:opacity-50"
-                />
+              <div className="flex flex-col">
+                <div className="flex flex-row items-center mb-1">
+                  <span>Swap</span>
+                  <select
+                    className="mx-1 w-64 border border-gray-400 disabled:opacity-50"
+                    value={this.state.firstPair}
+                    onChange={this.onInputChange}
+                    name="firstPair"
+                  >
+                    <option
+                      value={-1}
+                      disabled={true}
+                      className="hidden"
+                    >Please select...</option>
+                    {
+                      this.state.pairs.map((pair, i) => (
+                        <option
+                          value={pair.id}
+                          key={i}
+                          disabled={`${this.state.secondPair}` === `${pair.id}`}
+                        >{pair.names} (£{(0.2 * 2 ** pair.count).toFixed(2)})</option>
+                      ))
+                    }
+                  </select>
+                  <span>with</span>
+                  <select
+                    className="mx-1 w-64 border border-gray-400 disabled:opacity-50"
+                    value={this.state.secondPair}
+                    onChange={this.onInputChange}
+                    name="secondPair"
+                  >
+                    <option
+                      value={-1}
+                      disabled={true}
+                      className="hidden"
+                    >Please select...</option>
+                    {
+                      this.state.pairs.map((pair, i) => (
+                        <option
+                          value={pair.id}
+                          key={i}
+                          disabled={`${this.state.firstPair}` === `${pair.id}`}
+                        >{pair.names} (£{this.calculatePairPrice(pair).toFixed(2)})</option>
+                      ))
+                    }
+                  </select>
+                </div>
+                {
+                  this.state.firstPair !== -1 && this.state.secondPair !== -1 ? (
+                    <div className="flex flex-row items-center">
+                      <span>Total Swap Cost: £{this.calculateTotalPrice().toFixed(2)}</span>
+                      <button
+                        className="ml-2 bg-red-900 text-white p-1 rounded"
+                        onClick={this.performSwap}
+                      >Confirm Swap</button>
+                    </div>
+                  ) : null
+                }
               </div>
             </div>
-            <div className="flex flex-col">
-              <DoubleTable />
-              <DoubleTable />
-              <DoubleTable />
-              <DoubleTable />
-              <DoubleTable />
-              <DoubleTable />
-            </div>
+            <TableLayout
+              key={this.state.refresh}
+              positions={this.state.positions}
+            />
           </div>
         </div>
       </div>

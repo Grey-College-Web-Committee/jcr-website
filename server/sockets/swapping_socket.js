@@ -26,7 +26,7 @@ const setupEvents = (socket, io) => {
 
     try {
       positions = await SwappingPair.findAll({
-        attributes: [ "first", "second", "position", "count" ],
+        attributes: [ "id", "first", "second", "position", "count" ],
         order: [[ "position", "ASC" ]]
       });
     } catch (error) {
@@ -34,12 +34,13 @@ const setupEvents = (socket, io) => {
       return {};
     }
 
-    socket.emit("swapInitialPositions", { positions, open: openRecord.booleanStorage });
+    io.to("swapClients").emit("updateUserCount", { users: io.sockets.adapter.rooms.get("swapClients").size });
+    socket.emit("swapInitialPositions", { positions, open: openRecord.booleanStorage, users: io.sockets.adapter.rooms.get("swapClients").size });
   });
 
-  // socket.on("markBarContentComplete", async (data) => {
-  //   io.to("barOrderClients").emit("barContentCompleted", data);
-  // });
+  socket.on("disconnect", async () => {
+    io.to("swapClients").emit("updateUserCount", { users: io.sockets.adapter.rooms.get("swapClients").size });
+  })
 }
 
 module.exports = { setupEvents };
