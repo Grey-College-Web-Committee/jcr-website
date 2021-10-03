@@ -273,7 +273,8 @@ class GymInformationPage extends React.Component {
         <h2 className="font-semibold text-4xl pb-2 text-left">Purchase Membership</h2>
         <p className="py-1">As part of the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link>, at least one other member of your household must be using the gym with you. Please specify your household number below. This will be used to check that at least two members of the same household have a membership once the gym opens.</p>
         <p className="py-1">Once you have selected your household number you will be able to purchase a membership. If you select the wrong household number you will need to refresh the page!</p>
-        <div className="flex flex-col w-auto my-2">
+        <p className="py-1">Gym memberships will be available soon and cannot be purchased at this time via the website.</p>
+        <div className="flex flex-col w-auto my-2 hidden">
           <p className="mb-2 text-2xl font-semibold">Select your household number</p>
           <p className="pb-2">If you already have a membership in your cart then it will be automatically removed when you select a household.</p>
           <select
@@ -369,7 +370,7 @@ class GymInformationPage extends React.Component {
             <p className="py-1 font-semibold">Gym members will need to complete the DUO induction training, quiz and PARQ form before being granted access to the Gym. DUO > Grey College > Grey JCR > Grey College Gym</p>
             <p className="py-1">The Gym is run and equipment owned by the JCR, please contact the FACSO, Will, at <a href="mailto:grey.treasurer@durham.ac.uk" className="underline font-semibold" target="_blank" rel="noopener noreferrer">grey.treasurer@durham.ac.uk</a> with any questions.</p>
           </div>
-          <div className="flex flex-col mx-2 lg:flex-row lg:mx-0 mt-2">
+          <div className="flex flex-col mx-2 lg:flex-row lg:mx-0 my-2">
             <div className="flex flex-col flex-1">
               <div className="flex flex-row justify-center">
                 <div>

@@ -50,20 +50,20 @@ import EventsFreeReqPage from './components/events/free/EventsFreeReqPage';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
 
-import BarOrderingPage from './components/bar/BarOrderingPage';
-import ViewBarItemPage from './components/bar/ViewBarItemPage';
-import BarBookingPage from './components/bar/book/BarBookingPage';
+// import BarOrderingPage from './components/bar/BarOrderingPage';
+// import ViewBarItemPage from './components/bar/ViewBarItemPage';
+// import BarBookingPage from './components/bar/book/BarBookingPage';
 
 // To add a new page import it like above
 
-import BarAdminManageDrinks from './components/bar/admin/BarAdminManageDrinks';
-import BarAdminManageMixers from './components/bar/admin/BarAdminManageMixers';
-import BarAdminManageSizes from './components/bar/admin/BarAdminManageSizes';
-import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
-import BarAdminOverview from './components/bar/admin/BarAdminOverview';
-import BarAdminLive from './components/bar/admin/live/BarAdminLive';
-import BarAdminViewBookings from './components/bar/admin/BarAdminViewBookings';
-import BarAdminManageCordials from './components/bar/admin/BarAdminManageCordials';
+// import BarAdminManageDrinks from './components/bar/admin/BarAdminManageDrinks';
+// import BarAdminManageMixers from './components/bar/admin/BarAdminManageMixers';
+// import BarAdminManageSizes from './components/bar/admin/BarAdminManageSizes';
+// import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
+// import BarAdminOverview from './components/bar/admin/BarAdminOverview';
+// import BarAdminLive from './components/bar/admin/live/BarAdminLive';
+// import BarAdminViewBookings from './components/bar/admin/BarAdminViewBookings';
+// import BarAdminManageCordials from './components/bar/admin/BarAdminManageCordials';
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
@@ -575,39 +575,6 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/feedback/view/:id" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/feedback/view/${props.id}`) )
-                    )} />
-                    <Route exact path="/bar/" render={() => (
-                      this.isLoggedIn() ? ( <BarOrderingPage disableScroll={this.disableBodyScroll} /> ) : ( this.loginRef("/bar") )
-                    )} />
-                    <Route exact path="/bar/view/:id" render={(props) => (
-                      this.isLoggedIn() ? ( <ViewBarItemPage {...props} /> ) : ( this.loginRef(`/bar/view/${props.id}`) )
-                    )} />
-                    <Route exact path="/bar/book" render={() => (
-                      this.isLoggedIn() ? ( <BarBookingPage /> ) : ( this.loginRef("/bar/book") )
-                    )} />
-                    <Route exact path="/bar/admin/overview" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/overview") )
-                    )} />
-                    <Route exact path="/bar/admin/mixers" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageMixers /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/mixers") )
-                    )} />
-                    <Route exact path="/bar/admin/sizes" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageSizes /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/sizes") )
-                    )} />
-                    <Route exact path="/bar/admin/types" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageTypes /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/types") )
-                    )} />
-                    <Route exact path="/bar/admin/drinks" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageDrinks /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/drinks") )
-                    )} />
-                    <Route exact path="/bar/admin/cordials" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageCordials /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/cordials") )
-                    )} />
-                    <Route exact path="/bar/admin/live" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/live") )
-                    )} />
-                    <Route exact path="/bar/admin/bookings" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminViewBookings /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/bookings") )
                     )} />
                     <Route exact path="/jcr/committees" render={(props) => (
                       <ViewCommitteesPage {...props} />
