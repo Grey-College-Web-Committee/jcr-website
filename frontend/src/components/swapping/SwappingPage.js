@@ -136,7 +136,7 @@ class SwappingPage extends React.Component {
       }
     });
 
-    this.setState({ positions, pairs, refresh: new Date() }, () => console.log(this.state.positions));
+    this.setState({ positions, pairs, refresh: new Date() });
   }
 
   onSwapSuccess = (data) => {
@@ -266,7 +266,7 @@ class SwappingPage extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
-        <div className="md:w-4/5 container mx-auto text-center p-4">
+        <div className="xl:w-4/5 container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-2">Formal Swapping</h1>
           <p className="md:hidden py-1 font-semibold text-lg">This webpage was designed for use on a computer, it may still work on mobile devices but functionality is not guaranteed.</p>
           <div className="text-left mb-2">

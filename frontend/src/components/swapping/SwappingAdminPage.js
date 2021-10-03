@@ -113,6 +113,32 @@ class SwappingAdminPage extends React.Component {
     this.setState({ disabled: false, initialUpload: null, initialUploadSuccess: true, refresh: new Date() });
   }
 
+  resetSwapping = async () => {
+    this.setState({ disabled: true });
+    const confirm = window.confirm("Are you sure you want to fully reset swapping and all accumulated credit? Make sure you have downloaded the final pairings if you need them!");
+
+    if(!confirm) {
+      this.setState({ disabled: false });
+      return;
+    }
+
+    try {
+      await api.post("/swapping/reset", {});
+    } catch (error) {
+      alert(error.response.data.error);
+      this.setState({ disabled: false });
+      return;
+    }
+
+    this.setState({ disabled: false, resetSuccess: true });
+  }
+
+  downloadPositions = async () => {
+    this.setState({ disabled: true });
+    window.open("/api/swapping/download");
+    this.setState({ disabled: false });
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -130,9 +156,14 @@ class SwappingAdminPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Swapping Admin</h1>
-          <div className="border p-2 text-left my-1">
-            <h2 className="font-semibold text-2xl">Download Final Pairings</h2>
-            <p>This will allow you to download the final positions of the pairs.</p>
+          <div className="border p-2 text-left my-1 flex flex-col">
+            <h2 className="font-semibold text-2xl">Download Current Positions</h2>
+            <p>This will allow you to download the current positions of the pairs.</p>
+            <button
+              className="bg-grey-900 p-1 text-white w-auto disabled:opacity-50"
+              disabled={this.state.disabled}
+              onClick={this.downloadPositions}
+            >Download Current Positions</button>
           </div>
           <div className="border p-2 text-left my-1 flex flex-col">
             <h2 className="font-semibold text-2xl">Upload Initial Pairs</h2>
@@ -152,13 +183,23 @@ class SwappingAdminPage extends React.Component {
             >Upload Initial Pairs</button>
             {
               this.state.initialUploadSuccess ? (
-                <p className="mt-1">Upload successful. Pairs have been setup.</p>
+                <p className="mt-1 text-green-900">Upload successful. Pairs have been setup.</p>
               ) : null
             }
           </div>
-          <div className="border p-2 text-left my-1">
+          <div className="border p-2 text-left my-1 flex flex-col">
             <h2 className="font-semibold text-2xl">Clear Existing</h2>
             <p>This will clear all of the existing pairs and swaps that have taken place. It will also clear all of the credit accumulated by users.</p>
+            <button
+              className="bg-grey-900 p-1 text-white w-auto disabled:opacity-50"
+              disabled={this.state.disabled}
+              onClick={this.resetSwapping}
+            >Reset Swapping</button>
+            {
+              this.state.resetSuccess ? (
+                <p className="mt-1 text-green-900">Swapping has been reset.</p>
+              ) : null
+            }
           </div>
         </div>
       </div>

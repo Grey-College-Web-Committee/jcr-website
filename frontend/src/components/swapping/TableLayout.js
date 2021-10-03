@@ -10,7 +10,7 @@ class TableLayout extends React.Component {
       refreshKey: this.props.refreshKey
     }
 
-    this.maxPairsPerTable = 2;
+    this.maxPairsPerTable = 10;
   }
 
   renderTables = () => {
