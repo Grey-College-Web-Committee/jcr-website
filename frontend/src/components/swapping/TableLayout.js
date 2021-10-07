@@ -10,7 +10,8 @@ class TableLayout extends React.Component {
       refreshKey: this.props.refreshKey
     }
 
-    this.maxPairsPerTable = 10;
+    this.maxPairsPerTable = 12;
+    this.hotSeatLocations = [6 * this.maxPairsPerTable - 1, 6 * this.maxPairsPerTable];
   }
 
   renderTables = () => {
@@ -32,6 +33,8 @@ class TableLayout extends React.Component {
             <SingleTable
               pairs={firstTable}
               left={true}
+              firstPosition={2 * i * this.maxPairsPerTable}
+              hotSeatLocations={this.hotSeatLocations}
             />
             <div className="md:w-1/2 md:ml-2 md:block hidden"></div>
           </div>
@@ -46,10 +49,14 @@ class TableLayout extends React.Component {
           <SingleTable
             pairs={firstTable}
             left={true}
+            firstPosition={2 * i * this.maxPairsPerTable}
+            hotSeatLocations={this.hotSeatLocations}
           />
           <SingleTable
             pairs={secondTable}
             left={false}
+            firstPosition={(2 * i + 1) * this.maxPairsPerTable}
+            hotSeatLocations={this.hotSeatLocations}
           />
         </div>
       );

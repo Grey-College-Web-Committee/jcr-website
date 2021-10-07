@@ -13,7 +13,8 @@ class SwappingAdminPage extends React.Component {
       error: "",
       initialUpload: null,
       inData: "",
-      refresh: new Date()
+      refresh: new Date(),
+      open: false
     };
 
     // Change this to your permission
@@ -52,8 +53,17 @@ class SwappingAdminPage extends React.Component {
     }
 
     // Load any required data for the page here
+    let result;
 
-    this.setState({ loaded: true });
+    try {
+      result = await api.get("/swapping/status");
+    } catch (error) {
+      alert(error.response.data.error);
+      return;
+    }
+
+    const { open } = result.data;
+    this.setState({ loaded: true, open });
   }
 
   onFileChange = (e) => {
@@ -130,13 +140,28 @@ class SwappingAdminPage extends React.Component {
       return;
     }
 
-    this.setState({ disabled: false, resetSuccess: true });
+    this.setState({ disabled: false, resetSuccess: true, open: false });
   }
 
   downloadPositions = async () => {
     this.setState({ disabled: true });
     window.open("/api/swapping/download");
     this.setState({ disabled: false });
+  }
+
+  toggleStatus = async () => {
+    this.setState({ disabled: true });
+    const { open } = this.state;
+
+    try {
+      await api.post("/swapping/status", { open: !open });
+    } catch (error) {
+      alert(error.response.data.error);
+      this.setState({ disabled: false });
+      return;
+    }
+
+    this.setState({ disabled: false, open: !open });
   }
 
   render () {
@@ -156,6 +181,15 @@ class SwappingAdminPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Swapping Admin</h1>
+          <div className="border p-2 text-left my-1 flex flex-col">
+            <h2 className="font-semibold text-2xl">Open/Close Swapping</h2>
+            <p>Current state: { this.state.open ? "Open" : "Closed" }</p>
+            <button
+              className={`${this.state.open ? "bg-red-900" : "bg-green-900"} p-1 text-white w-auto disabled:opacity-50`}
+              disabled={this.state.disabled}
+              onClick={this.toggleStatus}
+            >{ this.state.open ? "Close" : "Open" } swapping</button>
+          </div>
           <div className="border p-2 text-left my-1 flex flex-col">
             <h2 className="font-semibold text-2xl">Download Current Positions</h2>
             <p>This will allow you to download the current positions of the pairs.</p>

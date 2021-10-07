@@ -145,7 +145,8 @@ class SwappingPage extends React.Component {
   }
 
   onSwappingToggled = (data) => {
-
+    const { open } = data;
+    this.setState({ open });
   }
 
   // Actions
@@ -266,8 +267,13 @@ class SwappingPage extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
-        <div className="xl:w-4/5 container mx-auto text-center p-4">
+        <div className="xl:w-full md:mx-2 text-center p-4">
           <h1 className="font-semibold text-5xl pb-2">Formal Swapping</h1>
+          {
+            !this.state.open ? (
+              <p className="py-1 font-semibold text-2xl text-red-900 underline">Swapping is currently closed.</p>
+            ) : null
+          }
           <p className="md:hidden py-1 font-semibold text-lg">This webpage was designed for use on a computer, it may still work on mobile devices but functionality is not guaranteed.</p>
           <div className="text-left mb-2">
             <h2 className="font-semibold text-3xl">What is this?</h2>
@@ -321,7 +327,7 @@ class SwappingPage extends React.Component {
                       <div className="pt-2">
                         <button
                           className="px-4 py-2 rounded bg-grey-500 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                          disabled={!this.state.donationAmount || Number(this.state.donationAmount) > 100 || Number(this.state.donationAmount) < 2 || this.state.disabled}
+                          disabled={!this.state.donationAmount || Number(this.state.donationAmount) > 100 || Number(this.state.donationAmount) < 2 || this.state.disabled || !this.state.open}
                           onClick={this.makeDonation}
                         >Make Donation</button>
                       </div>
@@ -337,13 +343,14 @@ class SwappingPage extends React.Component {
             <div className="text-left">
               <h3 className="font-semibold text-2xl pb-1">Make a Swap</h3>
               <div className="flex flex-col">
-                <div className="flex flex-row items-center mb-1">
+                <div className="flex flex-col md:flex-row items-center mb-1">
                   <span>Swap</span>
                   <select
                     className="mx-1 w-64 border border-gray-400 disabled:opacity-50"
                     value={this.state.firstPair}
                     onChange={this.onInputChange}
                     name="firstPair"
+                    disabled={this.state.disabled || !this.state.open}
                   >
                     <option
                       value={-1}
@@ -366,6 +373,7 @@ class SwappingPage extends React.Component {
                     value={this.state.secondPair}
                     onChange={this.onInputChange}
                     name="secondPair"
+                    disabled={this.state.disabled || !this.state.open}
                   >
                     <option
                       value={-1}
@@ -388,18 +396,18 @@ class SwappingPage extends React.Component {
                       type="checkbox"
                       name="flipFirst"
                       className="h-6 w-6 ml-1"
-                      disabled={this.state.disabled}
+                      disabled={this.state.disabled || !this.state.open}
                       checked={this.state.flipFirst}
                       onChange={this.onInputChange}
                     />
                   </div>
-                  <div className="flex flex-row ml-1">
+                  <div className="flex flex-row md:ml-1">
                     <span>Flip Second Pair?</span>
                     <input
                       type="checkbox"
                       name="flipSecond"
                       className="h-6 w-6 ml-1"
-                      disabled={this.state.disabled}
+                      disabled={this.state.disabled || !this.state.open}
                       checked={this.state.flipSecond}
                       onChange={this.onInputChange}
                     />
@@ -407,12 +415,12 @@ class SwappingPage extends React.Component {
                 </div>
                 {
                   this.state.firstPair !== -1 && this.state.secondPair !== -1 ? (
-                    <div className="flex flex-row items-center my-2">
+                    <div className="md:mx-auto flex flex-row items-center my-2">
                       <span>Total Swap Cost: £{this.calculateTotalPrice().toFixed(2)}</span>
                       <button
                         className="ml-2 bg-red-900 text-white p-1 rounded disabled:opacity-50"
                         onClick={this.performSwap}
-                        disabled={this.state.disabled}
+                        disabled={this.state.disabled || !this.state.open}
                       >Confirm Swap</button>
                     </div>
                   ) : null

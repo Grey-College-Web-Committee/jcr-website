@@ -45,29 +45,37 @@ class SingleTable extends React.Component {
 
   render () {
     return (
-      <div className={`w-full md:w-1/2 flex flex-col ${this.props.left ? "md:mr-2" : "md:ml-2"}`}>
-        <div className="flex flex-row justify-between mx-2 my-1 items-end">
+      <div className={`text-xs xl:text-base w-full md:w-1/2 flex flex-col ${this.props.left ? "md:mr-2" : "md:ml-2"}`}>
+        <div className="flex flex-row justify-between my-1 items-end">
           {
-            this.props.pairs.map((pair, i) => (
-              <div
-                className={`transition-all duration-500 w-16 h-16 mb-1 pb-1 border-b border-red-900 overflow-auto flex flex-col justify-end ${this.state.updatedIndexes.includes(i) ? "animate-pulse bg-blue-200" : ""}`}
-                key={i}>
-                <span className="h-full">{pair.first}</span>
-              </div>
-            ))
+            this.props.pairs.map((pair, i) => {
+              const hotSeat = this.props.hotSeatLocations.includes(this.props.firstPosition + i);
+
+              return (
+                <div
+                  className={`transition-all duration-500 w-16 h-16 mb-1 pb-1 border-b border-red-900 overflow-auto flex flex-col justify-end ${hotSeat ? "bg-yellow-700 text-white" : ""} ${this.state.updatedIndexes.includes(i) ? "animate-pulse bg-blue-200" : ""}`}
+                  key={i}>
+                  <span className="h-full">{pair.first}</span>
+                </div>
+              );
+            })
           }
         </div>
         <div className="border border-black h-16 w-full"></div>
-        <div className="flex flex-row justify-between mx-2 my-1 items-start">
+        <div className="flex flex-row justify-between my-1 items-start">
           {
-            this.props.pairs.map((pair, i) => (
-              <div
-                className={`transition-all duration-500 w-16 h-16 mt-1 pt-1 border-t border-red-900 overflow-auto flex flex-col justify-start ${this.state.updatedIndexes.includes(i) ? "animate-pulse bg-blue-200" : ""}`}
-                key={i}
-              >
-                <span className="h-full">{pair.second}</span>
-              </div>
-            ))
+            this.props.pairs.map((pair, i) => {
+              const hotSeat = this.props.hotSeatLocations.includes(this.props.firstPosition + i);
+
+              return (
+                <div
+                  className={`transition-all duration-500 w-16 h-16 mt-1 pt-1 border-t border-red-900 overflow-auto flex flex-col justify-start ${hotSeat ? "bg-yellow-700 text-white" : ""} ${this.state.updatedIndexes.includes(i) ? "animate-pulse bg-blue-200" : ""}`}
+                  key={i}
+                >
+                  <span className="h-full">{pair.second}</span>
+                </div>
+              );
+            })
           }
         </div>
       </div>

@@ -181,6 +181,23 @@ router.post("/reset", async (req, res) => {
     return res.status(500).json({ error: "Unable to clear pairs" });
   }
 
+  let openRecord;
+
+  try {
+    openRecord = await PersistentVariable.findOne({ where: { key: "SWAPPING_OPEN" } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the swapping status" });
+  }
+
+  openRecord.booleanStorage = false;
+
+  try {
+    await openRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the open status" });
+  }
+
+  req.io.to("swapClients").emit("swappingOpenClose", { open: false });
   return res.status(204).end();
 });
 
@@ -209,7 +226,7 @@ router.get("/download", async (req, res) => {
 
   let pairs = [...pairRecords];
 
-  const maxPairsPerTable = 10;
+  const maxPairsPerTable = 12;
 
   const currentDate = new Date();
   const time = currentDate.getTime();
@@ -311,6 +328,58 @@ router.get("/download", async (req, res) => {
   return res.download(path.join(csvPath, `SwappingPositions-${time}.csv`), `SwappingPositions-${time}.csv`, () => {
     res.status(404).end();
   });
+});
+
+// Get the status
+router.get("/status", async (req, res) => {
+  const { user } = req.session;
+
+  // Must have permission - maybe not necessary but users get info from socket instead
+  if(!hasPermission(req.session, "events.swapping")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let openRecord;
+
+  try {
+    openRecord = await PersistentVariable.findOne({ where: { key: "SWAPPING_OPEN" } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the swapping status" });
+  }
+
+  return res.status(200).json({ open: openRecord.booleanStorage });
+});
+
+// Set the status
+router.post("/status", async (req, res) => {
+  const { user } = req.session;
+
+  // Must have permission - maybe not necessary but users get info from socket instead
+  if(!hasPermission(req.session, "events.swapping")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { open } = req.body;
+
+  let openRecord;
+
+  try {
+    openRecord = await PersistentVariable.findOne({ where: { key: "SWAPPING_OPEN" } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the swapping status" });
+  }
+
+  openRecord.booleanStorage = open;
+
+  try {
+    await openRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the open record" });
+  }
+
+  // Update the clients via the socket
+  req.io.to("swapClients").emit("swappingOpenClose", { open: openRecord.booleanStorage });
+  return res.status(204).end();
 });
 
 // Set the module export to router so it can be used in server.js

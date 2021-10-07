@@ -53,6 +53,11 @@ const setupEvents = (socket, io) => {
       return;
     }
 
+    if(!openRecord.booleanStorage) {
+      socket.emit("swappingError", { error: "Swapping is currently closed" });
+      return;
+    }
+
     const { firstPairId, secondPairId, flipFirst, flipSecond } = data;
 
     let firstPairRecord;
