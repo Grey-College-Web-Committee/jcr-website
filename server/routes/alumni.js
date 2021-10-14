@@ -123,6 +123,114 @@ router.post("/verify", async (req, res) => {
   return res.status(204).end();
 })
 
+router.get("/pending", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  // Must have permission
+  if(!hasPermission(req.session, "users.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let applications;
+
+  try {
+    applications = await PendingAlumniApplication.findAll({
+      attributes: [ "id", "username", "email", "updatedAt" ],
+      where: { verified: true }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch applications" });
+  }
+
+  return res.status(200).json({ applications });
+})
+
+router.post("/action", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  // Must have permission
+  if(!hasPermission(req.session, "users.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, approved } = req.body;
+
+  if(!id) {
+    return res.status(400).json({ error: "Missing id" });
+  }
+
+  let application;
+
+  try {
+    application = await PendingAlumniApplication.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to find the application" });
+  }
+
+  if(application === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  if(!approved) {
+    const email = application.email;
+
+    try {
+      await application.destroy();
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to delete application" });
+    }
+
+    mailer.sendEmail(email, "Alumni Account Denied", prepareDeniedEmail());
+    return res.status(204).end();
+  }
+
+  let userRecord;
+
+  try {
+    userRecord = await User.findOne({ where: { username: application.username } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch the user record" });
+  }
+
+  if(!userRecord) {
+    return res.status(500).json({ error: "Missing userRecord" });
+  }
+
+  userRecord.email = application.email;
+  userRecord.password = application.password;
+
+  try {
+    await userRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the user record" });
+  }
+
+  mailer.sendEmail(application.email, "Alumni Account Approved", prepareApprovedEmail());
+  return res.status(204).end();
+});
+
+const prepareDeniedEmail = () => {
+  return [
+    `<p>Hello,</p>`,
+    "<p>Your application for an alumni account on the Grey JCR website has been denied.</p>",
+    "<p>For more information, please respond to this email.</p>",
+    "<p>Thank you.</p>"
+  ].join("");
+}
+
+const prepareApprovedEmail = () => {
+  return [
+    `<p>Hello,</p>`,
+    "<p>Your application for an alumni account on the Grey JCR website has been approved.</p>",
+    "<p>You can now login to the website.</p>",
+    "<p>Thank you.</p>"
+  ].join("");
+}
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;

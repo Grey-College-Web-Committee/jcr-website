@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
+import AlumniApproveRow from './AlumniApproveRow';
 
 class AdminApproveAlumniPage extends React.Component {
   constructor(props) {
@@ -91,15 +92,21 @@ class AdminApproveAlumniPage extends React.Component {
                     <tr>
                       <th className="p-2 font-semibold">ID</th>
                       <th className="p-2 font-semibold">Username</th>
-                      <th className="p-2 font-semibold">First Name</th>
-                      <th className="p-2 font-semibold">Surname</th>
-                      <th className="p-2 font-semibold">Year</th>
-                      <th className="p-2 font-semibold">Submitted At</th>
+                      <th className="p-2 font-semibold">Email</th>
+                      <th className="p-2 font-semibold">Verified At</th>
                       <th className="p-2 font-semibold">Approve</th>
                       <th className="p-2 font-semibold">Deny</th>
                     </tr>
                   </thead>
                   <tbody>
+                    {
+                      this.state.applications.map((record, i) => (
+                        <AlumniApproveRow
+                          record={record}
+                          key={i}
+                        />
+                      ))
+                    }
                   </tbody>
                 </table>
               </div>
