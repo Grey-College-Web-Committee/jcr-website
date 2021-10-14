@@ -11,7 +11,7 @@ class TableLayout extends React.Component {
     }
 
     this.maxPairsPerTable = 12;
-    this.hotSeatLocations = [6 * this.maxPairsPerTable - 1, 6 * this.maxPairsPerTable];
+    this.hotSeatLocations = [7 * this.maxPairsPerTable - 1, 7 * this.maxPairsPerTable];
   }
 
   renderTables = () => {

@@ -236,12 +236,8 @@ class SwappingPage extends React.Component {
     const firstPairDetails = pairs.filter(p => `${p.id}` === `${firstPair}`)[0];
     const secondPairDetails = pairs.filter(p => `${p.id}` === `${secondPair}`)[0];
 
-    //console.log({firstPairDetails, secondPairDetails})
-
     const firstPairPrice = this.calculatePairPrice(firstPairDetails);
     const secondPairPrice = this.calculatePairPrice(secondPairDetails);
-
-    //console.log({firstPairPrice, secondPairPrice})
 
     return firstPairPrice > secondPairPrice ? firstPairPrice : secondPairPrice;
   }
@@ -275,11 +271,11 @@ class SwappingPage extends React.Component {
             ) : null
           }
           <p className="md:hidden py-1 font-semibold text-lg">This webpage was designed for use on a computer, it may still work on mobile devices but functionality is not guaranteed.</p>
-          <div className="text-left mb-2">
+          <div className="text-left mb-2 md:w-4/5 mx-auto">
             <h2 className="font-semibold text-3xl">What is this?</h2>
             <p className="pt-1">For certain events or formals throughout the year (e.g. Valentine{"'"}s Formal) it is possible for members of the JCR to determine the seating plan for the meal! Pairs of people sign on to the formal and they can then be swapped with other pairs on the formal. The price for swapping is determined by the number of times that the specific pair has already been swapped. The price for the swap is the highest value of the two pairs that you wish to swap. Swapping starts at £0.20 and doubles each time. The money spent on swapping (minus transaction fees) is donated to charity.</p>
           </div>
-          <div className="text-left">
+          <div className="text-left md:w-4/5 mx-auto">
             <h2 className="font-semibold text-3xl">Swapping Credit</h2>
             <p className="pt-1">To get started with swapping you need to make a donation via the JCR. The amount you donate will then be given to you as credit to spend on swapping. You can add credit to your account below. <span className="font-semibold">Please note donations are final and any excess credit will not be refunded during or after the swapping period concludes.</span></p>
             <div className="flex flex-col md:flex-row py-2 overflow-hidden">
@@ -337,12 +333,11 @@ class SwappingPage extends React.Component {
               </div>
             </div>
           </div>
-          <div className="pt-2 flex-col">
-            <h2 className="font-semibold text-3xl text-left pb-2">Current Arrangement</h2>
-            <p className="text-left">There {this.state.users === 1 ? "is" : "are"} currently {this.state.users} {this.state.users === 1 ? "person" : "people"} here.</p>
-            <div className="text-left">
+          <div className="flex-col">
+            <div className="text-left md:w-4/5 mx-auto mb-2">
               <h3 className="font-semibold text-2xl pb-1">Make a Swap</h3>
-              <div className="flex flex-col">
+              <p>There {this.state.users === 1 ? "is" : "are"} currently {this.state.users} {this.state.users === 1 ? "person" : "people"} here.</p>
+              <div className="flex flex-col mt-2">
                 <div className="flex flex-col md:flex-row items-center mb-1">
                   <span>Swap</span>
                   <select
