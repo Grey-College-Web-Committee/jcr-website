@@ -360,6 +360,11 @@ class NavBar extends React.Component {
               displayName: "Manage Applications",
               url: "/accounts/admin",
               requiredPermission: "users.manage"
+            },
+            {
+              displayName: "Manage Alumni",
+              url: "/alumni/admin",
+              requiredPermission: "users.manage"
             }
           ],
           alwaysDisplayed: false

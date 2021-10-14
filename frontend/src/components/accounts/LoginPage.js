@@ -89,6 +89,9 @@ class LoginPage extends React.Component {
           <div className={`mx-auto md:w-80 w-4/5 pb-4 pt-2 border-t-2 ${showErrors}`}>
             <span>{this.state.message}</span>
           </div>
+          <Link to="/alumni/register">
+            <p className="pb-2 font-semibold underline">To setup an alumni account, please click here.</p>
+          </Link>
         </div>
       </div>
     );

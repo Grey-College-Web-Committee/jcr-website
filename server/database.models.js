@@ -96,6 +96,7 @@ class JCRFile extends Model {}
 class SportAndSoc extends Model {}
 
 class PendingUserApplication extends Model {}
+class PendingAlumniApplication extends Model {}
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
@@ -136,6 +137,11 @@ User.init({
   },
   profilePicture: {
     type: DataTypes.TEXT,
+    defaultValue: null
+  },
+  password: {
+    type: DataTypes.TEXT,
+    allowNull: true,
     defaultValue: null
   }
 }, { sequelize });
@@ -1497,6 +1503,29 @@ PendingUserApplication.init({
   }
 }, { sequelize });
 
+PendingAlumniApplication.init({
+  username: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  password: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  verificationToken: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  verified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
+}, { sequelize });
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -1658,4 +1687,4 @@ BarBookingGuest.belongsTo(BarBooking, { foreignKey: 'bookingId' });
 ShopOrder.hasMany(ToastieOrderTracker, { foreignKey: 'orderId' });
 ToastieOrderTracker.belongsTo(ShopOrder, { foreignKey: 'orderId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication, PendingAlumniApplication };

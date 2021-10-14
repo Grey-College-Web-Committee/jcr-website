@@ -16,6 +16,10 @@ import LogoutPage from './components/accounts/LogoutPage';
 import RegisterPage from './components/accounts/register/RegisterPage';
 import AdminApprovePage from './components/accounts/register/AdminApprovePage';
 
+import AlumniRegisterPage from './components/accounts/alumni/AlumniRegisterPage';
+import VerifyAlumniPage from './components/accounts/alumni/VerifyAlumniPage';
+import AdminApproveAlumniPage from './components/accounts/alumni/AdminApproveAlumniPage'
+
 import ErrorPage from './components/errors/ErrorPage';
 import HomePage from './components/home/HomePage';
 import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
@@ -394,6 +398,15 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/accounts/register" render={(props) => (
                       this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <RegisterPage {...props} /> )
+                    )} />
+                    <Route exact path="/alumni/register" render={(props) => (
+                      this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <AlumniRegisterPage {...props} /> )
+                    )} />
+                    <Route exact path="/alumni/verify/:token" render={(props) => (
+                      this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <VerifyAlumniPage {...props} /> )
+                    )} />
+                    <Route exact path="/alumni/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("users.manage") ? ( <AdminApproveAlumniPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/alumni/admin") )
                     )} />
                     <Route exact path="/accounts/login" render={(props) => (
                       this.isLoggedIn() ? ( <Redirect to={this.state.ref} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )

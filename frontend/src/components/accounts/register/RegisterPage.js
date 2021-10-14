@@ -180,7 +180,7 @@ class RegisterPage extends React.Component {
               <p className="flex flex-row justify-start flex-1 items-center text-left">To verify your details Grey College Junior Common Room ("the JCR") will cross-reference your personal details provided with data available to all members of the University. By submitting this form you agree to allow the JCR to do this and agree that the JCR may contact you if there are any queries about the information that you have provided. The JCR reserves the right to refuse malicious or intentionally inaccurate applications.</p>
             </div>
             <div className="pt-2 pb-2 border-b-2 flex flex-row items-center">
-              <label htmlFor="processing" className="flex flex-row justify-start text-xl font-semibold flex-1 items-center">By checking this box I agree to above processing of my data</label>
+              <label htmlFor="processing" className="flex flex-row justify-start text-xl font-semibold flex-1 items-center">By checking this box I agree to the above processing of my data</label>
               <div className="flex flex-col items-center justify-center ml-2">
                 <input
                   type="checkbox"

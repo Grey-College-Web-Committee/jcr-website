@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "argon2": "^0.28.2",
     "axios": "^0.21.1",
     "connect-session-sequelize": "^7.1.0",
     "cookie-parser": "^1.4.5",
