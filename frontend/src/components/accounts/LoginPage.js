@@ -90,7 +90,7 @@ class LoginPage extends React.Component {
             <span>{this.state.message}</span>
           </div>
           <Link to="/alumni/register">
-            <p className="pb-2 font-semibold underline">To setup a honorary life member alumni account, please click here.</p>
+            <p className="pb-2 font-semibold underline">To setup an alumni account, please click here.</p>
           </Link>
         </div>
       </div>

@@ -202,6 +202,7 @@ router.post("/action", async (req, res) => {
 
   userRecord.email = application.email;
   userRecord.password = application.password;
+  userRecord.year = 4;
 
   try {
     await userRecord.save();
@@ -210,6 +211,13 @@ router.post("/action", async (req, res) => {
   }
 
   mailer.sendEmail(application.email, "Alumni Account Approved", prepareApprovedEmail());
+
+  try {
+    await application.destroy();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete the application" });
+  }
+
   return res.status(204).end();
 });
 

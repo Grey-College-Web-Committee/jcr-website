@@ -95,7 +95,7 @@ class AlumniRegisterPage extends React.Component {
       return;
     }
 
-    this.setStage({ stage: "awaiting_verification", disabled: false });
+    this.setState({ stage: "awaiting_verification", disabled: false });
   }
 
   renderStage = () => {
