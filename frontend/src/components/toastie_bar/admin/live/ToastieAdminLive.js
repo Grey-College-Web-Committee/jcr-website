@@ -15,10 +15,10 @@ class ToastieAdminLive extends React.Component {
       error: "",
       initialLoaded: false,
       refreshKey: new Date(),
-      activeOrders: {},
-      completedOrders: {},
-      showCompleted: false,
-      openForOrders: false
+      openForOrders: false,
+      allOrders: {},
+      showingAll: false,
+      sortOrder: "oldest"
     };
 
     // Change this to your permission
@@ -81,33 +81,30 @@ class ToastieAdminLive extends React.Component {
   }
 
   handleInitialData = (data) => {
-    const { transformedOrders, open } = data;
-    transformedOrders.forEach(this.handleNewOrder);
+    const { allNightOrders, open } = data;
+    allNightOrders.forEach(this.handleNewOrder);
+
     this.setState({ initialLoaded: true, openForOrders: open });
   }
 
   handleNewOrder = (order) => {
-    let { activeOrders } = this.state;
-    activeOrders[order.id] = order;
-    this.setState({ activeOrders });
+    let { allOrders } = this.state;
+    allOrders[order.id] = order;
+    this.setState({ allOrders });
   }
 
   handleOrderCompleted = (data) => {
     let { orderId } = data;
-    let { activeOrders } = this.state;
+    let allOrders = Object.assign(this.state.allOrders);
 
-    const filteredIdRecords = Object.keys(activeOrders).filter(id => Number(id) === Number(orderId));
+    const filteredIdRecords = Object.keys(allOrders).filter(id => Number(id) === Number(orderId));
 
     if(filteredIdRecords.length === 0) {
       return;
     }
 
-    const completedOrder = activeOrders[filteredIdRecords[0]];
-    completedOrder.completed = true;
-
-    // delete activeOrders[`${orderId}`];
-
-    this.setState({ activeOrders, refreshKey: new Date() });
+    allOrders[filteredIdRecords[0]].completed = true;
+    this.setState({ allOrders, refreshKey: new Date() });
   }
 
   handleToastieOpenChanged = (data) => {
@@ -140,7 +137,7 @@ class ToastieAdminLive extends React.Component {
       );
     }
 
-    const { showCompleted, initialLoaded, activeOrders, refreshKey, openForOrders } = this.state;
+    const { initialLoaded, refreshKey, openForOrders, allOrders } = this.state;
 
     return (
       <div className="flex flex-col justify-start">
@@ -163,30 +160,52 @@ class ToastieAdminLive extends React.Component {
           </div>
           <p className="text-left">Toastie orders will appear here as they come in. The oldest orders will appear at the top of the page. You can mark individual items as completed as well as marking whole orders as completed. If you mark a whole order it will be moved to the completed orders section to help track which orders are outstanding.</p>
           <p className="text-left">If you want to see the completed orders in this session (i.e. since you opened this page) you can toggle them on or off. They will appear greyed out and will be uneditable.</p>
-          <div className="flex flex-row justify-start py-1">
-            <button
-              className="px-4 py-1 rounded bg-green-700 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-              onClick={() => {
-                this.setState({ showCompleted: !showCompleted });
-              }}
-            >{showCompleted ? "Hide Recently Completed" : "Show Recently Completed"}</button>
+          <div className="flex flex-col">
+            <div className="flex flex-row justify-start py-1 items-center">
+              <span>Show orders:</span>
+              <select
+                onChange={this.onInputChange}
+                value={this.state.showingAll}
+                name="showingAll"
+                className="ml-1 p-1 border"
+              >
+                <option value="incomplete">Incomplete Only</option>
+                <option value="all">All from today</option>
+              </select>
+            </div>
+            <div className="flex flex-row justify-start py-1 items-center">
+              <span>Sort order:</span>
+              <select
+                onChange={this.onInputChange}
+                value={this.state.sortOrder}
+                name="sortOrder"
+                className="ml-1 p-1 border"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+              </select>
+            </div>
+            <div className="flex flex-row justify-start py-1 items-center">
+              <span>Orders today: {Object.keys(this.state.allOrders).length}</span>
+            </div>
           </div>
           {
             !initialLoaded ? <LoadingHolder /> : null
           }
           {
-            Object.keys(activeOrders).sort((a, b) => {
-              const aDate = new Date(activeOrders[a].createdAt);
-              const bDate = new Date(activeOrders[b].createdAt);
+            Object.keys(allOrders).sort((a, b) => {
+              const aDate = new Date(allOrders[a].createdAt);
+              const bDate = new Date(allOrders[b].createdAt);
+              const sign = this.state.sortOrder === "oldest" ? 1 : -1;
 
-              return aDate < bDate ? -1 : (aDate > bDate ? 1 : 0);
+              return sign * (aDate < bDate ? -1 : (aDate > bDate ? 1 : 0));
             }).map(id => (
               <ToastieOrder
                 key={`${refreshKey}-${id}`}
-                order={activeOrders[id]}
-                completed={activeOrders[id].completed}
+                order={allOrders[id]}
+                completed={allOrders[id].completed}
                 updateOrderCompleted={this.updateOrderCompleted}
-                showCompleted={showCompleted}
+                showCompleted={this.state.showingAll === "all"}
               />
             ))
           }
