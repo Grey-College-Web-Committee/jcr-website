@@ -104,7 +104,7 @@ const setupEvents = (socket, io) => {
 
     // Process the existing orders into a better format
     const transformedOrders = existingOrders.map(order => {
-      const { orderId, completed, tableNumber, createdAt, ShopOrder } = order;
+      const { orderId, completed, createdAt, ShopOrder } = order;
       const { User, ShopOrderContents } = ShopOrder;
 
       const items = ShopOrderContents.map(sub => {
@@ -128,7 +128,7 @@ const setupEvents = (socket, io) => {
       const displayName = makeDisplayName(User);
 
       return {
-        id: orderId, completed, tableNumber, createdAt, displayName, items
+        id: orderId, completed, createdAt, displayName, items
       }
     });
 

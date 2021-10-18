@@ -26,7 +26,6 @@ class OrderToastiePage extends React.Component {
       drinks: [],
       refreshId: Math.random(),
       showAddedInfo: false,
-      tableNumber: -1,
       open: false
     };
   }
@@ -115,7 +114,7 @@ class OrderToastiePage extends React.Component {
     // refresh in case it's out of sync
     this.cart.get();
 
-    const { toastie, drinks, confectionary, tableNumber } = this.state;
+    const { toastie, drinks, confectionary } = this.state;
     const valid = this.checkToastie(toastie);
 
     let cartableObjects = [];
@@ -156,7 +155,7 @@ class OrderToastiePage extends React.Component {
         name: "Toastie",
         basePrice,
         quantity: 1,
-        submissionInformation: { tableNumber },
+        submissionInformation: {},
         components,
         duplicateHash: null,
         image: "/images/cart/placeholder.png"
@@ -172,8 +171,7 @@ class OrderToastiePage extends React.Component {
           basePrice: Number(drink.price),
           quantity: 1,
           submissionInformation: {
-            id: drink.id,
-            tableNumber
+            id: drink.id
           },
           components: [],
           duplicateHash: null,
@@ -191,8 +189,7 @@ class OrderToastiePage extends React.Component {
           basePrice: Number(confectionaryItem.price),
           quantity: 1,
           submissionInformation: {
-            id: confectionaryItem.id,
-            tableNumber
+            id: confectionaryItem.id
           },
           components: [],
           duplicateHash: null,
@@ -277,7 +274,7 @@ class OrderToastiePage extends React.Component {
   }
 
   displaySummary = () => {
-    const { toastie, drinks, confectionary, tableNumber } = this.state;
+    const { toastie, drinks, confectionary } = this.state;
 
     let toastieTotal = -1;
     let drinksTotal = -1;
@@ -303,7 +300,7 @@ class OrderToastiePage extends React.Component {
 
     let subtotal = (toastieOrdered ? toastieTotal : 0) + (drinksOrdered ? drinksTotal : 0) + (confectionaryOrdered ? confectionaryTotal : 0);
 
-    const wasValidOrder = (toastieOrdered || drinksOrdered || confectionaryOrdered) && tableNumber !== -1;
+    const wasValidOrder = toastieOrdered || drinksOrdered || confectionaryOrdered;
 
     return (
       <ul>
@@ -359,27 +356,6 @@ class OrderToastiePage extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
-  displayTableNumberSelector = () => {
-    return (
-      <div>
-        <select
-          className="w-auto h-8 border border-gray-400 disabled:opacity-50"
-          value={this.state.tableNumber}
-          onChange={this.onInputChange}
-          name="tableNumber"
-        >
-          <option value={-1} hidden={true} disabled={true}>Please select an option...</option>
-          <option value={0} disabled={true}>Collection</option>
-          {
-            [...Array(20).keys()].map(i => i + 1).map(tableNumber => (
-              <option value={tableNumber}>Table {tableNumber}</option>
-            ))
-          }
-        </select>
-      </div>
-    )
-  }
-
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0 && this.state.status !== 403) {
@@ -409,14 +385,17 @@ class OrderToastiePage extends React.Component {
           <h1 className="font-semibold text-5xl pb-4">Toastie Bar</h1>
           {
             this.state.open ? (
-              <p className="mb-2 text-lg text-left">The Toastie Bar has reopened! The ordering system is slightly different to the bar. Please make your toastie below, set your table number and then add it to your bag. <span className="font-semibold">Payment is taken via the website instead for toasties.</span> A member of staff will then bring your toastie to your table!</p>
+              <React.Fragment>
+                <p className="mb-2 text-lg text-left">The Toastie Bar has reopened! Please make your toastie below, add it to your bag and then pay for it online! Toasties are collected from the Toastie Bar in the JCR.</p>
+                <p className="mb-2 text-lg text-left md:hidden">On mobile, scroll down to see your order and add it to your bag.</p>
+              </React.Fragment>
             ) : (
               <p className="mb-2 font-semibold text-lg text-left">The Toastie Bar is currently closed. Orders cannot be placed but you can browse the menu.</p>
             )
           }
           <a href="/uploads/toasties/allergens" className="font-semibold underline" target="_blank"><p className="text-lg underline font-semibold mb-2 text-left">For allergen information, please click here.</p></a>
           <div className="flex flex-col lg:flex-row w-full text-left">
-            <div className="w-full lg:w-3/4 lg:px-2 lg:mx-2">
+            <div className="w-full lg:w-3/4 lg:mr-2">
               <GroupDropdown
                 title="Toastie: Bread"
                 groupItems={this.state.stock.filter(item => item.type === "bread")}
@@ -449,10 +428,6 @@ class OrderToastiePage extends React.Component {
             <div className="w-full lg:w-1/4 text-base pb-4">
               <div className="border-2 p-2 border-black">
                 <h2 className="text-3xl font-bold">Your Order</h2>
-                <div className="pt-2">
-                  <h3 className="text-xl font-semibold">Table Number</h3>
-                  {this.displayTableNumberSelector()}
-                </div>
                 <div className="pt-2">
                   <h3 className="text-xl font-semibold">Toastie</h3>
                   {this.displaySelectedToastie()}

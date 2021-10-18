@@ -59,8 +59,8 @@ const { Op } = require("sequelize");
 
 // Enables ordering of toasties
 const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
-  // A toastie will have the table number
-  const isToastie = Object.keys(globalSubmissionInfo).length === 1;
+  // A toastie will have no global submission info
+  const isToastie = Object.keys(globalSubmissionInfo).length === 0;
   const hasComponents = componentSubmissionInfo.length !== 0;
 
   let openRecord;
@@ -123,8 +123,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
       try {
         subOrderIdInsert = await ShopOrderContent.create({
           orderId,
-          shop: "toastie",
-          additional: JSON.stringify({ tableNumber: globalSubmissionInfo.tableNumber })
+          shop: "toastie"
         });
       } catch (error) {
         return {
@@ -228,8 +227,7 @@ const toastieProcessor = async (globalOrderParameters, orderId, quantity, global
     try {
       subOrderIdInsert = await ShopOrderContent.create({
         orderId,
-        shop: "toastie",
-        additional: JSON.stringify({ tableNumber: globalSubmissionInfo.tableNumber })
+        shop: "toastie"
       });
     } catch (error) {
       return {

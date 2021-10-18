@@ -54,7 +54,6 @@ class ToastieOrder extends React.Component {
           </div>
           <p className="py-1">Ordered By: {order.displayName}</p>
           <p className="py-1">Ordered At: {dateFormat(order.createdAt, "dd/mm/yyyy HH:MM:ss")}</p>
-          <p className="py-1">Table Number: {order.tableNumber}</p>
         </div>
 
         <table className="mx-auto border-2 text-left border-red-900 w-full">
