@@ -187,8 +187,8 @@ class EventsGroupManagePage extends React.Component {
               <p className="pb-1">Note: These counts only update each time you refresh the page.</p>
               {
                 this.state.yearBreakdownByTicketType.map((stat, i) => (
-                  <div key={i}>
-                    <h3>Ticket Type: {stat.ticketType.name}</h3>
+                  <div key={i} className="border p-1 my-1">
+                    <h3 className="font-semibold">Ticket Type: {stat.ticketType.name}</h3>
                     <ul>
                       <li>Groups: {stat.yearBreakdown.groups} (Total of {stat.yearBreakdown.first + stat.yearBreakdown.second + stat.yearBreakdown.third + stat.yearBreakdown.fourth} people)</li>
                       <li>1st Years: {stat.yearBreakdown.first}</li>
