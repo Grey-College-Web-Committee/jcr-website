@@ -110,7 +110,7 @@ class RoleComponent extends React.Component {
                     {
                       role.description === null || role.description === "" ? (
                         <React.Fragment>
-                          <p className="py-1">There is currently not a description or video for this role. If you are interested in finding out more about what this role involves please contact the JCR Chair (<a href="mailto:grey.chair@durham.ac.uk" rel="noopener noreferrer" target="_blank" className="font-semibold underline">grey.chair@durham.ac.uk</a>) or the JCR President or Vice-President who will be happy to provide you information about the role and/or put you in touch with the current holder.</p>
+                          <p className="py-1">No description or video is available for this role. If you are interested in finding out more about what this role involves please contact the JCR Chair (<a href="mailto:grey.chair@durham.ac.uk" rel="noopener noreferrer" target="_blank" className="font-semibold underline">grey.chair@durham.ac.uk</a>) or the JCR President or Vice-President who will be happy to provide you information about the role and/or put you in touch with the current holder.</p>
                           <p className="py-1">You can also checkout the Byelaws on the <Link className="underline font-semibold" to="/jcr/files">Core Documents</Link> page which will include all of the responsibility of this role!</p>
                         </React.Fragment>
                       ) : (
@@ -126,17 +126,22 @@ class RoleComponent extends React.Component {
                               )
                             })
                           }
-                          <p>There is not currently a video for this role.</p>
+                          <p>There is no video available for this role at the moment.</p>
                         </div>
                       )
                     }
                   </div>
                 ) : (
                   <div className="flex flex-col flex-grow overflow-auto px-2">
+                    {
+                      role.email ? (
+                        <p className="pb-1">If you have questions for the current holder of this role <a href={`mailto:${role.email}`} target="_blank" rel="noopener noreferrer" className="font-semibold underline">you can email them directly by clicking here</a> or contacting them at {role.email}</p>
+                      ) : null
+                    }
                     <h3 className="text-left font-semibold text-lg hidden md:block">About the Role</h3>
                     {
                       role.description === null || role.description === "" ? null : (
-                        <div className="flex-grow py-1 text-left">
+                        <div className="flex-grow pb-1 text-left">
                           {
                             role.description.split("\n").map((line, i) => {
                               if(line === null || line === "\n" || line === "") {

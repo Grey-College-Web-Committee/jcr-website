@@ -13,6 +13,7 @@ class RoleRow extends React.Component {
       name: this.props.role.name,
       description: this.props.role.description,
       videoUrl: this.props.role.videoUrl,
+      email: this.props.role.email,
       assignedUsers: this.props.role.JCRRoleUserLinks.map(entry => entry.User),
       assignedCommittees: this.props.role.JCRCommitteeRoleLinks,
       username: "",
@@ -25,10 +26,10 @@ class RoleRow extends React.Component {
   saveRow = async () => {
     this.setState({ disabled: true });
 
-    const { name, description, videoUrl, descriptionEnabled } = this.state;
+    const { name, description, videoUrl, descriptionEnabled, email } = this.state;
 
     try {
-      await api.post("/jcr/role/update", { id: this.props.role.id, name, description, videoUrl, descriptionEnabled });
+      await api.post("/jcr/role/update", { id: this.props.role.id, name, description, videoUrl, descriptionEnabled, email });
     } catch (error) {
       alert(error.response.data.error);
       this.setState({ disabled: false });
@@ -199,6 +200,18 @@ class RoleRow extends React.Component {
               type="text"
               name="videoUrl"
               value={this.state.videoUrl}
+              className="w-full border border-grey-500 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+              onChange={this.onInputChange}
+              autoComplete=""
+              maxLength={2000}
+            />
+          </div>
+          <div className="flex flex-col items-start">
+            <span className="text-left">Email: <span className="font-semibold">(must end with @durham.ac.uk)</span></span>
+            <input
+              type="email"
+              name="email"
+              value={this.state.email}
               className="w-full border border-grey-500 rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               onChange={this.onInputChange}
               autoComplete=""

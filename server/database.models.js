@@ -1319,6 +1319,11 @@ JCRRole.init({
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true
+  },
+  email: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
   }
 }, { sequelize });
 
