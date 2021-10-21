@@ -47,7 +47,8 @@ router.get("/", async (req, res) => {
             exclude: [ "id", "eventId", "createdAt", "updatedAt" ]
           }
         }
-      ]
+      ],
+      order: [[ "date", "DESC" ]]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to load events from the database" });
@@ -652,7 +653,7 @@ router.get("/search/member/:ticketTypeId/:username", async (req, res) => {
   try {
     ticket = await EventTicket.findOne({
       where: {
-        bookerId: user.id
+        bookerId: member.id
       },
       include: [
         {
