@@ -29,6 +29,7 @@ import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
 import DebtPage from './components/debt/DebtPage';
 import GymInformationPage from './components/gym/GymInformationPage';
 import GymTermsPage from './components/gym/GymTermsPage';
+import GymInductionPage from './components/gym/GymInductionPage';
 import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
 import WelfarePage from './components/welfare/WelfarePage';
 import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage';
@@ -462,6 +463,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/gym" render={() => (
                       this.isLoggedIn() ? ( <GymInformationPage /> ) : ( this.loginRef("/gym") )
+                    )} />
+                    <Route exact path="/gym/induction" render={() => (
+                      this.isLoggedIn() ? ( <GymInductionPage /> ) : ( this.loginRef("/gym/induction") )
                     )} />
                     <Route exact path="/gym/terms" render={() => (
                       this.isLoggedIn() ? ( <GymTermsPage /> ) : ( this.loginRef("/gym/terms") )

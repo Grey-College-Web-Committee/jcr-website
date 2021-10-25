@@ -587,13 +587,9 @@ GymMembership.init({
     type: DataTypes.STRING,
     allowNull: false
   },
-  household: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  postcode: {
+  parq: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: false
   }
 }, { sequelize });
 

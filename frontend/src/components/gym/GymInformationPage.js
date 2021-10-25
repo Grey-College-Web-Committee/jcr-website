@@ -11,30 +11,14 @@ class GymInformationPage extends React.Component {
   constructor(props) {
     super(props);
 
-    this.cart = new Cart();
     this.state = {
       isMember: true,
       loaded: false,
       status: 0,
       error: "",
       content: [],
-      inBasket: this.cart.get().items.filter(item => item.shop === "gym").length !== 0,
       currentGalleryImage: 0
     };
-
-    this.membershipOptions = [
-      {
-        price: 20,
-        nonMemberPrice: 30,
-        name: "Easter Term Gym Membership",
-        image: "/images/gym/dumbbell.png",
-        description: "(expires 25/06/2021)",
-        displayName: "Easter Term Gym Membership",
-        submissionInformation: {
-          type: "single_term"
-        }
-      }
-    ];
   }
 
   // Basic function to change the state for any text-based input
@@ -157,7 +141,7 @@ class GymInformationPage extends React.Component {
     if(membership !== null) {
       displayedPurchaseDiv = (
         <React.Fragment>
-          <h2 className="text-4xl font-semibold pb-2">Your Membership</h2>
+          <h2 className="text-4xl font-semibold mb-1">Your Membership</h2>
           <p className="py-1">You already have an active gym membership. If you want to renew your membership you can do so on this page once your current one expires. If you have any queries please contact the FACSO using the email above.</p>
           <div className="text-left my-2 text-lg">
             <p>Expires On: {dateFormat(new Date(membership.expiresAt), "dd/mm/yyyy")}</p>
@@ -168,7 +152,18 @@ class GymInformationPage extends React.Component {
     } else {
       displayedPurchaseDiv = (
         <div>
-          Purchase
+          <h2 className="text-4xl font-semibold mb-1">Purchase Membership</h2>
+          <p className="py-1">Prior to purchasing a membership you must complete the online induction which involves watching the gym induction video, completing a short multiple choice quiz (about information provided in the video), and you completing a physical activity readiness questionnaire (PAR-Q). Please click the button below to begin the process. At the end of the induction to purchase a membership, the prices are:</p>
+          <ul>
+            <li>Michaelmas Term £18 (£23 for non-JCR members) (discounted due to delayed opening)</li>
+            <li>Individual Epiphany / Easter Term £22 per term (£27 for non-JCR members)</li>
+            <li>Whole Year £50 (£70 for non-JCR members)</li>
+          </ul>
+          <Link to="/gym/induction">
+            <button
+              className="my-1 p-2 text-xl bg-red-900 text-white w-full"
+            >Begin Induction</button>
+          </Link>
         </div>
       )
     }

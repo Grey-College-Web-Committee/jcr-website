@@ -580,14 +580,14 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
   // The available options to purchase - needs yearly update
   const currentMembershipOptions = {
     full_year: {
-      expires: new Date("2021-07-01"),
-      price: 80,
-      nonMemberPrice: 100
+      expires: new Date("2022-07-01"),
+      price: 50,
+      nonMemberPrice: 70
     },
     single_term: {
-      expires: new Date("2021-06-25"),
-      price: 20,
-      nonMemberPrice: 30
+      expires: new Date("2021-12-10"),
+      price: 18,
+      nonMemberPrice: 23
     }
   };
 
@@ -658,31 +658,21 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
     }
   }
 
-  // Used to get their household number during covid
-  const householdComps = componentSubmissionInfo.filter(comp => comp.type === "household");
+  // Used to get their postcode during covid
+  const parqResponses = componentSubmissionInfo.filter(comp => comp.type === "parq");
 
-  if(householdComps.length === 0) {
+  console.log(parqResponses);
+  console.log(parqResponses[0].responses);
+
+  if(!parqResponses || !parqResponses[0].responses || !Array.isArray(parqResponses[0].responses)) {
     return {
       errorOccurred: true,
       status: 400,
-      error: "You must specify your household"
+      error: "Missing PARQ responses"
     };
   }
 
-  const household = Number(householdComps[0].value);
-
-  // Used to get their postcode during covid
-  const postcodeComps = componentSubmissionInfo.filter(comp => comp.type === "postcode");
-
-  if(postcodeComps.length === 0 && household === 0) {
-    return {
-      errorOccurred: true,
-      status: 400,
-      error: "You must specify your postcode"
-    }
-  }
-
-  const postcode = postcodeComps[0].value;
+  const stringParq = JSON.stringify(parqResponses[0].responses);
 
   // Otherwise they don't have a membership so create one
 
@@ -695,8 +685,7 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
       userId: user.id,
       type,
       expiresAt: selectedExpiry,
-      household,
-      postcode
+      parq: stringParq
     });
   } catch (error) {
     return {
