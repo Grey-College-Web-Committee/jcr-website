@@ -381,10 +381,8 @@ const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation
     const facsoParqEmail = facsoParqGymEmail(user, orderId, membershipRecord, failedQuestions);
     mailer.sendEmail("grey.treasurer@durham.ac.uk@durham.ac.uk", "Gym PARQ Failed", facsoParqEmail)
   } else {
-    if(new Date() > new Date("2021-11-01")) {
-      const facsoEmail = facsoGymEmail(user, orderId, membershipRecord);
-      mailer.sendEmail("grey.treasurer@durham.ac.uk@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
-    }
+    const facsoEmail = facsoGymEmail(user, orderId, membershipRecord);
+    mailer.sendEmail("grey.treasurer@durham.ac.uk@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
   }
 
   const customerEmail = customerGymEmail(user, orderId, membershipRecord);
