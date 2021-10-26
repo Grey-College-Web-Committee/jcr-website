@@ -366,7 +366,8 @@ const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation
 
   const parqResponses = JSON.parse(membershipRecord.parq);
 
-  if(parqResponses.filter(p => Number(p) === 1)) {
+  // At least one yes has been answered
+  if(parqResponses.filter(p => Number(p) === 1).length !== 0) {
     const parqQuestions = ["Do you have a heart condition that you should only do physical activity recommended by a doctor?", "Do you feel pain in your chest when you do physical activity?", "In the past month, have you had chest pain when not doing physical activity?", "Do you lose balance because of dizziness or do you ever lose consciousness?", "Do you have a bone or joint problem that could be worsened by a change in physical activity?", "Is your doctor currently prescribing medication for your blood pressure or heart condition?", "Do you know of any other reason why you shouldn’t take part in physical activity?"];
 
     const failedQuestions = parqQuestions.reduce((acc, val, index) => {
@@ -378,10 +379,12 @@ const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation
     }, []);
 
     const facsoParqEmail = facsoParqGymEmail(user, orderId, membershipRecord, failedQuestions);
-    mailer.sendEmail("grey.website@durham.ac.uk", "Gym PARQ Failed", facsoParqEmail)
+    mailer.sendEmail("grey.treasurer@durham.ac.uk@durham.ac.uk", "Gym PARQ Failed", facsoParqEmail)
   } else {
-    const facsoEmail = facsoGymEmail(user, orderId, membershipRecord);
-    mailer.sendEmail("grey.website@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
+    if(new Date() > new Date("2021-11-01")) {
+      const facsoEmail = facsoGymEmail(user, orderId, membershipRecord);
+      mailer.sendEmail("grey.treasurer@durham.ac.uk@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
+    }
   }
 
   const customerEmail = customerGymEmail(user, orderId, membershipRecord);
