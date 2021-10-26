@@ -196,7 +196,7 @@ class GymInductionPage extends React.Component {
           <React.Fragment>
             <p className="pb-1 text-left">Please start by watching the gym induction below prepared by the Gym Managers. If you have any specific questions please contact them at <a className="underline font-semibold" rel="noopener noreferrer" target="_blank" href="mailto:gr-gymmanagers@durham.ac.uk">gr-gymmanagers@durham.ac.uk</a></p>
             <div className="flex flex-row justify-center w-full">
-              <iframe src="https://drive.google.com/file/d/18nxGLQBdTtXdoxWe4vER2Pr1COrb8XQC/preview" className="w-96 h-56" frameBorder="no" allowFullScreen={true} title='video'/>
+              <iframe width="560" height="315" src="https://www.youtube.com/embed/Di1OE_VJNyc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen/>
             </div>
             <p className="py-1 text-left">Once you have watched the video please fill in the multiple choice quiz below.</p>
             <div className="flex flex-col text-left">
