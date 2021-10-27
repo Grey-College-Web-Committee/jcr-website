@@ -379,10 +379,10 @@ const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation
     }, []);
 
     const facsoParqEmail = facsoParqGymEmail(user, orderId, membershipRecord, failedQuestions);
-    mailer.sendEmail("grey.treasurer@durham.ac.uk@durham.ac.uk", "Gym PARQ Failed", facsoParqEmail)
+    mailer.sendEmail("grey.treasurer@durham.ac.uk", "Gym PARQ Failed", facsoParqEmail)
   } else {
     const facsoEmail = facsoGymEmail(user, orderId, membershipRecord);
-    mailer.sendEmail("grey.treasurer@durham.ac.uk@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
+    mailer.sendEmail("grey.treasurer@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
   }
 
   const customerEmail = customerGymEmail(user, orderId, membershipRecord);
