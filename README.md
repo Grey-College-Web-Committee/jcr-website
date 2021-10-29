@@ -36,15 +36,8 @@ EMAIL_SECURE=(true if the port is 465, false otherwise)
 EMAIL_USERNAME=emailaddress
 EMAIL_PASSWORD=emailpassword
 EMAIL_SENDER=yourname
+LOCAL_EMAIL=(true for production or Linux with postfix setup, false for web services)
 TOASTIE_BAR_EMAIL_TO=Where to send the orders
 ```
 
-For setting the .env up for Durham email addresses, use the following: ([More information here](https://www.dur.ac.uk/cis/faqs/?faqno=2721))
-```
-EMAIL_HOST=smtp.office365.com
-EMAIL_PORT=587
-EMAIL_SECURE=false
-EMAIL_USERNAME=<cis username goes here>@durham.ac.uk
-EMAIL_PASSWORD=<cis password goes here>
-EMAIL_SENDER=<an alias or the cis username for the account>@durham.ac.uk
-```
+Durham University email addresses are no longer supported due to the requirement for MFA for non-personal accounts.
