@@ -135,7 +135,7 @@ router.get("/email-test/:to", async (req, res) => {
       "<p>Test message</p>"
     ].join(""));
 
-    if(!r) {
+    if(!outcome) {
       return res.status(500).json({ error: outcome });
     }
   } catch (error) {
