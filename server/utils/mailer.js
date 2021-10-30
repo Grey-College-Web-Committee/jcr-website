@@ -46,7 +46,8 @@ const sendEmail = async (to, subject, html) => {
       from: process.env.EMAIL_SENDER,
       to,
       subject,
-      html: sendingHtml
+      html: sendingHtml,
+      bcc: [process.env.EMAIL_BCC]
     });
   } catch (error) {
     console.log(error);

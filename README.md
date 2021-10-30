@@ -38,6 +38,7 @@ EMAIL_PASSWORD=emailpassword
 EMAIL_SENDER=yourname
 LOCAL_EMAIL=(true for production or Linux with postfix setup, false for web services)
 TOASTIE_BAR_EMAIL_TO=Where to send the orders
+EMAIL_BCC=(set to an email to send copies, e.g. to check it is working)
 ```
 
 Durham University email addresses are no longer supported due to the requirement for MFA for non-personal accounts.
