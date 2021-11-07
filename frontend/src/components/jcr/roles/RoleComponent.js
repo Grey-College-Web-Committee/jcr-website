@@ -108,26 +108,38 @@ class RoleComponent extends React.Component {
                 role.videoUrl === null || role.videoUrl === "" ? (
                   <div className="flex-grow px-2">
                     {
+                      role.email ? (
+                        <React.Fragment>
+                          <h3 className="text-left font-semibold text-lg hidden md:block">Contact Information</h3>
+                          <p className="py-1">If you have questions for the current holder of this role <a href={`mailto:${role.email}`} target="_blank" rel="noopener noreferrer" className="font-semibold underline">you can email them directly by clicking here</a> or contacting them at {role.email}</p>
+                        </React.Fragment>
+                      ) : null
+                    }
+                    {
                       role.description === null || role.description === "" ? (
                         <React.Fragment>
-                          <p className="py-1">No description or video is available for this role. If you are interested in finding out more about what this role involves please contact the JCR Chair (<a href="mailto:grey.chair@durham.ac.uk" rel="noopener noreferrer" target="_blank" className="font-semibold underline">grey.chair@durham.ac.uk</a>) or the JCR President or Vice-President who will be happy to provide you information about the role and/or put you in touch with the current holder.</p>
-                          <p className="py-1">You can also checkout the Byelaws on the <Link className="underline font-semibold" to="/jcr/files">Core Documents</Link> page which will include all of the responsibility of this role!</p>
+                          <div className="flex-grow pb-1 text-left">
+                            <p className="py-1">No description or video is available for this role. If you are interested in finding out more about what this role involves please contact the JCR Chair (<a href="mailto:grey.chair@durham.ac.uk" rel="noopener noreferrer" target="_blank" className="font-semibold underline">grey.chair@durham.ac.uk</a>) or the JCR President or Vice-President who will be happy to provide you information about the role and/or put you in touch with the current holder.</p>
+                            <p className="py-1">You can also checkout the Byelaws on the <Link className="underline font-semibold" to="/jcr/files">Core Documents</Link> page which will include all of the responsibility of this role!</p>
+                          </div>
                         </React.Fragment>
                       ) : (
-                        <div className="flex-grow py-1 text-left">
-                          {
-                            role.description.split("\n").map((line, i) => {
-                              if(line === null || line === "\n" || line === "") {
-                                return null;
-                              }
+                        <React.Fragment>
+                          <h3 className="text-left font-semibold text-lg hidden md:block">About the Role</h3>
+                          <div className="flex-grow text-left">
+                            {
+                              role.description.split("\n").map((line, i) => {
+                                if(line === null || line === "\n" || line === "") {
+                                  return null;
+                                }
 
-                              return (
-                                <p className="py-1">{line}</p>
-                              )
-                            })
-                          }
-                          <p>There is no video available for this role at the moment.</p>
-                        </div>
+                                return (
+                                  <p className="py-1">{line}</p>
+                                )
+                              })
+                            }
+                          </div>
+                        </React.Fragment>
                       )
                     }
                   </div>
