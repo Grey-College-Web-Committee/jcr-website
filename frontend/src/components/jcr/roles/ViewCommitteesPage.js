@@ -163,13 +163,13 @@ class ViewCommitteesPage extends React.Component {
           <p className="py-1">There are many roles in the JCR that any member can run for. They are a great way to get involved in the JCR and most of them are elected in JCR meetings throughout the year. If you are interested in any of the roles please contact the JCR Chair (grey.chair@durham.ac.uk) and they will be happy to provide you more information on a specific role as well as information about running in an election!</p>
           <p className="py-1">As well as the roles, the JCR has lots of committees that help with specific parts of the running of the JCR. Committee positions usually do not require election and instead members can apply to be on them when they are accepting new members (usually annually). They are an excellent way to get involved if you are considering running for an elected role in the future!</p>
           <p className="py-1">You can view all of the JCR committees and see their members. Use the dropdown below to select a committee and the members will appear!</p>
-          <div className="py-1">
+          <div className="py-1 text-lg font-semibold">
             <label htmlFor="selectedCommittee">Selected Committee:</label>
             <select
               value={this.state.selectedCommittee}
               onChange={this.onInputChange}
               name="selectedCommittee"
-              className="ml-2 w-auto h-8 border border-gray-400 disabled:opacity-50"
+              className="my-1 md:my-0 md:ml-2 w-auto h-8 border border-gray-400 disabled:opacity-50"
               disabled={this.state.disabled}
             >
               <option value="" disabled={true} hidden={true}>Please Select...</option>
