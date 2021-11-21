@@ -594,7 +594,7 @@ class App extends React.Component {
                       this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/feedback/view/${props.id}`) )
                     )} />
                     <Route exact path="/jcr/committees" render={(props) => (
-                      <ViewCommitteesPage {...props} />
+                      <ViewCommitteesPage {...props} disableBodyScroll={this.disableBodyScroll} />
                     )} />
                     <Route exact path="/jcr/committees/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewCommitteePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees/manage") )

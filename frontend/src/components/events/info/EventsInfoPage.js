@@ -157,7 +157,7 @@ class EventsInfoPage extends React.Component {
                   <img
                     src={`/uploads/images/events/${galleryImages[currentGalleryImage].image}`}
                     alt={galleryImages[currentGalleryImage].caption}
-                    className="h-full"
+                    className="object-contain"
                   />
                 </div>
                 <div>

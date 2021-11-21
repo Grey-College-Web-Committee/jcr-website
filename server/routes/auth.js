@@ -483,7 +483,8 @@ const prepareDeniedEmail = (username) => {
   return [
     `<p>Hello ${username},</p>`,
     "<p>Your application for membership to the Grey JCR website has been denied.</p>",
-    "<p>For more information, please respond to this email.</p>",
+    "<p>For more information, please contact grey.website@durham.ac.uk.</p>",
+    "<p>Please do not respond to this email as this email is not monitored and emails to this address are automatically deleted.</p>",
     "<p>Thank you.</p>"
   ].join("");
 }
