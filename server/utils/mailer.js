@@ -12,7 +12,7 @@ const footer = [
 let transporter;
 
 // Due to the uni forcing MFA we moved to postfix on the server in production
-if(process.env.LOCAL_EMAIL) {
+if(process.env.LOCAL_EMAIL === "true") {
   transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
@@ -24,14 +24,14 @@ if(process.env.LOCAL_EMAIL) {
   transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
-    secureConnection: process.env.EMAIL_SECURE,
+    secure: process.env.EMAIL_SECURE,
     auth: {
       user: process.env.EMAIL_USERNAME,
       pass: process.env.EMAIL_PASSWORD
     },
-    pool: true,
-    maxConnections: 3,
-    maxMessages: 100
+    tls: {
+      ciphers: 'SSLv3'
+    }
   });
 }
 

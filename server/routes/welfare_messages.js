@@ -230,51 +230,21 @@ router.post("/message", async (req, res) => {
 
   let emailNotification = [];
   emailNotification.push("<p>A new message has been received on the anonymous messaging service.</p>");
-  emailNotification.push(`<p>You can <a href="https://services.greyjcr.com/welfare/message/admin/thread/${threadId}" target="_blank" rel="noopener noreferrer">view the thread by clicking here.</a></p>`);
+  emailNotification.push(`<p>You can <a href="https://greyjcr.com/welfare/message/admin/thread/${threadId}" target="_blank" rel="noopener noreferrer">view the thread by clicking here.</a></p>`);
 
   if(swos.length !== 0) {
-    swos.forEach((person, i) => {
-      mailer.sendEmail(person.grantedTo.email, "New Anonymous Message", emailNotification.join(""));
-    });
+    for(let person of swos) {
+      const emailResult = await mailer.sendEmail(person.grantedTo.email, "New Anonymous Message", emailNotification.join(""));
+
+      if(!emailResult) {
+        mailer.sendEmail("grey.website@durham.ac.uk", "SWOS Email Send Failure", [`Failed to send to ${person.grantedTo.email}`]);
+        console.log("Email send failure");
+      }
+    }
   }
 
   return res.status(200).json({ message: result });
 });
-
-router.delete("/thread/:threadId", async (req, res) => {
-  const { user } = req.session;
-
-  if(!hasPermission(req.session, "jcr.member")) {
-    return res.status(403).json({ error: "You do not have permission to perform this action" });
-  }
-
-  const { threadId } = req.params;
-
-  if(threadId === undefined || threadId === null) {
-    return res.status(400).json({ error: "No title set" });
-  }
-
-  const userIdHash = hash({ username: user.id });
-
-  let result;
-
-  try {
-    result = await WelfareThread.destroy({
-      where: {
-        id: threadId,
-        userHash: userIdHash
-      }
-    });
-  } catch (error) {
-    return res.status(500).json({ error: "Unable to get thread" });
-  }
-
-  if(result === 0) {
-    return res.status(400).end();
-  }
-
-  return res.status(204).end();
-})
 
 router.get("/thread/admin/:threadId", async(req, res) => {
   const { user } = req.session;
