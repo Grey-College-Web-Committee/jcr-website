@@ -3,6 +3,7 @@ import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
+import CommitteeComponent from '../jcr/roles/CommitteeComponent';
 
 class TechPage extends React.Component {
   constructor(props) {
@@ -37,13 +38,15 @@ class TechPage extends React.Component {
     let content;
 
     try {
-      content = await api.get("/some/path");
+      content = await api.get("/jcr/committee/name/tech");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
     }
 
-    this.setState({ loaded: true, status: 200, content: content });
+    const { committee, committeeMembers } = content.data;
+
+    this.setState({ loaded: true, status: 200, committee, committeeMembers });
   }
 
   selectSection(id) {
@@ -73,26 +76,34 @@ class TechPage extends React.Component {
         <div className="relative">
           <img
             src={"/images/tech_banner.jpg"}
-            className="w-full h-auto relative z-0 block 2xl:h-96 2xl:object-cover"
+            className="w-full h-auto relative z-0 block md:h-96 md:object-cover"
             onLoad={() => this.setState({ firstImageLoaded: true })}
             alt="Slideshow"
           ></img>
-          <div className="absolute p-4 z-20 top-0 left-0 w-full h-full flex-col items-center text-white bg-grey-500 bg-opacity-50 border-t-4 border-b-4 border-red-900 justify-center flex">
+          <div className="absolute p-4 z-20 top-0 left-0 w-full h-full flex-col items-center text-white bg-grey-500 bg-opacity-50 border-b-4 border-red-900 justify-center flex">
             <h1 className="font-bold text-6xl pb-4">Tech</h1>
           </div>
         </div>
         <div className="md:w-3/5 container mx-auto text-center p-4">
+          <div className="text-left">
+            <CommitteeComponent
+              committee={this.state.committee}
+              membersByPosition={this.state.committeeMembers}
+              disableBodyScroll={() => {}}
+              clickableRoles={false}
+            />
+          </div>
           <div className="flex flex-col justify-center text-center items-center w-full">
-            <h2 className="font-semibold text-3xl pt-3">What do we do?</h2>
-            <div className="w-full flex flex-row flex-wrap justify-center items-end">
+            <h2 className="font-semibold text-3xl pt-3 mb-2">What do we do?</h2>
+            <div className="w-full flex flex-col md:flex-row flex-wrap justify-center items-center gap-1">
               {this.state.sections.map((section, i) => (
                 <button
                   key={i}
                   onClick={() => this.selectSection(i)}
-                  className={this.state.selectedContentIndex !== i ? 
-                    "md:w-4/12 w-11/12 h-full flex-auto mb-3 px-1 pb-1 pt-auto rounded-lg hover:bg-red-900 hover:text-white"
+                  className={this.state.selectedContentIndex !== i ?
+                    "h-full w-full md:flex-1 mb-3 px-1 pb-1 pt-auto rounded-lg hover:bg-red-900 hover:text-white"
                     :
-                    "md:w-4/12 w-11/12 h-full flex-auto mb-3 px-1 pb-1 pt-auto rounded-lg bg-red-900 text-white"
+                    "h-full w-full md:flex-1 mb-3 px-1 pb-1 pt-auto rounded-lg bg-red-900 text-white"
                   }
                 >
                   <div className="p-2 pt-auto border-b border-red-900 flex flex-col justify-evenly items-center">
@@ -107,7 +118,7 @@ class TechPage extends React.Component {
             <div className="rounded-3xl bg-red-900 bg-opacity-90 my-3 py-3 px-5 flex xl:w-1/2 xl:mr-2">
               <div className="text-left">
                 <h2 className="text-center self-center font-semibold text-2xl py-3 text-white">Internal Events</h2>
-                <p className="text-justify self-center w-auto font-light pb-3 pt-1 text-white flex-shrink">
+                <p className="text-left self-center w-auto font-light pb-3 pt-1 text-white flex-shrink">
                   We also offer technical setups for Open Mic Nights & Karaoke evenings after formals. Please give a minimum of 3 weeks notice for such an event so that approval can be obtained with college and a schedule for the technical crew can be arranged. If interested in booking, please contact us at: <a href="mailto:grey.tech@durham.ac.uk" target="_blank" rel="noopener noreferrer" className="font-semibold underline">grey.tech@durham.ac.uk</a>.
                 </p>
               </div>
@@ -116,7 +127,7 @@ class TechPage extends React.Component {
             <div className="rounded-3xl bg-red-900 bg-opacity-90 my-3 py-3 px-5 flex xl:w-1/2 xl:ml-2">
               <div className="text-left">
                 <h2 className="text-center self-center font-semibold text-2xl py-3 text-white">Equipment Hire</h2>
-                <p className="text-justify self-center w-auto font-light py-1 text-white flex-shrink">
+                <p className="text-left self-center w-auto font-light py-1 text-white flex-shrink">
                   We also hire out our equipment! Equipment can be hired for a variety of events, so please get in touch <a href="mailto:grey.tech@durham.ac.uk" target="_blank" rel="noopener noreferrer" className="font-semibold underline">by email</a> to enquire.
                 </p>
                 <p className="self-center w-auto py-1 text-white flex-shrink text-center font-semibold underline">

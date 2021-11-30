@@ -601,7 +601,8 @@ router.get("/committee/name/:name", async (req, res) => {
 
   const matches = {
     "welfare": "Welfare",
-    "exec": "Executive Committee"
+    "exec": "Executive Committee",
+    "tech": "Technical Crew"
   }
 
   if(!Object.keys(matches).includes(name)) {

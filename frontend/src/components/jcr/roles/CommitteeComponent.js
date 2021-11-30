@@ -4,15 +4,19 @@ import RoleComponent from './RoleComponent';
 
 class CommitteeComponent extends React.Component {
   render () {
-    const { committee, membersByPosition, clickableRoles } = this.props;
+    const { committee, membersByPosition, clickableRoles, showDescription, showName } = this.props;
 
     return (
       <div>
-        <h2 className="font-semibold text-2xl">{ committee.name }</h2>
         {
-          committee.description.split("\n").map((line, i) => (
+          showName ? (
+            <h2 className="font-semibold text-2xl mb-1">{ committee.name }</h2>
+          ) : null
+        }
+        {
+          showDescription ? committee.description.split("\n").map((line, i) => (
             line.length === 0 ? null : <p key={i} className="py-1">{line}</p>
-          ))
+          )) : null
         }
         <div className="grid grid-cols-2 gap-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 2xl:gap-4 auto-rows-fr">
           {
@@ -51,7 +55,9 @@ CommitteeComponent.propTypes = {
   committee: PropTypes.object,
   membersByPosition: PropTypes.array,
   disableBodyScroll: PropTypes.func,
-  clickableRoles: PropTypes.bool
+  clickableRoles: PropTypes.bool,
+  showDescription: PropTypes.bool,
+  showName: PropTypes.bool
 }
 
 export default CommitteeComponent;

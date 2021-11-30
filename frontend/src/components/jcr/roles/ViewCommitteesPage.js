@@ -109,6 +109,8 @@ class ViewCommitteesPage extends React.Component {
         membersByPosition={membersByPosition}
         disableBodyScroll={this.props.disableBodyScroll}
         clickableRoles={true}
+        showDescription={true}
+        showName={true}
         key={new Date()}
       />
     );
