@@ -80,6 +80,11 @@ class NavBar extends React.Component {
               url: "/mcr",
               requiredPermission: null
             },
+            {
+              displayName: "Execs and Awards",
+              url: "/jcr/execs-and-awards",
+              requiredPermission: null
+            }
           ],
         },
         {
@@ -169,6 +174,11 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
+              displayName: "Execs and Awards",
+              url: "/jcr/execs-and-awards",
+              requiredPermission: null
+            },
+            {
               displayName: "Media",
               url: "/media",
               requiredPermission: "jcr.member"
@@ -187,7 +197,7 @@ class NavBar extends React.Component {
               displayName: "Make a Complaint",
               url: "/complaints",
               requiredPermission: null
-            },
+            }
           ],
         },
         {

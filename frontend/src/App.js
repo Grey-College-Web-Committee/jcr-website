@@ -112,6 +112,7 @@ import MyProfile from './components/profile/MyProfile';
 import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage';
 import JCRFileListingPage from './components/jcr/files/JCRFileListingPage';
 import JCRTrustPage from './components/jcr/trust/JCRTrustPage';
+import ExecsAndAwardsPage from './components/jcr/roles/ExecsAndAwardsPage';
 
 import CreateNewCommitteePage from './components/jcr/roles/admin/CreateNewCommitteePage';
 import CreateNewRolePage from './components/jcr/roles/admin/CreateNewRolePage';
@@ -604,6 +605,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/jcr/files" render={() => (
                       <JCRFileListingPage />
+                    )} />
+                    <Route exact path="/jcr/execs-and-awards" render={() => (
+                      <ExecsAndAwardsPage />
                     )} />
                     <Route exact path="/jcr/files/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.files") ? ( <ManageJCRFilesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files/manage") )
