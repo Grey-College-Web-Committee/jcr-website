@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
-import RoleComponent from './RoleComponent';
+import CommitteeComponent from './CommitteeComponent';
 import qs from 'qs';
 
 class ViewCommitteesPage extends React.Component {
@@ -104,42 +104,13 @@ class ViewCommitteesPage extends React.Component {
     const membersByPosition = activeCommittee.committeeMembers.sort((a, b) => a.position - b.position);
 
     return (
-      <div>
-        <h2 className="font-semibold text-2xl">{ activeCommittee.committee.name }</h2>
-        {
-          activeCommittee.committee.description.split("\n").map((line, i) => (
-            line.length === 0 ? null : <p key={i} className="py-1">{line}</p>
-          ))
-        }
-        <div className="grid grid-cols-2 gap-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 2xl:gap-4 auto-rows-fr">
-          {
-            membersByPosition.map((entry, i) => (
-              <React.Fragment key={i}>
-                {entry.JCRRole.JCRRoleUserLinks.map((link, j) => (
-                  <RoleComponent
-                    key={`${i}-${j}`}
-                    role={entry.JCRRole}
-                    user={link.User}
-                    vacant={false}
-                    clickable={true}
-                    disableBodyScroll={this.props.disableBodyScroll}
-                  />
-                ))}
-                {entry.JCRRole.JCRRoleUserLinks.length === 0 ? (
-                  <RoleComponent
-                    key={`${i}-vacant`}
-                    role={entry.JCRRole}
-                    user={null}
-                    vacant={true}
-                    clickable={true}
-                    disableBodyScroll={this.props.disableBodyScroll}
-                  />
-                ): null}
-              </React.Fragment>
-            ))
-          }
-        </div>
-      </div>
+      <CommitteeComponent
+        committee={activeCommittee.committee}
+        membersByPosition={membersByPosition}
+        disableBodyScroll={this.props.disableBodyScroll}
+        clickableRoles={true}
+        key={new Date()}
+      />
     );
   }
 
