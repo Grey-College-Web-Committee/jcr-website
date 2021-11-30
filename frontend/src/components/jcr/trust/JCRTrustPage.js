@@ -96,7 +96,7 @@ class JCRTrustPage extends React.Component {
           <div className="text-left pb-2">
             <h2 className="text-2xl font-semibold">Internal Trustees</h2>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">Sam Dornan - JCR President</h3>
+              <h3 className="text-xl font-semibold">Hannah Richards - JCR President</h3>
               <p className="py-1">The JCR President acts as the chief executive officer (CEO) of the JCR overseeing its day-to-day operations. The President also:</p>
               <ul className="list-inside list-disc p-1">
                 <li>Acts as a point of contact on all matters affecting the interests of the JCR</li>
@@ -108,7 +108,7 @@ class JCRTrustPage extends React.Component {
               <p className="py-1"></p>
             </div>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">Will Morrice - FACSO</h3>
+              <h3 className="text-xl font-semibold">Sophie Grantham - FACSO</h3>
               <p className="py-1">The Finance & Commercial Services Officer (FACSO) acts as the chief financial officer (CFO) of the JCR. The FACSO also:</p>
               <ul className="list-inside list-disc p-1">
                 <li>Runs the day-to-day finances of the JCR</li>
