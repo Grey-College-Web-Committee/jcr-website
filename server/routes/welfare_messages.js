@@ -230,7 +230,7 @@ router.post("/message", async (req, res) => {
 
   let emailNotification = [];
   emailNotification.push("<p>A new message has been received on the anonymous messaging service.</p>");
-  emailNotification.push(`<p>You can <a href="https://greyjcr.com/welfare/message/admin/thread/${threadId}" target="_blank" rel="noopener noreferrer">view the thread by clicking here.</a></p>`);
+  emailNotification.push(`<p>You can <a href="https://greyjcr.co.uk/welfare/message/admin/thread/${threadId}" target="_blank" rel="noopener noreferrer">view the thread by clicking here.</a></p>`);
 
   if(swos.length !== 0) {
     for(let person of swos) {
@@ -369,7 +369,7 @@ router.post("/message/admin", async (req, res) => {
   if(thread.userEmail !== null) {
     let emailNotification = [];
     emailNotification.push("<p>A new reply has been received on the anonymous messaging service.</p>");
-    emailNotification.push(`<p>You can <a href="https://shop.greyjcr.com/welfare/message/thread/${threadId}" target="_blank" rel="noopener noreferrer">view the thread by clicking here.</a></p>`);
+    emailNotification.push(`<p>You can <a href="https://greyjcr.co.uk/welfare/message/thread/${threadId}" target="_blank" rel="noopener noreferrer">view the thread by clicking here.</a></p>`);
 
     mailer.sendEmail(thread.userEmail, "Website Reply Received", emailNotification.join(""));
   }
