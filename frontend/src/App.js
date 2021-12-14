@@ -88,6 +88,7 @@ import ElectionEditPage from './components/elections/portal/ElectionEditPage';
 import WelfareAdminOverviewPage from './components/welfare/message/admin/WelfareAdminOverviewPage';
 import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
 import MediaPage from './components/media/MediaViewPage';
+import ViewImagesPage from './components/media/ViewImagesPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
 
 import ComplaintsAdminOverview from './components/complaints/ComplaintsAdminOverview';
@@ -452,6 +453,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/media" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media") )
+                    )} />
+                    <Route exact path="/media/images" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewImagesPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media/images") )
                     )} />
                     <Route exact path="/media/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/media/admin") )
