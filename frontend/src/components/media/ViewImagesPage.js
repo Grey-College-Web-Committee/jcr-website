@@ -17,8 +17,8 @@ class ViewImagesPage extends React.Component {
       eventName: "",
       options: {},
       imageNames: [],
-      loadAmount: 12,
-      loadIncrement: 12
+      loadAmount: 40,
+      loadIncrement: 40
     };
   }
 
@@ -101,7 +101,7 @@ class ViewImagesPage extends React.Component {
       <div className="flex flex-col justify-start">
         <div className="md:w-4/5 container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-2">Event Photos</h1>
-          <p className="text-left">Select an event from the dropdown and the photos will automatically load. The thumbnail images are heavily compressed so please click the 'Download' button to download the original quality image! To load more photos, click the text at the bottom of the photos.</p>
+          <p className="text-left">Select an event from the dropdown and the photos will automatically load. The thumbnail images are heavily compressed so please click the 'Download' button to download the original quality image! To load more photos, click the text at the bottom of the photos. Please note that some photos may have black bars that are not present in the downloaded version.</p>
           <div>
             <div className="flex flex-row items-center justify-center md:justify-start mt-2">
               <p className="mr-1">Event:</p>
@@ -120,12 +120,13 @@ class ViewImagesPage extends React.Component {
                 }
               </select>
             </div>
-            <div className="mx-auto grid gap-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 2xl:gap-4 auto-rows-fr w-full mt-2">
+            <div className="mx-auto grid gap-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 2xl:gap-4 auto-rows-fr auto-cols-fr w-full mt-2">
               {
                 this.state.imageNames.slice(0, this.state.loadAmount).map((imageFile, i) => (
                   <div className="h-auto flex flex-col" key={i}>
                     <img
                       src={`/api/media/images/image/thumb/${this.state.eventName}/${imageFile}`}
+                      alt={`${imageFile} from ${this.state.eventName}`}
                     />
                     <p className="mt-1 font-semibold">{imageFile}</p>
                     <a

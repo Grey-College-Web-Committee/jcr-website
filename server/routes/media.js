@@ -179,7 +179,10 @@ router.get("/images/image/thumb/:eventName/:image", async (req, res) => {
         force: true,
         quality: 80
       },
-      withMetaData: false
+      withMetaData: false,
+      width: 518,
+      height: 346,
+      fit: "contain"
     }
 
     let thumbnail;
