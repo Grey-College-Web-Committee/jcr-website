@@ -78,7 +78,6 @@ class LoginPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Login</h1>
           <p className="pb-2">You must be a member of Grey College to login.</p>
-          <p className="pb-2 font-semibold text-xl">Important Notice: Due to the ongoing disruption caused by the <a href="https://blog.cloudflare.com/inside-the-log4j2-vulnerability-cve-2021-44228/" target="_blank" className="underline">Log4j2 vulnerability</a> the login on this website may be temperamental for a few days while the University makes changes to their systems. The vulnerability does not affect the JCR's website but we do depend on the University to provide login services. If you have any questions please contact grey.website@durham.ac.uk. Apologies for the disruption, normal service should resume soon. Thank you.</p>
           <Link to="/accounts/register">
             <p className="pb-2 font-semibold underline">Don't have an account? Click here to register!</p>
           </Link>

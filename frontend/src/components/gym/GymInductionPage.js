@@ -83,12 +83,12 @@ const parq = [
 
 const membershipOptions = [
   {
-    price: 18,
-    nonMemberPrice: 23,
-    name: "Michaelmas Term Gym Membership",
+    price: 22,
+    nonMemberPrice: 27,
+    name: "Epiphany Term Gym Membership",
     image: "/images/gym/dumbbell.png",
-    description: "(expires 10/12/2021)",
-    displayName: "Michaelmas Term Gym Membership",
+    description: "(expires 19/03/2022)",
+    displayName: "Epiphany Term Gym Membership",
     submissionInformation: {
       type: "single_term"
     }

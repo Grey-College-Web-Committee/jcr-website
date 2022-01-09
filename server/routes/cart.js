@@ -585,9 +585,9 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
       nonMemberPrice: 70
     },
     single_term: {
-      expires: new Date("2021-12-10"),
-      price: 18,
-      nonMemberPrice: 23
+      expires: new Date("2022-03-19"),
+      price: 22,
+      nonMemberPrice: 27
     }
   };
 
@@ -660,9 +660,6 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
 
   // Used to get their postcode during covid
   const parqResponses = componentSubmissionInfo.filter(comp => comp.type === "parq");
-
-  console.log(parqResponses);
-  console.log(parqResponses[0].responses);
 
   if(!parqResponses || !parqResponses[0].responses || !Array.isArray(parqResponses[0].responses)) {
     return {
