@@ -423,7 +423,7 @@ app.use("/api/cart", isLoggedIn, cartRoute);
 app.use("/api/gym", isLoggedIn, gymRoute);
 app.use("/api/memberships", isLoggedIn, membershipsRoute);
 app.use("/api/elections", isLoggedIn, electionsRoute);
-app.use("/api/media", mediaRoute);
+app.use("/api/media", isLoggedIn, mediaRoute);
 app.use("/api/welfare/messages", isLoggedIn, welfareMessagesRoute);
 app.use("/api/complaints", isLoggedIn, complaintsRoute);
 app.use("/api/events", isLoggedIn, eventsRoute);

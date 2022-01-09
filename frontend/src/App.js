@@ -454,7 +454,9 @@ class App extends React.Component {
                     <Route exact path="/media" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media") )
                     )} />
-                    <Route exact path="/media/images" render={() => (<ViewImagesPage />)} />
+                    <Route exact path="/media/images" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewImagesPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media/images") )
+                    )} />
                     <Route exact path="/media/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/media/admin") )
                     )} />

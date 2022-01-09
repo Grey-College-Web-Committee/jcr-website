@@ -88,19 +88,6 @@ class NavBar extends React.Component {
           ],
         },
         {
-          displayName: "Events",
-          url: null,
-          requiredPermission: null,
-          staticImage: null,
-          dropdown: [
-            {
-              displayName: "Photos",
-              url: "/media/images",
-              requiredPermission: null
-            }
-          ]
-        },
-        {
           displayName: "Welfare",
           url: "/welfare",
           requiredPermission: null,
