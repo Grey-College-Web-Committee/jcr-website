@@ -126,7 +126,8 @@ router.delete("/item/:itemID", async (req, res) => {
 
 router.get("/images/options", async (req, res) => {
   const options = {
-    "Halloween Bop 2021": "halloween2021"
+    "Halloween Bop 2021": "halloween2021",
+    "Winter Ball 2021": "winter2021"
   }
 
   return res.status(200).json({ options });
