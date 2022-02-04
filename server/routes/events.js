@@ -545,6 +545,7 @@ router.get("/ticketType/:id", async (req, res) => {
   // Filter to this ticket type only then count how many there are
   const totalBookingsOfThisType = allBookingCounts.filter(booking => booking.ticketTypeId === record.id).reduce((acc, v) => acc + v.totalMembers, 0);
   const remainingSpacesOfType = record.maxOfType - totalBookingsOfThisType;
+  console.log(`record id ${record.id}, total booked: ${totalBookingsOfThisType}, remaining spaces: ${remainingSpacesOfType}`);
 
   // The ticket is sold entirely
   if(remainingSpacesOfType <= 0) {
