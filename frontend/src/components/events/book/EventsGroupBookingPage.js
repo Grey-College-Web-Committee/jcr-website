@@ -82,8 +82,8 @@ class EventsGroupBookingPage extends React.Component {
     }
 
     const group = { "0": userRecord }
-    const maxMembers = Math.min(ticketType.data.capacity.remainingIndividualSpaces, ticketType.data.record.maxPeople);
-    const maxGuests = Math.min(ticketType.data.capacity.remainingIndividualSpaces, ticketType.data.record.maxGuests);
+    const maxMembers = Math.min(ticketType.data.capacity.remainingSpacesOfType, Math.min(ticketType.data.capacity.remainingIndividualSpaces, ticketType.data.record.maxPeople));
+    const maxGuests = Math.min(ticketType.data.capacity.remainingSpacesOfType, Math.min(ticketType.data.capacity.remainingIndividualSpaces, ticketType.data.record.maxGuests));
 
     this.setState({ loaded: true, status: 200, ticketType: ticketType.data, group, maxMembers, maxGuests: maxGuests });
   }
