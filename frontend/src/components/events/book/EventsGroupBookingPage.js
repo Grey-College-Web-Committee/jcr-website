@@ -83,8 +83,9 @@ class EventsGroupBookingPage extends React.Component {
 
     const group = { "0": userRecord }
     const maxMembers = Math.min(ticketType.data.capacity.remainingIndividualSpaces, ticketType.data.record.maxPeople);
+    const maxGuests = Math.min(ticketType.data.capacity.remainingIndividualSpaces, ticketType.data.record.maxGuests);
 
-    this.setState({ loaded: true, status: 200, ticketType: ticketType.data, group, maxMembers, maxGuests: ticketType.data.record.maxGuests });
+    this.setState({ loaded: true, status: 200, ticketType: ticketType.data, group, maxMembers, maxGuests: maxGuests });
   }
 
   makeDisplayName = (result) => {
@@ -284,7 +285,7 @@ class EventsGroupBookingPage extends React.Component {
             <MemberSearch
               title="Add JCR Members"
               ticketTypeId={this.state.type}
-              disabled={this.state.disabled || this.state.memberDisabled || Object.keys(this.state.group).length >= this.state.maxMembers}
+              disabled={this.state.disabled || this.state.memberDisabled || Object.keys(this.state.group).length >= this.state.maxMembers || Object.keys(this.state.group).length >= this.state.maxMembers + this.state.maxGuests}
               addMember={(details) => this.addToGroup(details, false)}
               rejectIf={(username) => {
                 return Object.keys(this.state.group).map(i => this.state.group[i].username).includes(username);
@@ -294,7 +295,7 @@ class EventsGroupBookingPage extends React.Component {
             {
               this.state.maxGuests === 0 ? null : (
                 <AddGuest
-                  disabled={this.state.disabled || this.state.guestDisabled || Object.keys(this.state.group).length >= this.state.maxMembers || Object.keys(this.state.group).map(key => this.state.group[key].guest).filter(r => r === true).length >= this.state.maxGuests}
+                  disabled={this.state.disabled || this.state.guestDisabled || Object.keys(this.state.group).length >= this.state.maxMembers || Object.keys(this.state.group).map(key => this.state.group[key].guest).filter(r => r === true).length >= this.state.maxGuests || Object.keys(this.state.group).length >= this.state.maxMembers + this.state.maxGuests}
                   addGuest={(details) => this.addToGroup(details, true)}
                   rejectIf={(username) => {
                     return Object.keys(this.state.group).map(i => this.state.group[i].username).includes(username);
