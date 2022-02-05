@@ -545,7 +545,6 @@ router.get("/ticketType/:id", async (req, res) => {
   // Filter to this ticket type only then count how many there are
   const totalBookingsOfThisType = allBookingCounts.filter(booking => booking.ticketTypeId === record.id).reduce((acc, v) => acc + v.totalMembers, 0);
   const remainingSpacesOfType = record.maxOfType - totalBookingsOfThisType;
-  console.log(`record id ${record.id}, total booked: ${totalBookingsOfThisType}, remaining spaces: ${remainingSpacesOfType}`);
 
   // The ticket is sold entirely
   if(remainingSpacesOfType <= 0) {
@@ -830,12 +829,12 @@ router.post("/booking", async (req, res) => {
   }
 
   // Filter to this ticket type only then count how many there are
-  const totalBookingsOfThisType = allBookingCounts.filter(booking => booking.ticketTypeId === record.id).length;
+  const totalBookingsOfThisType = allBookingCounts.filter(booking => booking.ticketTypeId === record.id).reduce((acc, v) => acc + v.totalMembers, 0);
   const remainingSpacesOfType = record.maxOfType - totalBookingsOfThisType;
 
   // The ticket is sold entirely
-  if(remainingSpacesOfType <= 0) {
-    return res.status(400).json({ error: "There are no more tickets of this type available" });
+  if(remainingSpacesOfType < group.length) {
+    return res.status(400).json({ error: "There are not enough of this ticket type remaining for your group" });
   }
 
   // TODO: Validate min and maxs
