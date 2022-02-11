@@ -10,8 +10,8 @@ class TableLayout extends React.Component {
       refreshKey: this.props.refreshKey
     }
 
-    this.maxPairsPerTable = 12;
-    this.hotSeatLocations = [7 * this.maxPairsPerTable - 1, 7 * this.maxPairsPerTable];
+    this.maxPairsPerTable = 3;
+    this.hotSeatLocations = [29, 30];
   }
 
   renderTables = () => {
@@ -24,38 +24,52 @@ class TableLayout extends React.Component {
 
     let renders = [];
 
-    for(let i = 0; i < tableData.length / 2; i++) {
-      const firstTable = tableData[2 * i];
+    for(let i = 0; i < tableData.length / 4; i++) {
+      const firstTable = tableData[4 * i];
 
-      if(2 * i + 1 >= tableData.length) {
+      if(4 * i + 1 >= tableData.length) {
         renders.push(
-          <div className="flex flex-col md:flex-row justify-start" key={i}>
+          <div className="my-2 flex flex-col md:flex-row justify-start" key={i}>
             <SingleTable
               pairs={firstTable}
               left={true}
-              firstPosition={2 * i * this.maxPairsPerTable}
+              firstPosition={4 * i * this.maxPairsPerTable}
               hotSeatLocations={this.hotSeatLocations}
             />
-            <div className="md:w-1/2 md:ml-2 md:block hidden"></div>
+            <div className="md:w-3/4 md:ml-2 md:block hidden"></div>
           </div>
         )
         continue;
       }
 
-      const secondTable = tableData[2 * i + 1];
+      const secondTable = tableData[4 * i + 1];
+      const thirdTable = tableData[4 * i + 2];
+      const fourthTable = tableData[4 * i + 3];
 
       renders.push(
-        <div className="flex flex-col md:flex-row justify-between" key={i}>
+        <div className="m-2 flex flex-col md:flex-row justify-between border-b border-t border-red-900" key={i}>
           <SingleTable
             pairs={firstTable}
             left={true}
-            firstPosition={2 * i * this.maxPairsPerTable}
+            firstPosition={4 * i * this.maxPairsPerTable}
             hotSeatLocations={this.hotSeatLocations}
           />
           <SingleTable
             pairs={secondTable}
             left={false}
-            firstPosition={(2 * i + 1) * this.maxPairsPerTable}
+            firstPosition={(4 * i + 1) * this.maxPairsPerTable}
+            hotSeatLocations={this.hotSeatLocations}
+          />
+          <SingleTable
+            pairs={thirdTable}
+            left={false}
+            firstPosition={(4 * i + 2) * this.maxPairsPerTable}
+            hotSeatLocations={this.hotSeatLocations}
+          />
+          <SingleTable
+            pairs={fourthTable}
+            left={false}
+            firstPosition={(4 * i + 3) * this.maxPairsPerTable}
             hotSeatLocations={this.hotSeatLocations}
           />
         </div>

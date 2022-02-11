@@ -45,7 +45,7 @@ class SingleTable extends React.Component {
 
   render () {
     return (
-      <div className={`text-xs xl:text-base w-full md:w-1/2 flex flex-col ${this.props.left ? "md:mr-2" : "md:ml-2"}`}>
+      <div className={`text-xs xl:text-base w-full md:w-1/4 flex flex-col ${this.props.left ? "md:mr-2" : "md:ml-2"}`}>
         <div className="flex flex-row justify-between my-1 items-end">
           {
             this.props.pairs.map((pair, i) => {
@@ -53,9 +53,11 @@ class SingleTable extends React.Component {
 
               return (
                 <div
-                  className={`transition-all duration-500 w-16 h-16 mb-1 pb-1 border-b border-red-900 overflow-auto flex flex-col justify-end ${hotSeat ? "bg-yellow-700 text-white" : ""} ${this.state.updatedIndexes.includes(i) ? "animate-pulse bg-blue-200" : ""}`}
+                  className={`transition-all duration-500 w-24 h-20 mb-1 pb-1 border-b border-red-900 overflow-auto flex flex-col justify-center ${hotSeat ? "bg-yellow-700 text-white" : ""} ${this.state.updatedIndexes.includes(i) ? "animate-pulse bg-blue-200" : ""}`}
                   key={i}>
-                  <span className="h-full">{pair.first}</span>
+                  <div>
+                    <span>{pair.first}</span>
+                  </div>
                 </div>
               );
             })
@@ -69,10 +71,12 @@ class SingleTable extends React.Component {
 
               return (
                 <div
-                  className={`transition-all duration-500 w-16 h-16 mt-1 pt-1 border-t border-red-900 overflow-auto flex flex-col justify-start ${hotSeat ? "bg-yellow-700 text-white" : ""} ${this.state.updatedIndexes.includes(i) ? "animate-pulse bg-blue-200" : ""}`}
+                  className={`transition-all duration-500 w-24 h-20 mt-1 pt-1 border-t border-red-900 overflow-auto flex flex-col justify-center ${hotSeat ? "bg-yellow-700 text-white" : ""} ${this.state.updatedIndexes.includes(i) ? "animate-pulse bg-blue-200" : ""}`}
                   key={i}
                 >
-                  <span className="h-full">{pair.second}</span>
+                  <div>
+                    <span>{pair.second}</span>
+                  </div>
                 </div>
               );
             })

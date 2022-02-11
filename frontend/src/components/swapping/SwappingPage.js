@@ -228,7 +228,17 @@ class SwappingPage extends React.Component {
   }
 
   calculatePairPrice = (pairDetails) => {
-    return 0.2 * 2 ** pairDetails.count
+    let price = 0.5 * 2 ** pairDetails.count;
+
+    if(price > 20) {
+      if(pairDetails.count == 6) {
+        price = 20;
+      } else {
+        price = 20 + (pairDetails.count - 6);
+      }
+    }
+
+    return price;
   }
 
   calculateTotalPrice = () => {
@@ -264,16 +274,17 @@ class SwappingPage extends React.Component {
     return (
       <div className="flex flex-col justify-start">
         <div className="xl:w-full md:mx-2 text-center p-4">
-          <h1 className="font-semibold text-5xl pb-2">Formal Swapping</h1>
+          <h1 className="font-semibold text-5xl pb-2">Valentine's Swapping</h1>
           {
             !this.state.open ? (
               <p className="py-1 font-semibold text-2xl text-red-900 underline">Swapping is currently closed.</p>
             ) : null
           }
-          <p className="md:hidden py-1 font-semibold text-lg">This webpage was designed for use on a computer, it may still work on mobile devices but functionality is not guaranteed.</p>
+          <p className="md:hidden py-1 font-semibold text-lg">This webpage was designed for use on a computer, it still works on mobile devices but the layout of the tables may be distorted!</p>
           <div className="text-left mb-2 md:w-4/5 mx-auto">
             <h2 className="font-semibold text-3xl">What is this?</h2>
-            <p className="pt-1">For certain events or formals throughout the year (e.g. Valentine{"'"}s Formal) it is possible for members of the JCR to determine the seating plan for the meal! Pairs of people sign on to the formal and they can then be swapped with other pairs on the formal. The price for swapping is determined by the number of times that the specific pair has already been swapped. The price for the swap is the highest value of the two pairs that you wish to swap. Swapping starts at £0.20 and doubles each time. The money spent on swapping (minus transaction fees) is donated to charity.</p>
+            <p className="pt-1">For certain events or formals throughout the year (e.g. Valentine{"'"}s Formal) you get to determine the seating plan for the meal! Pairs sign on to the event and they can then be swapped with other pairs on the formal. The price for swapping is determined by the number of times that the specific pair has already been swapped. The price for the swap is the highest value of the two pairs that you wish to swap. Swapping starts at £0.50 and doubles each time (up to £20 when it increases by £1 each time). The money spent on swapping (minus transaction fees) is donated to charity.</p>
+            <p className="pt-1"><span className="font-semibold">Hot Seats:</span> The two lucky pairs in the hot seats (the ones in <span className="text-yellow-700">orange</span>) will have a fun little challenge or forfeit to do that will be told to them on the night!</p>
           </div>
           <div className="text-left md:w-4/5 mx-auto">
             <h2 className="font-semibold text-3xl">Swapping Credit</h2>
@@ -334,7 +345,7 @@ class SwappingPage extends React.Component {
             </div>
           </div>
           <div className="flex-col">
-            <div className="text-left md:w-4/5 mx-auto mb-2">
+            <div className="text-left md:w-4/5 mx-auto mb-2 border border-black p-1">
               <h3 className="font-semibold text-2xl pb-1">Make a Swap</h3>
               <p>There {this.state.users === 1 ? "is" : "are"} currently {this.state.users} {this.state.users === 1 ? "person" : "people"} here.</p>
               <div className="flex flex-col mt-2">
@@ -358,7 +369,7 @@ class SwappingPage extends React.Component {
                           value={pair.id}
                           key={i}
                           disabled={`${this.state.secondPair}` === `${pair.id}`}
-                        >{pair.names} (£{(0.2 * 2 ** pair.count).toFixed(2)})</option>
+                        >{pair.names} (£{(this.calculatePairPrice(pair)).toFixed(2)})</option>
                       ))
                     }
                   </select>

@@ -88,7 +88,20 @@ const setupEvents = (socket, io) => {
       return;
     }
 
-    const pairPriceInPence = (pair) => 20 * 2 ** pair.count;
+    const pairPriceInPence = (pair) => {
+      let price = 50 * 2 ** pair.count;
+
+      if(price > 2000) {
+        if(pair.count == 6) {
+          price = 2000
+        } else {
+          price = 2000 + (pair.count - 6) * 100
+        }
+      }
+
+      return price;
+    };
+
     const firstPairPriceIP = pairPriceInPence(firstPairRecord);
     const secondPairPriceIP = pairPriceInPence(secondPairRecord);
 
