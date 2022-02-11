@@ -275,6 +275,11 @@ class NavBar extends React.Component {
               displayName: "Photos",
               url: "/media/images",
               requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "Swapping",
+              url: "/events/swapping",
+              requiredPermission: "jcr.member"
             }
           ],
           alwaysDisplayed: null

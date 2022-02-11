@@ -1560,6 +1560,8 @@ SwappingPair.init({
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0
+  }
+}, { sequelize });
 
 PendingAlumniApplication.init({
   username: {

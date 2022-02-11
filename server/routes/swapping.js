@@ -226,7 +226,7 @@ router.get("/download", async (req, res) => {
 
   let pairs = [...pairRecords];
 
-  const maxPairsPerTable = 12;
+  const maxPairsPerTable = 3;
 
   const currentDate = new Date();
   const time = currentDate.getTime();
