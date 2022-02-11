@@ -508,7 +508,9 @@ router.get("/list", async (req, res) => {
           [Op.lt]: now
         }
       },
-      attributes: [ "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime", "winner", "published" ]
+      attributes: [ "name", "manifestoReleaseTime", "votingOpenTime", "votingCloseTime", "winner", "published" ],
+      limit: 10,
+      order: [[ "votingCloseTime", "DESC" ]]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to load previous elections" });

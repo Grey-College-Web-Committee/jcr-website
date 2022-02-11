@@ -12,6 +12,7 @@ class RegisterPage extends React.Component {
     this.state = {
       stage: "verify",
       username: "",
+      password: "",
       firstName: "",
       surname: "",
       year: "1",
@@ -37,7 +38,7 @@ class RegisterPage extends React.Component {
         return;
       }
 
-      this.setState({ stage: "error" })
+      this.setState({ stage: "error", message: error.response.data.message })
       return;
     }
 
@@ -62,7 +63,7 @@ class RegisterPage extends React.Component {
         return;
       }
 
-      this.setState({ stage: "error", password: null })
+      this.setState({ stage: "error", password: null, message: error.response.data.message })
       return;
     }
 
@@ -179,7 +180,7 @@ class RegisterPage extends React.Component {
               <p className="flex flex-row justify-start flex-1 items-center text-left">To verify your details Grey College Junior Common Room ("the JCR") will cross-reference your personal details provided with data available to all members of the University. By submitting this form you agree to allow the JCR to do this and agree that the JCR may contact you if there are any queries about the information that you have provided. The JCR reserves the right to refuse malicious or intentionally inaccurate applications.</p>
             </div>
             <div className="pt-2 pb-2 border-b-2 flex flex-row items-center">
-              <label htmlFor="processing" className="flex flex-row justify-start text-xl font-semibold flex-1 items-center">By checking this box I agree to above processing of my data</label>
+              <label htmlFor="processing" className="flex flex-row justify-start text-xl font-semibold flex-1 items-center">By checking this box I agree to the above processing of my data</label>
               <div className="flex flex-col items-center justify-center ml-2">
                 <input
                   type="checkbox"
@@ -216,12 +217,28 @@ class RegisterPage extends React.Component {
             <LoadingHolder />
           </div>
         )
+      case "invalid_details":
+        return (
+          <div className="border-red-900 border flex flex-col w-full p-2">
+            <h2 className="text-2xl text-center md:text-left py-1 border-b border-grey-500">Invalid Details</h2>
+            <p className="py-1 text-left">Your username or password were not recognised. Please try again.</p>
+            <button
+              className="w-full p-1 mt-1 bg-red-900 text-white"
+              onClick={() => this.setState({ stage: "verify", username: "", password: "" })}
+            >Try Again</button>
+          </div>
+        );
       case "error":
       default:
         return (
           <div className="border-red-900 border flex flex-col w-full p-2">
             <h2 className="text-2xl text-center md:text-left py-1 border-b border-grey-500">Error Occurred</h2>
             <p className="pt-1 text-left">There was an issue submitting your application. Please try again later.</p>
+            {
+              this.state.message ? (
+                <p className="pt-2 text-left">{this.state.message}</p>
+              ) : null
+            }
           </div>
         )
     }

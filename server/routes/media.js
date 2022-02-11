@@ -6,6 +6,12 @@ const { User, Address, Media } = require("../database.models.js");
 const dateFormat = require("dateformat");
 const { hasPermission } = require("../utils/permissionUtils.js");
 const { Op } = require("sequelize");
+const rawFs = require("fs");
+const fs = rawFs.promises;
+const path = require("path");
+const imageThumbnail = require("image-thumbnail");
+
+const mediaPath = path.join(__dirname, "../uploads/images/media/");
 
 // Get the media available
 router.get("/all", async (req, res) => {
@@ -117,6 +123,89 @@ router.delete("/item/:itemID", async (req, res) => {
 
   return res.status(204).end();
 });
+
+router.get("/images/options", async (req, res) => {
+  const options = {
+    "Halloween Bop 2021": "halloween2021",
+    "Winter Ball 2021": "winter2021"
+  }
+
+  return res.status(200).json({ options });
+});
+
+router.get("/images/list/:eventName", async (req, res) => {
+  const { eventName } = req.params;
+
+  if(!eventName) {
+    return res.status(400).json({ error: "Missing eventName" });
+  }
+
+  let files;
+
+  try {
+    files = await fs.readdir(`${mediaPath}${eventName}/`);
+  } catch (error) {
+    return res.status(400).json({ error: "Invalid eventName" });
+  }
+
+  // Don't want to create thumbnails of thumbnails
+  files = files.filter(file => !file.startsWith("thumb"));
+
+  return res.status(200).json({ eventName, files });
+})
+
+router.get("/images/image/fullres/:eventName/:image", async (req, res) => {
+  const { eventName, image } = req.params;
+  res.sendFile(path.join(__dirname, `../uploads/images/media/${eventName}/${image}`));
+});
+
+router.get("/images/image/thumb/:eventName/:image", async (req, res) => {
+  const { eventName, image } = req.params;
+
+  let compressedExists;
+
+  try {
+    await fs.access(path.join(__dirname, `../uploads/images/media/${eventName}/thumb_${image}`), rawFs.constants.F_OK);
+    compressedExists = true;
+  } catch (error) {
+    compressedExists = false;
+  }
+
+  // console.log({ compressedExists, image })
+
+  if(!compressedExists) {
+    const options = {
+      responseType: "base64",
+      jpegOptions: {
+        force: true,
+        quality: 80
+      },
+      withMetaData: false,
+      width: 518,
+      height: 346,
+      fit: "contain"
+    }
+
+    let thumbnail;
+
+    try {
+      thumbnail = await imageThumbnail(path.join(__dirname, `../uploads/images/media/${eventName}/${image}`), options);
+    } catch (error) {
+      return res.status(500).end();
+    }
+
+    const img = Buffer.from(thumbnail, "base64");
+
+    try {
+      await fs.writeFile(path.join(__dirname, `../uploads/images/media/${eventName}/thumb_${image}`), img, "base64");
+    } catch (error) {
+      return res.status(500).end();
+    }
+  }
+
+  res.sendFile(path.join(__dirname, `../uploads/images/media/${eventName}/thumb_${image}`))
+});
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;

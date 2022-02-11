@@ -8,6 +8,7 @@ const { User, Permission, PermissionLink } = require("../database.models.js");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
 const upload = multer({ dest: "uploads/images/profile/" });
+const mailer = require("../utils/mailer");
 
 const sharp = require("sharp");
 
@@ -119,6 +120,29 @@ router.post("/picture", upload.single("image"), async (req, res) => {
   }
 
   return res.status(200).json({ profilePicture: image.filename });
+})
+
+router.get("/email-test/:to", async (req, res) => {
+  const { user } = req.session;
+  const { to } = req.params;
+
+  if(!hasPermission(req.session, "permissions.edit")) {
+    return res.status(403).json({ error: "Permission error" })
+  }
+
+  try {
+    const outcome = await mailer.sendEmail(to, `No Reply Test`, [
+      "<p>Test message</p>"
+    ].join(""));
+
+    if(!outcome) {
+      return res.status(500).json({ error: outcome });
+    }
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+
+  return res.status(200).json({ success: true });
 })
 
 // Set the module export to router so it can be used in server.js

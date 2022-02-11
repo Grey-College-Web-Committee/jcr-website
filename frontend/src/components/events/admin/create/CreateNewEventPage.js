@@ -115,6 +115,10 @@ class CreateNewEventPage extends React.Component {
   }
 
   onImageDrop = (image) => {
+    if(image.length === 0) {
+      alert("Invalid image type selected! It must be .jpg, .jpeg, .gif or .png");
+      return;
+    }
     // Set the current image when they select one
     this.setState({ imageUpload: image });
   }
@@ -603,7 +607,7 @@ class CreateNewEventPage extends React.Component {
                   <ImageUploader
                     withIcon={false}
                     buttonText={"Choose Image"}
-                    imgExtension={['.jpg', '.gif', '.png', '.gif']}
+                    imgExtension={['.jpg', '.gif', '.png', '.jpeg']}
                     singleImage={true}
                     onChange={this.onImageDrop}
                     disabled={this.state.disabled || this.state.imageDisabled}

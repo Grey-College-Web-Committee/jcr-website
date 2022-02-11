@@ -28,15 +28,5 @@
     "button_target": "_blank",
     "image": "/images/home/gccfs_1900_600.jpg",
     "mobile_image": "/images/home/gccfs_mobile.jpg"
-  },
-  {
-    "desktop_title": "Grey Bar",
-    "mobile_title": "Bar",
-    "description_text": "",
-    "button_text": "Book now →",
-    "button_link": "/bar/book",
-    "button_target": "_self",
-    "image": "/images/home/bar_1870_590.jpg",
-    "mobile_image": "/images/home/bar_mobile.jpg"
   }
 ]

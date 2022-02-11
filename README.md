@@ -1,15 +1,18 @@
 # Grey College JCR - New Website
 ## Setup
+This setup guide will go through and explain how to setup the website locally assuming that you have not installed any previous software etc. If you already have a database on your computer or Node installed then those steps can be skipped but changes may need to be made to the .env file.
 1. Download and install Node.js (includes npm) https://nodejs.org/en/download/
-2. Download and install MySQL https://www.mysql.com/downloads/
-3. Download the repository locally
-4. Create a file called '.env' in the server folder. Fill it with the contents described in the Server .env section below.
-5. In the same directory create a file called 'prepaid_memberships.json' with the contents: `{}`.
-5. Create a new database in MySQL called 'grey-shop'. Change the DB_USERNAME and DB_PASSWORD in the .env file to match your account for MySQL.
-6. Inside the server folder, open new a terminal and run 'npm install'.
-7. Once it is complete, run 'npm start' in the server folder. This will start the server and create the necessary tables.
-8. Inside the frontend folder, open new a terminal and run 'npm install'.
-9. Once it is complete, run 'npm start' in the frontend folder. This will open the page in your default web browser.
+2. Download and install MySQL via XAMPP https://www.apachefriends.org/index.html
+4. Download and install Python https://www.python.org/downloads/ (only necessary if you wish to use the simplified setup.py script which is recommended)
+3. Download the repository locally via GitHub (GitHub Desktop is an easy client to use https://desktop.github.com/)
+4. Open XAMPP and start Apache and MySQL
+5. Open a web browser and go to http://localhost/phpmyadmin, click 'New' on the left-hand side
+6. Create a new database, make note of the name e.g. grey-website
+7. Run setup.py on (requires Python 3.6+) and follow the prompts (add stuff about emails)
+8. Inside the server folder, open new a terminal and run 'npm install'.
+9. Once it is complete, run 'npm start' in the server folder. This will start the server and create the necessary tables.
+10. Inside the frontend folder, open new a terminal and run 'npm install'.
+11. Once it is complete, run 'npm start' in the frontend folder. This will open the page in your default web browser.
 
 This should get the site up and running locally.
 
@@ -33,16 +36,9 @@ EMAIL_SECURE=(true if the port is 465, false otherwise)
 EMAIL_USERNAME=emailaddress
 EMAIL_PASSWORD=emailpassword
 EMAIL_SENDER=yourname
+LOCAL_EMAIL=(true for production or Linux with postfix setup, false for web services)
 TOASTIE_BAR_EMAIL_TO=Where to send the orders
-DEBUG=false
+EMAIL_BCC=(set to an email to send copies, e.g. to check it is working)
 ```
 
-For setting the .env up for Durham email addresses, use the following: ([More information here](https://www.dur.ac.uk/cis/faqs/?faqno=2721))
-```
-EMAIL_HOST=smtp.office365.com
-EMAIL_PORT=587
-EMAIL_SECURE=false
-EMAIL_USERNAME=<cis username goes here>@durham.ac.uk
-EMAIL_PASSWORD=<cis password goes here>
-EMAIL_SENDER=<an alias or the cis username for the account>@durham.ac.uk
-```
+Durham University email addresses are no longer supported due to the requirement for MFA for non-personal accounts.

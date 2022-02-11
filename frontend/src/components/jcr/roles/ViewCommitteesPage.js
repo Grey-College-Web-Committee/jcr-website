@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
-import RoleComponent from './RoleComponent';
+import CommitteeComponent from './CommitteeComponent';
 import qs from 'qs';
 
 class ViewCommitteesPage extends React.Component {
@@ -104,40 +104,15 @@ class ViewCommitteesPage extends React.Component {
     const membersByPosition = activeCommittee.committeeMembers.sort((a, b) => a.position - b.position);
 
     return (
-      <div>
-        <h2 className="font-semibold text-2xl">{ activeCommittee.committee.name }</h2>
-        {
-          activeCommittee.committee.description.split("\n").map((line, i) => (
-            line.length === 0 ? null : <p key={i} className="py-1">{line}</p>
-          ))
-        }
-        <div className="grid grid-cols-2 gap-1 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 2xl:gap-4 auto-rows-fr">
-          {
-            membersByPosition.map((entry, i) => (
-              <React.Fragment key={i}>
-                {entry.JCRRole.JCRRoleUserLinks.map((link, j) => (
-                  <RoleComponent
-                    key={`${i}-${j}`}
-                    role={entry.JCRRole}
-                    user={link.User}
-                    vacant={false}
-                    clickable={true}
-                  />
-                ))}
-                {entry.JCRRole.JCRRoleUserLinks.length === 0 ? (
-                  <RoleComponent
-                    key={`${i}-vacant`}
-                    role={entry.JCRRole}
-                    user={null}
-                    vacant={true}
-                    clickable={true}
-                  />
-                ): null}
-              </React.Fragment>
-            ))
-          }
-        </div>
-      </div>
+      <CommitteeComponent
+        committee={activeCommittee.committee}
+        membersByPosition={membersByPosition}
+        disableBodyScroll={this.props.disableBodyScroll}
+        clickableRoles={true}
+        showDescription={true}
+        showName={true}
+        key={new Date()}
+      />
     );
   }
 
@@ -161,13 +136,13 @@ class ViewCommitteesPage extends React.Component {
           <p className="py-1">There are many roles in the JCR that any member can run for. They are a great way to get involved in the JCR and most of them are elected in JCR meetings throughout the year. If you are interested in any of the roles please contact the JCR Chair (grey.chair@durham.ac.uk) and they will be happy to provide you more information on a specific role as well as information about running in an election!</p>
           <p className="py-1">As well as the roles, the JCR has lots of committees that help with specific parts of the running of the JCR. Committee positions usually do not require election and instead members can apply to be on them when they are accepting new members (usually annually). They are an excellent way to get involved if you are considering running for an elected role in the future!</p>
           <p className="py-1">You can view all of the JCR committees and see their members. Use the dropdown below to select a committee and the members will appear!</p>
-          <div className="py-1">
+          <div className="py-1 text-lg font-semibold">
             <label htmlFor="selectedCommittee">Selected Committee:</label>
             <select
               value={this.state.selectedCommittee}
               onChange={this.onInputChange}
               name="selectedCommittee"
-              className="ml-2 w-auto h-8 border border-gray-400 disabled:opacity-50"
+              className="my-1 md:my-0 md:ml-2 w-auto h-8 border border-gray-400 disabled:opacity-50"
               disabled={this.state.disabled}
             >
               <option value="" disabled={true} hidden={true}>Please Select...</option>

@@ -139,7 +139,6 @@ router.post("/export", async(req, res) => {
       { id: "type", title: "Type" },
       { id: "expiresAt", title: "Expires At" },
       { id: "expired", title: "Expired?" },
-      { id: "household", title: "Household / Postcode" },
       { id: "paid", title: "Paid?" }
     ]
   });
@@ -162,8 +161,6 @@ router.post("/export", async(req, res) => {
     record.createdAt = dateFormat(order.createdAt, "dd/mm/yyyy");
     record.type = order.type;
     record.expiresAt = dateFormat(order.expiresAt, "dd/mm/yyyy");
-    record.household = order.household === 0 || order.household === "0" ? order.postcode : order.household;
-
     record.expired = order.expiresAt < currentDate;
     record.paid = order.ShopOrder.paid;
 

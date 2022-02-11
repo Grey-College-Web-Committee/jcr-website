@@ -96,6 +96,7 @@ class JCRFile extends Model {}
 class SportAndSoc extends Model {}
 
 class PendingUserApplication extends Model {}
+class PendingAlumniApplication extends Model {}
 
 class SwappingCredit extends Model {}
 class SwappingCreditLog extends Model {}
@@ -140,6 +141,11 @@ User.init({
   },
   profilePicture: {
     type: DataTypes.TEXT,
+    defaultValue: null
+  },
+  password: {
+    type: DataTypes.TEXT,
+    allowNull: true,
     defaultValue: null
   }
 }, { sequelize });
@@ -585,13 +591,9 @@ GymMembership.init({
     type: DataTypes.STRING,
     allowNull: false
   },
-  household: {
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  postcode: {
+  parq: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: false
   }
 }, { sequelize });
 
@@ -1317,6 +1319,11 @@ JCRRole.init({
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: true
+  },
+  email: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    defaultValue: null
   }
 }, { sequelize });
 
@@ -1553,6 +1560,27 @@ SwappingPair.init({
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0
+
+PendingAlumniApplication.init({
+  username: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  email: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  password: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  verificationToken: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  verified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize });
 
@@ -1723,4 +1751,4 @@ SwappingCredit.belongsTo(User, { foreignKey: 'userId' });
 User.hasMany(SwappingCreditLog, { foreignKey: 'userId' });
 SwappingCreditLog.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication, SwappingCredit, SwappingCreditLog, SwappingPair };
+module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication, SwappingCredit, SwappingCreditLog, SwappingPair, PendingAlumniApplication };

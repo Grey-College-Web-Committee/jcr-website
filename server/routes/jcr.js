@@ -252,7 +252,7 @@ router.post("/role/update", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { id, name, description, videoUrl, descriptionEnabled } = req.body;
+  const { id, name, description, videoUrl, descriptionEnabled, email } = req.body;
 
   if(id === undefined || id === null) {
     return res.status(400).json({ error: "Missing id" });
@@ -272,6 +272,10 @@ router.post("/role/update", async (req, res) => {
 
   if(videoUrl !== null && videoUrl !== "" && !videoUrl.toLowerCase().startsWith("https://")) {
     return res.status(400).json({ error: "Video URL must start with https://" });
+  }
+
+  if(email !== null && email !== "" && !email.toLowerCase().endsWith("@durham.ac.uk")) {
+    return res.status(400).json({ error: "Email must end with @durham.ac.uk" });
   }
 
   if(descriptionEnabled === undefined) {
@@ -294,6 +298,7 @@ router.post("/role/update", async (req, res) => {
   role.description = description;
   role.videoUrl = videoUrl;
   role.descriptionEnabled = descriptionEnabled;
+  role.email = email;
 
   try {
     await role.save();
@@ -596,7 +601,8 @@ router.get("/committee/name/:name", async (req, res) => {
 
   const matches = {
     "welfare": "Welfare",
-    "exec": "Executive Committee"
+    "exec": "Executive Committee",
+    "tech": "Technical Crew"
   }
 
   if(!Object.keys(matches).includes(name)) {

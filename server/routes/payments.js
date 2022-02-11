@@ -15,7 +15,7 @@ const mailer = require("../utils/mailer");
 const dateFormat = require("dateformat")
 
 // Basic function to prepare an email to be sent
-const customerToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
+const customerToastieEmail = (user, orderId, toasties, extras) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
@@ -24,7 +24,7 @@ const customerToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
   message.push(`<h1>Order Received</h1>`);
   message.push(`<p>Hello ${firstName} ${lastName},</p>`);
   message.push(`<p>Your order has been confirmed and sent to the Toastie Bar.</p>`);
-  message.push(`<p>Table Number: ${Number(tableNumber) === 0 ? "Collection" : tableNumber}</p>`);
+  message.push(`<p>Please come and collect it in around 10 minutes (please note times may differ based on how busy the toastie bar is and this is only a guide).</p>`);
   message.push(`<h2>Order Details</h2>`);
 
   if(toasties.length !== 0) {
@@ -53,14 +53,14 @@ const customerToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
     message.push(`</ul>`);
   }
 
-  message.push(`<p>You will receive a receipt from Stripe confirming your payment.</p>`)
+  message.push(`<p>You will receive a receipt from Stripe confirming your payment.</p>`);
   message.push(`<p><strong>Thank you for your order!</strong></p>`);
 
   return message.join("");
 }
 
 // Basic function to prepare an email to be sent
-const staffToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
+const staffToastieEmail = (user, orderId, toasties, extras) => {
   let firstName = user.firstNames.split(",")[0];
   firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
   const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
@@ -69,7 +69,6 @@ const staffToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
   message.push(`<h1>Order Received</h1>`);
   message.push(`<p>Payment received at ${dateFormat(new Date(), "dd/mm/yyyy HH:MM")}</p>`);
   message.push(`<p>Ordered by: ${firstName} ${lastName}</p>`);
-  message.push(`<p>Table Number: ${Number(tableNumber) === 0 ? "Collection" : tableNumber}</p>`);
   message.push(`<h2>Order Details</h2>`);
 
   if(toasties.length !== 0) {
@@ -104,17 +103,11 @@ const staffToastieEmail = (user, orderId, toasties, extras, tableNumber) => {
 const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInformation, io) => {
   let extras = [];
   let toasties = [];
-  let firstTableNumber = -1;
 
   // Prepares the order to be sent to the toastie bar
   for(let i = 0; i < relatedOrders.length; i++) {
     const order = relatedOrders[i];
     const { id, additional } = order;
-    const tableNumber = JSON.parse(additional).tableNumber;
-
-    if(firstTableNumber === -1) {
-      firstTableNumber = tableNumber;
-    }
 
     let orderContent;
 
@@ -142,7 +135,7 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
     }
   }
 
-  const customerEmail = customerToastieEmail(user, orderId, toasties, extras, firstTableNumber);
+  const customerEmail = customerToastieEmail(user, orderId, toasties, extras);
   mailer.sendEmail(user.email, `Toastie Bar Order Confirmation`, customerEmail);
 
   let entry;
@@ -152,7 +145,7 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
     entry = await ToastieOrderTracker.create({
       orderId,
       completed: false,
-      tableNumber: Number(firstTableNumber)
+      tableNumber: 0
     });
   } catch (error) {
     console.log(error);
@@ -208,7 +201,6 @@ const fulfilToastieOrders = async (user, orderId, relatedOrders, deliveryInforma
     completed: false,
     id: orderId,
     displayName: `${firstName} ${lastName}`,
-    tableNumber: Number(firstTableNumber),
     createdAt: entry.createdAt,
     items
   });
@@ -326,10 +318,29 @@ const facsoGymEmail = (user, orderId, order) => {
 
   message.push(`<p>Name: ${firstName} ${lastName},</p>`);
   message.push(`<p>Username: ${user.username}</p>`);
-  message.push(`<p>Household: ${order.household === 0 || order.household === "0" ? "Liver Out" : order.household}</p>`);
-  message.push(`<p>Postcode: ${order.household === 0 || order.household === "0" ? order.postcode : "Liver In"}</p>`);
   message.push(`<p>Expires on ${dateFormat(order.expiresAt, "dd/mm/yyyy")}</p>`);
 
+  return message.join("");
+}
+
+const facsoParqGymEmail = (user, orderId, order, parq) => {
+  let firstName = user.firstNames.split(",")[0];
+  firstName = firstName.charAt(0).toUpperCase() + firstName.substr(1).toLowerCase();
+  const lastName = user.surname.charAt(0).toUpperCase() + user.surname.substr(1).toLowerCase();
+  let message = [];
+
+  message.push(`<p>Name: ${firstName} ${lastName},</p>`);
+  message.push(`<p>Username: ${user.username}</p>`);
+  message.push(`<p>Expires on ${dateFormat(order.expiresAt, "dd/mm/yyyy")}</p>`);
+
+  message.push(`<p>This person answered yes to the following questions:</p>`);
+  message.push(`<ul>`);
+
+  parq.forEach(q => {
+    message.push(`<li>${q}</li>`);
+  });
+
+  message.push(`</ul>`);
   return message.join("");
 }
 
@@ -353,11 +364,29 @@ const fulfilGymOrders = async (user, orderId, relatedOrders, deliveryInformation
     return;
   }
 
+  const parqResponses = JSON.parse(membershipRecord.parq);
+
+  // At least one yes has been answered
+  if(parqResponses.filter(p => Number(p) === 1).length !== 0) {
+    const parqQuestions = ["Do you have a heart condition that you should only do physical activity recommended by a doctor?", "Do you feel pain in your chest when you do physical activity?", "In the past month, have you had chest pain when not doing physical activity?", "Do you lose balance because of dizziness or do you ever lose consciousness?", "Do you have a bone or joint problem that could be worsened by a change in physical activity?", "Is your doctor currently prescribing medication for your blood pressure or heart condition?", "Do you know of any other reason why you shouldn’t take part in physical activity?"];
+
+    const failedQuestions = parqQuestions.reduce((acc, val, index) => {
+      if(Number(parqResponses[index]) === 1) {
+        acc.push(val);
+      }
+
+      return acc;
+    }, []);
+
+    const facsoParqEmail = facsoParqGymEmail(user, orderId, membershipRecord, failedQuestions);
+    mailer.sendEmail("grey.treasurer@durham.ac.uk", "Gym PARQ Failed", facsoParqEmail)
+  } else {
+    const facsoEmail = facsoGymEmail(user, orderId, membershipRecord);
+    mailer.sendEmail("grey.treasurer@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
+  }
+
   const customerEmail = customerGymEmail(user, orderId, membershipRecord);
   mailer.sendEmail(user.email, `Gym Membership Confirmation`, customerEmail);
-
-  const facsoEmail = facsoGymEmail(user, orderId, membershipRecord);
-  mailer.sendEmail("grey.treasurer@durham.ac.uk", "Gym Membership Purchased", facsoEmail)
 }
 
 // Basic function to prepare an email to be sent

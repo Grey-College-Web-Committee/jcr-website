@@ -12,6 +12,7 @@ const prepaidMemberships = require("../prepaid_memberships.json");
 const prepaidEmails = Object.keys(prepaidMemberships);
 const mailer = require("../utils/mailer");
 const { hasPermission } = require("../utils/permissionUtils.js");
+const argon2 = require("argon2");
 
 // Called when a POST request is to be served at /api/authentication/login
 router.post("/login", async (req, res) => {
@@ -46,32 +47,41 @@ router.post("/login", async (req, res) => {
   // https://www.dur.ac.uk/its/password/validator
   // Providing headers 'Authorization' = 'Basic {{base64 encoded string 'username:password'}}'
 
-  if(username !== "nonmem" && username !== "test11" && username !== "test22" && username !== "test33") {
-    const details = Buffer.from(`${username}:${password}`);
-    const b64data = details.toString("base64");
-    const authHeader = `Basic ${b64data}`;
 
-    try {
-      // Query the validator and wait for its response.
-      // If we get a non 2XX code it will error and proceed to the catch.
-      await axios.get("https://www.dur.ac.uk/its/password/validator", {
-        headers: {
-          Authorization: authHeader
-        }
-      });
-    } catch (error) {
-      // Details were incorrect or maybe a server error
-      const status = error.response.status;
+  if(user.password !== null) {
+    const correctPassword = await argon2.verify(user.password, password);
 
-      if(status === 401) {
-        return res.status(401).json({ message: "Incorrect username or password" });
-      }
-
-      return res.status(status).json({ message: "Validation error" });
+    if(!correctPassword) {
+      return res.status(401).json({ message: "Incorrect username or password" });
     }
   } else {
-    if(password !== process.env.NON_MEMBER_PASSWORD) {
-      return res.status(401).json({ message: "Incorrect username or password" });
+    if(username !== "nonmem" && username !== "test11" && username !== "test22" && username !== "test33") {// && username !== "test11" && username !== "test22" && username !== "test33") {
+      const details = Buffer.from(`${username}:${password}`);
+      const b64data = details.toString("base64");
+      const authHeader = `Basic ${b64data}`;
+
+      try {
+        // Query the validator and wait for its response.
+        // If we get a non 2XX code it will error and proceed to the catch.
+        await axios.get("https://www.dur.ac.uk/its/password/validator", {
+          headers: {
+            Authorization: authHeader
+          }
+        });
+      } catch (error) {
+        // Details were incorrect or maybe a server error
+        const status = error.response.status;
+
+        if(status === 401) {
+          return res.status(401).json({ message: "Incorrect username or password" });
+        }
+
+        return res.status(status).json({ message: "Validation error" });
+      }
+    } else {
+      if(password !== process.env.NON_MEMBER_PASSWORD) {
+        return res.status(401).json({ message: "Incorrect username or password" });
+      }
     }
   }
 
@@ -474,7 +484,8 @@ const prepareDeniedEmail = (username) => {
   return [
     `<p>Hello ${username},</p>`,
     "<p>Your application for membership to the Grey JCR website has been denied.</p>",
-    "<p>For more information, please respond to this email.</p>",
+    "<p>For more information, please contact grey.website@durham.ac.uk.</p>",
+    "<p>Please do not respond to this email as this email is not monitored and emails to this address are automatically deleted.</p>",
     "<p>Thank you.</p>"
   ].join("");
 }

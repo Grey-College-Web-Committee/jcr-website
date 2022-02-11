@@ -1,5 +1,6 @@
 const { User, ToastieOrderTracker, ShopOrder, ShopOrderContent, ToastieOrderContent, ToastieStock, PersistentVariable } = require("../database.models.js");
 const { hasPermission } = require("../utils/permissionUtils.js");
+const { Op } = require("sequelize");
 
 const makeDisplayName = (user) => {
   const upperCaseFirstName = user.firstNames.split(",")[0];
@@ -69,13 +70,16 @@ const setupEvents = (socket, io) => {
     // Subscribe to the toastie ordering room
     socket.join("toastieOrderClients");
 
-    // Get all of the non-completed orders
-    let existingOrders;
+    let allNightOrders;
+
+    const startOfDay = new Date().setHours(0, 0, 0, 0);
 
     try {
-      existingOrders = await ToastieOrderTracker.findAll({
+      allNightOrders = await ToastieOrderTracker.findAll({
         where: {
-          completed: false
+          createdAt: {
+            [Op.gt]: startOfDay
+          }
         },
         include: [
           {
@@ -102,9 +106,9 @@ const setupEvents = (socket, io) => {
       return {};
     }
 
-    // Process the existing orders into a better format
-    const transformedOrders = existingOrders.map(order => {
-      const { orderId, completed, tableNumber, createdAt, ShopOrder } = order;
+    // Process the all the orders into a better format
+    const transformedNightOrders = allNightOrders.map(order => {
+      const { orderId, completed, createdAt, ShopOrder } = order;
       const { User, ShopOrderContents } = ShopOrder;
 
       const items = ShopOrderContents.map(sub => {
@@ -128,7 +132,7 @@ const setupEvents = (socket, io) => {
       const displayName = makeDisplayName(User);
 
       return {
-        id: orderId, completed, tableNumber, createdAt, displayName, items
+        id: orderId, completed, createdAt, displayName, items
       }
     });
 
@@ -141,7 +145,7 @@ const setupEvents = (socket, io) => {
     }
 
     // open to do
-    socket.emit("toastieInitialData", { transformedOrders, open: toastieOpenRecord.booleanStorage });
+    socket.emit("toastieInitialData", { allNightOrders: transformedNightOrders, open: toastieOpenRecord.booleanStorage });
   });
 
   socket.on("markToastieOrderCompleted", async (data) => {

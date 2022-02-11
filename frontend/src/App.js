@@ -16,6 +16,10 @@ import LogoutPage from './components/accounts/LogoutPage';
 import RegisterPage from './components/accounts/register/RegisterPage';
 import AdminApprovePage from './components/accounts/register/AdminApprovePage';
 
+import AlumniRegisterPage from './components/accounts/alumni/AlumniRegisterPage';
+import VerifyAlumniPage from './components/accounts/alumni/VerifyAlumniPage';
+import AdminApproveAlumniPage from './components/accounts/alumni/AdminApproveAlumniPage'
+
 import ErrorPage from './components/errors/ErrorPage';
 import HomePage from './components/home/HomePage';
 import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
@@ -25,6 +29,7 @@ import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
 import DebtPage from './components/debt/DebtPage';
 import GymInformationPage from './components/gym/GymInformationPage';
 import GymTermsPage from './components/gym/GymTermsPage';
+import GymInductionPage from './components/gym/GymInductionPage';
 import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
 import WelfarePage from './components/welfare/WelfarePage';
 import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage';
@@ -52,20 +57,20 @@ import SwappingAdminPage from './components/swapping/SwappingAdminPage';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
 
-import BarOrderingPage from './components/bar/BarOrderingPage';
-import ViewBarItemPage from './components/bar/ViewBarItemPage';
-import BarBookingPage from './components/bar/book/BarBookingPage';
+// import BarOrderingPage from './components/bar/BarOrderingPage';
+// import ViewBarItemPage from './components/bar/ViewBarItemPage';
+// import BarBookingPage from './components/bar/book/BarBookingPage';
 
 // To add a new page import it like above
 
-import BarAdminManageDrinks from './components/bar/admin/BarAdminManageDrinks';
-import BarAdminManageMixers from './components/bar/admin/BarAdminManageMixers';
-import BarAdminManageSizes from './components/bar/admin/BarAdminManageSizes';
-import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
-import BarAdminOverview from './components/bar/admin/BarAdminOverview';
-import BarAdminLive from './components/bar/admin/live/BarAdminLive';
-import BarAdminViewBookings from './components/bar/admin/BarAdminViewBookings';
-import BarAdminManageCordials from './components/bar/admin/BarAdminManageCordials';
+// import BarAdminManageDrinks from './components/bar/admin/BarAdminManageDrinks';
+// import BarAdminManageMixers from './components/bar/admin/BarAdminManageMixers';
+// import BarAdminManageSizes from './components/bar/admin/BarAdminManageSizes';
+// import BarAdminManageTypes from './components/bar/admin/BarAdminManageTypes';
+// import BarAdminOverview from './components/bar/admin/BarAdminOverview';
+// import BarAdminLive from './components/bar/admin/live/BarAdminLive';
+// import BarAdminViewBookings from './components/bar/admin/BarAdminViewBookings';
+// import BarAdminManageCordials from './components/bar/admin/BarAdminManageCordials';
 
 import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
 import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
@@ -85,6 +90,7 @@ import ElectionEditPage from './components/elections/portal/ElectionEditPage';
 import WelfareAdminOverviewPage from './components/welfare/message/admin/WelfareAdminOverviewPage';
 import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
 import MediaPage from './components/media/MediaViewPage';
+import ViewImagesPage from './components/media/ViewImagesPage';
 import MediaAdminPage from './components/media/MediaAdminPage';
 
 import ComplaintsAdminOverview from './components/complaints/ComplaintsAdminOverview';
@@ -109,6 +115,7 @@ import MyProfile from './components/profile/MyProfile';
 import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage';
 import JCRFileListingPage from './components/jcr/files/JCRFileListingPage';
 import JCRTrustPage from './components/jcr/trust/JCRTrustPage';
+import ExecsAndAwardsPage from './components/jcr/roles/ExecsAndAwardsPage';
 
 import CreateNewCommitteePage from './components/jcr/roles/admin/CreateNewCommitteePage';
 import CreateNewRolePage from './components/jcr/roles/admin/CreateNewRolePage';
@@ -397,6 +404,15 @@ class App extends React.Component {
                     <Route exact path="/accounts/register" render={(props) => (
                       this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <RegisterPage {...props} /> )
                     )} />
+                    <Route exact path="/alumni/register" render={(props) => (
+                      this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <AlumniRegisterPage {...props} /> )
+                    )} />
+                    <Route exact path="/alumni/verify/:token" render={(props) => (
+                      this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <VerifyAlumniPage {...props} /> )
+                    )} />
+                    <Route exact path="/alumni/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("users.manage") ? ( <AdminApproveAlumniPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/alumni/admin") )
+                    )} />
                     <Route exact path="/accounts/login" render={(props) => (
                       this.isLoggedIn() ? ( <Redirect to={this.state.ref} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )
                     )} />
@@ -440,6 +456,9 @@ class App extends React.Component {
                     <Route exact path="/media" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media") )
                     )} />
+                    <Route exact path="/media/images" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewImagesPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media/images") )
+                    )} />
                     <Route exact path="/media/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/media/admin") )
                     )} />
@@ -451,6 +470,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/gym" render={() => (
                       this.isLoggedIn() ? ( <GymInformationPage /> ) : ( this.loginRef("/gym") )
+                    )} />
+                    <Route exact path="/gym/induction" render={() => (
+                      this.isLoggedIn() ? ( <GymInductionPage /> ) : ( this.loginRef("/gym/induction") )
                     )} />
                     <Route exact path="/gym/terms" render={() => (
                       this.isLoggedIn() ? ( <GymTermsPage /> ) : ( this.loginRef("/gym/terms") )
@@ -549,7 +571,7 @@ class App extends React.Component {
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsMyBookingsOverview /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/my/bookings") )
                     )} />
                     <Route exact path="/my/ticket/:ticketId" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsMyBookingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/my/ticket/${props.ticketId}`) )
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsMyBookingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/my/ticket/${props.match.params.ticketId}`) )
                     )} />
                     <Route exact path="/events/swapping" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <SwappingPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/swapping") )
@@ -584,41 +606,8 @@ class App extends React.Component {
                     <Route exact path="/feedback/view/:id" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/feedback/view/${props.id}`) )
                     )} />
-                    <Route exact path="/bar/" render={() => (
-                      this.isLoggedIn() ? ( <BarOrderingPage disableScroll={this.disableBodyScroll} /> ) : ( this.loginRef("/bar") )
-                    )} />
-                    <Route exact path="/bar/view/:id" render={(props) => (
-                      this.isLoggedIn() ? ( <ViewBarItemPage {...props} /> ) : ( this.loginRef(`/bar/view/${props.id}`) )
-                    )} />
-                    <Route exact path="/bar/book" render={() => (
-                      this.isLoggedIn() ? ( <BarBookingPage /> ) : ( this.loginRef("/bar/book") )
-                    )} />
-                    <Route exact path="/bar/admin/overview" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/overview") )
-                    )} />
-                    <Route exact path="/bar/admin/mixers" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageMixers /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/mixers") )
-                    )} />
-                    <Route exact path="/bar/admin/sizes" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageSizes /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/sizes") )
-                    )} />
-                    <Route exact path="/bar/admin/types" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageTypes /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/types") )
-                    )} />
-                    <Route exact path="/bar/admin/drinks" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageDrinks /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/drinks") )
-                    )} />
-                    <Route exact path="/bar/admin/cordials" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminManageCordials /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/cordials") )
-                    )} />
-                    <Route exact path="/bar/admin/live" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/live") )
-                    )} />
-                    <Route exact path="/bar/admin/bookings" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("bar.manage") ? ( <BarAdminViewBookings /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/bar/admin/bookings") )
-                    )} />
                     <Route exact path="/jcr/committees" render={(props) => (
-                      <ViewCommitteesPage {...props} />
+                      <ViewCommitteesPage {...props} disableBodyScroll={this.disableBodyScroll} />
                     )} />
                     <Route exact path="/jcr/committees/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewCommitteePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees/manage") )
@@ -628,6 +617,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/jcr/files" render={() => (
                       <JCRFileListingPage />
+                    )} />
+                    <Route exact path="/jcr/execs-and-awards" render={() => (
+                      <ExecsAndAwardsPage />
                     )} />
                     <Route exact path="/jcr/files/manage" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("jcr.files") ? ( <ManageJCRFilesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files/manage") )

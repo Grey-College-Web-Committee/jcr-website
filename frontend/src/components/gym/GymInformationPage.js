@@ -11,38 +11,14 @@ class GymInformationPage extends React.Component {
   constructor(props) {
     super(props);
 
-    this.cart = new Cart();
     this.state = {
       isMember: true,
       loaded: false,
       status: 0,
       error: "",
       content: [],
-      termsOfUse: false,
-      parq: false,
-      induction: false,
-      householdHas: false,
-      inBasket: this.cart.get().items.filter(item => item.shop === "gym").length !== 0,
-      householdNumber: "",
-      currentGalleryImage: 0,
-      postcode: ""
+      currentGalleryImage: 0
     };
-
-    this.membershipOptions = [
-      {
-        price: 20,
-        nonMemberPrice: 30,
-        name: "Easter Term Gym Membership",
-        image: "/images/gym/dumbbell.png",
-        description: "(expires 25/06/2021)",
-        displayName: "Easter Term Gym Membership",
-        submissionInformation: {
-          type: "single_term"
-        }
-      }
-    ];
-
-    this.validHouseholdNumbers = [...Array(28).keys()].map(i => i + 1);
   }
 
   // Basic function to change the state for any text-based input
@@ -126,176 +102,6 @@ class GymInformationPage extends React.Component {
     this.setState({ loaded: true, status: 200, membership: content.data.membership, isMember });
   }
 
-  renderPurchaseDiv = () => {
-    const { membership } = this.state;
-
-    return (
-      <React.Fragment>
-        <h2 className="text-4xl font-semibold pb-2 text-left">Purchase Membership</h2>
-        <div className="flex flex-row">
-          <div className="flex flex-col text-left">
-            <div className="pb-2">
-              <p className="py-1">You must agree to the following conditions before you are able to add a membership to your cart.</p>
-              <p className="py-1">Please read the Terms of Use by clicking the red text below.</p>
-              <p className="py-1 font-semibold">Selected Household: {this.state.householdNumber === "0" || this.state.householdNumber === 0 ? "Liver Out" : this.state.householdNumber}</p>
-            </div>
-            {
-              this.state.householdNumber === "0" || this.state.householdNumber === 0 ? (
-                <div className="pb-2">
-                  <label className="mr-2">Postcode:</label>
-                  <input
-                    type="text"
-                    name="postcode"
-                    value={this.state.postcode}
-                    onChange={this.onInputChange}
-                    className="w-full md:w-80 border rounded py-1 px-2 border-gray-400 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-                    placeholder="Please enter your Durham postcode"
-                    disabled={this.props.disabled}
-                    autoComplete="postcode"
-                  />
-                </div>
-              ) : null
-            }
-            <div className="pb-2 border-b-2 flex flex-row items-center justify-between">
-              <label htmlFor="termsOfUse">I accept the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link></label>
-              <div className="flex flex-col items-center justify-center ml-2">
-                <input
-                  type="checkbox"
-                  name="termsOfUse"
-                  checked={this.state.termsOfUse}
-                  onChange={this.onInputChange}
-                  className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                  disabled={this.state.inBasket}
-                  autoComplete=""
-                />
-              </div>
-            </div>
-            <div className="pt-2 pb-2 border-b-2 flex flex-row items-center justify-between">
-              <label htmlFor="parq">I have completed an accurate PARQ Health Declaration</label>
-              <div className="flex flex-col items-center justify-center ml-2">
-                <input
-                  type="checkbox"
-                  name="parq"
-                  checked={this.state.parq}
-                  onChange={this.onInputChange}
-                  className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                  disabled={this.state.inBasket}
-                  autoComplete=""
-                />
-              </div>
-            </div>
-            <div className="pt-2 pb-2 border-b-2 flex flex-row items-center justify-between">
-              <label htmlFor="induction">I have completed the online DUO induction training and quiz (with 100% pass mark)</label>
-              <div className="flex flex-col items-center justify-center ml-2">
-                <input
-                  type="checkbox"
-                  name="induction"
-                  checked={this.state.induction}
-                  onChange={this.onInputChange}
-                  className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                  disabled={this.state.inBasket}
-                  autoComplete=""
-                />
-              </div>
-            </div>
-            <div className="pt-2 pb-2 border-b-2 flex flex-row items-center justify-between">
-              <label htmlFor="householdHas">There is somebody else in my household that would like to buy a gym membership or already has purchased one</label>
-              <div className="flex flex-col items-center justify-center ml-2">
-                <input
-                  type="checkbox"
-                  name="householdHas"
-                  checked={this.state.householdHas}
-                  onChange={this.onInputChange}
-                  className="p-2 h-8 w-8 align-middle mx-auto rounded border border-black focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
-                  disabled={this.state.inBasket}
-                  autoComplete=""
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-row flex-wrap w-full justify-center">
-          {
-            this.membershipOptions.map((option, i) => (
-              <GenericCartableItem
-                price={this.state.isMember ? option.price : option.nonMemberPrice}
-                name={option.name}
-                image={option.image}
-                description={option.description}
-                cartData={{
-                  shop: "gym",
-                  name: option.displayName,
-                  basePrice: this.state.isMember ? option.price : option.nonMemberPrice,
-                  quantity: 1,
-                  submissionInformation: option.submissionInformation,
-                  components: [
-                    {
-                      name: this.state.householdNumber === "0" || this.state.householdNumber === 0 ? "Liver Out" : `Household ${this.state.householdNumber}`,
-                      price: 0,
-                      quantity: 1,
-                      submissionInformation: {
-                        type: "household",
-                        value: this.state.householdNumber
-                      }
-                    },
-                    {
-                      name: `Postcode: ${this.state.householdNumber === "0" || this.state.householdNumber === 0 ? this.state.postcode.substring(0, 10) : "N/A"}`,
-                      price: 0,
-                      quantity: 1,
-                      submissionInformation: {
-                        type: "postcode",
-                        value: this.state.postcode.substring(0, 10)
-                      }
-                    }
-                  ],
-                  image: option.image,
-                  upperLimit: 1
-                }}
-                disabled={membership !== null || !this.state.termsOfUse || !this.state.parq || !this.state.induction || !this.state.householdHas || ((this.state.householdNumber === "0" || this.state.householdNumber === 0) && this.state.postcode.length < 6)}
-                buttonText={membership !== null ? "Already Purchased" : "Add To Bag"}
-                disableOnCondition={(items) => {
-                  return items.filter(item => item.shop === "gym").length !== 0;
-                }}
-                callback={() => {
-                  this.setState({ inBasket: true })
-                }}
-              />
-            ))
-          }
-        </div>
-      </React.Fragment>
-    );
-  }
-
-  renderHouseholdDiv = () => {
-    return (
-      <React.Fragment>
-        <h2 className="font-semibold text-4xl pb-2 text-left">Purchase Membership</h2>
-        <p className="py-1">As part of the <Link to="/gym/terms"><span className="underline font-semibold text-red-700">Terms of Use of Grey College Gym</span></Link>, at least one other member of your household must be using the gym with you. Please specify your household number below. This will be used to check that at least two members of the same household have a membership once the gym opens.</p>
-        <p className="py-1">Once you have selected your household number you will be able to purchase a membership. If you select the wrong household number you will need to refresh the page!</p>
-        <div className="flex flex-col w-auto my-2">
-          <p className="mb-2 text-2xl font-semibold">Select your household number</p>
-          <p className="pb-2">If you already have a membership in your cart then it will be automatically removed when you select a household.</p>
-          <select
-            name="householdNumber"
-            className="w-64 h-8 border border-gray-400 disabled:opacity-50"
-            onChange={this.onInputChange}
-            value={this.state.householdNumber}
-            disabled={this.state.disabled}
-          >
-            <option disabled={true} hidden={true} value="">Please choose an option...</option>
-            <option value={0}>Liver Out</option>
-            {
-              this.validHouseholdNumbers.map(no => (
-                <option value={no}>Household {no}</option>
-              ))
-            }
-          </select>
-        </div>
-      </React.Fragment>
-    )
-  }
-
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -306,20 +112,6 @@ class GymInformationPage extends React.Component {
 
       return (
         <LoadingHolder />
-      );
-    }
-
-    // Temporary locking measures
-    const locked = false;
-
-    if(locked) {
-      return (
-        <div className="flex flex-col justify-start">
-          <div className="container mx-auto text-center p-4">
-            <h1 className="font-semibold text-5xl pb-4">Grey Gym</h1>
-            <p className="text-xl mb-2">Unfortunately, Grey Gym is closed due to coronavirus restrictions currently in place in Durham.</p>
-          </div>
-        </div>
       );
     }
 
@@ -335,21 +127,31 @@ class GymInformationPage extends React.Component {
     if(membership !== null) {
       displayedPurchaseDiv = (
         <React.Fragment>
-          <h2 className="text-4xl font-semibold pb-2">Your Membership</h2>
-          <p className="py-1">You already have an active gym membership. If you want to renew your membership you can do so on this page once your current one expires! If you have any queries please contact the FACSO, Will, using the email above.</p>
+          <h2 className="text-4xl font-semibold mb-1">Your Membership</h2>
+          <p className="py-1">You already have an active gym membership. If you want to renew your membership you can do so on this page once your current one expires. If you have any queries please contact the FACSO using the email above.</p>
           <div className="text-left my-2 text-lg">
             <p>Expires On: {dateFormat(new Date(membership.expiresAt), "dd/mm/yyyy")}</p>
             <p>Type: {resolvedType[membership.type]}</p>
-            <p>Household: {membership.household === 0 ? `Liver Out (Postcode: ${membership.postcode})` : membership.household}</p>
           </div>
         </React.Fragment>
       );
     } else {
-      if(householdNumber === "") {
-        displayedPurchaseDiv = this.renderHouseholdDiv();
-      } else {
-        displayedPurchaseDiv = this.renderPurchaseDiv();
-      }
+      displayedPurchaseDiv = (
+        <div>
+          <h2 className="text-4xl font-semibold mb-1">Purchase Membership</h2>
+          <p className="py-1">Prior to purchasing a membership you must complete the online induction which involves watching the gym induction video, completing a short multiple choice quiz (about information provided in the video), and you completing a physical activity readiness questionnaire (PAR-Q). Please click the button below to begin the process. At the end of the induction to purchase a membership, the prices are:</p>
+          <ul className="my-2 list-inside list-disc">
+            <li>Michaelmas Term £18 (£23 for non-JCR members) (discounted due to delayed opening)</li>
+            <li>Individual Epiphany / Easter Term £22 per term (£27 for non-JCR members)</li>
+            <li>Whole Year £50 (£70 for non-JCR members)</li>
+          </ul>
+          <Link to="/gym/induction">
+            <button
+              className="my-1 p-2 text-xl bg-red-900 text-white w-full"
+            >Begin Induction</button>
+          </Link>
+        </div>
+      )
     }
 
     return (
@@ -364,12 +166,10 @@ class GymInformationPage extends React.Component {
               <li>-	<span className="font-semibold">Henry Dyson Room (Weights Room)</span> – complete with: Cable Station, Squat Rack and Treadmill.</li>
             </ul>
             <p className="py-1">The Gym Opening Times are from <span className="font-semibold">09:00 until 22:00, 7 days per week.</span></p>
-            <p className="py-1">For Easter Term 2021, users of the gym will need their ‘household leader’ to book ‘household’ gym slots as, unfortunately, the gym is too small to offer individual socially distanced exercise. Therefore, there must be a minimum of 2 people in your ‘household’ with an active gym membership.</p>
             <p className="py-1">Please be considerate to residents living above the Gym by not playing loud music early in the morning and evening.</p>
-            <p className="py-1 font-semibold">Gym members will need to complete the DUO induction training, quiz and PARQ form before being granted access to the Gym. DUO > Grey College > Grey JCR > Grey College Gym</p>
-            <p className="py-1">The Gym is run and equipment owned by the JCR, please contact the FACSO, Will, at <a href="mailto:grey.treasurer@durham.ac.uk" className="underline font-semibold" target="_blank" rel="noopener noreferrer">grey.treasurer@durham.ac.uk</a> with any questions.</p>
+            <p className="py-1">The Gym is run and equipment owned by the JCR, please contact the FACSO at <a href="mailto:grey.treasurer@durham.ac.uk" className="underline font-semibold" target="_blank" rel="noopener noreferrer">grey.treasurer@durham.ac.uk</a> with any questions.</p>
           </div>
-          <div className="flex flex-col mx-2 lg:flex-row lg:mx-0 mt-2">
+          <div className="flex flex-col mx-2 lg:flex-row lg:mx-0 my-2">
             <div className="flex flex-col flex-1">
               <div className="flex flex-row justify-center">
                 <div>

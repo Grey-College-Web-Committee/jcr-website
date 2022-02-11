@@ -80,6 +80,11 @@ class NavBar extends React.Component {
               url: "/mcr",
               requiredPermission: null
             },
+            {
+              displayName: "Execs and Awards",
+              url: "/jcr/execs-and-awards",
+              requiredPermission: null
+            }
           ],
         },
         {
@@ -169,6 +174,11 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
+              displayName: "Execs and Awards",
+              url: "/jcr/execs-and-awards",
+              requiredPermission: null
+            },
+            {
               displayName: "Media",
               url: "/media",
               requiredPermission: "jcr.member"
@@ -187,7 +197,7 @@ class NavBar extends React.Component {
               displayName: "Make a Complaint",
               url: "/complaints",
               requiredPermission: null
-            },
+            }
           ],
         },
         {
@@ -255,7 +265,18 @@ class NavBar extends React.Component {
           url: "/events",
           requiredPermission: "jcr.member",
           staticImage: null,
-          dropdown: null,
+          dropdown: [
+            {
+              displayName: "Book",
+              url: "/events",
+              requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "Photos",
+              url: "/media/images",
+              requiredPermission: "jcr.member"
+            }
+          ],
           alwaysDisplayed: null
         },
         {
@@ -264,25 +285,6 @@ class NavBar extends React.Component {
           requiredPermission: "debt.has",
           staticImage: null,
           dropdown: null,
-          alwaysDisplayed: null
-        },
-        {
-          displayName: "Bar",
-          url: null,
-          requiredPermission: null,
-          staticImage: null,
-          dropdown: [
-            {
-              displayName: "Order",
-              url: "/bar",
-              requiredPermission: null
-            },
-            {
-              displayName: "Book",
-              url: "/bar/book",
-              requiredPermission: null
-            }
-          ],
           alwaysDisplayed: null
         },
         {
@@ -366,11 +368,6 @@ class NavBar extends React.Component {
               requiredPermission: "feedback.manage"
             },
             {
-              displayName: "Manage Bar",
-              url: "/bar/admin/overview",
-              requiredPermission: "bar.manage"
-            },
-            {
               displayName: "Manage Toasties",
               url: "/toasties/admin",
               requiredPermission: "toastie.stock.edit"
@@ -389,6 +386,11 @@ class NavBar extends React.Component {
               displayName: "Manage Swapping",
               url: "/events/swapping/admin",
               requiredPermission: "events.swapping"
+            },
+            {
+              displayName: "Manage Alumni",
+              url: "/alumni/admin",
+              requiredPermission: "users.manage"
             }
           ],
           alwaysDisplayed: false

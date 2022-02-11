@@ -12,7 +12,7 @@ const CronJob = require("cron").CronJob;
 
 // Routes and database models
 
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication, SwappingCredit, SwappingCreditLog, SwappingPair } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication, SwappingCredit, SwappingCreditLog, SwappingPair, PendingAlumniApplication } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sharedSession = require("express-socket.io-session");
@@ -38,6 +38,7 @@ const jcrRoute = require("./routes/jcr");
 const profileRoute = require("./routes/profile");
 const sportsAndSocsRoute = require("./routes/sportsandsocs");
 const swappingRoute = require("./routes/swapping");
+const alumniRoute = require("./routes/alumni");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -327,6 +328,7 @@ const requiredPermissions = [
   await SportAndSoc.sync();
 
   await PendingUserApplication.sync();
+  await PendingAlumniApplication.sync();
 
   await SwappingCredit.sync();
   await SwappingCreditLog.sync();
@@ -455,6 +457,7 @@ app.use("/api/jcr", jcrRoute);
 app.use("/api/profile", isLoggedIn, profileRoute);
 app.use("/api/sportsandsocs", sportsAndSocsRoute);
 app.use("/api/swapping", isLoggedIn, swappingRoute);
+app.use("/api/alumni", alumniRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
