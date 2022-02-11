@@ -6,7 +6,7 @@
 const express = require("express");
 const router = express.Router();
 
-const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking, Debt, ToastieOrderTracker } = require("../database.models.js");
+const { User, Address, ToastieOrder, ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrder, StashStock, StashColours, StashOrderCustomisation, GymMembership, Permission, PermissionLink, EventTicket, EventGroupBooking, Debt, ToastieOrderTracker, SwappingCredit, SwappingCreditLog } = require("../database.models.js");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
@@ -827,6 +827,59 @@ const fulfilOrderProcessors = {
   "debt": fulfilDebtOrders
 }
 
+const processSwappingDonation = async (amount, userId) => {
+  let user;
+
+  try {
+    user = await User.findOne({ where: { id: userId } });
+  } catch (error) {
+    return false;
+  }
+
+  // Get their credit record
+  let creditRecord;
+  let created;
+
+  try {
+    [creditRecord, created] = await SwappingCredit.findOrCreate({
+      where: {
+        userId: user.id
+      },
+      defaults: {
+        userId: user.id,
+        credit: 0
+      }
+    });
+  } catch (error) {
+    return false;
+  }
+
+  // Give them their credit
+  creditRecord.credit = Number(creditRecord.credit) + Number(amount);
+
+  try {
+    await creditRecord.save();
+  } catch (error) {
+    return false;
+  }
+
+  // Log the transaction
+
+  try {
+    await SwappingCreditLog.create({
+      userId: user.id,
+      amount,
+      type: "donation"
+    });
+  } catch (error) {
+    return false;
+  }
+
+  // TODO: Send by websocket back
+
+  return true;
+}
+
 // bodyParser is needed as otherwise Stripe isn't able to verify the signature which is important
 router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
@@ -861,6 +914,20 @@ router.post("/webhook", bodyParser.raw({ type: "application/json" }), async (req
 
         if(emailResult.status !== 200 || emailResult.status !== 204) {
           return res.status(emailResult.status).json({ error: emailResult.error });
+        }
+
+        return res.status(204).end();
+      }
+
+      // Seat swapping donation instead
+      if(paymentIntent.metadata.hasOwnProperty("swapping")) {
+        const { amount, metadata } = paymentIntent;
+        const { userId } = metadata;
+
+        const success = await processSwappingDonation(amount, userId);
+
+        if(!success) {
+          return res.status(500).end();
         }
 
         return res.status(204).end();

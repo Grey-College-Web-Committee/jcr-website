@@ -383,6 +383,11 @@ class NavBar extends React.Component {
               requiredPermission: "users.manage"
             },
             {
+              displayName: "Manage Swapping",
+              url: "/events/swapping/admin",
+              requiredPermission: "events.swapping"
+            },
+            {
               displayName: "Manage Alumni",
               url: "/alumni/admin",
               requiredPermission: "users.manage"

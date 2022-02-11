@@ -12,7 +12,7 @@ const CronJob = require("cron").CronJob;
 
 // Routes and database models
 
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication, PendingAlumniApplication } = require("./database.models.js");
+const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication, SwappingCredit, SwappingCreditLog, SwappingPair, PendingAlumniApplication } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sharedSession = require("express-socket.io-session");
@@ -37,6 +37,7 @@ const barRoute = require("./routes/bar");
 const jcrRoute = require("./routes/jcr");
 const profileRoute = require("./routes/profile");
 const sportsAndSocsRoute = require("./routes/sportsandsocs");
+const swappingRoute = require("./routes/swapping");
 const alumniRoute = require("./routes/alumni");
 
 // Required to deploy the static React files for production
@@ -51,7 +52,7 @@ const eventsCron = require("./cron/events_cron");
 const app = express();
 
 const http = require("http").Server(app);
-const io = require("socket.io")(http, { transports: [ "websocket" ] });
+const io = require("socket.io")(http);//, { transports: [ "websocket" ] });
 
 if(process.env.NODE_ENV === "production") {
   console.log("Production Mode: Setting redis sockets");
@@ -67,10 +68,12 @@ if(process.env.NODE_ENV === "production") {
 
 const barSocket = require("./sockets/bar_socket");
 const toastieSocket = require("./sockets/toastie_socket");
+const swappingSocket = require("./sockets/swapping_socket");
 
 io.on("connection", socket => {
   barSocket.setupEvents(socket, io);
   toastieSocket.setupEvents(socket, io);
+  swappingSocket.setupEvents(socket, io);
 });
 
 // Tells express to recognise incoming requests as JSON
@@ -239,11 +242,16 @@ const requiredPermissions = [
     name: "Manage Users",
     description: "Allows a user to approve and reject registration applications",
     internal: "users.manage"
+  },
+  {
+    name: "Manage Swapping",
+    description: "Allows a user to control formal swapping",
+    internal: "events.swapping"
   }
 ];
 
 // Initialise the tables
-(async() => {
+(async () => {
   await sequelizeSessionStore.sync();
 
   await User.sync();
@@ -322,6 +330,10 @@ const requiredPermissions = [
   await PendingUserApplication.sync();
   await PendingAlumniApplication.sync();
 
+  await SwappingCredit.sync();
+  await SwappingCreditLog.sync();
+  await SwappingPair.sync();
+
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
       where: {
@@ -374,6 +386,16 @@ const requiredPermissions = [
       booleanStorage: false
     }
   });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "SWAPPING_OPEN"
+    },
+    defaults: {
+      key: "SWAPPING_OPEN",
+      booleanStorage: false
+    }
+  })
 })();
 
 console.log("NODE_APP_INSTANCE:", process.env.NODE_APP_INSTANCE);
@@ -434,6 +456,7 @@ app.use("/api/bar", isLoggedIn, barRoute);
 app.use("/api/jcr", jcrRoute);
 app.use("/api/profile", isLoggedIn, profileRoute);
 app.use("/api/sportsandsocs", sportsAndSocsRoute);
+app.use("/api/swapping", isLoggedIn, swappingRoute);
 app.use("/api/alumni", alumniRoute);
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
