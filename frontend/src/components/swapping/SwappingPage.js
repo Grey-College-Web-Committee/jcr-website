@@ -87,7 +87,7 @@ class SwappingPage extends React.Component {
     })
 
     const protocol = window.location.protocol.toLowerCase() === "https:" ? "wss" : "ws";
-    this.socket = socketIOClient(`${protocol}://${window.location.host}`);//, { transports: [ "websocket" ]});
+    this.socket = socketIOClient(`${protocol}://${window.location.host}`, { transports: [ "websocket" ]});
     this.socket.emit("subscribeToSwap", {});
 
     // Called when swapInitialPositions is received on initial connection
