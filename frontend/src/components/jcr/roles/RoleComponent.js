@@ -88,7 +88,7 @@ class RoleComponent extends React.Component {
               <button
                 onClick={() => {
                   this.setState({ descriptionVisible: !this.state.descriptionVisible && this.props.clickable });
-                  this.props.disableBodyScroll(!this.state.descriptionVisible);
+                  // this.props.disableBodyScroll(!this.state.descriptionVisible);
                 }}
                 className="px-4 py-1 rounded bg-red-900 text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
               >Close</button>
@@ -206,7 +206,7 @@ class RoleComponent extends React.Component {
             onClick={() => {
               if(this.props.role.descriptionEnabled && this.props.clickable) {
                 this.setState({ descriptionVisible: !this.state.descriptionVisible });
-                this.props.disableBodyScroll(!this.state.descriptionVisible);
+                // this.props.disableBodyScroll(!this.state.descriptionVisible);
               }
             }}
           >
@@ -237,7 +237,7 @@ class RoleComponent extends React.Component {
           onClick={() => {
             if(this.props.role.descriptionEnabled && this.props.clickable) {
               this.setState({ descriptionVisible: !this.state.descriptionVisible });
-              this.props.disableBodyScroll(!this.state.descriptionVisible);
+              // this.props.disableBodyScroll(!this.state.descriptionVisible);
             }
           }}
         >
