@@ -1,5 +1,15 @@
 [
   {
+    "desktop_title": "Post-Offer Days",
+    "mobile_title": "Post-Offer Days",
+    "description_text": "",
+    "button_text": "Find out more →",
+    "button_link": "/applicants",
+    "button_target": "_self",
+    "image": "/images/home/desktop_applicants_banner.jpg",
+    "mobile_image": "/images/home/mobile_applicants_banner.jpg"
+  },
+  {
     "desktop_title": "Grey JCR",
     "mobile_title": "About",
     "description_text": "",
