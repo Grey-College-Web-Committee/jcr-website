@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import HomeSlideshow from './HomeSlideshow';
+import ImageSlideshow from '../common/ImageSlideshow';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
 import RoleComponent from '../jcr/roles/RoleComponent';
 import smoothscroll from 'smoothscroll-polyfill';
+import slideshowData from './HomeSlideshowContent';
 
 smoothscroll.polyfill();
 
@@ -89,7 +90,7 @@ class HomePage extends React.Component {
 
     return (
       <div className="flex flex-col">
-        <HomeSlideshow />
+        <ImageSlideshow data={slideshowData} />
         <div className="w-full p-2 flex flex-col bg-red-900 text-white items-center">
           <div className="flex flex-col lg:flex-row lg:justify-between w-full lg:w-3/5 p-2">
             <div className="w-full lg:w-1/2 border-white border-opacity-25 border-2 p-2 lg:mx-4 hover:border-opacity-100 transition-all ease-in-out duration-700 lg:my-0 my-2 flex flex-col justify-between">

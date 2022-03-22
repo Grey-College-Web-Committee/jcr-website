@@ -56,6 +56,7 @@ import SwappingPage from './components/swapping/SwappingPage';
 import SwappingAdminPage from './components/swapping/SwappingAdminPage';
 
 import FeedbackPage from './components/feedback/FeedbackPage';
+import ApplicantsPage from './components/applicants/ApplicantsPage';
 
 // import BarOrderingPage from './components/bar/BarOrderingPage';
 // import ViewBarItemPage from './components/bar/ViewBarItemPage';
@@ -506,6 +507,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/welfare/" render={() => (
                       <WelfarePage />
+                    )} />
+                    <Route exact path="/applicants/" render={() => (
+                      <ApplicantsPage />
                     )} />
                     <Route exact path="/welfare/message" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareMessagingPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/welfare/message") )

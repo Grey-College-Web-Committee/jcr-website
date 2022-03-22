@@ -104,6 +104,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
+          displayName: "Applicants",
+          url: "/applicants",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false
+        },
+        {
           displayName: "Login",
           url: "/accounts/login",
           requiredPermission: null,
@@ -229,6 +237,11 @@ class NavBar extends React.Component {
             {
               displayName: "Room Bookings",
               url: "/bookings",
+              requiredPermission: null
+            },
+            {
+              displayName: "Applicants",
+              url: "/applicants",
               requiredPermission: null
             }
           ],

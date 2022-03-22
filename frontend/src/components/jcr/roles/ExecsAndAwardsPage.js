@@ -31,7 +31,7 @@ const information = {
       },
       {
         role: "Website Editor",
-        name: "To Be Elected"
+        name: "Finlay Boyle"
       },
       {
         role: "Technical Manager",
@@ -39,27 +39,27 @@ const information = {
       },
       {
         role: "Sports and Societies Officer",
-        name: "To Be Elected"
+        name: "Katy Brewster"
       },
       {
         role: "Communications Officer",
-        name: "To Be Elected"
+        name: "Georgie Gadian",
       },
       {
         role: "Events Manager",
-        name: "To Be Elected"
+        name: "Jess Donaldson"
       },
       {
         role: "Secretary",
         name: "To Be Elected"
       },
       {
-        role: "Bar Managers",
-        name: "To Be Elected"
+        role: "Bar Manager",
+        name: "Jacob Cowley"
       },
       {
         role: "Representatives Officer",
-        name: "To Be Elected"
+        name: "Cerys Griffiths"
       },
       {
         role: "Students' Union Officer",

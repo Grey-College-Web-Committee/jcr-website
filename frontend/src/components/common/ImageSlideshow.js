@@ -1,7 +1,6 @@
 import React from 'react';
-import data from './HomeSlideshowContent';
 
-class HomeSlideshow extends React.Component {
+class ImageSlideshow extends React.Component {
   constructor(props) {
     super(props);
 
@@ -15,7 +14,7 @@ class HomeSlideshow extends React.Component {
 
   componentDidMount = () => {
     // Force preload the images
-    data.forEach(entry => {
+    this.props.data.forEach(entry => {
       // lg is 1024px
       if(window.screen.width < 1024) {
         new Image().src = entry.mobile_image
@@ -38,12 +37,12 @@ class HomeSlideshow extends React.Component {
     let { position, autoChangeId, resumeAutoId } = this.state;
     position += amount;
 
-    if(position >= data.length) {
-      position = position % data.length;
+    if(position >= this.props.data.length) {
+      position = position % this.props.data.length;
     }
 
     if(position < 0) {
-      position = data.length - 1;
+      position = this.props.data.length - 1;
     }
 
     if(forced) {
@@ -79,6 +78,7 @@ class HomeSlideshow extends React.Component {
 
   render () {
     const { position, firstImageLoaded } = this.state;
+    const { data } = this.props;
     const selected = data[position];
 
     return (
@@ -145,4 +145,4 @@ class HomeSlideshow extends React.Component {
   }
 }
 
-export default HomeSlideshow;
+export default ImageSlideshow;
