@@ -585,7 +585,7 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
       nonMemberPrice: 70
     },
     single_term: {
-      expires: new Date("2022-03-19"),
+      expires: new Date("2022-06-24"),
       price: 22,
       nonMemberPrice: 27
     }

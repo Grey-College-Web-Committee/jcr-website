@@ -85,10 +85,10 @@ const membershipOptions = [
   {
     price: 22,
     nonMemberPrice: 27,
-    name: "Epiphany Term Gym Membership",
+    name: "Easter Term Gym Membership",
     image: "/images/gym/dumbbell.png",
-    description: "(expires 19/03/2022)",
-    displayName: "Epiphany Term Gym Membership",
+    description: "(expires 24/06/2022)",
+    displayName: "Easter Term Gym Membership",
     submissionInformation: {
       type: "single_term"
     }
