@@ -1,6 +1,6 @@
 {
   "stripe": {
-    "publicKey": "pk_test_51HHsHPKDASE1Hc3S7z0DxdBmHEFhyCxUW0gItUyjdpngmvJlrApgVMw8bEBFRpz3KhbMzMMyPQTzNN8650IGIQo3003jB4idHf"
+    "publicKey": "pk_live_51HHsHPKDASE1Hc3SBwvmTIC1anmLIc0YCArbDAnZIehcCcEtzojC4V4GYHifQSWUfOmS3vqHLw7uDgs6BiuECfEV00lHoBcPPu"
   },
   "debug": true
 }
