@@ -26,6 +26,7 @@ class ExistingStock extends React.Component {
             <th className="p-2 font-semibold">Available</th>
             <th className="p-2 font-semibold hidden sm:table-cell">Last Updated</th>
             <th className="p-2 font-semibold">Save</th>
+            <th className="p-2 font-semibold">Delete</th>
           </tr>
         </thead>
         <tbody>
