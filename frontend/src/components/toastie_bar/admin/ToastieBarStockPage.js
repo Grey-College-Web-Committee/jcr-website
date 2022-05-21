@@ -82,7 +82,8 @@ class ToastieBarStockPage extends React.Component {
           <h1 className="font-semibold text-5xl pb-4">Toastie Bar Stock</h1>
           <div className="border-b-2 border-t-2 py-4">
             <h2 className="font-semibold text-3xl pb-4">Manage Existing Items</h2>
-            <span className="block sm:hidden pb-4">Your screen is too small to display all columns</span>
+            <p className="pb-4 text-semibold">Note: the toastie bar must be closed to delete items</p>
+            <p className="block sm:hidden pb-4">Your screen is too small to display all columns</p>
             <ExistingStock stock={this.state.stock} />
           </div>
           <p>You can view and change the uploaded images for each item on the <Link className="font-semibold text-red-900" to="/toasties/images">Images Page</Link>.</p>

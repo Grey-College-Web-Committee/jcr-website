@@ -428,6 +428,10 @@ ToastieStock.init({
     type: DataTypes.STRING,
     allowNull: true,
     defaultValue: null
+  },
+  deleted: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize, freezeTableName: true });
 
