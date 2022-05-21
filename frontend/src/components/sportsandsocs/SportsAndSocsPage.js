@@ -60,24 +60,36 @@ class SportsAndSocsPage extends React.Component {
 
     const { nameFilter, typeFilter } = this.state;
 
+    console.log(this.context)
+
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Sports and Societies</h1>
           <div className="text-left mb-2">
-            <p>At Grey, we offer one of the widest range of Sports and Societies (more commonly referred to as 'Sport and Socs') out of any other colleges in Durham. From the mainstream, to the downright bizarre, we are confident that there will be at least one to suit your taste! If you want to start your own society or sports team then you just need to register it with the JCR.
+            <p className="mb-2">At Grey, we offer one of the widest range of Sports and Societies (more commonly referred to as 'Sport and Socs') out of any other colleges in Durham. From the mainstream, to the downright bizarre, we are confident that there will be at least one to suit your taste! If you want to start your own society or sports team then you just need to register it with the JCR.
               {
-                this.state.isLoggedIn ? (
+                this.context?.username ? (
                   <span>To do this, please <a href="mailto:grey.sportssocieties@durham.ac.uk?subject=New%20Sport%20or%20Society" target="_blank" className="font-semibold underline" rel="noopener noreferrer">email the Sports and Socs Officer by clicking here.</a></span>
                 ) : null
               }
             </p>
+            <p>If you want your sport, society or committee added to this page or want to update the details about it please
+              {
+                this.context?.username ? (
+                  <span> <a href="mailto:grey.website@durham.ac.uk" target="_blank" className="font-semibold underline" rel="noopener noreferrer">contact the Website Editor by clicking here.</a></span>
+                ) : (
+                  <span> contact the Website Editor.</span>
+                )
+              }
+
+            </p>
           </div>
           <div className="text-left mb-2">
             <h2 className="font-semibold text-2xl">Filter</h2>
-            <p>You can filter the sports and societies below by changing the filter options. Changes will automatically take effect.</p>
+            <p>You can filter the sports, societies and committees below by changing the filter options. Changes will automatically take effect.</p>
             <div className="py-1">
-              <label for="nameFilter" className="w-12 inline-block mr-1">Name:</label>
+              <label forName="nameFilter" className="w-12 inline-block mr-1">Name:</label>
               <input
                 className={`w-full md:w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400`}
                 type="text"
@@ -87,7 +99,7 @@ class SportsAndSocsPage extends React.Component {
               />
             </div>
             <div className="py-1">
-              <label for="typeFilter" className="w-12 inline-block mr-1">Type: </label>
+              <label forName="typeFilter" className="w-12 inline-block mr-1">Type: </label>
               <select
                 className={`w-full md:w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400`}
                 name="typeFilter"
@@ -97,6 +109,7 @@ class SportsAndSocsPage extends React.Component {
                 <option value="any">Any</option>
                 <option value="Sport">Sport</option>
                 <option value="Society">Society</option>
+                <option value="Committee">Committee</option>
               </select>
             </div>
           </div>

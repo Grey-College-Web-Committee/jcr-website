@@ -147,6 +147,7 @@ class SportsAndSocsRow extends React.Component {
             >
               <option value="Sport">Sport</option>
               <option value="Society">Society</option>
+              <option value="Committee">Committee</option>
             </select>
           </div>
         </td>

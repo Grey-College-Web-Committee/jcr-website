@@ -156,6 +156,7 @@ class NewSportsAndSocsForm extends React.Component {
               <option value="" hidden={true} disabled={true}>Please select an option...</option>
               <option value="Sport">Sport</option>
               <option value="Society">Society</option>
+              <option value="Committee">Committee</option>
             </select>
           </div>
           <div className="pt-2 pb-2 border-b-2">
