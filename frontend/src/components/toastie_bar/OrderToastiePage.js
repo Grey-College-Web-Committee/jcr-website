@@ -386,13 +386,14 @@ class OrderToastiePage extends React.Component {
           {
             this.state.open ? (
               <React.Fragment>
-                <p className="mb-2 text-lg text-left">The Toastie Bar has reopened! Please make your toastie below, add it to your bag and then pay for it online! Toasties are collected from the Toastie Bar in the JCR.</p>
+                <p className="mb-2 text-lg text-left">The Toastie Bar is open! Please make your toastie below, add it to your bag and then pay for it online! Toasties are collected from the Toastie Bar in the JCR.</p>
                 <p className="mb-2 text-lg text-left md:hidden">On mobile, scroll down to see your order and add it to your bag.</p>
               </React.Fragment>
             ) : (
               <p className="mb-2 font-semibold text-lg text-left">The Toastie Bar is currently closed. Orders cannot be placed but you can browse the menu.</p>
             )
           }
+          <p className="mb-2 text-lg text-left font-semibold">For milkshakes and confectionary please order at the Toastie Bar instead.</p>
           <a href="/uploads/toasties/allergens" className="font-semibold underline" target="_blank"><p className="text-lg underline font-semibold mb-2 text-left">For allergen information, please click here.</p></a>
           <div className="flex flex-col lg:flex-row w-full text-left">
             <div className="w-full lg:w-3/4 lg:mr-2">
