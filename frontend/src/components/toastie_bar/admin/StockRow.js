@@ -15,12 +15,38 @@ class StockRow extends React.Component {
       available: this.props.item.available,
       updatedAt: this.props.item.updatedAt,
       disabled: false,
-      allowSave: false
+      allowSave: false,
+      deleted: false
     }
   }
 
   onInputChange = e => {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value), allowSave: true })
+  }
+
+  confirmDelete = async (e) => {
+    // Prevent resubmission
+    e.preventDefault();
+    this.setState({ disabled: true });
+
+    const confirmed = window.confirm(`Are you sure you want to delete ${this.state.name}?`);
+
+    if(!confirmed) {
+      this.setState({ disabled: false });
+      return;
+    }
+
+    let result;
+
+    try {
+      result = await api.delete(`/toastie_bar/stock/${this.state.id}`);
+    } catch (error) {
+      alert(error.response.data.error);
+      this.setState({ disabled: false });
+      return;
+    }
+
+    this.setState({ deleted: true });
   }
 
   saveChanges = async (e) => {
@@ -87,6 +113,10 @@ class StockRow extends React.Component {
   render () {
     const colour = this.props.rowId % 2 === 0 ? "bg-red-100" : "bg-white";
 
+    if(this.state.deleted) {
+      return null;
+    }
+
     return (
       <tr className={`${colour}`}>
         <td className="w-64 p-2 border-r border-gray-400">
@@ -144,8 +174,15 @@ class StockRow extends React.Component {
           <button
             onClick={this.saveChanges}
             disabled={this.state.disabled || !this.state.allowSave}
-            className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+            className="px-4 py-1 rounded bg-green-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
           >Save</button>
+        </td>
+        <td className="w-auto sm:w-40 p-2 font-semibold border-r border-gray-400">
+          <button
+            onClick={this.confirmDelete}
+            disabled={this.state.disabled}
+            className="px-4 py-1 rounded bg-red-900 text-white w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+          >Delete</button>
         </td>
       </tr>
     )

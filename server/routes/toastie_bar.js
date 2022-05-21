@@ -11,11 +11,12 @@ const { hasPermission } = require("../utils/permissionUtils.js");
 const termLocked = true;
 
 const uploadPath = path.join(__dirname, "../uploads/images/toastie_bar/");
+
 router.use(fileUpload({
   createParentPath: true,
   limits: {
     fileSize: 2 * 1024 * 1024 * 1024 //2MB max file(s) size
-},
+  },
 }));
 
 // Get the stock available
@@ -23,9 +24,13 @@ router.get("/stock", async (req, res) => {
   // User only
   let stock;
 
-  // Just finds all the items and returns them
+  // Just finds all the non-deleted items and returns them
   try {
-    stock = await ToastieStock.findAll();
+    stock = await ToastieStock.findAll({
+      where: {
+        "deleted": false
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: "Server error" });
     return;
@@ -61,7 +66,12 @@ router.get("/stock/:id", async (req, res) => {
 
   // Gets a single item by its ID
   const id = req.params.id;
-  const stockItem = await ToastieStock.findOne({ where: { id } });
+  const stockItem = await ToastieStock.findOne({
+    where: {
+      id,
+      "deleted": false
+    }
+  });
 
   if(stockItem === null) {
     return res.status(400).json({ error: "Invalid ID" });
@@ -180,6 +190,10 @@ router.put("/stock/:id", async (req, res) => {
     return res.status(400).json({ error: "Unknown id submitted" });
   }
 
+  if(stockItem.deleted) {
+    return res.status(400).json({ error: "This item has been deleted" });
+  }
+
   // Construct the changes to the record
 
   let updatedRecord = {};
@@ -214,6 +228,48 @@ router.put("/stock/:id", async (req, res) => {
 
   return res.status(204).end();
 });
+
+router.delete("/stock/:id", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "toastie.stock.edit")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  // Check if the toastie bar is open too
+  try {
+    openRecord = await PersistentVariable.findOne({
+      where: {
+        key: "TOASTIE_OPEN"
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check open status" });
+  }
+
+  if(openRecord.booleanStorage) {
+    return res.status(400).json({ error: "The toastie bar must be closed to delete stock options" });
+  }
+
+  const stockId = req.params.id;
+  const stockItem = await ToastieStock.findOne({ where: { id: stockId }});
+
+  if(stockItem === null) {
+    return res.status(400).json({ error: "Unknown item" });
+  }
+
+  stockItem.available = false;
+  stockItem.deleted = true;
+
+  try {
+    await stockItem.save();
+  } catch (error) {
+    return res.status(500).json({ error: "An internal error occurred deleting this item" });
+  }
+
+  return res.status(204).end();
+})
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
