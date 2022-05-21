@@ -27,7 +27,7 @@
     "redis": "^3.1.2",
     "sequelize": "^6.12.5",
     "sharp": "^0.28.3",
-    "socket.io": "^4.0.0",
+    "socket.io": "^4.5.1",
     "socket.io-redis": "^6.1.0",
     "stripe": "^8.114.0",
     "uuid": "^8.3.1"
