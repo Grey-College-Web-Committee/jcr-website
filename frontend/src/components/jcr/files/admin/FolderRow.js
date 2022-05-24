@@ -11,6 +11,7 @@ class FolderRow extends React.Component {
       deleted: false,
       name: this.props.folder.name,
       description: this.props.folder.description,
+      parent: this.props.folder.parent,
       edited: false,
     }
   }
@@ -18,10 +19,10 @@ class FolderRow extends React.Component {
   saveRow = async () => {
     this.setState({ disabled: true });
 
-    const { name, description } = this.state;
+    const { name, description, parent } = this.state;
 
     try {
-      await api.post("/jcr/folder/update", { id: this.props.folder.id, name, description });
+      await api.post("/jcr/folder/update", { id: this.props.folder.id, name, description, parent });
     } catch (error) {
       alert(error.response.data.error);
       this.setState({ disabled: false });
