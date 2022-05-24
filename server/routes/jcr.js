@@ -779,7 +779,10 @@ const recurseTree = async (currentFolder) => {
       where: {
         parent: currentFolder.id
       },
-      attributes: [ "id", "name", "description", "realFileName" ]
+      attributes: [ "id", "name", "description", "realFileName" ],
+      order: [
+        ["name", "ASC"]
+      ]
     });
   } catch (error) {
     return false;
