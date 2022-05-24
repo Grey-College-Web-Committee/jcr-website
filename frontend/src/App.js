@@ -117,6 +117,7 @@ import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage';
 import JCRFileListingPage from './components/jcr/files/JCRFileListingPage';
 import JCRTrustPage from './components/jcr/trust/JCRTrustPage';
 import ExecsAndAwardsPage from './components/jcr/roles/ExecsAndAwardsPage';
+import FinancialSupportPage from './components/jcr/finance/FinancialSupportPage';
 
 import CreateNewCommitteePage from './components/jcr/roles/admin/CreateNewCommitteePage';
 import CreateNewRolePage from './components/jcr/roles/admin/CreateNewRolePage';
@@ -456,6 +457,12 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/media" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media") )
+                    )} />
+                    <Route exact path="/jcr/financial-support" render={() => (
+                      <FinancialSupportPage />
+                    )} />
+                    <Route exact path="/hardship" render={() => (
+                      <FinancialSupportPage />
                     )} />
                     <Route exact path="/media/images" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewImagesPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media/images") )

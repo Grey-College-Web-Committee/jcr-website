@@ -61,11 +61,6 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
-              displayName: "Sports And Socs",
-              url: "/sportsandsocs",
-              requiredPermission: null
-            },
-            {
               displayName: "Trust",
               url: "/jcr/trust",
               requiredPermission: null
@@ -84,6 +79,11 @@ class NavBar extends React.Component {
               displayName: "Execs and Awards",
               url: "/jcr/execs-and-awards",
               requiredPermission: null
+            },
+            {
+              displayName: "Financial Support",
+              url: "/jcr/financial-support",
+              requiredPermission: null
             }
           ],
         },
@@ -98,6 +98,14 @@ class NavBar extends React.Component {
         {
           displayName: "Facilities",
           url: "/facilities",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false
+        },
+        {
+          displayName: "Sports And Socs",
+          url: "/sportsandsocs",
           requiredPermission: null,
           staticImage: null,
           dropdown: null,
@@ -162,11 +170,6 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
-              displayName: "Sports And Socs",
-              url: "/sportsandsocs",
-              requiredPermission: null
-            },
-            {
               displayName: "Trust",
               url: "/jcr/trust",
               requiredPermission: "jcr.member"
@@ -185,16 +188,11 @@ class NavBar extends React.Component {
               displayName: "Execs and Awards",
               url: "/jcr/execs-and-awards",
               requiredPermission: null
-            },
+            },,
             {
-              displayName: "Media",
-              url: "/media",
-              requiredPermission: "jcr.member"
-            },
-            {
-              displayName: "Career Angels",
-              url: "/careers",
-              requiredPermission: "jcr.member"
+              displayName: "Financial Support",
+              url: "/jcr/financial-support",
+              requiredPermission: null
             },
             {
               displayName: "Feedback",
@@ -209,7 +207,7 @@ class NavBar extends React.Component {
           ],
         },
         {
-          displayName: "Services and Facilities",
+          displayName: "Services",
           url: null,
           requiredPermission: null,
           staticImage: null,
@@ -247,6 +245,11 @@ class NavBar extends React.Component {
             {
               displayName: "(Old Stash)",
               url: "/stash",
+              requiredPermission: "jcr.member"
+            },
+            {
+              displayName: "Career Angels",
+              url: "/careers",
               requiredPermission: "jcr.member"
             },
           ],
@@ -303,6 +306,14 @@ class NavBar extends React.Component {
           alwaysDisplayed: null
         },
         {
+          displayName: "Sports and Socs",
+          url: "/sportsandsocs",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: null
+        },
+        {
           displayName: "Your Debt",
           url: "/debt",
           requiredPermission: "debt.has",
@@ -335,7 +346,7 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
-          displayName: "Admin Options",
+          displayName: "Admin",
           url: null,
           requiredPermission: null,
           staticImage: null,
@@ -419,7 +430,7 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
-          displayName: "JCR Admin Options",
+          displayName: "JCR Admin",
           url: null,
           requiredPermission: null,
           staticImage: null,
