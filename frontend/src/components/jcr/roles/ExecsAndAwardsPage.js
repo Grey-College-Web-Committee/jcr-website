@@ -51,7 +51,7 @@ const information = {
       },
       {
         role: "Secretary",
-        name: "To Be Elected"
+        name: "Grace Harvey"
       },
       {
         role: "Bar Manager",
@@ -115,7 +115,7 @@ const information = {
       },
       {
         role: "Communications Officer",
-        name: "To Be Elected"
+        name: "Not Filled"
       },
       {
         role: "Events Manager",
