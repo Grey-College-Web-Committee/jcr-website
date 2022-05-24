@@ -31,9 +31,7 @@ class FileDirectory extends React.Component {
           ) : null
         }
         {
-          this.props.subFolders.sort((a, b) => {
-            return a.details.name > b.details.name ? 1 : (a.details.name < b.details.name ? -1 : 0)
-          }).map((subfolder, i) => (
+          this.props.subFolders.map((subfolder, i) => (
             <div className="my-1" key={i}>
               <div className="flex flex-row items-center cursor-pointer" onClick={() => this.toggleOpen(i)}>
                 <img
@@ -54,9 +52,7 @@ class FileDirectory extends React.Component {
           ))
         }
         {
-          this.props.files.sort((a, b) => {
-            return a.name > b.name ? 1 : (a.name < b.name ? -1 : 0)
-          }).map((file, i) => (
+          this.props.files.map((file, i) => (
             <a href={`/uploads/jcr/${file.realFileName}/${file.name}`} target="_blank" key={i} rel="noopener noreferrer">
               <div className="flex flex-row my-1 items-center">
                 <img

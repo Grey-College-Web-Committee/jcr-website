@@ -721,7 +721,10 @@ router.get("/structure", async (req, res) => {
         model: JCRFolder,
         attributes: [ "id" ]
       }],
-      attributes: [ "id", "name", "description" ]
+      attributes: [ "id", "name", "description" ],
+      order: [
+        ["name", "ASC"]
+      ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to get the root folders" });
@@ -746,7 +749,10 @@ router.get("/structure", async (req, res) => {
   try {
     files = await JCRFile.findAll({
       where: { parent: null },
-      attributes: [ "id", "name", "description", "realFileName" ]
+      attributes: [ "id", "name", "description", "realFileName" ],
+      order: [
+        ["name", "ASC"]
+      ]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to get the root files" });
