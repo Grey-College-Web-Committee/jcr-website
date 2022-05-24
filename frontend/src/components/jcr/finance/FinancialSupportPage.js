@@ -23,60 +23,7 @@ class FinancialSupport extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
-  // Call the API here initially and then use this.setState to render the content
-  componentDidMount = async () => {
-    let membershipCheck;
-
-    try {
-      membershipCheck = await api.get("/auth/verify");
-    } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to verify membership status", isMember: false });
-      return;
-    }
-
-    // Ensure they are an admin
-    if(membershipCheck.data.user.permissions) {
-      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
-        this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
-        return;
-      }
-    } else {
-      this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
-      return;
-    }
-
-    // Once the component is ready we can query the API
-    let content;
-
-    try {
-      content = await api.get("/some/path");
-    } catch (error) {
-      this.setState({ loaded: false, status: error.response.status });
-      return;
-    }
-
-    this.setState({ loaded: true, status: 200, content: content });
-  }
-
   render () {
-    if(!this.state.loaded) {
-      if(this.state.status !== 200 && this.state.status !== 0) {
-        return (
-         <Redirect to={`/errors/${this.state.status}`} />
-        );
-      }
-
-      if(!this.state.isMember) {
-          return (
-            <Redirect to="/membership" />
-          )
-      }
-
-      return (
-        <LoadingHolder />
-      );
-    }
-
     return (
       <div className="flex flex-col">
         <div className="relative">
