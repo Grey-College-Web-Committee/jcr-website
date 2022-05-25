@@ -94,7 +94,7 @@ class RegularTemplate extends React.Component {
             </div>
           </div>
         </div>
-        <div className="flex flex-col my-4 justify-center items-center md:w-3/5 md:mx-auto mx-2">
+        <div className="flex flex-col my-4 justify-center items-left md:w-3/5 md:mx-auto mx-2">
         </div>
       </div>
     );
