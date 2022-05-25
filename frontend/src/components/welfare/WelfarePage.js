@@ -124,7 +124,7 @@ class WelfarePage extends React.Component {
                           key={`${i}-${j}`}
                           role={role.JCRRole}
                           user={person.User}
-                          bio={bios[person.User.surname] === undefined ? "" : bios[person.User.surname]}
+                          bio={bios[person.User.surname] === undefined ? "" : bios[person.User.surname.trim().toUpperCase()]}
                         />
                       ))
                     }
