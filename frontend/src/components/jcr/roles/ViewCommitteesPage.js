@@ -131,8 +131,24 @@ class ViewCommitteesPage extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
+        <div className="relative">
+          <img
+            src="/images/execs_banner.jpg"
+            className="w-full h-auto relative z-0 lg:block hidden lg:h-96 md:object-cover"
+            alt="Replace banner with your image"
+          ></img>
+          <img
+            src="/images/execs_banner.jpg"
+            className="w-full h-auto relative z-0 block lg:hidden"
+            alt="Replace banner with your image"
+          ></img>
+          <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-full flex-col text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-center flex">
+            <div className="flex flex-row align-middle items-center justify-center">
+              <h1 className="text-4xl md:text-6xl font-bold">JCR Committees</h1>
+            </div>
+          </div>
+        </div>
         <div className="container mx-auto text-left p-4 md:w-3/5 w-full">
-          <h1 className="font-semibold text-5xl pb-4 text-center">JCR Committees</h1>
           <p className="py-1">There are many roles in the JCR that any member can run for. They are a great way to get involved in the JCR and most of them are elected in JCR meetings throughout the year. If you are interested in any of the roles please contact the JCR Chair (grey.chair@durham.ac.uk) and they will be happy to provide you more information on a specific role as well as information about running in an election!</p>
           <p className="py-1">As well as the roles, the JCR has lots of committees that help with specific parts of the running of the JCR. Committee positions usually do not require election and instead members can apply to be on them when they are accepting new members (usually annually). They are an excellent way to get involved if you are considering running for an elected role in the future!</p>
           <p className="py-1">You can view all of the JCR committees and see their members. Use the dropdown below to select a committee and the members will appear!</p>
