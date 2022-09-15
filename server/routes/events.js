@@ -1265,7 +1265,7 @@ router.post("/booking/forms", async (req, res) => {
   // Now lets check if everyone in the group has placed a hold (if so we can capture the payments)
 
   if(wasFree) {
-    let groupsTickets;
+    let groupTickets;
 
     try {
       groupTickets = await EventTicket.findAll({
@@ -1389,10 +1389,18 @@ router.get("/groups/:eventId", async (req, res) => {
       include: [
         {
           model: EventTicket,
-          include: [ User ]
+          include: [{
+            model: User,
+            attributes: {
+              exclude: [ "password" ]
+            }
+          }]
         },
         {
-          model: User
+          model: User,
+          attributes: {
+            exclude: [ "password" ]
+          }
         }
       ]
     });
@@ -1469,7 +1477,7 @@ router.post("/booking/override", async (req, res) => {
 
   // Now lets check if everyone in the group has placed a hold (if so we can capture the payments)
 
-  let groupsTickets;
+  let groupTickets;
 
   try {
     groupTickets = await EventTicket.findAll({
