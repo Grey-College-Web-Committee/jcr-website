@@ -49,9 +49,25 @@ class FacilitiesPage extends React.Component {
     }
 
     return (
-      <div className="flex flex-col justify-start">
-        <div className="md:w-3/5 container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-2">Facilities</h1>
+      <div className="flex flex-col">
+        <div className="relative">
+          <img
+            src="/images/facilities_banner.jpg"
+            className="w-full h-auto relative z-0 lg:block hidden lg:h-96 md:object-cover"
+            alt="Financial Support Background"
+          ></img>
+          <img
+            src="/images/facilities_banner.jpg"
+            className="w-full h-auto relative z-0 block lg:hidden"
+            alt="Financial Support Background"
+          ></img>
+          <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-full flex-col text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-center flex">
+            <div className="flex flex-row align-middle items-center justify-center">
+              <h1 className="text-4xl md:text-6xl font-bold">Facilities</h1>
+            </div>
+          </div>
+        </div>
+        <div className="md:w-3/5 container mx-auto text-center p-2">
           <div className="py-2 text-left">
             <h2 className="font-semibold text-3xl">The Bar</h2>
             <p className="py-1">Grey Bar is the social hub of the college, with almost all of the events put on by the JCR including it in some way. These events can range from sporting socials to bops and formals or special events such as Informal Ball and Barfest. Barfest is an all-day, themed event in Epiphany term organised by the Bar Committee and is a celebration of bar culture worldwide. We will be boasting a great selection of guest ales, ciders, wines and cocktails alongside some fantastic entertainment. Better yet, Barfest takes place on a six nations weekend which will be live in the bar on our projector. We also have BT sport and will regularly show the biggest and best live sport on offer as well as a PS4 which can be used upon request!</p>

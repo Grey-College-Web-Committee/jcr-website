@@ -428,18 +428,20 @@ class App extends React.Component {
                     <Route exact path="/memberships/join" render={() => (
                       this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
                     )} />
-                    <Route exact path="/toasties/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin") )
-                    )} />
-                    <Route exact path="/toasties/stock" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/stock") )
-                    )} />
-                    <Route exact path="/toasties/live" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/live") )
-                    )} />
-                    <Route exact path="/toasties/images" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/images") )
-                    )} />
+                    {
+                    // <Route exact path="/toasties/admin" render={() => (
+                    //   this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin") )
+                    // )} />
+                    // <Route exact path="/toasties/stock" render={() => (
+                    //   this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/stock") )
+                    // )} />
+                    // <Route exact path="/toasties/live" render={() => (
+                    //   this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/live") )
+                    // )} />
+                    // <Route exact path="/toasties/images" render={() => (
+                    //   this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/images") )
+                    // )} />
+                    }
                     <Route exact path="/stash/stock" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("stash.stock.edit") ? ( <StashStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/stash/stock") )
                     )} />
@@ -452,9 +454,11 @@ class App extends React.Component {
                     <Route exact path="/permissions" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/permissions") )
                     )} />
-                    <Route exact path="/toasties" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/toasties") )
-                    )} />
+                    {
+                    // <Route exact path="/toasties" render={() => (
+                    //   this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/toasties") )
+                    // )} />
+                    }
                     <Route exact path="/media" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media") )
                     )} />
@@ -530,16 +534,10 @@ class App extends React.Component {
                     <Route exact path="/welfare/message/admin/thread/:id" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("welfare.anonymous") ? ( <WelfareAdminThreadPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/welfare/message/admin") )
                     )} />
-                    <Route exact path="/stash/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/stash") )
-                    )} />
-                    <Route exact path="/new-stash" component={() => {
+                    <Route exact path="/stash" component={() => {
                       window.location.replace("https://www.redbirdsupplyuk.com/grey-college-durham");
                       return null;
                     }} />
-                    <Route exact path="/stash/view/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/stash") )
-                    )} />
                     <Route exact path="/careers/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <CareersPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
                     )} />

@@ -48,7 +48,7 @@ class ViewCart extends React.Component {
     if(Cart.locked) {
       return (
         <div
-          className={`w-1/6 absolute z-10 mt-4 right-0 mr-2 text-black border-2 bg-white border-red-900 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
+          className={`w-1/6 absolute z-90 mt-5 right-0 mr-2 text-black border-2 bg-white border-red-900 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
         >
           <div className="w-full border-b-4 border-red-900 p-2 text-white bg-red-900 font-bold text-lg">
             Your Bag
@@ -82,7 +82,7 @@ class ViewCart extends React.Component {
 
     return (
       <div
-        className={`w-1/6 absolute z-10 mt-4 right-0 mr-2 text-black border-2 border-b-0 bg-white border-red-900 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
+        className={`w-1/6 absolute z-10 mt-5 right-0 mr-2 text-black border-2 border-b-0 bg-white border-red-900 rounded ${visibility}`} onMouseLeave={this.props.onMouseLeave}
       >
         <div className="w-full border-b-4 border-red-900 p-2 text-white bg-red-900 font-bold text-lg">
           Your Bag

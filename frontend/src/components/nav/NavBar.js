@@ -218,13 +218,8 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
-              displayName: "Toasties",
-              url: "/toasties",
-              requiredPermission: "jcr.member"
-            },
-            {
               displayName: "Stash",
-              url: "/new-stash",
+              url: "/stash",
               requiredPermission: "jcr.member"
             },
             {
@@ -241,11 +236,6 @@ class NavBar extends React.Component {
               displayName: "Applicants",
               url: "/applicants",
               requiredPermission: null
-            },
-            {
-              displayName: "(Old Stash)",
-              url: "/stash",
-              requiredPermission: "jcr.member"
             },
             {
               displayName: "Career Angels",
@@ -504,7 +494,7 @@ class NavBar extends React.Component {
             this.setActiveDropdown(-1);
           }
         }}
-        className="flex flex-row justify-between bg-red-900 text-white items-center flex-shrink-0"
+        className="flex flex-row justify-between bg-red-900 text-white items-center flex-shrink-0 z-30"
       >
         <ul className="flex flex-row items-center">
           {
