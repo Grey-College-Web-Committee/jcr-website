@@ -224,7 +224,7 @@ class NavBar extends React.Component {
             },
             {
               displayName: "Stash",
-              url: "/new-stash",
+              url: "/stash",
               requiredPermission: "jcr.member"
             },
             {
@@ -241,11 +241,6 @@ class NavBar extends React.Component {
               displayName: "Applicants",
               url: "/applicants",
               requiredPermission: null
-            },
-            {
-              displayName: "(Old Stash)",
-              url: "/stash",
-              requiredPermission: "jcr.member"
             },
             {
               displayName: "Career Angels",

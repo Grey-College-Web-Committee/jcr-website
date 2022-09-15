@@ -530,16 +530,10 @@ class App extends React.Component {
                     <Route exact path="/welfare/message/admin/thread/:id" render={(props) => (
                       this.isLoggedIn() ? (this.hasPermission("welfare.anonymous") ? ( <WelfareAdminThreadPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/welfare/message/admin") )
                     )} />
-                    <Route exact path="/stash/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderStashPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/stash") )
-                    )} />
-                    <Route exact path="/new-stash" component={() => {
+                    <Route exact path="/stash" component={() => {
                       window.location.replace("https://www.redbirdsupplyuk.com/grey-college-durham");
                       return null;
                     }} />
-                    <Route exact path="/stash/view/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewStashItemPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/stash") )
-                    )} />
                     <Route exact path="/careers/" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <CareersPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
                     )} />
