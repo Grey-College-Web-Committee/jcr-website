@@ -2,6 +2,8 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import api from '../../../../utils/axiosConfig';
 
+const bannedCharacters = ["/", "<", ">", ":", '"', "'", "\\", "|", "?", "*"];
+
 class NewFolderForm extends React.Component {
   constructor(props) {
     super(props);
@@ -15,6 +17,15 @@ class NewFolderForm extends React.Component {
   }
 
   onInputChange = e => {
+    if(e.target.type !== "checkbox") {
+      for(const banned of bannedCharacters) {
+        if(e.target.value.includes(banned)) {
+          alert(`Folder names cannot contain ${banned}`);
+          return;
+        }
+      }
+    }
+
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
@@ -51,7 +62,7 @@ class NewFolderForm extends React.Component {
         <fieldset>
           <div className="pt-2 pb-2 border-b-2">
             <label htmlFor="name" className="flex flex-row justify-start text-xl font-semibold">Name</label>
-            <span className="flex flex-row justify-start text-sm mb-2">({255 - this.state.name.length} characters remaining)</span>
+            <span className="flex flex-row justify-start text-sm mb-2">Max 255 characters. Cannot contain any of: / {"<"} {">"} : {'"'} {'\\'} | ? *</span>
             <input
               type="text"
               name="name"
