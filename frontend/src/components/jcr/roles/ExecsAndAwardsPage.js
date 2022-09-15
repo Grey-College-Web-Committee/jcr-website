@@ -7,7 +7,7 @@ class ExecsAndAwardsPage extends React.Component {
     super(props);
 
     this.state = {
-      selectedYear: "2021/22"
+      selectedYear: "2022/23"
     }
   }
 
