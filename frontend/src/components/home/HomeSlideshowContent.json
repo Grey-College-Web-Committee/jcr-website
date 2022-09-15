@@ -14,7 +14,7 @@
     "mobile_title": "About",
     "description_text": "",
     "button_text": "See the handbook →",
-    "button_link": "https://www.dur.ac.uk/resources/grey.college/admissions/Grey_JCRAlternativeHandbook2020.pdf",
+    "button_link": "/uploads/static/handbook_2022",
     "button_target": "_blank",
     "image": "/images/home/gd_1600_505.jpg",
     "mobile_image": "/images/home/gd_mobile.jpg"
@@ -28,15 +28,5 @@
     "button_target": "_self",
     "image": "/images/home/sports_1900_600.jpg",
     "mobile_image": "/images/home/sports_mobile.jpg"
-  },
-  {
-    "desktop_title": "Grey College Charity Fashion Show",
-    "mobile_title": "GCCFS",
-    "description_text": "Find out more about the annual charity fashion show",
-    "button_text": "Find out more →",
-    "button_link": "https://www.gccfs.co.uk/",
-    "button_target": "_blank",
-    "image": "/images/home/gccfs_1900_600.jpg",
-    "mobile_image": "/images/home/gccfs_mobile.jpg"
   }
 ]
