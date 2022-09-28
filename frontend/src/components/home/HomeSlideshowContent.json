@@ -1,15 +1,5 @@
 [
   {
-    "desktop_title": "Applying to Grey",
-    "mobile_title": "Applying",
-    "description_text": "",
-    "button_text": "Find out more →",
-    "button_link": "/applicants",
-    "button_target": "_self",
-    "image": "/images/home/desktop_applicants_banner.jpg",
-    "mobile_image": "/images/home/mobile_applicants_banner.jpg"
-  },
-  {
     "desktop_title": "Grey JCR",
     "mobile_title": "About",
     "description_text": "",
@@ -28,5 +18,15 @@
     "button_target": "_self",
     "image": "/images/home/sports_1900_600.jpg",
     "mobile_image": "/images/home/sports_mobile.jpg"
-  }
+  },
+  {
+    "desktop_title": "Applying to Grey",
+    "mobile_title": "Applying",
+    "description_text": "",
+    "button_text": "Find out more →",
+    "button_link": "/applicants",
+    "button_target": "_self",
+    "image": "/images/home/desktop_applicants_banner.jpg",
+    "mobile_image": "/images/home/mobile_applicants_banner.jpg"
+  },
 ]
