@@ -428,20 +428,18 @@ class App extends React.Component {
                     <Route exact path="/memberships/join" render={() => (
                       this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
                     )} />
-                    {
-                    // <Route exact path="/toasties/admin" render={() => (
-                    //   this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin") )
-                    // )} />
-                    // <Route exact path="/toasties/stock" render={() => (
-                    //   this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/stock") )
-                    // )} />
-                    // <Route exact path="/toasties/live" render={() => (
-                    //   this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/live") )
-                    // )} />
-                    // <Route exact path="/toasties/images" render={() => (
-                    //   this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/images") )
-                    // )} />
-                    }
+                    <Route exact path="/toasties/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin") )
+                    )} />
+                    <Route exact path="/toasties/stock" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/stock") )
+                    )} />
+                    <Route exact path="/toasties/live" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/live") )
+                    )} />
+                    <Route exact path="/toasties/images" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/images") )
+                    )} />
                     <Route exact path="/stash/stock" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("stash.stock.edit") ? ( <StashStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/stash/stock") )
                     )} />
@@ -454,11 +452,9 @@ class App extends React.Component {
                     <Route exact path="/permissions" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/permissions") )
                     )} />
-                    {
-                    // <Route exact path="/toasties" render={() => (
-                    //   this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/toasties") )
-                    // )} />
-                    }
+                    <Route exact path="/toasties" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/toasties") )
+                    )} />
                     <Route exact path="/media" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media") )
                     )} />
