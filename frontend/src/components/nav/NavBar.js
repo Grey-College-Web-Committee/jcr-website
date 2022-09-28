@@ -218,6 +218,11 @@ class NavBar extends React.Component {
               requiredPermission: null
             },
             {
+              displayName: "Toasties",
+              url: "/toasties",
+              requiredPermission: "jcr.member"
+            },
+            {
               displayName: "Stash",
               url: "/stash",
               requiredPermission: "jcr.member"
