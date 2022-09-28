@@ -393,7 +393,7 @@ class OrderToastiePage extends React.Component {
               <p className="mb-2 font-semibold text-lg text-left">The Toastie Bar is currently closed. Orders cannot be placed but you can browse the menu.</p>
             )
           }
-          <p className="mb-2 text-lg text-left font-semibold">For milkshakes, please order at the Toastie Bar to see what fillings and syrups are available.</p>
+          <p className="mb-2 text-lg text-left font-semibold">For milkshakes, please order at the Toastie Bar to see what fillings and syrups are available. For specials (e.g. Heather's Hangover Cure and Funky Falafel) select your bread and then select the special as your only filling!</p>
           <a href="/uploads/toasties/allergens" className="font-semibold underline" target="_blank"><p className="text-lg underline font-semibold mb-2 text-left">For allergen information, please click here.</p></a>
           <div className="flex flex-col lg:flex-row w-full text-left">
             <div className="w-full lg:w-3/4 lg:mr-2">
