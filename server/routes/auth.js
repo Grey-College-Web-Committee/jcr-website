@@ -88,18 +88,19 @@ router.post("/login", async (req, res) => {
   // We will error if we do not receive a 200 status so we can assume we are validated from here
   // We have no need to store the password (or its hash) so can simply ignore it
 
+  // This is replaced with the user manually confirming the details
   // Set the last login time and save
-  const upgradeDate = new Date("2022-09-05 16:00:00Z");
+  // const upgradeDate = new Date("2022-09-05 16:00:00Z");
   const now = new Date();
 
-  // Promote their year group
-  if(new Date(user.lastLogin) < upgradeDate) {
-    const { year } = user;
+  // // Promote their year group
+  // if(new Date(user.lastLogin) < upgradeDate) {
+  //   const { year } = user;
 
-    if(year !== 4 && year !== "4") {
-      user.year = Number(year) + 1;
-    }
-  }
+  //   if(year !== 4 && year !== "4") {
+  //     user.year = Number(year) + 1;
+  //   }
+  // }
 
   user.lastLogin = now;
 
@@ -150,48 +151,6 @@ router.post("/login", async (req, res) => {
   } catch (error) {
     return res.status(500).json({ message: "Server error: Unable to update last login. Database error." });
   }
-
-  const lookupEmail = user.dataValues.email.trim().toLowerCase();
-
-  // if(prepaidEmails.includes(lookupEmail) && user.membershipExpiresAt === null) {
-  //   // They have a membership from before. Now grant it.
-  //
-  //   const prepaidExpiryDate = new Date(prepaidMemberships[lookupEmail]);
-  //
-  //   user.membershipExpiresAt = prepaidExpiryDate;
-  //
-  //   try {
-  //     await user.save();
-  //   } catch (error) {
-  //     return res.status(500).json({ error: "Unable to grant membership" });
-  //   }
-  //
-  //   let permissionRecord;
-  //
-  //   try {
-  //     permissionRecord = await Permission.findOne({
-  //       where: {
-  //         internal: "jcr.member"
-  //       }
-  //     });
-  //   } catch (error) {
-  //     return res.status(500).json({ error: "Unable to find membership permission" });
-  //   }
-  //
-  //   if(permissionRecord === null) {
-  //     return res.status(500).json({ error: "Unable to locate permission" });
-  //   }
-  //
-  //   try {
-  //     await PermissionLink.create({
-  //       grantedToId: user.id,
-  //       permissionId: permissionRecord.id,
-  //       grantedById: 1
-  //     });
-  //   } catch (error) {
-  //     return res.status(500).json({ error: "Unable to link membership" });
-  //   }
-  // }
 
   let debtRecord;
 
@@ -264,7 +223,7 @@ router.post("/login", async (req, res) => {
   const date = new Date();
   date.setTime(date.getTime() + (3 * 60 * 60 * 1000));
 
-  res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email, hlm: user.hlm, firstNames: user.firstNames, surname: user.surname, displayName }, message: "Successfully authenticated" });
+  return res.status(200).json({ user: { username: user.username, permissions: internalPermissionStrings, expires: date, email: user.email, hlm: user.hlm, firstNames: user.firstNames, surname: user.surname, displayName, confirmedDetails: user.confirmedDetails }, message: "Successfully authenticated" });
 });
 
 // Called when a user logs out
@@ -553,7 +512,8 @@ router.post("/action", async (req, res) => {
       firstNames: application.firstName,
       year: application.year,
       lastLogin: new Date(),
-      membershipExpiresAt: null
+      membershipExpiresAt: null,
+      confirmedDetails: true
     });
   } catch (error) {
     return res.status(500).json({ message: "Server error: Unable to create a new user. Database error." });

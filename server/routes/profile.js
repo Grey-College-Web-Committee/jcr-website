@@ -145,6 +145,44 @@ router.get("/email-test/:to", async (req, res) => {
   return res.status(200).json({ success: true });
 })
 
+router.post("/update", async(req, res) => {
+  const { user } = req.session;
+  const { year } = req.body;
+
+  if(year === null) {
+    return res.status(400).json({ error: "Missing year" });
+  }
+
+  const validYears = [1, 2, 3, 4, "1", "2", "3", "4"];
+
+  if(!validYears.includes(year)) {
+    return res.status(400).json({ error: "Invalid year specified" });
+  }
+
+  let userRecord;
+
+  try {
+    userRecord = await User.findOne({ where: { id: user.id }});
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to query the database" });
+  }
+
+  if(userRecord === null) {
+    return res.status(400).json({ error: "No user found" });
+  }
+
+  userRecord.confirmedDetails = true;
+  userRecord.year = year;
+
+  try {
+    userRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to update the user's record" });
+  }
+
+  return res.status(204).end();
+})
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;

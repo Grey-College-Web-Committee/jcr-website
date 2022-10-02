@@ -147,6 +147,10 @@ User.init({
     type: DataTypes.TEXT,
     allowNull: true,
     defaultValue: null
+  },
+  confirmedDetails: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize });
 

@@ -112,6 +112,7 @@ import EditEventDetails from './components/events/admin/edit/EditEventDetails';
 import EventsAdminBookingPage from './components/events/admin/book/EventsAdminBookingPage';
 
 import MyProfile from './components/profile/MyProfile';
+import ConfirmDetailsPage from './components/accounts/confirm/ConfirmDetailsPage';
 
 import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage';
 import JCRFileListingPage from './components/jcr/files/JCRFileListingPage';
@@ -159,7 +160,8 @@ class App extends React.Component {
       ref: "/",
       disableScrollBody: false,
       debtPopupActive: false,
-      lastPage: null
+      lastPage: null,
+      confirmedDetails: false
     };
   }
 
@@ -279,7 +281,7 @@ class App extends React.Component {
       }
 
       const location = window.location.pathname;
-      const ignoredLocs = ["/debt", "/checkout", "/elections", "/election", "/feedback", "/complaints"]
+      const ignoredLocs = ["/debt", "/checkout", "/elections", "/election", "/feedback", "/complaints", "/accounts/confirm"]
       let dontBlock = false;
 
       for(const loc of ignoredLocs) {
@@ -304,7 +306,7 @@ class App extends React.Component {
   }
 
   loginUser = (user, ref) => {
-    this.setState({ user, ref, debtPopupActive: user.permissions.includes("debt.has") });
+    this.setState({ user, ref, confirmedDetails: user.confirmedDetails, debtPopupActive: user.permissions.includes("debt.has") });
   }
 
   logoutUser = () => {
@@ -416,7 +418,7 @@ class App extends React.Component {
                       this.isLoggedIn() ? (this.hasPermission("users.manage") ? ( <AdminApproveAlumniPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/alumni/admin") )
                     )} />
                     <Route exact path="/accounts/login" render={(props) => (
-                      this.isLoggedIn() ? ( <Redirect to={this.state.ref} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )
+                      this.isLoggedIn() ? ( <Redirect to={this.state.confirmedDetails ? this.state.ref : `/accounts/confirm?ref=${this.state.ref}`} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )
                     )} />
                     <Route exact path="/accounts/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("users.manage") ? ( <AdminApprovePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/accounts/admin") )
@@ -641,6 +643,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/my/profile" render={() => (
                       this.isLoggedIn() ? ( <MyProfile /> ) : ( this.loginRef("/my/profile") )
+                    )} />
+                    <Route exact path="/accounts/confirm" render={(props) => (
+                      this.isLoggedIn() ? ( <ConfirmDetailsPage {...props} /> ) : ( <Redirect to="/" /> )
                     )} />
                     <Route exact path="/bookings" component={() => {
                       window.location.replace("https://outlook.office365.com/owa/calendar/GreyCollegeRoomBookings@durhamuniversity.onmicrosoft.com/bookings/");
