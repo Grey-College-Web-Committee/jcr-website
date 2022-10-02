@@ -497,6 +497,9 @@ class App extends React.Component {
                     <Route exact path="/elections" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/elections") )
                     )} />
+                    <Route exact path="/services/elections" render={() => (
+                      <Redirect to="/elections" />
+                    )} />
                     <Route exact path="/elections/vote/:id" render={(props) => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionVotingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/elections") )
                     )} />

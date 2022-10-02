@@ -243,8 +243,24 @@ class ElectionOverviewPage extends React.Component {
 
     return (
       <div className="flex flex-col justify-start">
+        <div className="relative">
+          <img
+            src="/images/elections_banner.jpg"
+            className="w-full h-auto relative z-0 lg:block hidden lg:h-96 md:object-cover"
+            alt="Elections Background"
+          ></img>
+          <img
+            src="/images/elections_banner.jpg"
+            className="w-full h-auto relative z-0 block lg:hidden"
+            alt="Elections Background"
+          ></img>
+          <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-full flex-col text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-center flex">
+            <div className="flex flex-row align-middle items-center justify-center">
+              <h1 className="text-4xl md:text-6xl font-bold">Elections</h1>
+            </div>
+          </div>
+        </div>
         <div className="container mx-auto text-center p-4 md:w-3/4">
-          <h1 className="font-semibold text-5xl pb-4">JCR Elections</h1>
           { this.getLiveElectionsDiv() }
           { this.getUpcomingElectionsDiv() }
           { this.getPreviousElectionDiv() }
