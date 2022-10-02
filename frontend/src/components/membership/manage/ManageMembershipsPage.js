@@ -17,7 +17,8 @@ class ManageMembershipsPage extends React.Component {
       firstNames: "",
       surname: "",
       membership: "any",
-      hlm: "any"
+      hlm: "any",
+      year: "any"
     };
 
     // Change this to your permission
@@ -29,7 +30,7 @@ class ManageMembershipsPage extends React.Component {
   }
 
   filterData = (record) => {
-    const { username, firstNames, surname, membershipExpiresAt, hlm } = record;
+    const { username, firstNames, surname, year, membershipExpiresAt, hlm } = record;
 
     if(this.state.username.length !== 0) {
       if(!username.toLowerCase().includes(this.state.username.toLowerCase())) {
@@ -74,6 +75,14 @@ class ManageMembershipsPage extends React.Component {
         if(isHlm) {
           return false;
         }
+      }
+    }
+
+    if(this.state.year !== "any") {
+      const numericYear = Number(this.state.year);
+
+      if(year !== numericYear) {
+        return false;
       }
     }
 
@@ -207,6 +216,23 @@ class ManageMembershipsPage extends React.Component {
                       </select>
                     </td>
                   </tr>
+                  <tr>
+                    <td className="text-left">Year:</td>
+                    <td>
+                      <select
+                        value={this.state.year}
+                        name="year"
+                        className="w-64 border rounded py-1 px-1 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
+                        onChange={this.onInputChange}
+                      >
+                        <option value="any">Any</option>
+                        <option value="1">First</option>
+                        <option value="2">Second</option>
+                        <option value="3">Third</option>
+                        <option value="4">Fourth / Postgrad</option>
+                      </select>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -217,6 +243,7 @@ class ManageMembershipsPage extends React.Component {
                     <th className="p-2 font-semibold">Username</th>
                     <th className="p-2 font-semibold hidden lg:table-cell">First Names</th>
                     <th className="p-2 font-semibold">Surname</th>
+                    <th className="p-2 font-semibold">Year</th>
                     <th className="p-2 font-semibold hidden lg:table-cell">Registered On</th>
                     <th className="p-2 font-semibold hidden lg:table-cell">Last Login</th>
                     <th className="p-2 font-semibold hidden lg:table-cell">HLM?</th>
