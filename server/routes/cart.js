@@ -580,13 +580,13 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
   // The available options to purchase - needs yearly update
   const currentMembershipOptions = {
     full_year: {
-      expires: new Date("2022-07-01"),
-      price: 50,
-      nonMemberPrice: 70
+      expires: new Date("2023-07-01"),
+      price: 58,
+      nonMemberPrice: 75
     },
     single_term: {
-      expires: new Date("2022-06-24"),
-      price: 22,
+      expires: new Date("2022-12-10"),
+      price: 23,
       nonMemberPrice: 27
     }
   };
@@ -754,20 +754,20 @@ const jcrMembershipProcessor = async (globalOrderParameters, orderId, quantity, 
   // Purchasable options, needs updating yearly currentl
   const currentMembershipOptions = {
     one_year: {
-      expires: new Date("2022-08-01"),
-      price: 56
+      expires: new Date("2023-08-01"),
+      price: 60
     },
     two_year: {
-      expires: new Date("2023-08-01"),
-      price: 112
+      expires: new Date("2024-08-01"),
+      price: 120
     },
     three_year: {
-      expires: new Date("2024-08-01"),
-      price: 168
+      expires: new Date("2025-08-01"),
+      price: 180
     },
     four_year: {
-      expires: new Date("2025-08-01"),
-      price: 208
+      expires: new Date("2026-08-01"),
+      price: 225
     }
   };
 

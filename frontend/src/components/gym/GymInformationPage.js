@@ -141,12 +141,14 @@ class GymInformationPage extends React.Component {
           <h2 className="text-4xl font-semibold mb-1">Purchase Membership</h2>
           <p className="py-1">Prior to purchasing a membership you must complete the online induction which involves watching the gym induction video, completing a short multiple choice quiz (about information provided in the video), and you completing a physical activity readiness questionnaire (PAR-Q). Please click the button below to begin the process. At the end of the induction to purchase a membership, the prices are:</p>
           <ul className="my-2 list-inside list-disc">
-            <li>Individual Term £22 per term (£27 for non-JCR members)</li>
-            <li>Whole Year £50 (£70 for non-JCR members)</li>
+            <li>Individual Term £23 per term (£27 for non-JCR members)</li>
+            <li>Whole Year £58 (£75 for non-JCR members)</li>
           </ul>
-          <button
-            className="my-1 p-2 text-xl bg-red-900 text-white w-full"
-          >Closed until term starts</button>
+          <Link to="/gym/induction">
+            <button
+              className="my-1 p-2 text-xl bg-red-900 text-white w-full"
+            >Begin Induction</button>
+          </Link>
         </div>
       )
     }
@@ -179,7 +181,7 @@ class GymInformationPage extends React.Component {
                 <li>-	<span className="font-semibold">Main Weights Room</span> - complete with the: Shoulder Press, Leg Extension, Leg Curl, Leg Press and Smith machines. Multiple benches (including a Scott bench) with Bars, Dumbbells and Kettle Bells.</li>
                 <li>-	<span className="font-semibold">Henry Dyson Room (Weights Room)</span> – complete with: Cable Station, Squat Rack and Treadmill.</li>
               </ul>
-              <p className="py-1">The Gym Opening Times are from <span className="font-semibold">09:00 until 22:00, 7 days per week.</span></p>
+              <p className="py-1">The Gym Opening Times are from <span className="font-semibold">08:00 until 22:00, 7 days per week.</span></p>
               <p className="py-1">Please be considerate to residents living above the Gym by not playing loud music early in the morning and evening.</p>
               <p className="py-1">The Gym is run and equipment owned by the JCR, please contact the FACSO at <a href="mailto:grey.treasurer@durham.ac.uk" className="underline font-semibold" target="_blank" rel="noopener noreferrer">grey.treasurer@durham.ac.uk</a> with any questions.</p>
             </div>

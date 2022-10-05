@@ -71,7 +71,7 @@ class PurchaseMembershipPage extends React.Component {
               <h2 className="text-3xl font-semibold pb-2 text-center">Why am I seeing this?</h2>
               <p className="mb-2">According to our database, you are not a JCR or MCR member. If you believe that you have previously paid the JCR membership levy for the duration expected, please <a href={`mailto:grey.treasurer@durham.ac.uk?subject=JCR Membership Levy: Already Purchased (${this.context.username})`} rel="noopener noreferrer" target="_blank" className="font-semibold underline">contact the FACSO.</a></p>
               <p className="mb-2">If you are not a member of the JCR or the MCR, please select an option from below to pay your membership levy online. Once paid your membership status will be granted instantly.</p>
-              <p className="mb-2">The £56 annual amount includes your £10 pre-purchased ticket to Grey Day and a £46 donation to the Grey College JCR Trust.</p>
+              <p className="mb-2">The £60 annual amount includes your £10 pre-purchased ticket to Grey Day and a £50 donation to the Grey College JCR Trust.</p>
               <div className="mb-2">
                 <h2 className="text-xl font-semibold pb-2 text-center">Year Abroad and Industrial Placements</h2>
                 <p>For students on a degree course which includes a study year abroad or an industrial placement, please <a href={`mailto:grey.treasurer@durham.ac.uk?subject=JCR Membership Levy: Year Abroad / Placement (${this.context.username})`} rel="noopener noreferrer" target="_blank" className="font-semibold underline">contact the FACSO</a> to ensure your degree end date aligns with the database.</p>
@@ -102,14 +102,14 @@ class PurchaseMembershipPage extends React.Component {
           </div>
           <div className="flex flex-row flex-wrap justify-center">
             <GenericCartableItem
-              price={56}
+              price={60}
               name="1 Year Membership"
               image="/images/grey_crest.svg"
-              description="(expires 01/08/2022)"
+              description="(expires 01/08/2023)"
               cartData={{
                 shop: "jcr_membership",
                 name: "1 Year JCR Membership",
-                basePrice: 56,
+                basePrice: 60,
                 quantity: 1,
                 submissionInformation: {
                   type: "one_year"
@@ -124,14 +124,14 @@ class PurchaseMembershipPage extends React.Component {
               }}
             />
             <GenericCartableItem
-              price={112}
+              price={120}
               name="2 Year Membership"
               image="/images/grey_crest.svg"
-              description="(expires 01/08/2023)"
+              description="(expires 01/08/2024)"
               cartData={{
                 shop: "jcr_membership",
                 name: "2 Year JCR Membership",
-                basePrice: 112,
+                basePrice: 120,
                 quantity: 1,
                 submissionInformation: {
                   type: "two_year"
@@ -146,14 +146,14 @@ class PurchaseMembershipPage extends React.Component {
               }}
             />
             <GenericCartableItem
-              price={168}
+              price={180}
               name="3 Year Membership"
               image="/images/grey_crest.svg"
-              description="(expires 01/08/2024)"
+              description="(expires 01/08/2025)"
               cartData={{
                 shop: "jcr_membership",
                 name: "3 Year JCR Membership",
-                basePrice: 168,
+                basePrice: 180,
                 quantity: 1,
                 submissionInformation: {
                   type: "three_year"
@@ -168,14 +168,14 @@ class PurchaseMembershipPage extends React.Component {
               }}
             />
             <GenericCartableItem
-              price={208}
+              price={225}
               name="4 Year Membership"
               image="/images/grey_crest.svg"
-              description="(expires 01/08/2025)"
+              description="(expires 01/08/2026)"
               cartData={{
                 shop: "jcr_membership",
                 name: "4 Year JCR Membership",
-                basePrice: 208,
+                basePrice: 225,
                 quantity: 1,
                 submissionInformation: {
                   type: "four_year"

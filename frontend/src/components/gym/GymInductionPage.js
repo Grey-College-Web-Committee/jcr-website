@@ -25,7 +25,7 @@ const quiz = [
   },
   {
     text: "What do you do if you notice any faulty equipment?",
-    options: ["Use it", "Put it back and ignore it", "Send an email to the gym managers (found on the wall)"]
+    options: ["Use it", "Put it back and ignore it", "Send an email to the JCR FACSO"]
   },
   {
     text: "What do you do if the treadmill is going too quickly or in an emergency?",
@@ -36,10 +36,6 @@ const quiz = [
     options: ["4", "2", "3"]
   },
   {
-    text: "Do you need a negative LFT result to enter the gym?",
-    options: ["Yes", "No"]
-  },
-  {
     text: "What is the maximum capacity of the cardio room?",
     options: ["6", "12", "8"]
   },
@@ -48,7 +44,7 @@ const quiz = [
     options: ["Wipe down and tidy up", "Leave the weights where you last used them", "Celebrate with a pint of Huel"]
   }
 ];
-const quizAnswers = [1, 2, 0, 2, 2, 2, 0, 0, 1, 0];
+const quizAnswers = [1, 2, 0, 2, 2, 2, 0, 1, 0];
 
 const parq = [
   {
@@ -83,22 +79,22 @@ const parq = [
 
 const membershipOptions = [
   {
-    price: 22,
+    price: 23,
     nonMemberPrice: 27,
-    name: "Easter Term Gym Membership",
+    name: "Michaelmas Term Gym Membership",
     image: "/images/gym/dumbbell.png",
-    description: "(expires 24/06/2022)",
-    displayName: "Easter Term Gym Membership",
+    description: "(expires 10/12/2022)",
+    displayName: "Michaelmas Term Gym Membership",
     submissionInformation: {
       type: "single_term"
     }
   },
   {
-    price: 50,
-    nonMemberPrice: 70,
+    price: 58,
+    nonMemberPrice: 75,
     name: "Full Year Gym Membership",
     image: "/images/gym/dumbbell.png",
-    description: "(expires 01/07/2022)",
+    description: "(expires 01/07/2023)",
     displayName: "Full Year Gym Membership",
     submissionInformation: {
       type: "full_year"
@@ -196,7 +192,7 @@ class GymInductionPage extends React.Component {
           <React.Fragment>
             <p className="pb-1 text-left">Please start by watching the gym induction below prepared by the Gym Managers. If you have any specific questions please contact them at <a className="underline font-semibold" rel="noopener noreferrer" target="_blank" href="mailto:gr-gymmanagers@durham.ac.uk">gr-gymmanagers@durham.ac.uk</a></p>
             <div className="flex flex-row justify-center w-full">
-              <iframe width="560" height="315" src="https://www.youtube.com/embed/Di1OE_VJNyc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen/>
+              <iframe width="560" height="315" src="https://www.youtube.com/embed/KvXygeTPnyc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen/>
             </div>
             <p className="py-1 text-left">Once you have watched the video please fill in the multiple choice quiz below.</p>
             <div className="flex flex-col text-left">

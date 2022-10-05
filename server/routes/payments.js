@@ -439,20 +439,20 @@ const fulfilJCRMembershipOrders = async (user, orderId, relatedOrders, deliveryI
   // Needs updating yearly
   const currentMembershipOptions = {
     one_year: {
-      expires: new Date("2022-08-01"),
-      price: 56
+      expires: new Date("2023-08-01"),
+      price: 60
     },
     two_year: {
-      expires: new Date("2023-08-01"),
-      price: 112
+      expires: new Date("2024-08-01"),
+      price: 120
     },
     three_year: {
-      expires: new Date("2024-08-01"),
-      price: 168
+      expires: new Date("2025-08-01"),
+      price: 180
     },
     four_year: {
-      expires: new Date("2025-08-01"),
-      price: 208
+      expires: new Date("2026-08-01"),
+      price: 225
     }
   };
 
