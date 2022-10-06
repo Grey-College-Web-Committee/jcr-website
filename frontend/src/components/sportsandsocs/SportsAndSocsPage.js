@@ -4,6 +4,8 @@ import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
 import SportsAndSocsItem from './SportsAndSocsItem';
+import { AiOutlineDownload } from 'react-icons/ai';
+import { IconContext } from 'react-icons';
 
 class SportsAndSocsPage extends React.Component {
   constructor(props) {
@@ -93,11 +95,31 @@ class SportsAndSocsPage extends React.Component {
                 this.context?.username ? (
                   <span> <a href="mailto:grey.website@durham.ac.uk" target="_blank" className="font-semibold underline" rel="noopener noreferrer">contact the Website Editor by clicking here.</a></span>
                 ) : (
-                  <span> contact the Website Editor.</span>
+                  <span> contact the Website Editor. To access the reimbursement forms, please login in to the website first.</span>
                 )
               }
 
             </p>
+            {
+              this.context?.username? (
+                <IconContext.Provider value={{ className: "h-8 w-8" }}>
+                  <div className="border-2 border-red-900 p-2 flex flex-col mt-2">
+                    <a href="https://www.greyjcr.co.uk/uploads/jcr/0be674680458c2d47b23aad80e42e66d/No%20Receipt%20Reimbursement%20Form" target="_blank" rel="noopener noreferrer">
+                      <div className="flex flex-row items-center py-1 mb-2">
+                        <AiOutlineDownload />
+                        <span className="ml-2 text-lg">No Receipt Reimbursement Form</span>
+                      </div>
+                    </a>
+                    <a href="https://www.greyjcr.co.uk/uploads/jcr/d99b368b4974dfedc59c2535e4533340/Receipt%20Reimbursement%20Form" target="_blank" rel="noopener noreferrer">
+                      <div className="flex flex-row items-center py-1">
+                        <AiOutlineDownload />
+                        <span className="ml-2 text-lg">Receipt Reimbursement Form</span>
+                      </div>
+                    </a>
+                  </div>
+                </IconContext.Provider>
+              ) : null
+            }
           </div>
           <div className="text-left mb-2">
             <h2 className="font-semibold text-2xl">Filter</h2>
