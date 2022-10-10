@@ -56,16 +56,9 @@ class JCRTrustPage extends React.Component {
             <p className="py-1">Every common room in Durham (JCR/MCR) has two options of how to run themselves, as: a Durham Student Organisation or an Independent Charity. Durham Student Organisations (DSO) are direct subsidiaries of the University, with the University in control and responsible for the finances and policies of the JCR. Independent charities have the freedom and full control over what direction the common room takes for its legal and financial operations.</p>
             <p className="py-1">Grey College JCR is an independent charity trust governed by our own board of trustees. The trustees are similar to a board of governors at a school or the directors of a company. Each trustee takes the on the legal responsibility for the operations of the JCR. The trustee board acts in the best interests for the JCR, following its charitable aims & facilitating the members of the JCR.</p>
           </div>
-          <div className="text-left pb-2">
+          {/* <div className="text-left pb-2">
             <h2 className="text-2xl font-semibold">External Trustees</h2>
-            <div className="py-1">
-              <h3 className="text-xl font-semibold">Leanne Barrass</h3>
-              <p className="py-1">Leanne joined the JCR Trust in May 2017. She graduated in 2005 from Teesside University with a BA Honours degree in Business Management and qualified as a Chartered Management Account (CIMA) in 2010.</p>
-              <p className="py-1">Leanne is currently the Financial Controller at Cepac Ltd (an independent packaging company based in Darlington, Co. Durham).</p>
-              <p className="py-1">Prior to her current role in Cepac, Leanne was Site Accountant at KP Snacks Ltd 2007-2016, and prior to that she was Utilities Business Accountant at Sembcorp Ltd, who generate energy at the Wilton International Site on Teesside, which is one of the largest chemical manufacturing sites in the world. Her accountancy career began in 1998 at Savers Health & Beauty, where she undertook a range of roles from stock accountancy to management of the internal audit team, until her final role in the business as Finance Manager.</p>
-              <p className="py-1">Along with her husband and two small children, Leanne lives on a small holding in a rural village on the outskirts of Consett, approximately 25 minutes from Durham city.</p>
-            </div>
-          </div>
+          </div> */}
           <div className="text-left pb-2">
             <h2 className="text-2xl font-semibold">Alumni Trustees</h2>
             <div className="py-1">
@@ -88,15 +81,26 @@ class JCRTrustPage extends React.Component {
               <p className="py-1">David joined the JCR trust in November 2018</p>
             </div>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">Dr Helen Williams</h3>
-              <p className="py-1">Helen Williams (née McPhee) was a student at Grey College between 2001 and 2009, studying for an M.Chem, and then a Ph.D in biological chemistry. She was an enthusiastic attendee at JCR bops and balls, and a keen but rather unskilled member of the college women’s rugby team. She also played the flute (again with more enjoyment than facility!) in the Hill Orchestra, and was somewhat more successful as a soprano in the university Choral Society.</p>
-              <p className="py-1">Following the completion of her Ph.D Helen trained as a Chartered Public Finance Accountant with the Audit Commission, auditing local government and NHS organisations. She currently works as an audit manager at Deloitte and lives in Newcastle with her husband, young daughter, and two cats.</p>
+              <h3 className="text-xl font-semibold">Michael Cannon</h3>
+              <p className="py-1">Michael was a former member of Grey College</p>
+            </div>
+            <div className="py-1">
+              <h3 className="text-xl font-semibold">Steve Yarwood</h3>
+              <p className="py-1">Steve was a former member of Grey College</p>
+            </div>
+            <div className="py-1">
+              <h3 className="text-xl font-semibold">Chris Norman</h3>
+              <p className="py-1">Chris was a former member of Grey College</p>
+            </div>
+            <div className="py-1">
+              <h3 className="text-xl font-semibold">Linda Leaney</h3>
+              <p className="py-1">Linda was a former member of Grey College</p>
             </div>
           </div>
           <div className="text-left pb-2">
             <h2 className="text-2xl font-semibold">Internal Trustees</h2>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">Hannah Richards - JCR President</h3>
+              <h3 className="text-xl font-semibold">Isabella Cowell - JCR President</h3>
               <p className="py-1">The JCR President acts as the chief executive officer (CEO) of the JCR overseeing its day-to-day operations. The President also:</p>
               <ul className="list-inside list-disc p-1">
                 <li>Acts as a point of contact on all matters affecting the interests of the JCR</li>
@@ -108,7 +112,7 @@ class JCRTrustPage extends React.Component {
               <p className="py-1"></p>
             </div>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">Sophie Grantham - FACSO</h3>
+              <h3 className="text-xl font-semibold">Jonny Tiplady - FACSO</h3>
               <p className="py-1">The Finance & Commercial Services Officer (FACSO) acts as the chief financial officer (CFO) of the JCR. The FACSO also:</p>
               <ul className="list-inside list-disc p-1">
                 <li>Runs the day-to-day finances of the JCR</li>
@@ -120,11 +124,11 @@ class JCRTrustPage extends React.Component {
               </ul>
             </div>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">James Marshall - Vice President</h3>
+              <h3 className="text-xl font-semibold">Asa Schuman - Vice President</h3>
               <p className="py-1">The Vice President is the most senior student in the JCR, and their main role is to deputise the president. As well as sitting on the trustee board, the vice president also has joint responsibility for organising freshers’ week with the Senior Frep. The Vice President also has responsibility of organising the college formals which JCR members attend.</p>
             </div>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">Patrick Chorley - Student Trustee</h3>
+              <h3 className="text-xl font-semibold">Sebastian Wade - Student Trustee</h3>
               <p className="py-1">The student trustee is elected at the first meeting of the Michaelmas term in October. The main role of the student trustee is to provide student representation to the trustee board on the current issues facing the JCR. Other responsibilities the student trustee has are:</p>
               <ul className="list-inside list-disc p-1">
                 <li>Managing the JCR risk register</li>
