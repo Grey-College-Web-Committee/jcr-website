@@ -126,16 +126,16 @@ router.post("/users/page", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  let page = req.body.page ?? 1;
+  let page = req.body.page === undefined ? 1 : req.body.page;
 
   if(page < 1) {
     page = 1;
   }
 
-  const usernameSearch = req.body.usernameSearch ?? "";
-  const firstNameSearch = req.body.firstNameSearch ?? "";
-  const surnameSearch = req.body.surnameSearch ?? "";
-  const yearSearch = req.body.yearSearch ?? "";
+  const usernameSearch = req.body.usernameSearch === undefined ? "" : req.body.usernameSearch;
+  const firstNameSearch = req.body.firstNameSearch === undefined ? "" : req.body.firstNameSearch;
+  const surnameSearch = req.body.surnameSearch === undefined ? "" : req.body.surnameSearch;
+  const yearSearch = req.body.yearSearch === undefined ? "" : req.body.yearSearch;
   const pageLimit = 200;
 
   let finder = {
