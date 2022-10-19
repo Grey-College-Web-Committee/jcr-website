@@ -9,10 +9,10 @@ class MemberRow extends React.Component {
 
     this.state = {
       loaded: false,
-      record: {},
       expiry: "2023-08-01",
       disabled: false,
-      hlm: "no"
+      hlm: this.props.record.hlm ? "yes" : "no",
+      record: this.props.record
     };
   }
 
@@ -24,17 +24,13 @@ class MemberRow extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, this.updateHLMStatus);
   }
 
-  componentDidMount = async () => {
-    await this.updateSelf();
-  }
-
   updateSelf = async () => {
     this.setState({ disabled: true });
 
     let userRecord;
 
     try {
-      userRecord = await api.get(`/memberships/user/single/${this.props.id}`);
+      userRecord = await api.get(`/memberships/user/single/${this.state.record.id}`);
     } catch (error) {
       this.setState({ loaded: false });
       return;
@@ -106,9 +102,6 @@ class MemberRow extends React.Component {
   }
 
   render () {
-    if(!this.state.loaded) return null;
-    if(!this.props.displayCondition(this.state.record)) return null;
-
     const { username, firstNames, surname, year, createdAt, lastLogin, membershipExpiresAt } = this.state.record;
 
     return (

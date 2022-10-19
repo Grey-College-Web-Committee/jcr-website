@@ -4,6 +4,8 @@ import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
 import MemberRow from './MemberRow';
 
+const ITEM_PAGE_LIMIT = 200;
+
 class ManageMembershipsPage extends React.Component {
   constructor(props) {
     super(props);
@@ -12,13 +14,20 @@ class ManageMembershipsPage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      ids: [],
-      username: "",
-      firstNames: "",
-      surname: "",
-      membership: "any",
-      hlm: "any",
-      year: "any"
+
+      rows: [],
+
+      usernameSearch: "",
+      firstNameSearch: "",
+      surnameSearch: "",
+      hasMembership: "any",
+      isHLM: "any",
+      yearSearch: "",
+
+      page: 1,
+      maxPage: 1,
+      changingPage: 1,
+      count: 0
     };
 
     // Change this to your permission
@@ -29,64 +38,25 @@ class ManageMembershipsPage extends React.Component {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) });
   }
 
-  filterData = (record) => {
-    const { username, firstNames, surname, year, membershipExpiresAt, hlm } = record;
+  fetchPage = async () => {
+    this.setState({ disabled: true });
+    const { usernameSearch, firstNameSearch, surnameSearch, hasMembership, isHLM, yearSearch, page } = this.state;
 
-    if(this.state.username.length !== 0) {
-      if(!username.toLowerCase().includes(this.state.username.toLowerCase())) {
-        return false;
-      }
+    let content;
+
+    try {
+      content = await api.post("/memberships/users/page", {
+        usernameSearch, firstNameSearch, surnameSearch, yearSearch, page,
+        hasMembership: hasMembership === "any" ? "any" : (hasMembership === "yes" ? true : false), 
+        isHLM: isHLM === "any" ? "any" : (isHLM === "yes" ? true : false),
+      });
+    } catch (error) {
+      alert("An error occurred loading the data")
+      return;
     }
 
-    if(this.state.firstNames.length !== 0) {
-      if(!firstNames.toLowerCase().includes(this.state.firstNames.toLowerCase())) {
-        return false;
-      }
-    }
-
-    if(this.state.surname.length !== 0) {
-      if(!surname.toLowerCase().includes(this.state.surname.toLowerCase())) {
-        return false;
-      }
-    }
-
-    if(this.state.membership !== "any") {
-      const hasMembership = membershipExpiresAt !== null;
-
-      if(this.state.membership === "yes") {
-        if(!hasMembership) {
-          return false;
-        }
-      } else {
-        if(hasMembership) {
-          return false;
-        }
-      }
-    }
-
-    if(this.state.hlm !== "any") {
-      const isHlm = hlm === true;
-
-      if(this.state.hlm === "yes") {
-        if(!isHlm) {
-          return false;
-        }
-      } else {
-        if(isHlm) {
-          return false;
-        }
-      }
-    }
-
-    if(this.state.year !== "any") {
-      const numericYear = Number(this.state.year);
-
-      if(year !== numericYear) {
-        return false;
-      }
-    }
-
-    return true;
+    const { count, rows } = content.data.users;
+    this.setState({ rows, maxPage: Math.ceil(count / ITEM_PAGE_LIMIT), disabled: false, changingPage: page, count })
   }
 
   // Load the data once the element is ready
@@ -116,16 +86,36 @@ class ManageMembershipsPage extends React.Component {
       return;
     }
 
-    let serverResponse;
+    await this.fetchPage();
 
-    try {
-      serverResponse = await api.get("/memberships/user/ids");
-    } catch (error) {
-      this.setState({ status: error.response.status, error: "Unable to load IDs" });
+    this.setState({ loaded: true });
+  }
+
+  changePage = (val) => {
+    this.setState({ page: this.state.page + val }, this.fetchPage)
+  }
+
+  customChangePage = (e) => {
+    let { value } = e.target;
+
+    if(value >= 1 && value <= this.state.maxPage) {
+      this.setState({ page: value, changingPage: value }, this.fetchPage);
       return;
     }
 
-    this.setState({ loaded: true, ids: serverResponse.data.ids });
+    this.setState({ changingPage: value })
+  }
+
+  clearCriteria = () => {
+    this.setState({
+      usernameSearch: "",
+      firstNameSearch: "",
+      surnameSearch: "",
+      hasMembership: "any",
+      isHLM: "any",
+      yearSearch: "",
+      page: 1
+    }, this.fetchPage);
   }
 
   render () {
@@ -156,8 +146,8 @@ class ManageMembershipsPage extends React.Component {
                       <input
                         type="text"
                         className="w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-                        value={this.state.username}
-                        name="username"
+                        value={this.state.usernameSearch}
+                        name="usernameSearch"
                         onChange={this.onInputChange}
                       />
                     </td>
@@ -168,8 +158,8 @@ class ManageMembershipsPage extends React.Component {
                       <input
                         type="text"
                         className="w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-                        value={this.state.firstNames}
-                        name="firstNames"
+                        value={this.state.firstNameSearch}
+                        name="firstNameSearch"
                         onChange={this.onInputChange}
                       />
                     </td>
@@ -180,8 +170,8 @@ class ManageMembershipsPage extends React.Component {
                       <input
                         type="text"
                         className="w-64 border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
-                        value={this.state.surname}
-                        name="surname"
+                        value={this.state.surnameSearch}
+                        name="surnameSearch"
                         onChange={this.onInputChange}
                       />
                     </td>
@@ -190,8 +180,8 @@ class ManageMembershipsPage extends React.Component {
                     <td className="text-left">Has Membership:</td>
                     <td>
                       <select
-                        value={this.state.membership}
-                        name="membership"
+                        value={this.state.hasMembership}
+                        name="hasMembership"
                         className="w-64 border rounded py-1 px-1 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                         onChange={this.onInputChange}
                       >
@@ -205,8 +195,8 @@ class ManageMembershipsPage extends React.Component {
                     <td className="text-left">Is Honourary Life Member:</td>
                     <td>
                       <select
-                        value={this.state.hlm}
-                        name="hlm"
+                        value={this.state.isHLM}
+                        name="isHLM"
                         className="w-64 border rounded py-1 px-1 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                         onChange={this.onInputChange}
                       >
@@ -220,12 +210,12 @@ class ManageMembershipsPage extends React.Component {
                     <td className="text-left">Year:</td>
                     <td>
                       <select
-                        value={this.state.year}
-                        name="year"
+                        value={this.state.yearSearch}
+                        name="yearSearch"
                         className="w-64 border rounded py-1 px-1 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                         onChange={this.onInputChange}
                       >
-                        <option value="any">Any</option>
+                        <option value="">Any</option>
                         <option value="1">First</option>
                         <option value="2">Second</option>
                         <option value="3">Third</option>
@@ -235,6 +225,42 @@ class ManageMembershipsPage extends React.Component {
                   </tr>
                 </tbody>
               </table>
+              <div className="flex flex-row justify-start mt-2">
+                <button
+                  onClick={this.fetchPage}
+                  className="px-4 py-1 rounded w-32 bg-blue-900 font-semibold text-white"
+                  disabled={this.state.disabled}
+                >Search</button>
+                <button
+                  onClick={this.clearCriteria}
+                  className="ml-2 px-4 py-1 rounded w-32 bg-red-900 font-semibold text-white"
+                  disabled={this.state.disabled}
+                >Clear</button>
+              </div>
+            </div>
+            <div className="font-semibold p-2 border-2 border-red-900 my-2 flex flex-row justify-between items-center">
+              <span>Displaying {this.state.rows.length} records out of {this.state.count} total</span>
+              <div className="flex flex-row items-center">
+                <span>Page 
+                  <input 
+                    type="number" 
+                    className="w-12 border border-gray-900 p-1 mx-1 text-center appearance-none"
+                    value={this.state.changingPage}
+                    onChange={this.customChangePage}
+                    disabled={this.state.disabled}
+                  /> 
+                / {this.state.maxPage}</span>
+                <button
+                  onClick={() => this.changePage(-1)}
+                  className="ml-2 px-4 py-1 rounded bg-blue-900 font-semibold text-white disabled:bg-gray-500"
+                  disabled={this.state.page <= 1 || this.state.disabled}
+                >Prev Page</button>
+                <button
+                  onClick={() => this.changePage(1)}
+                  className="ml-2 px-4 py-1 rounded bg-blue-900 font-semibold text-white disabled:bg-gray-500"
+                  disabled={this.state.page >= this.state.maxPage || this.state.disabled}
+                >Next Page</button>
+              </div>
             </div>
             <div>
               <table className="mx-auto border-2 text-left border-red-900 w-full">
@@ -253,11 +279,10 @@ class ManageMembershipsPage extends React.Component {
                 </thead>
                 <tbody>
                   {
-                    this.state.ids.map(id => (
+                    this.state.rows.map(row => (
                       <MemberRow
-                        key={id}
-                        id={id}
-                        displayCondition={this.filterData}
+                        key={row.id}
+                        record={row}
                       />
                     ))
                   }

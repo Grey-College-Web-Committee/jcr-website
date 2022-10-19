@@ -118,6 +118,68 @@ router.get("/user/ids", async (req, res) => {
   return res.status(200).json({ ids });
 })
 
+router.post("/users/page", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "jcr.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let page = req.body.page ?? 1;
+
+  if(page < 1) {
+    page = 1;
+  }
+
+  const usernameSearch = req.body.usernameSearch ?? "";
+  const firstNameSearch = req.body.firstNameSearch ?? "";
+  const surnameSearch = req.body.surnameSearch ?? "";
+  const yearSearch = req.body.yearSearch ?? "";
+  const pageLimit = 200;
+
+  let finder = {
+    where: {
+      username: {
+        [Op.like]: `%${usernameSearch}%`
+      },
+      firstNames: {
+        [Op.like]: `%${firstNameSearch}%`
+      },
+      surname: {
+        [Op.like]: `%${surnameSearch}%`
+      },
+      year: {
+        [Op.like]: `%${yearSearch}%`
+      }
+    },
+    attributes: [ "id", "username", "surname", "firstNames", "year", "lastLogin", "membershipExpiresAt", "hlm", "createdAt" ],
+    limit: pageLimit,
+    offset: (page - 1) * pageLimit
+  }
+
+  if(req.body.isHLM !== undefined && req.body.isHLM !== "any") {
+    finder["where"]["hlm"] = req.body.isHLM ? true : false;
+  }
+
+  if(req.body.hasMembership !== undefined && req.body.hasMembership !== "any") {
+    const membershipOperator = req.body.hasMembership ? Op.ne : Op.eq;
+    finder["where"]["membershipExpiresAt"] = {
+      [membershipOperator]: null
+    }
+  }
+
+  let users;
+
+  try {
+    users = await User.findAndCountAll(finder);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+
+  return res.status(200).json({ users });
+});
+
 router.get("/user/single/:id", async (req, res) => {
   // Admin only
   const { user } = req.session;
