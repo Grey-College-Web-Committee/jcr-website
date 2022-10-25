@@ -94,6 +94,7 @@ class StockRow extends React.Component {
     await this.updateSelf();
   }
 
+  // Get the latest information about this item
   updateSelf = async () => {
     this.setState({ disabled: true });
     // Just a standard GET for the data

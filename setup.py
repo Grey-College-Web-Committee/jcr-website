@@ -14,23 +14,42 @@ def repeated_input(msg, condition, err):
     return value
 
 def setup_env():
-    db_name = repeated_input("Database Name", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
+    print("Firstly, you will need to setup the database. The website is setup to use MySQL.")
+    print("This can be installed via brew on MacOS and Linux")
+    print("On Windows follow the instructions at this link: https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/")
+    print()
+    print("Once it is installed and running, execute the following commands in a terminal:")
+    print("mysql")
+    print("CREATE DATABASE grey-db;")
+    print("ALTER USER 'root'@'localhost' IDENTIFIED BY 'password';")
+    print("You can change the password and database name if you want to")
+
+    db_name = repeated_input("Database Name (enter grey-db if you followed the commands above)", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
     db_username = repeated_input("Database Username", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
     db_password = repeated_input("Database Password", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
-    db_host = repeated_input("Database Host", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
+    db_host = "localhost"
     db_dialect = "mysql"
 
     express_port = 9000
     session_secret = "".join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits) for _ in range(64))
     web_address = "http://localhost:3000/"
-    stripe_endpoint_secret = repeated_input("Stripe Endpoint Secret", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
-    email_host = repeated_input("Email Host Server", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
-    email_port = repeated_input("Email Port", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
-    email_secure = repeated_input("Email Secure", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
-    email_username = repeated_input("Email Username", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
-    email_password = repeated_input("Email Password", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
-    email_sender = repeated_input("Email Sender Address", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
-    with_schedule = repeated_input("Use Scheduler (Y/N)", lambda s: s.upper() == "Y" or s.upper() == "N", lambda _: print("Input must be Y or N")).upper()
+
+    stripe_endpoint_secret = input("Stripe Endpoint Secret (leave blank if not sure)")
+
+    setup_email = repeated_input("Do you want to setup the account to email from? [recommended to enter N] (Y/N)", lambda s: s.upper() == "Y" or s.upper() == "N", lambda _: print("Input must be Y or N")).upper()
+    setup_email = setup_email == "Y"
+
+    email_host, email_port, email_secure, email_username, email_password, email_sender, local_email = "", "", "", "", "", "", False
+
+    if setup_email:
+        email_host = repeated_input("Email Host Server", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
+        email_port = repeated_input("Email Port", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
+        email_secure = repeated_input("Email Secure", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
+        email_username = repeated_input("Email Username", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
+        email_password = repeated_input("Email Password", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
+        email_sender = repeated_input("Email Sender Address", lambda s: len(s) != 0, lambda _: print("Input cannot be empty"))
+    
+    with_schedule = repeated_input("Use Scheduler [recommended to enter Y] (Y/N)", lambda s: s.upper() == "Y" or s.upper() == "N", lambda _: print("Input must be Y or N")).upper()
     with_schedule = with_schedule == "Y"
     non_member_password = "password"
     redis_port = 6379
@@ -56,6 +75,7 @@ def setup_env():
         file.write(f"EMAIL_USERNAME={email_username}{os.linesep}")
         file.write(f"EMAIL_PASSWORD={email_password}{os.linesep}")
         file.write(f"EMAIL_SENDER={email_sender}{os.linesep}")
+        file.write(f"LOCAL_EMAIL={local_email}{os.linesep}")
 
         file.write(f"WITH_SCHEDULE={with_schedule}{os.linesep}")
         file.write(f"NON_MEMBER_PASSWORD={non_member_password}{os.linesep}")

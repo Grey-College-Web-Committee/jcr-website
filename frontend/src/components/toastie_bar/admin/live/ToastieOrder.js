@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import dateFormat from 'dateformat';
 
+// An entry on the live page 
 class ToastieOrder extends React.Component {
   constructor(props) {
     super(props);

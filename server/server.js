@@ -250,6 +250,17 @@ const requiredPermissions = [
   }
 ];
 
+const requiredCommittees = [
+  {
+    "name": "Executive Committee",
+    "description": "Exec"
+  }, 
+  {
+    "name": "Welfare",
+    "description": "Welfare"
+  }
+];
+
 // Initialise the tables
 (async () => {
   await sequelizeSessionStore.sync();
@@ -343,6 +354,18 @@ const requiredPermissions = [
         name: item.name,
         description: item.description,
         internal: item.internal
+      }
+    });
+  });
+
+  requiredCommittees.forEach(async (item, i) => {
+    await JCRCommittee.findOrCreate({
+      where: {
+        name: item.name
+      },
+      defaults: {
+        name: item.name,
+        description: item.description
       }
     });
   });

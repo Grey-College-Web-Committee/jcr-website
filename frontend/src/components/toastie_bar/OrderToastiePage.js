@@ -10,6 +10,7 @@ class OrderToastiePage extends React.Component {
   constructor(props) {
     super(props);
 
+    // Access the site wide cart
     this.cart = new Cart();
     this.state = {
       isMember: true,
@@ -55,6 +56,7 @@ class OrderToastiePage extends React.Component {
     // Once the component is ready we can query the API
     let content;
 
+    // Load the stock options
     try {
       content = await api.get("/toastie_bar/stock");
     } catch (error) {
@@ -64,6 +66,8 @@ class OrderToastiePage extends React.Component {
 
     const { stock, open } = content.data;
 
+    // Stock comes an array of objects, map to an object of objects with
+    // keys as the id of each stock item
     const idMatchedStock = stock.reduce((map, obj) => {
       map[obj.id] = obj;
       return map;
@@ -72,6 +76,7 @@ class OrderToastiePage extends React.Component {
     this.setState({ loaded: true, status: 200, stock, idMatchedStock, open });
   }
 
+  // Set the bread on the toastie
   updateBread = (bread) => {
     let { toastie } = this.state;
 
@@ -84,6 +89,7 @@ class OrderToastiePage extends React.Component {
     this.setState({ toastie })
   }
 
+  // Update the fillings
   updateFillings = (fillings) => {
     let { toastie } = this.state;
     toastie.fillings = fillings;
@@ -98,6 +104,7 @@ class OrderToastiePage extends React.Component {
     this.setState({ drinks });
   }
 
+  // Validate the toastie object
   checkToastie = (toastie) => {
     if(toastie.bread === -1) {
       return "No bread selected";
@@ -125,6 +132,8 @@ class OrderToastiePage extends React.Component {
 
     if(toastieOrdered) {
       const basePrice = 0;
+
+      // Convert to the standard format for the cart
       let components = [];
 
       //bread here
@@ -162,6 +171,8 @@ class OrderToastiePage extends React.Component {
       });
     }
 
+    // Repeat this process for each item
+
     if(drinksOrdered) {
       drinks.forEach((drinkId, i) => {
         const drink = this.state.idMatchedStock[drinkId];
@@ -198,6 +209,7 @@ class OrderToastiePage extends React.Component {
       });
     }
 
+    // Add to the cart and clear the order on the page
     if(cartableObjects.length !== 0) {
       cartableObjects.forEach((item, i) => {
         this.cart.addToCartRaw(item);
@@ -215,6 +227,7 @@ class OrderToastiePage extends React.Component {
     }
   }
 
+  // Convert a toastie object to a displayable component
   displaySelectedToastie = () => {
     const { toastie } = this.state;
     const valid = this.checkToastie(toastie);
@@ -273,6 +286,7 @@ class OrderToastiePage extends React.Component {
     );
   }
 
+  // Summary shown on the RHS of the webpage
   displaySummary = () => {
     const { toastie, drinks, confectionary } = this.state;
 

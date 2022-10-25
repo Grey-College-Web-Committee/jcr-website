@@ -67,13 +67,14 @@ const setupEvents = (socket, io) => {
       return;
     }
 
-    // Subscribe to the toastie ordering room
+    // Subscribe to the toastie ordering 'room'
     socket.join("toastieOrderClients");
 
     let allNightOrders;
 
     const startOfDay = new Date().setHours(0, 0, 0, 0);
 
+    // On joining the socket connection, send them all orders from tonight
     try {
       allNightOrders = await ToastieOrderTracker.findAll({
         where: {
@@ -148,6 +149,8 @@ const setupEvents = (socket, io) => {
     socket.emit("toastieInitialData", { allNightOrders: transformedNightOrders, open: toastieOpenRecord.booleanStorage });
   });
 
+  // Closes an order and marks it as completed
+  // Distributes this to all other connected clients
   socket.on("markToastieOrderCompleted", async (data) => {
     if(!hasPermission(socket.handshake.session, "toastie.stock.edit")) {
       socket.disconnect();
@@ -168,6 +171,8 @@ const setupEvents = (socket, io) => {
     io.to("toastieOrderClients").emit("toastieOrderCompleted", data);
   });
 
+  // Open the toastie bar to enable ordering
+  // Distributes to all other connected toastie socket clients
   socket.on("setToastieOpen", async (data) => {
     if(!hasPermission(socket.handshake.session, "toastie.stock.edit")) {
       socket.disconnect();
