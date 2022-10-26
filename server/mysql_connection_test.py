@@ -1,4 +1,4 @@
-# Requirements: pip install python-dotenv mysql.connector
+# Requirements: pip install python-dotenv mysql-connector-python
 
 import mysql.connector
 from dotenv import load_dotenv
@@ -16,7 +16,7 @@ def connect_to_database(host, user, password, database):
 
 def fetch_permissions(connection):
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM permissions")
+    cursor.execute("SELECT * FROM Permissions")
     permissions = cursor.fetchall()
 
     return permissions
@@ -47,7 +47,7 @@ if permissions is None or len(permissions) == 0:
     print("Permissions is empty but MySQL connection didn't break, testing INSERT-SELECT-DELETE instead")
 
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO permissions (name, description, internal) VALUES (%s, %s, %s)", ("Test Perm", "This is a test", "test.perm"))
+    cursor.execute("INSERT INTO Permissions (name, description, internal) VALUES (%s, %s, %s)", ("Test Perm", "This is a test", "test.perm"))
     connection.commit()
     permission_id = cursor.lastrowid
 
@@ -60,7 +60,7 @@ if permissions is None or len(permissions) == 0:
         print(record)
 
     cursor = connection.cursor()
-    cursor.execute("DELETE FROM permissions WHERE id = %s", (permission_id,))
+    cursor.execute("DELETE FROM Permissions WHERE id = %s", (permission_id,))
     connection.commit()
 
     print("Success ISD")
