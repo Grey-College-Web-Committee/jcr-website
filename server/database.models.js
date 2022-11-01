@@ -26,10 +26,6 @@ class StashStockImages extends Model {}
 class StashOrder extends Model {}
 class StashOrderCustomisation extends Model {}
 
-class ToastieStock extends Model {}
-class ToastieOrderContent extends Model {}
-class ToastieOrderTracker extends Model {}
-
 class Permission extends Model {}
 class PermissionLink extends Model {}
 
@@ -408,79 +404,6 @@ ShopOrderContent.init({
     type: DataTypes.STRING,
     allowNull: true,
     defaultValue: null
-  }
-}, { sequelize });
-
-ToastieStock.init({
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  available: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
-  },
-  type: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  price: {
-    type: DataTypes.DECIMAL(6, 2),
-    allowNull: false
-  },
-  imageName:{
-    type: DataTypes.STRING,
-    allowNull: true,
-    defaultValue: null
-  },
-  deleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  }
-}, { sequelize, freezeTableName: true });
-
-ToastieOrderContent.init({
-  orderId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: ShopOrderContent,
-      key: 'id'
-    }
-  },
-  stockId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: ToastieStock,
-      key: 'id'
-    }
-  },
-  quantity: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 1
-  },
-  completed: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
-  }
-}, { sequelize, timestamps: false });
-
-ToastieOrderTracker.init({
-  orderId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: ShopOrder,
-      key: 'id'
-    }
-  },
-  completed: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false
-  },
-  tableNumber: {
-    type: DataTypes.INTEGER,
-    allowNull: false
   }
 }, { sequelize });
 
@@ -1620,12 +1543,6 @@ ShopOrder.belongsTo(Address, { foreignKey: 'deliveryAddressId' });
 ShopOrder.hasMany(ShopOrderContent, { foreignKey: 'orderId' });
 ShopOrderContent.belongsTo(ShopOrder, { foreignKey: 'orderId' });
 
-ShopOrderContent.hasMany(ToastieOrderContent, { foreignKey: 'orderId' });
-ToastieOrderContent.belongsTo(ShopOrderContent, { foreignKey: 'orderId' });
-
-ToastieStock.hasMany(ToastieOrderContent, { foreignKey: 'stockId' });
-ToastieOrderContent.belongsTo(ToastieStock, { foreignKey: 'stockId' });
-
 Permission.hasMany(PermissionLink, { foreignKey: 'permissionId' });
 PermissionLink.belongsTo(Permission, { foreignKey: 'permissionId' });
 
@@ -1752,13 +1669,10 @@ BarBooking.belongsTo(User, { foreignKey: 'userId' });
 BarBooking.hasMany(BarBookingGuest, { foreignKey: 'bookingId' });
 BarBookingGuest.belongsTo(BarBooking, { foreignKey: 'bookingId' });
 
-ShopOrder.hasMany(ToastieOrderTracker, { foreignKey: 'orderId' });
-ToastieOrderTracker.belongsTo(ShopOrder, { foreignKey: 'orderId' });
-
 User.hasMany(SwappingCredit, { foreignKey: 'userId' });
 SwappingCredit.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasMany(SwappingCreditLog, { foreignKey: 'userId' });
 SwappingCreditLog.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication, SwappingCredit, SwappingCreditLog, SwappingPair, PendingAlumniApplication };
+module.exports = { sequelize, User, Address, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, SportAndSoc, PendingUserApplication, SwappingCredit, SwappingCreditLog, SwappingPair, PendingAlumniApplication };
