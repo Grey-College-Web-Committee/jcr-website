@@ -187,7 +187,7 @@ const setupEvents = (socket, io) => {
     }
 
     const completedEmailMessage = createCompletionEmail(customerName)
-    mailer.sendEmail(customerEmail, "Toastie Bar Order Ready for Collection", completedEmailMessage);
+    mailer.sendEmail(customerEmail, "Toastie Bar Order Ready", completedEmailMessage);
 
     // Send the event to all other clients connected to the room
     io.to("toastieBarAdminClients").emit("toastieBarOrderCompleted", { orderId, completedTime });
