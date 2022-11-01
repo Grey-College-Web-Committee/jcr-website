@@ -16,6 +16,7 @@ class ToastieAdminLive extends React.Component {
 
       initialDataLoaded: false,
       orderRecords: [],
+      completed: 0,
 
       open: false
     };
@@ -72,7 +73,7 @@ class ToastieAdminLive extends React.Component {
     // // This will occur when the server send a barNewOrder event
     // this.socket.on("toastieNewOrder", this.handleNewOrder);
     // // This will occur when someone updates an order as completed
-    // this.socket.on("toastieOrderCompleted", this.handleOrderCompleted);
+    this.socket.on("toastieBarOrderCompleted", this.handleToastieBarOrderCompleted);
     // This will occur when someone updates if the bar is open for orders
     this.socket.on("toastieBarOpenStatusChanged", this.handleToastieBarStatusChanged)
 
@@ -83,7 +84,7 @@ class ToastieAdminLive extends React.Component {
 
   handleInitialData = (data) => {
     const { open, orderRecords } = data;
-
+    console.log({orderRecords})
     this.setState({ initialDataLoaded: true, open, orderRecords });
   }
 
@@ -101,6 +102,20 @@ class ToastieAdminLive extends React.Component {
     this.setState({ open });
   }
 
+  // Order completion
+  
+  completeOrder = (orderId) => {
+    this.socket.emit("markToastieBarOrderCompleted", { orderId });
+    // Complete number is incremented when confirmed by the server
+  }
+
+  handleToastieBarOrderCompleted = (data) => {
+    const { orderId, completedTime } = data;
+    const orderRecords = {...this.state.orderRecords};
+    orderRecords[orderId].completedTime = completedTime;
+    this.setState({ orderRecords, completed: this.state.completed + 1 });
+  }
+  
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -124,29 +139,35 @@ class ToastieAdminLive extends React.Component {
       <div className="flex flex-col">
         <div className="flex flex-col my-4 justify-center items-center md:w-3/5 md:mx-auto mx-2">
           <h1 className="font-semibold text-5xl pb-4">Live Toastie Bar Orders</h1>
-          <div className="border w-full p-2 mb-2 flex flex-row items-center">
+          <div className="w-full mb-2 flex flex-row items-center">
             <p className="text-left font-semibold text-lg mr-2">Toastie Bar Status: { open ? "Open" : "Closed" }</p>
             <button
               onClick={this.toggleOpenForOrders}
               className={`px-4 py-1 rounded ${ open ? "bg-red-700" : "bg-green-700" } text-white w-auto font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50`}
             >{ open ? "Set Closed" : "Set Open" }</button>
           </div>
-          <div className="border w-full p-2">
-            <p>Orders will appear here automatically as they are placed.</p>
+          <div className="w-full">
+            <p>Orders will appear here automatically as they are placed. There are currently {Object.keys(this.state.orderRecords).length - this.state.completed} order(s) that need completing.</p>
             <div className="flex flex-col mt-2">
               {
-                this.state.orderRecords.map(order => (
-                  <ToastieOrderRow 
-                    key={order.id}
-                    orderId={order.id}
-                    customerName={order.customerName}
-                    orderedAt={order.orderedAt}
-                    additionalItems={order.additionalItems}
-                    toasties={order.toasties}
-                    milkshakes={order.milkshakes}
-                    totalPrice={order.totalPrice}
-                  />
-                ))
+                Object.keys(this.state.orderRecords).sort((a, b) => new Date(a.updatedAt) < new Date(b.updatedAt) ? 1 : -1).map(orderId => {
+                  const order = this.state.orderRecords[orderId];
+
+                  return (
+                    <ToastieOrderRow 
+                      key={order.id}
+                      orderId={order.id}
+                      customerName={order.customerName}
+                      orderedAt={order.orderedAt}
+                      additionalItems={order.additionalItems}
+                      toasties={order.toasties}
+                      milkshakes={order.milkshakes}
+                      totalPrice={order.totalPrice}
+                      completedTime={order.completedTime}
+                      complete={() => this.completeOrder(order.id)}
+                    />
+                  )
+                })
               }
             </div>
           </div>

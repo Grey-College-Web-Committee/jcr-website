@@ -544,7 +544,7 @@ const createVerificationEmail = (name, verificationId) => {
     let contents = [];
   
     contents.push(`<h1>Toastie Bar Order Verification</h1>`);
-    contents.push(`<p>Hello, ${name}</p>`);
+    contents.push(`<p>Hello ${name},</p>`);
     contents.push(`<p>You have placed an order at the Grey JCR's Toastie Bar. As you were not logged in to the website we require you to verify your order before it is made.</p>`);
     contents.push(`<a href="${process.env.WEB_ADDRESS}toasties/verify/${verificationId}" target="_blank" rel="noopener noreferrer"><p>To do this, click here or paste the link below into your web browser.</p></a>`)
     contents.push(`<p>${process.env.WEB_ADDRESS}toasties/verify/${verificationId}</p>`);

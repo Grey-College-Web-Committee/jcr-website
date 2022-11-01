@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import dateFormat from 'dateformat';
 
 export const ToastieOrderRow = (props) => {
+    const [completed, setCompleted] = useState(props.completedTime !== null);
     const { orderId, customerName, orderedAt, additionalItems, toasties, milkshakes, totalPrice} = props;
+
+    useEffect(() => {
+        setCompleted(props.completedTime !== null)
+    }, [props.completedTime]);
 
     const generateToastieSection = () => (
         <div>
@@ -49,8 +54,17 @@ export const ToastieOrderRow = (props) => {
         </div>
     )
 
+    const completeOrder = () => {
+        setCompleted(true);
+        props.complete();
+    }
+
+    if(completed) {
+        return null;
+    }
+
     return (
-        <div className="flex flex-col border p-2 mb-2">
+        <div className="flex flex-col border-2 border-red-900 p-2 mb-2">
             <div className="flex flex-row justify-between items-start">
                 <div className="flex flex-col mb-1">
                     <h2 className="font-semibold text-xl">Order #{orderId} - {customerName} (Total: £{totalPrice})</h2>
@@ -58,6 +72,7 @@ export const ToastieOrderRow = (props) => {
                 </div>
                 <button
                     className="bg-grey-500 text-white rounded-md px-2 py-1"
+                    onClick={completeOrder}
                 >Mark Complete & Email</button>
             </div>
             {
@@ -69,8 +84,6 @@ export const ToastieOrderRow = (props) => {
             {
                 additionalItems.length === 0 ? null : generateAdditionalItemsSection()
             }
-
-
         </div>
     )
 }

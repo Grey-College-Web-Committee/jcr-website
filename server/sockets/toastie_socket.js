@@ -7,8 +7,10 @@ const { hasPermission } = require("../utils/permissionUtils.js");
 const { Op } = require("sequelize");
 const { makeDisplayName } = require("../utils/helper.js");
 const hash = require("object-hash");
+const mailer = require("../utils/mailer");
 
 const setupEvents = (socket, io) => {
+  // Subscribe to future events and get the initial data
   socket.on("subscribeToToastieBar", async () => {
     if(!hasPermission(socket.handshake.session, "toasties.manage")) {
       socket.disconnect();
@@ -130,18 +132,67 @@ const setupEvents = (socket, io) => {
             ]
           }
         ],
-        attributes: ["id", "externalCustomerName", "externalCustomerUsername", "updatedAt"]
+        attributes: ["id", "externalCustomerName", "externalCustomerUsername", "updatedAt", "completedTime"]
       });
     } catch (error) {
       console.log(error)
     }
 
     // Now process the data into the required format
-    const orders = orderRecords.map(processOrder);
+    const orders = orderRecords.reduce((acc, record) => (acc[record.id] = processOrder(record), acc), {});
 
     // These are then sent directly to the client which processes them
     socket.emit("toastieBarInitialData", { open: openRecord.booleanStorage, orderRecords: orders });
   });
+
+  // Update an order by setting it as complete
+  socket.on("markToastieBarOrderCompleted", async (data) => {
+    const { orderId } = data;
+
+    // Update the order and set its completed time
+    let orderRecord;
+
+    try {
+      orderRecord = await ToastieBarOrder.findOne({ 
+        where: {
+          id: orderId
+        },
+        include: [{
+          model: User,
+          attributes: ["firstNames", "surname", "email"]
+        }]
+      })
+    } catch (error) {
+      return { error: true };
+    }
+
+    const completedTime = new Date();
+    orderRecord.completedTime = completedTime;
+
+    try {
+      await orderRecord.save();
+    } catch (error) {
+      return { error: true };
+    }
+
+    // Email the person to collect their toastie
+    let customerEmail = null;
+    let customerName = null;
+
+    if(orderRecord.User === null) {
+      customerEmail = `${orderRecord.externalCustomerUsername}@durham.ac.uk`;
+      customerName = orderRecord.externalCustomerName;
+    } else {
+      customerEmail = orderRecord.User.email;
+      customerName = makeDisplayName(orderRecord.User.firstNames, orderRecord.User.surname)
+    }
+
+    const completedEmailMessage = createCompletionEmail(customerName)
+    mailer.sendEmail(customerEmail, "Toastie Bar Order Ready for Collection", completedEmailMessage);
+
+    // Send the event to all other clients connected to the room
+    io.to("toastieBarAdminClients").emit("toastieBarOrderCompleted", { orderId, completedTime });
+  })
 
   // Open the toastie bar to enable ordering
   // Distributes to all other connected toastie socket clients
@@ -171,6 +222,7 @@ const processOrder = (order) => {
     id: order.id,
     customerName: order.User === null ? order.externalCustomerName : makeDisplayName(order.User.firstNames, order.User.surname),
     orderedAt: order.updatedAt,
+    completedTime: order.completedTime,
     additionalItems: [],
     toasties: [] // specials will be processed into here
   }
@@ -229,7 +281,6 @@ const processOrder = (order) => {
   // and someone submits the special and a separate toastie with the same fillings X, Y, Z
   // then they could be charged different prices for the special and the custom toastie
   // decided not to do anything about this as it will cause confusion
-
   for(const toastie of order.ToastieBarComponentToasties) {
     let toastiePrice = 0;
 
@@ -303,6 +354,19 @@ const processOrder = (order) => {
   processedOrder.toasties = toasties;
 
   return processedOrder;
+}
+
+const createCompletionEmail = (name) => {
+  let contents = [];
+
+  contents.push(`<h1>Toastie Bar Order Collection</h1>`);
+  contents.push(`<p>Hello ${name},</p>`);
+  contents.push(`<p>Your online Toastie Bar order is ready for collection from the JCR.</p>`);
+  contents.push(`<p>Please come and collect and pay as soon as possible!</p>`);
+  contents.push(`<p>Failure to collect and pay for your order may prevent you from using the online ordering system in the future.</p>`);
+  contents.push(`<p>Thank you</p>`);
+
+  return contents.join("");
 }
 
 module.exports = { setupEvents };
