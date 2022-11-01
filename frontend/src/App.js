@@ -22,7 +22,7 @@ import AdminApproveAlumniPage from './components/accounts/alumni/AdminApproveAlu
 
 import ErrorPage from './components/errors/ErrorPage';
 import HomePage from './components/home/HomePage';
-import OrderToastiePage from './components/toastie_bar/OrderToastiePage';
+
 import CheckoutPage from './components/checkout/CheckoutPage';
 import OrderStashPage from './components/stash/OrderStashPage';
 import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
@@ -73,10 +73,11 @@ import ApplicantsPage from './components/applicants/ApplicantsPage';
 // import BarAdminViewBookings from './components/bar/admin/BarAdminViewBookings';
 // import BarAdminManageCordials from './components/bar/admin/BarAdminManageCordials';
 
-import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
-import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
-import ToastieAdminLive from './components/toastie_bar/admin/live/ToastieAdminLive';
-import ToastieBarOverview from './components/toastie_bar/admin/ToastieBarOverview';
+// import ToastieBarStockPage from './components/toastie_bar/admin/ToastieBarStockPage';
+// import ToastiesImagesPage from './components/toastie_bar/admin/ImagesPage';
+// import ToastieAdminLive from './components/toastie_bar/admin/live/ToastieAdminLive';
+// import ToastieBarOverview from './components/toastie_bar/admin/ToastieBarOverview';
+
 import StashStockPage from './components/stash/admin/StashStockPage';
 import StashImagesPage from './components/stash/admin/ImagesPage';
 import EditPermissionsPage from './components/permissions/EditPermissionsPage';
@@ -129,6 +130,8 @@ import SportsAndSocsAdminPage from './components/sportsandsocs/admin/SportsAndSo
 
 import TechPage from './components/tech/TechPage';
 import FacilitiesPage from './components/facilities/FacilitiesPage';
+
+import ToastieAdminLive from './components/toasties/admin/live/ToastieAdminLive.js';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -430,17 +433,8 @@ class App extends React.Component {
                     <Route exact path="/memberships/join" render={() => (
                       this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
                     )} />
-                    <Route exact path="/toasties/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin") )
-                    )} />
-                    <Route exact path="/toasties/stock" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieBarStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/stock") )
-                    )} />
                     <Route exact path="/toasties/live" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/live") )
-                    )} />
-                    <Route exact path="/toasties/images" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toastie.stock.edit") ? ( <ToastiesImagesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/images") )
+                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/live") )
                     )} />
                     <Route exact path="/stash/stock" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("stash.stock.edit") ? ( <StashStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/stash/stock") )
@@ -453,9 +447,6 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/permissions" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/permissions") )
-                    )} />
-                    <Route exact path="/toasties" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <OrderToastiePage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/toasties") )
                     )} />
                     <Route exact path="/media" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media") )
@@ -656,6 +647,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/sportsandsocs/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? ( <SportsAndSocsAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/sportsandsocs/admin") )
+                    )} />
+                    <Route exact path="/toasties/admin/live" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin/live") )
                     )} />
                     <Route exact path="/mcr" component={() => {
                       window.location.replace("https://community.dur.ac.uk/grey.mcr/");
