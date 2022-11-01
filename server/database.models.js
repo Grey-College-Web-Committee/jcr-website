@@ -1637,6 +1637,7 @@ ToastieBarAdditionalStock.init({
   }
 }, { sequelize, freezeTableName: true });
 
+// No need for manual available override, just check the fillings are available
 ToastieBarSpecial.init({
   name: {
     type: DataTypes.STRING,
@@ -1652,6 +1653,10 @@ ToastieBarSpecial.init({
   },
   endDate: {
     type: DataTypes.DATEONLY,
+    allowNull: false
+  },
+  priceWithoutBread: { // Could calculate the price but this gives flexibility
+    type: DataTypes.DECIMAL(6, 2),
     allowNull: false
   }
 }, { sequelize });
@@ -1696,6 +1701,10 @@ ToastieBarOrder.init({
   },
   completedTime: {
     type: DataTypes.DATE, // Can provide statistics if we store the time, no need for boolean completed as well
+    allowNull: true
+  },
+  verificationId: {
+    type: DataTypes.STRING, 
     allowNull: true
   }
 }, { sequelize });

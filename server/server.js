@@ -53,6 +53,7 @@ const profileRoute = require("./routes/profile");
 const sportsAndSocsRoute = require("./routes/sportsandsocs");
 const swappingRoute = require("./routes/swapping");
 const alumniRoute = require("./routes/alumni");
+const toastieBarRoute = require("./routes/toastie_bar");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -78,6 +79,9 @@ if(process.env.NODE_ENV === "production") {
   const subClient = pubClient.duplicate();
 
   io.adapter(redisAdapter({ pubClient, subClient }));
+} else {
+  // Pretty print the JSON
+  app.set('json spaces', 2);
 }
 
 const barSocket = require("./sockets/bar_socket");
@@ -254,6 +258,11 @@ const requiredPermissions = [
     name: "Manage Swapping",
     description: "Allows a user to control formal swapping",
     internal: "events.swapping"
+  },
+  {
+    name: "Manage Toastie Bar",
+    description: "View orders and edit stock for the toastie bar",
+    internal: "toastie.manage"
   }
 ];
 
@@ -490,6 +499,7 @@ app.use("/api/profile", isLoggedIn, profileRoute);
 app.use("/api/sportsandsocs", sportsAndSocsRoute);
 app.use("/api/swapping", isLoggedIn, swappingRoute);
 app.use("/api/alumni", alumniRoute);
+app.use("/api/toastie", toastieBarRoute); // No need to have been logged in
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
