@@ -637,6 +637,176 @@ router.post("/order", async (req, res) => {
     return res.status(200).json({ requiresVerification: userId === null });
 });
 
+router.post("/verify", async (req, res) => {
+    const { verificationCode } = req.body;
+
+    if(verificationCode === undefined) {
+        return res.status(400).json({ error: "No verification code submitted" });
+    }
+
+    // First, check that the Toastie Bar is actually open
+    let openRecord;
+
+    try {
+        openRecord = await PersistentVariable.findOne({
+            where: {
+                key: "TOASTIE_BAR_OPEN"
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({ error: "Unable to check open status" });
+    }
+
+    if(!openRecord.booleanStorage) {
+        return res.status(200).json({ success: false, reason: "closed" });
+    }
+
+    let orderRecord;
+    let fifteenMinuteWindow = new Date();
+    fifteenMinuteWindow.setMinutes(fifteenMinuteWindow.getMinutes() - 15);
+
+    try {
+        orderRecord = await ToastieBarOrder.findOne({
+            where: {
+                verificationId: verificationCode
+            }
+        })
+    } catch (error) {
+        return res.status(500).json({ error: "A server occurred attempting to check record" });
+    }
+
+    if(orderRecord === null) {
+        return res.status(200).json({ success: false, reason: "invalid_code" });
+    }
+
+    if(orderRecord.verified) {
+        return res.status(200).json({ success: false, reason: "already_verified" });
+    }
+
+    if(orderRecord.completedTime !== null) {
+        return res.status(200).json({ success: false, reason: "already_completed" });
+    }
+
+    let startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    if(orderRecord.createdAt < fifteenMinuteWindow) {
+        return res.status(200).json({ success: false, reason: "timeout" });
+    }
+
+    orderRecord.verified = true;
+
+    try {
+        await orderRecord.save();
+    } catch (error) {
+        return res.status(500).json({ error: "Unable to save record" });
+    }
+
+    let readyOrder;
+
+    // Mammoth join to get all of the data about each order that is needed
+    // Easier to do this than piece together the previous bits
+    // This can be fed directly into the order format processor for standarisation with socket output
+    try {
+        readyOrder = await ToastieBarOrder.findOne({
+            where: {
+                id: orderRecord.id,
+                verified: true,
+            },
+            include: [
+                {
+                model: User,
+                attributes: ["surname", "firstNames"]
+                },
+                {
+                model: ToastieBarComponentMilkshake,
+                attributes: ["id"],
+                include: [
+                    {
+                    model: ToastieBarMilkshake,
+                    attributes: ["name", "pricePerUnit"]
+                    }
+                ]
+                },
+                {
+                model: ToastieBarComponentAdditionalItem,
+                attributes: ["id"],
+                include: [
+                    {
+                    model: ToastieBarAdditionalStock,
+                    attributes: ["name", "pricePerUnit"],
+                    include: [
+                        {
+                        model: ToastieBarAdditionalStockType,
+                        attributes: ["name"]
+                        }
+                    ] 
+                    }
+                ]
+                },
+                {
+                model: ToastieBarComponentSpecial,
+                attributes: ["id"],
+                include: [
+                    {
+                    model: ToastieBarSpecial,
+                    attributes: ["name", "priceWithoutBread"],
+                    include: [
+                        {
+                        model: ToastieBarSpecialFilling,
+                        attributes: ["id"],
+                        include: [
+                            {
+                            model: ToastieBarFilling,
+                            attributes: ["name"]
+                            }
+                        ]
+                        }
+                    ]
+                    },
+                    {
+                    model: ToastieBarBread,
+                    attributes: ["name", "pricePerUnit"]
+                    }
+                ]
+                },
+                {
+                model: ToastieBarComponentToastie,
+                attributes: ["id"],
+                include: [
+                    {
+                    model: ToastieBarComponentToastieFilling,
+                    attributes: ["id"],
+                    include: [
+                        {
+                        model: ToastieBarFilling,
+                        attributes: ["name", "pricePerUnit"]
+                        }
+                    ]
+                    },
+                    {
+                    model: ToastieBarBread,
+                    attributes: ["name", "pricePerUnit"]
+                    }
+                ]
+                }
+            ],
+            attributes: ["id", "externalCustomerName", "externalCustomerUsername", "updatedAt", "completedTime"]
+        });
+    } catch (error) {
+        return false;
+    }
+
+    const processedOrder = processToastieOrder(readyOrder);
+
+    // io is passed via middleware in server.js
+    req.io.to("toastieBarAdminClients").emit("toastieBarNewOrder", { processedOrder });
+
+    // TODO: Send email
+
+    return res.status(200).json({ success: true });
+})
+
 // Generates the email to send about verifying an order
 const createVerificationEmail = (name, verificationId) => {
     // TODO: Verify the URL is where we want to go for verification!
@@ -647,17 +817,11 @@ const createVerificationEmail = (name, verificationId) => {
     contents.push(`<p>You have placed an order at the Grey JCR's Toastie Bar. As you were not logged in to the website we require you to verify your order before it is made.</p>`);
     contents.push(`<a href="${process.env.WEB_ADDRESS}toasties/verify/${verificationId}" target="_blank" rel="noopener noreferrer"><p>To do this, click here or paste the link below into your web browser.</p></a>`)
     contents.push(`<p>${process.env.WEB_ADDRESS}toasties/verify/${verificationId}</p>`);
-    contents.push(`<p><strong>Your order will not be started until you verify this order.</strong></p>`);
+    contents.push(`<p><strong>This link expires in 15 minutes. Your order will not be started until you verify it.</strong></p>`);
     contents.push(`<p>If you did not order this toastie you can safely ignore this email.</p>`);
     contents.push(`<p>Thank you</p>`);
 
     return contents.join("");
-}
-
-const transformNewOrder = (orderId) => {
-    let orderRecord;
-
-    
 }
 
 // Set the module export to router so it can be used in server.js

@@ -132,6 +132,7 @@ import TechPage from './components/tech/TechPage';
 import FacilitiesPage from './components/facilities/FacilitiesPage';
 
 import ToastieAdminLive from './components/toasties/admin/live/ToastieAdminLive.js';
+import ToastieOrderVerification from './components/toasties/verify/ToastieOrderVerification.js';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -650,6 +651,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/toasties/admin/live" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin/live") )
+                    )} />
+                    <Route exact path="/toasties/verify/:verificationCode" render={(props) => (
+                      <ToastieOrderVerification {...props} />
                     )} />
                     <Route exact path="/mcr" component={() => {
                       window.location.replace("https://community.dur.ac.uk/grey.mcr/");
