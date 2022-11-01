@@ -71,7 +71,7 @@ class ToastieAdminLive extends React.Component {
     // This will occur when the server sends the initial backlog of orders
     this.socket.on("toastieBarInitialData", this.handleInitialData);
     // // This will occur when the server send a barNewOrder event
-    // this.socket.on("toastieNewOrder", this.handleNewOrder);
+    this.socket.on("toastieBarNewOrder", this.handleNewOrder);
     // // This will occur when someone updates an order as completed
     this.socket.on("toastieBarOrderCompleted", this.handleToastieBarOrderCompleted);
     // This will occur when someone updates if the bar is open for orders
@@ -84,7 +84,6 @@ class ToastieAdminLive extends React.Component {
 
   handleInitialData = (data) => {
     const { open, orderRecords } = data;
-    console.log({orderRecords})
     this.setState({ initialDataLoaded: true, open, orderRecords });
   }
 
@@ -115,6 +114,14 @@ class ToastieAdminLive extends React.Component {
     orderRecords[orderId].completedTime = completedTime;
     this.setState({ orderRecords, completed: this.state.completed + 1 });
   }
+
+  // New Order Received
+  handleNewOrder = (data) => {
+    const { processedOrder } = data;
+    const orderRecords = {...this.state.orderRecords};
+    orderRecords[processedOrder.id] = processedOrder;
+    this.setState({ orderRecords });
+  }
   
   render () {
     if(!this.state.loaded) {
@@ -133,7 +140,7 @@ class ToastieAdminLive extends React.Component {
       return <LoadingHolder />
     }
 
-    const { open } = this.state;
+    const { open, orderRecords } = this.state;
 
     return (
       <div className="flex flex-col">
@@ -150,8 +157,8 @@ class ToastieAdminLive extends React.Component {
             <p>Orders will appear here automatically as they are placed. There are currently {Object.keys(this.state.orderRecords).length - this.state.completed} order(s) that need completing.</p>
             <div className="flex flex-col mt-2">
               {
-                Object.keys(this.state.orderRecords).sort((a, b) => new Date(a.updatedAt) < new Date(b.updatedAt) ? 1 : -1).map(orderId => {
-                  const order = this.state.orderRecords[orderId];
+                Object.keys(orderRecords).sort((a, b) => new Date(orderRecords[a].orderedAt) > new Date(orderRecords[b].orderedAt) ? 1 : -1).map(orderId => {
+                  const order = orderRecords[orderId];
 
                   return (
                     <ToastieOrderRow 

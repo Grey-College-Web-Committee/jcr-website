@@ -10,6 +10,7 @@ const {
 const { Op } = require("sequelize");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
+const { processToastieOrder } = require("../utils/helper.js");
 const { v4: uuidv4 } = require('uuid');
 const mailer = require("../utils/mailer");
 
@@ -531,9 +532,107 @@ router.post("/order", async (req, res) => {
         if(emailResult === false) {
             return res.status(400).json({ error: "Unable to send verification email. Please check your username is valid."})
         }
-    }
+    } else {
+        let readyOrder;
 
-    // TODO: Once socket is ready, send immediately if it does not require verification
+        // Mammoth join to get all of the data about each order that is needed
+        // Easier to do this than piece together the previous bits
+        // This can be fed directly into the order format processor for standarisation with socket output
+        try {
+            readyOrder = await ToastieBarOrder.findOne({
+                where: {
+                    id: orderRecord.id,
+                    verified: true,
+                },
+                include: [
+                    {
+                    model: User,
+                    attributes: ["surname", "firstNames"]
+                    },
+                    {
+                    model: ToastieBarComponentMilkshake,
+                    attributes: ["id"],
+                    include: [
+                        {
+                        model: ToastieBarMilkshake,
+                        attributes: ["name", "pricePerUnit"]
+                        }
+                    ]
+                    },
+                    {
+                    model: ToastieBarComponentAdditionalItem,
+                    attributes: ["id"],
+                    include: [
+                        {
+                        model: ToastieBarAdditionalStock,
+                        attributes: ["name", "pricePerUnit"],
+                        include: [
+                            {
+                            model: ToastieBarAdditionalStockType,
+                            attributes: ["name"]
+                            }
+                        ] 
+                        }
+                    ]
+                    },
+                    {
+                    model: ToastieBarComponentSpecial,
+                    attributes: ["id"],
+                    include: [
+                        {
+                        model: ToastieBarSpecial,
+                        attributes: ["name", "priceWithoutBread"],
+                        include: [
+                            {
+                            model: ToastieBarSpecialFilling,
+                            attributes: ["id"],
+                            include: [
+                                {
+                                model: ToastieBarFilling,
+                                attributes: ["name"]
+                                }
+                            ]
+                            }
+                        ]
+                        },
+                        {
+                        model: ToastieBarBread,
+                        attributes: ["name", "pricePerUnit"]
+                        }
+                    ]
+                    },
+                    {
+                    model: ToastieBarComponentToastie,
+                    attributes: ["id"],
+                    include: [
+                        {
+                        model: ToastieBarComponentToastieFilling,
+                        attributes: ["id"],
+                        include: [
+                            {
+                            model: ToastieBarFilling,
+                            attributes: ["name", "pricePerUnit"]
+                            }
+                        ]
+                        },
+                        {
+                        model: ToastieBarBread,
+                        attributes: ["name", "pricePerUnit"]
+                        }
+                    ]
+                    }
+                ],
+                attributes: ["id", "externalCustomerName", "externalCustomerUsername", "updatedAt", "completedTime"]
+            });
+        } catch (error) {
+            return false;
+        }
+
+        const processedOrder = processToastieOrder(readyOrder);
+
+        // io is passed via middleware in server.js
+        req.io.to("toastieBarAdminClients").emit("toastieBarNewOrder", { processedOrder });
+    }
 
     return res.status(200).json({ requiresVerification: userId === null });
 });
@@ -553,6 +652,12 @@ const createVerificationEmail = (name, verificationId) => {
     contents.push(`<p>Thank you</p>`);
 
     return contents.join("");
+}
+
+const transformNewOrder = (orderId) => {
+    let orderRecord;
+
+    
 }
 
 // Set the module export to router so it can be used in server.js
