@@ -24,7 +24,9 @@ const {
   Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, 
   BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, BarBooking, BarBookingGuest, BarCordial, // redundant
   JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, SportAndSoc, 
-  SwappingCredit, SwappingCreditLog, SwappingPair 
+  SwappingCredit, SwappingCreditLog, SwappingPair,
+  ToastieBarBread, ToastieBarFilling, ToastieBarMilkshake, ToastieBarSpecial, ToastieBarSpecialFilling, ToastieBarAdditionalStockType, ToastieBarAdditionalStock, // TB Stock
+  ToastieBarOrder, ToastieBarComponentToastie, ToastieBarComponentToastieFilling, ToastieBarComponentSpecial, ToastieBarComponentMilkshake, ToastieBarComponentAdditionalItem // TB Order
 } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
@@ -345,6 +347,23 @@ const requiredCommittees = [
   await SwappingCredit.sync();
   await SwappingCreditLog.sync();
   await SwappingPair.sync();
+
+  // Initialise, create, and sync the toastie bar tables
+
+  await ToastieBarBread.sync();
+  await ToastieBarFilling.sync();
+  await ToastieBarMilkshake.sync();
+  await ToastieBarSpecial.sync();
+  await ToastieBarSpecialFilling.sync();
+  await ToastieBarAdditionalStockType.sync();
+  await ToastieBarAdditionalStock.sync();
+
+  await ToastieBarOrder.sync();
+  await ToastieBarComponentToastie.sync();
+  await ToastieBarComponentToastieFilling.sync();
+  await ToastieBarComponentSpecial.sync();
+  await ToastieBarComponentMilkshake.sync();
+  await ToastieBarComponentAdditionalItem.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
