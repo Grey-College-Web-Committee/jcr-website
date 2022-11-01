@@ -86,10 +86,12 @@ if(process.env.NODE_ENV === "production") {
 
 const barSocket = require("./sockets/bar_socket");
 const swappingSocket = require("./sockets/swapping_socket");
+const toastieBarSocket = require("./sockets/toastie_socket");
 
 io.on("connection", socket => {
   barSocket.setupEvents(socket, io);
   swappingSocket.setupEvents(socket, io);
+  toastieBarSocket.setupEvents(socket, io);
 });
 
 // Tells express to recognise incoming requests as JSON
@@ -262,7 +264,7 @@ const requiredPermissions = [
   {
     name: "Manage Toastie Bar",
     description: "View orders and edit stock for the toastie bar",
-    internal: "toastie.manage"
+    internal: "toasties.manage"
   }
 ];
 

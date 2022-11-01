@@ -1982,8 +1982,8 @@ ToastieBarComponentToastie.belongsTo(ToastieBarBread, { foreignKey: 'breadId' })
 ToastieBarComponentToastie.hasMany(ToastieBarComponentToastieFilling, { foreignKey: 'individualToastieId' });
 ToastieBarComponentToastieFilling.belongsTo(ToastieBarComponentToastie, { foreignKey: 'individualToastieId' });
 
-ToastieBarComponentToastie.hasMany(ToastieBarComponentToastieFilling, { foreignKey: 'fillingId' });
-ToastieBarComponentToastieFilling.belongsTo(ToastieBarComponentToastie, { foreignKey: 'fillingId' });
+ToastieBarFilling.hasMany(ToastieBarComponentToastieFilling, { foreignKey: 'fillingId' });
+ToastieBarComponentToastieFilling.belongsTo(ToastieBarFilling, { foreignKey: 'fillingId' });
 
 ToastieBarOrder.hasMany(ToastieBarComponentAdditionalItem, { foreignKey: 'orderId' });
 ToastieBarComponentAdditionalItem.belongsTo(ToastieBarOrder, { foreignKey: 'orderId' });
