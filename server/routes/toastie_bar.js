@@ -3,13 +3,15 @@ const express = require("express");
 const router = express.Router();
 // The database models
 const { 
-    User, Permission, PermissionLink,
+    User, Permission, PermissionLink, PersistentVariable,
     ToastieBarBread, ToastieBarFilling, ToastieBarMilkshake, ToastieBarSpecial, ToastieBarSpecialFilling, ToastieBarAdditionalStockType, ToastieBarAdditionalStock,
     ToastieBarOrder, ToastieBarComponentToastie, ToastieBarComponentToastieFilling, ToastieBarComponentSpecial, ToastieBarComponentMilkshake, ToastieBarComponentAdditionalItem
 } = require("../database.models.js");
 const { Op } = require("sequelize");
 // Used to check admin permissions
 const { hasPermission } = require("../utils/permissionUtils.js");
+const { v4: uuidv4 } = require('uuid');
+const mailer = require("../utils/mailer");
 
 // Get all stock items that are not deleted including breads, fillings, milkshake, specials and additional items 
 router.get("/stock", async (req, res) => {
@@ -161,8 +163,397 @@ router.get("/stock", async (req, res) => {
 
 // Place an order
 router.post("/order", async (req, res) => {
+    // See ../examples/toastie_order.json for an example structure
+    // Note that customer is only ever checked if the user is not logged in
+
+    // First, check that the Toastie Bar is actually open
+    let openRecord;
+
+    try {
+        openRecord = await PersistentVariable.findOne({
+            where: {
+                key: "TOASTIE_BAR_OPEN"
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({ error: "Unable to check open status" });
+    }
     
+    if(!openRecord.booleanStorage) {
+        return res.status(400).json({ error: "The Toastie Bar is no longer accepting orders" });
+    }
+
+    const { order } = req.body;
+
+    // Verify that an order was sent in (its most basic form)
+    if(order === undefined) {
+        return res.status(400).json({ error: "No order received" });
+    }
+
+    let userId = null;
+
+    let externalCustomerName = null;
+    let externalCustomerUsername = null;
+    let verificationId = null;
+
+    // Next, check if they are logged in or not
+    // Logged in if they have a user session and cookie
+    if(req.session.user && req.cookies.user_sid && req.session.user.id) {
+        userId = req.session.user.id;
+    } else {
+        // Check that a customer child exists
+        if(order.customer === undefined) {
+            return res.status(400).json({ error: "Missing customer details" });
+        }
+
+        externalCustomerName = order.customer.name;
+        externalCustomerUsername = order.customer.username;
+
+        if(externalCustomerName === undefined || externalCustomerName === null || externalCustomerName.length === 0) {
+            return res.status(400).json({ error: "Missing customer name" });
+        }
+
+        if(externalCustomerUsername === undefined || externalCustomerUsername === null || externalCustomerUsername.length === 0) {
+            return res.status(400).json({ error: "Missing customer username" });
+        }
+
+        // Username must be 6 characters long
+        externalCustomerUsername = externalCustomerUsername.trim();
+        if(externalCustomerUsername.length !== 6) {
+            return res.status(400).json({ error: "Invalid username" });
+        }
+
+        // Generate a verification ID for their verification URL
+        verificationId = uuidv4();
+    }
+
+    // Now we have customer information, move on to the order
+    // Check they sent order content
+    if(order.content === undefined) {
+        return res.status(400).json({ error: "Missing order content" });
+    }
+
+    const { toasties, milkshakeIds, specials, additionalIds } = order.content;
+
+    // Check these all exist
+    if(toasties === undefined) {
+        return res.status(400).json({ error: "Missing toastie order content" });
+    }
+    
+    if(milkshakeIds === undefined) {
+        return res.status(400).json({ error: "Missing milkshake order content" });
+    }
+    
+    if(specials === undefined) {
+        return res.status(400).json({ error: "Missing special order content" });
+    }
+    
+    if(additionalIds === undefined) {
+        return res.status(400).json({ error: "Missing additional order content" });
+    }
+    
+    // Make sure they have ordered something
+    let nonEmptyOrder = false;
+
+    // We first need to validate the order contents before actually adding it to the database
+    // Start with the toasties
+    for(const toastie of toasties) {
+        // Validate bread record
+        let breadRecord;
+
+        try {
+            // Not too concerned with attributes here as not sending this to the user
+            breadRecord = await ToastieBarBread.findOne({ 
+                where: { 
+                    id: toastie.breadId
+                } 
+            });
+        } catch (error) {
+            return res.status(500).json({ error: "Unable to fetch the bread record" });
+        }
+
+        if(breadRecord === null) {
+            return res.status(400).json({ error: "Invalid breadId" });
+        }
+
+        if(!breadRecord.available || breadRecord.deleted) {
+            return res.status(400).json({ error: `Selected bread '${breadRecord.name}' is unavailable`});
+        }
+
+        if(toastie.fillingIds === undefined || toastie.fillingIds.length === 0) {
+            return res.status(400).json({ error: "Missing fillings" });
+        }
+
+        // Validate fillings
+        for(const fillingId of toastie.fillingIds) {
+            let fillingRecord;
+
+            try {
+                fillingRecord = await ToastieBarFilling.findOne({ 
+                    where: { 
+                        id: fillingId
+                    } 
+                });
+            } catch (error) {
+                return res.status(500).json({ error: "Unable to fetch the filling record" });
+            }
+
+            if(fillingRecord === null) {
+                return res.status(400).json({ error: "Invalid fillingId" });
+            }
+
+            if(!fillingRecord.available || fillingRecord.deleted) {
+                return res.status(400).json({ error: `Selected filling '${fillingRecord.name}' is unavailable`});
+            }
+        }
+
+        // Toastie is valid if we make it to here!
+        nonEmptyOrder = true;
+    }
+
+    // Now validate the milkshakes
+    for(const milkshakeId of milkshakeIds) {
+        // Validate milkshake record
+        let milkshakeRecord;
+
+        try {
+            // Not too concerned with attributes here as not sending this to the user
+            milkshakeRecord = await ToastieBarMilkshake.findOne({ 
+                where: { 
+                    id: milkshakeId
+                } 
+            });
+        } catch (error) {
+            return res.status(500).json({ error: "Unable to fetch the milkshake record" });
+        }
+
+        if(milkshakeRecord === null) {
+            return res.status(400).json({ error: "Invalid milkshake id" });
+        }
+
+        if(!milkshakeRecord.available || milkshakeRecord.deleted) {
+            return res.status(400).json({ error: `Selected milkshake '${milkshakeRecord.name}' is unavailable`});
+        }
+
+        // Milkshake is valid if we make it here!
+        nonEmptyOrder = true;
+    }
+
+    // Now validate the specials
+    const now = new Date();
+
+    for(const special of specials) {
+        // Validate bread record
+        let breadRecord;
+
+        try {
+            // Not too concerned with attributes here as not sending this to the user
+            breadRecord = await ToastieBarBread.findOne({ 
+                where: { 
+                    id: special.breadId
+                } 
+            });
+        } catch (error) {
+            return res.status(500).json({ error: "Unable to fetch the bread record" });
+        }
+
+        if(breadRecord === null) {
+            return res.status(400).json({ error: "Invalid breadId" });
+        }
+
+        if(!breadRecord.available || breadRecord.deleted) {
+            return res.status(400).json({ error: `Selected bread '${breadRecord.name}' is unavailable`});
+        }
+
+        // Validate the special, will need to check fillings
+        let specialRecord;
+
+        try {
+            // Not too concerned with attributes here as not sending this to the user
+            specialRecord = await ToastieBarSpecial.findOne({ 
+                where: { 
+                    id: special.specialId,
+                    startDate: {
+                        [Op.lte]: now
+                    },
+                    endDate: {
+                        [Op.gte]: now 
+                    }
+                },
+                include: [
+                    {
+                        model: ToastieBarSpecialFilling,
+                        include: [ ToastieBarFilling ]
+                    }
+                ],
+            });
+        } catch (error) {
+            return res.status(500).json({ error: "Unable to fetch the special record" });
+        }
+
+        if(specialRecord === null) {
+            return res.status(400).json({ error: "Invalid specialId or the special has expired" });
+        }
+
+        for(const fillingLink of specialRecord.ToastieBarSpecialFillings) {
+            const filling = fillingLink.ToastieBarFilling;
+            // Require all fillings to be available for the special to be available
+            // Decided not to check for deleted as they may use a special to get rid of some stock for a special filling
+            if(!filling.available) {
+                return res.status(400).json({ error: `Selected special '${specialRecord.name}' is unavailable as filling ${filling.name} is unavailable` });
+            }
+        }
+
+        // Special is valid if we make it here!
+        nonEmptyOrder = true;
+    }
+
+    // Now validate the additional items
+    for(const additionalId of additionalIds) {
+        // Validate milkshake record
+        let additionalRecord;
+
+        try {
+            // Not too concerned with attributes here as not sending this to the user
+            additionalRecord = await ToastieBarAdditionalStock.findOne({ 
+                where: { 
+                    id: additionalId
+                } 
+            });
+        } catch (error) {
+            return res.status(500).json({ error: "Unable to fetch the additional item record" });
+        }
+
+        if(additionalRecord === null) {
+            return res.status(400).json({ error: "Invalid additional item id" });
+        }
+
+        if(!additionalRecord.available || additionalRecord.deleted) {
+            return res.status(400).json({ error: `Selected additional item '${additionalRecord.name}' is unavailable`});
+        }
+
+        // Additional item is valid if we make it here!
+        nonEmptyOrder = true;
+    }
+
+    // Must order a minimum of one item!
+    if(!nonEmptyOrder) {
+        return res.status(400).json({ error: "Must order at least one item" });
+    }
+
+    // Order is valid, can now add it to the database
+    // Firstly, create the parent record
+
+    let orderRecord;
+
+    try {
+        orderRecord = await ToastieBarOrder.create({
+            userId, externalCustomerName, externalCustomerUsername,
+            verified: userId !== null, verificationId // Logged in students do not need to verify their identity
+        });
+    } catch (error) {
+        return res.status(500).json({ error: "Unable to create order parent" });
+    }
+
+    // Now build the order up
+    // First, toasties
+    for(const toastie of toasties) {
+        let toastieRecord; 
+
+        try {
+            toastieRecord = await ToastieBarComponentToastie.create({
+                orderId: orderRecord.id,
+                breadId: toastie.breadId
+            });
+        } catch (error) {
+            return res.status(500).json({ error: "Unable to create toastie order entry" });
+        }
+
+        for(const fillingId of toastie.fillingIds) {
+            try {
+                await ToastieBarComponentToastieFilling.create({
+                    individualToastieId: toastieRecord.id,
+                    fillingId
+                });
+            } catch (error) {
+                return res.status(500).json({ error: "Unable to create toastie filling entry" });
+            }
+        }
+    }
+
+    // Next, milkshakes
+    for(const milkshakeId of milkshakeIds) {
+        try {
+            await ToastieBarComponentMilkshake.create({
+                orderId: orderRecord.id,
+                milkshakeId
+            });
+        } catch (error) {
+            return res.status(500).json({ error: "Unable to create milkshake entry" });
+        }
+    }
+
+    // Next, specials
+    for(const special of specials) {
+        try {
+            await ToastieBarComponentSpecial.create({
+                orderId: orderRecord.id,
+                specialId: special.specialId,
+                breadId: special.breadId
+            });
+        } catch (error) {
+            return res.status(500).json({ error: "Unable to create special entry" });
+        }
+    }
+
+    // Finally, additional items
+    for(const additionalId of additionalIds) {
+        try {
+            await ToastieBarComponentAdditionalItem.create({
+                orderId: orderRecord.id,
+                stockId: additionalId
+            })
+        } catch (error) {
+            return res.status(500).json({ error: "Unable to create additional item entry" });
+        }
+    }
+
+    // Order is now completed
+
+    // Send the verification email for non-logged in users
+    // TODO: Otherwise send the order confirmation
+    if(userId === null) {
+        // Durham emails only!
+        const email = `${externalCustomerUsername}@durham.ac.uk`;
+        const verificationEmailMessage = createVerificationEmail(externalCustomerName, verificationId);
+        let emailResult = await mailer.sendEmail(email, `Verify Toastie Bar Order`, verificationEmailMessage);
+
+        if(emailResult === false) {
+            return res.status(400).json({ error: "Unable to send verification email. Please check your username is valid."})
+        }
+    }
+
+    // TODO: Once socket is ready, send immediately if it does not require verification
+
+    return res.status(200).json({ requiresVerification: userId === null });
 });
+
+// Generates the email to send about verifying an order
+const createVerificationEmail = (name, verificationId) => {
+    // TODO: Verify the URL is where we want to go for verification!
+    let contents = [];
+  
+    contents.push(`<h1>Toastie Bar Order Verification</h1>`);
+    contents.push(`<p>Hello, ${name}</p>`);
+    contents.push(`<p>You have placed an order at the Grey JCR's Toastie Bar. As you were not logged in to the website we require you to verify your order before it is made.</p>`);
+    contents.push(`<a href="${process.env.WEB_ADDRESS}toasties/verify/${verificationId}" target="_blank" rel="noopener noreferrer"><p>To do this, click here or paste the link below into your web browser.</p></a>`)
+    contents.push(`<p>${process.env.WEB_ADDRESS}toasties/verify/${verificationId}</p>`);
+    contents.push(`<p><strong>Your order will not be started until you verify this order.</strong></p>`);
+    contents.push(`<p>If you did not order this toastie you can safely ignore this email.</p>`);
+    contents.push(`<p>Thank you</p>`);
+
+    return contents.join("");
+}
 
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route

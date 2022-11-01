@@ -437,6 +437,16 @@ const requiredCommittees = [
       key: "SWAPPING_OPEN",
       booleanStorage: false
     }
+  });
+
+  await PersistentVariable.findOrCreate({
+    where: {
+      key: "TOASTIE_BAR_OPEN"
+    },
+    defaults: {
+      key: "TOASTIE_BAR_OPEN",
+      booleanStorage: false
+    }
   })
 })();
 

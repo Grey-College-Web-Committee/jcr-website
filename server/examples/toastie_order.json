@@ -1,0 +1,22 @@
+{
+    "customer": {
+        "name": "",
+        "username": ""
+    },
+    "content": {
+        "toasties": [
+            {
+                "breadId": 1,
+                "fillingIds": [1, 2, 3, 4]
+            }
+        ],
+        "milkshakeIds": [1, 2],
+        "specials": [
+            {
+                "specialId": 1,
+                "breadId": 2
+            }
+        ],
+        "additionalIds": [1, 2]
+    }
+}
