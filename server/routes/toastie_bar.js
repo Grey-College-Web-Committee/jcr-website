@@ -815,7 +815,7 @@ router.post("/verify", async (req, res) => {
   mailer.sendEmail(customerEmail, "Toastie Bar Order Confirmation", orderSummaryEmail);
 
   return res.status(200).json({ success: true });
-})
+});
 
 router.post("/bread/update", async (req, res) => {
   if(!req.session.user || !req.cookies.user_sid) {
@@ -1091,6 +1091,153 @@ router.post("/milkshake/create", async (req, res) => {
   }
 
   return res.status(200).json({ record: milkshakeRecord });
+});
+
+router.get("/additional/types", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  let types;
+
+  try {
+    types = await ToastieBarAdditionalStockType.findAll();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to get the stock types" });
+  }
+
+  return res.status(200).json({ types });
+});
+
+router.post("/additional/update", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, typeId, pricePerUnit, available } = req.body;
+
+  let additionalRecord;
+
+  try {
+    additionalRecord = await ToastieBarAdditionalStock.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  if(additionalRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  additionalRecord.name = name;
+  additionalRecord.typeId = typeId;
+  additionalRecord.pricePerUnit = pricePerUnit;
+  additionalRecord.available = available;
+
+  try {
+    await additionalRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/additional/delete", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.body;
+
+  let additionalRecord;
+
+  try {
+    additionalRecord = await ToastieBarAdditionalStock.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  if(additionalRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  additionalRecord.deleted = true;
+
+  try {
+    await additionalRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/additional/create", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { name, typeId, pricePerUnit, available } = req.body;
+
+  let typeRecord;
+
+  try {
+    typeRecord = await ToastieBarAdditionalStockType.findOne({ where: { id: typeId } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch type record" });
+  }
+
+  if(typeRecord === null) {
+    return res.status(400).json({ error: "Invalid typeId" });
+  }
+
+  let additionalRecord;
+
+  try {
+    additionalRecord = await ToastieBarAdditionalStock.create({ name, typeId, pricePerUnit, available });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create record" });
+  }
+
+  return res.status(200).json({ record: additionalRecord, type: typeRecord });
+});
+
+router.post("/additional/type/create", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { name } = req.body;
+
+  let additionalTypeRecord;
+
+  try {
+    additionalTypeRecord = await ToastieBarAdditionalStockType.create({ name });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create record" });
+  }
+
+  return res.status(200).json({ record: additionalTypeRecord });
 });
 
 // Generates the email to send about verifying an order

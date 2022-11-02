@@ -4,6 +4,8 @@ import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
 import { ToastieNewBasicStockRow } from './ToastieNewBasicStockRow';
 import { ToastieBasicStockRow } from './ToastieBasicStockRow';
+import { ToastieAdditionalStockRow } from './ToastieAdditionalStockRow';
+import { ToastieNewAdditionalStockRow } from './ToastieNewAdditionalStockRow';
 
 class ToastieAdminStock extends React.Component {
   constructor(props) {
@@ -18,7 +20,10 @@ class ToastieAdminStock extends React.Component {
       breads: [], 
       fillings: [], 
       milkshakes: [], 
-      specials: []
+      specials: [],
+
+      additionalTypes: [],
+      newTypeName: ""
     };
 
     // Change this to your permission
@@ -60,15 +65,25 @@ class ToastieAdminStock extends React.Component {
     let result;
 
     try {
-        result = await api.get("/toastie/stock");
+      result = await api.get("/toastie/stock");
     } catch (error) {
-        this.setState({ loaded: false, status: error.response.status });
-        return;
+      this.setState({ loaded: false, status: error.response.status });
+      return;
+    }
+
+    let typeResult;
+
+    try {
+      typeResult = await api.get("/toastie/additional/types");
+    } catch (error) {
+      this.setState({ loaded: false, status: error.response.status });
+      return;
     }
 
     const { additionalStock, breads, fillings, milkshakes, specials } = result.data;
+    const { types } = typeResult.data;
 
-    this.setState({ loaded: true, additionalStock, breads, fillings, milkshakes, specials });
+    this.setState({ loaded: true, additionalStock, breads, fillings, milkshakes, specials, additionalTypes: types });
   }
 
   onNewBreadRow = (record) => {
@@ -92,7 +107,7 @@ class ToastieAdminStock extends React.Component {
           </thead>
           <tbody>
             {
-              this.state.breads.map(bread => 
+              this.state.breads.sort((a, b) => a.name > b.name ? 1: -1).map(bread => 
                 <ToastieBasicStockRow 
                   key={bread.id}
                   url="bread"
@@ -135,7 +150,7 @@ class ToastieAdminStock extends React.Component {
           </thead>
           <tbody>
             {
-              this.state.fillings.map(filling => 
+              this.state.fillings.sort((a, b) => a.name > b.name ? 1: -1).map(filling => 
                 <ToastieBasicStockRow 
                   key={filling.id}
                   url="filling"
@@ -178,7 +193,7 @@ class ToastieAdminStock extends React.Component {
           </thead>
           <tbody>
             {
-              this.state.milkshakes.map(milkshake => 
+              this.state.milkshakes.sort((a, b) => a.name > b.name ? 1: -1).map(milkshake => 
                 <ToastieBasicStockRow 
                   key={milkshake.id}
                   url="milkshake"
@@ -193,6 +208,100 @@ class ToastieAdminStock extends React.Component {
             <ToastieNewBasicStockRow 
               url="milkshake"
               onRowAdded={this.onNewMilkshakeRow} 
+            />
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  onNewAdditionalRow = (record, type) => {
+    const copiedAdditionals = {...this.state.additionalStock};
+    copiedAdditionals[type.name].push(record);
+    this.setState({ additionalStock: copiedAdditionals })
+  }
+
+  createNewType = async () => {
+    this.setState({ newTypeDisabled: true });
+
+    if(this.state.newTypeName.length === 0) {
+      alert("Invalid input");
+      this.setState({ newTypeDisabled: false });
+      return;
+    }
+
+    let result;
+
+    try {
+      result = await api.post("/toastie/additional/type/create", { name: this.state.newTypeName });
+    } catch (error) {
+      alert("There was an error adding the new type");
+      return;
+    }
+
+    const copiedAdditionals = {...this.state.additionalStock}
+    copiedAdditionals[result.data.record.name] = [];
+
+    const copiedAdditionalTypes = [...this.state.additionalTypes]
+    copiedAdditionalTypes.push(result.data.record);
+    this.setState({ additionalTypes: copiedAdditionalTypes, additionalStock: copiedAdditionals, newTypeDisabled: false, newTypeName: "" });
+  }
+
+  renderAdditionalSection = () => {
+    return (
+      <div className="flex flex-col mt-4 w-full items-start">
+        <h3 className="text-2xl font-semibold mb-2">Additional Items</h3>
+        <div className="flex flex-col border p-2 mb-2 w-full items-start">
+          <h4 className="text-xl font-semibold mb-1">Create Additional Item Type</h4>
+          <div className="flex flex-row w-full items-center">
+            <span>Type Name:</span>
+            <input
+              type="text"
+              className="mx-2 py-1 px-2 border disabled:opacity-25"
+              name="newTypeName"
+              value={this.state.newTypeName} 
+              maxLength={255}
+              onChange={this.onInputChange}
+            />
+            <button
+              disabled={this.state.newTypeDisabled || this.state.newTypeName.length === 0}
+              className="w-48 bg-green-900 text-white px-2 py-1 rounded-sm disabled:opacity-25"
+              onClick={this.createNewType}
+            >Create New Type</button>
+          </div>
+        </div> 
+        <table className="w-full border border-red-900 border-collapse">
+          <thead className="bg-red-900 text-white">
+            <tr>
+              <th className="p-2 font-semibold">Name</th>
+              <th className="p-2 font-semibold">Type</th>
+              <th className="p-2 font-semibold">Price (£)</th>
+              <th className="p-2 font-semibold">Available</th>
+              <th className="p-2 font-semibold">Last Edited</th>
+              <th className="p-2 font-semibold">Save Changes</th>
+              <th className="p-2 font-semibold">Permanently Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              Object.keys(this.state.additionalStock).sort((a, b) => a.name > b.name ? 1: -1).map((additionalType, i) => 
+                this.state.additionalStock[additionalType].sort((a, b) => a.name > b.name ? 1: -1).map(additional => (
+                  <ToastieAdditionalStockRow 
+                    key={additional.id}
+                    id={additional.id}
+                    name={additional.name}
+                    typeId={additional.typeId}
+                    pricePerUnit={additional.pricePerUnit}
+                    available={additional.available}
+                    updatedAt={additional.updatedAt}
+                    allTypes={this.state.additionalTypes}
+                  />
+                ))
+              )
+            }
+            <ToastieNewAdditionalStockRow
+              onRowAdded={this.onNewAdditionalRow} 
+              allTypes={this.state.additionalTypes}
             />
           </tbody>
         </table>
@@ -225,6 +334,7 @@ class ToastieAdminStock extends React.Component {
               { this.renderBreadSection() }
               { this.renderFillingSection() }
               { this.renderMilkshakeSection() }
+              { this.renderAdditionalSection() }
             </div>
           </div>
         </div>
