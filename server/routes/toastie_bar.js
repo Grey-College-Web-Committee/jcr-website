@@ -632,7 +632,9 @@ router.post("/order", async (req, res) => {
     const processedOrder = processToastieOrder(readyOrder);
     const waitTime = await calculateEstimatedWaitTime();
     const orderSummaryEmail = createOrderSummaryEmail(makeDisplayName(req.session.user.firstNames, req.session.user.surname), processedOrder, waitTime);
-    await mailer.sendEmail(req.session.user.email, "Toastie Bar Order Confirmation", orderSummaryEmail);
+    console.log("sending...")
+    mailer.sendEmail(req.session.user.email, "Toastie Bar Order Confirmation", orderSummaryEmail);
+    console.log("sent!")
 
     // io is passed via middleware in server.js
     req.io.to("toastieBarAdminClients").emit("toastieBarNewOrder", { processedOrder });
@@ -810,7 +812,7 @@ router.post("/verify", async (req, res) => {
   const customerName = orderRecord.externalCustomerName;
   const waitTime = await calculateEstimatedWaitTime();
   const orderSummaryEmail = createOrderSummaryEmail(customerName, processedOrder, waitTime);
-  await mailer.sendEmail(customerEmail, "Toastie Bar Order Confirmation", orderSummaryEmail);
+  mailer.sendEmail(customerEmail, "Toastie Bar Order Confirmation", orderSummaryEmail);
 
   return res.status(200).json({ success: true });
 })
@@ -889,7 +891,7 @@ const createOrderSummaryEmail = (name, processedOrder, waitTime) => {
   return contents.join("");
 }
 
-// 2.5 * len(outstanding orders)
+// 5 or 2.5 * len(outstanding orders)
 const calculateEstimatedWaitTime = async () => {
   let startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
@@ -915,7 +917,7 @@ const calculateEstimatedWaitTime = async () => {
     return -1;
   }
 
-  return Math.floor(2.5 * outstandingOrders);
+  return Math.max(5, Math.floor(2.5 * outstandingOrders));
 }
 
 // Set the module export to router so it can be used in server.js

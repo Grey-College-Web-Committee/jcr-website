@@ -120,9 +120,15 @@ class ToastieAdminLive extends React.Component {
     const { processedOrder } = data;
     const orderRecords = {...this.state.orderRecords};
     orderRecords[processedOrder.id] = processedOrder;
-    this.setState({ orderRecords });
+    // Update the records and play the notification sound
+    this.setState({ orderRecords }, this.playNotificationSound);
   }
   
+  playNotificationSound = () => {
+    const audio = new Audio("/audio/notification_sound.mp3");
+    audio.play();
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
