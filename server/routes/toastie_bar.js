@@ -909,6 +909,190 @@ router.post("/bread/create", async (req, res) => {
   return res.status(200).json({ record: breadRecord });
 });
 
+router.post("/filling/update", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, pricePerUnit, available } = req.body;
+
+  let fillingRecord;
+
+  try {
+    fillingRecord = await ToastieBarFilling.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  if(fillingRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  fillingRecord.name = name;
+  fillingRecord.pricePerUnit = pricePerUnit;
+  fillingRecord.available = available;
+
+  try {
+    await fillingRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/filling/delete", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.body;
+
+  let fillingRecord;
+
+  try {
+    fillingRecord = await ToastieBarFilling.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  if(fillingRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  fillingRecord.deleted = true;
+
+  try {
+    await fillingRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/filling/create", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { name, pricePerUnit, available } = req.body;
+
+  let fillingRecord;
+
+  try {
+    fillingRecord = await ToastieBarFilling.create({ name, pricePerUnit, available });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  return res.status(200).json({ record: fillingRecord });
+});
+
+router.post("/milkshake/update", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, pricePerUnit, available } = req.body;
+
+  let milkshakeRecord;
+
+  try {
+    milkshakeRecord = await ToastieBarMilkshake.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  if(milkshakeRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  milkshakeRecord.name = name;
+  milkshakeRecord.pricePerUnit = pricePerUnit;
+  milkshakeRecord.available = available;
+
+  try {
+    await milkshakeRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/milkshake/delete", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.body;
+
+  let milkshakeRecord;
+
+  try {
+    milkshakeRecord = await ToastieBarMilkshake.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  if(milkshakeRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  milkshakeRecord.deleted = true;
+
+  try {
+    await milkshakeRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/milkshake/create", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { name, pricePerUnit, available } = req.body;
+
+  let milkshakeRecord;
+
+  try {
+    milkshakeRecord = await ToastieBarMilkshake.create({ name, pricePerUnit, available });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  return res.status(200).json({ record: milkshakeRecord });
+});
+
 // Generates the email to send about verifying an order
 const createVerificationEmail = (name, verificationId) => {
   let contents = [];

@@ -20,7 +20,7 @@ export const ToastieNewBasicStockRow = (props) => {
     let result;
 
     try {
-      result = await api.post(`/toastie/${props.type}/create`, { name, pricePerUnit, available });
+      result = await api.post(`/toastie/${props.url}/create`, { name, pricePerUnit, available });
     } catch (error) {
       alert("Error adding row");
       return;

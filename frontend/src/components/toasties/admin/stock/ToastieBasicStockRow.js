@@ -12,12 +12,14 @@ export const ToastieBasicStockRow = (props) => {
   const [edited, setEdited] = useState(false);
   const [deleted, setDeleted] = useState(false);
 
+  // Called when they click the save button
+  // Updates the server with the new information
   const saveChanges = async () => {
     setDisabled(true);
     setEdited(false);
 
     try {
-      await api.post(`/toastie/${props.type}/update`, { id: props.id, name, pricePerUnit, available });
+      await api.post(`/toastie/${props.url}/update`, { id: props.id, name, pricePerUnit, available });
     } catch (error) {
       alert("Unable to save changes");
       return;
@@ -27,6 +29,8 @@ export const ToastieBasicStockRow = (props) => {
     setDisabled(false);
   }
 
+  // Called when they click the delete button
+  // Marks deleted on the server and then hides row
   const deletePermanently = async () => {
     setDisabled(true);
 
@@ -36,7 +40,7 @@ export const ToastieBasicStockRow = (props) => {
     }
 
     try {
-      await api.post(`/toastie/${props.type}/delete`, { id: props.id });
+      await api.post(`/toastie/${props.url}/delete`, { id: props.id });
     } catch (error) {
       alert("Unable to save changes");
       return;

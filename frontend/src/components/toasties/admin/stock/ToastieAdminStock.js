@@ -77,6 +77,129 @@ class ToastieAdminStock extends React.Component {
     this.setState({ breads: copiedBreads })
   }
 
+  renderBreadSection = () => {
+    return (
+      <div className="flex flex-col w-full items-start">
+        <h3 className="text-2xl font-semibold mb-2">Bread</h3>
+        <table className="w-full border border-red-900 border-collapse">
+          <thead className="bg-red-900 text-white">
+            <th className="p-2 font-semibold">Name</th>
+            <th className="p-2 font-semibold">Price (£)</th>
+            <th className="p-2 font-semibold">Available</th>
+            <th className="p-2 font-semibold">Last Edited</th>
+            <th className="p-2 font-semibold">Save Changes</th>
+            <th className="p-2 font-semibold">Permanently Delete</th>
+          </thead>
+          <tbody>
+            {
+              this.state.breads.map(bread => 
+                <ToastieBasicStockRow 
+                  key={bread.id}
+                  url="bread"
+                  id={bread.id}
+                  name={bread.name}
+                  pricePerUnit={bread.pricePerUnit}
+                  available={bread.available}
+                  updatedAt={bread.updatedAt}
+                />
+              )
+            }
+            <ToastieNewBasicStockRow 
+              url="bread"
+              onRowAdded={this.onNewBreadRow} 
+            />
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  onNewFillingRow = (record) => {
+    const copiedFillings = [...this.state.fillings];
+    copiedFillings.push(record);
+    this.setState({ fillings: copiedFillings })
+  }
+
+  renderFillingSection = () => {
+    return (
+      <div className="flex flex-col mt-4 w-full items-start">
+        <h3 className="text-2xl font-semibold mb-2">Fillings</h3>
+        <table className="w-full border border-red-900 border-collapse">
+          <thead className="bg-red-900 text-white">
+            <th className="p-2 font-semibold">Name</th>
+            <th className="p-2 font-semibold">Price (£)</th>
+            <th className="p-2 font-semibold">Available</th>
+            <th className="p-2 font-semibold">Last Edited</th>
+            <th className="p-2 font-semibold">Save Changes</th>
+            <th className="p-2 font-semibold">Permanently Delete</th>
+          </thead>
+          <tbody>
+            {
+              this.state.fillings.map(filling => 
+                <ToastieBasicStockRow 
+                  key={filling.id}
+                  url="filling"
+                  id={filling.id}
+                  name={filling.name}
+                  pricePerUnit={filling.pricePerUnit}
+                  available={filling.available}
+                  updatedAt={filling.updatedAt}
+                />
+              )
+            }
+            <ToastieNewBasicStockRow 
+              url="filling"
+              onRowAdded={this.onNewFillingRow} 
+            />
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  onNewMilkshakeRow = (record) => {
+    const copiedMilkshakes = [...this.state.milkshakes];
+    copiedMilkshakes.push(record);
+    this.setState({ milkshakes: copiedMilkshakes })
+  }
+
+  renderMilkshakeSection = () => {
+    return (
+      <div className="flex flex-col mt-4 w-full items-start">
+        <h3 className="text-2xl font-semibold mb-2">Milkshakes</h3>
+        <table className="w-full border border-red-900 border-collapse">
+          <thead className="bg-red-900 text-white">
+            <th className="p-2 font-semibold">Name</th>
+            <th className="p-2 font-semibold">Price (£)</th>
+            <th className="p-2 font-semibold">Available</th>
+            <th className="p-2 font-semibold">Last Edited</th>
+            <th className="p-2 font-semibold">Save Changes</th>
+            <th className="p-2 font-semibold">Permanently Delete</th>
+          </thead>
+          <tbody>
+            {
+              this.state.milkshakes.map(milkshake => 
+                <ToastieBasicStockRow 
+                  key={milkshake.id}
+                  url="milkshake"
+                  id={milkshake.id}
+                  name={milkshake.name}
+                  pricePerUnit={milkshake.pricePerUnit}
+                  available={milkshake.available}
+                  updatedAt={milkshake.updatedAt}
+                />
+              )
+            }
+            <ToastieNewBasicStockRow 
+              url="milkshake"
+              onRowAdded={this.onNewMilkshakeRow} 
+            />
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -90,7 +213,7 @@ class ToastieAdminStock extends React.Component {
       );
     }
 
-    const { additionalStock, breads, fillings, milkshakes, specials } = this.state;
+    const { additionalStock, specials } = this.state;
 
     return (
       <div className="flex flex-col justify-start">
@@ -98,37 +221,10 @@ class ToastieAdminStock extends React.Component {
           <h1 className="font-semibold text-5xl pb-4">Manage Toastie Bar Stock</h1>
           <div className="flex flex-col">
             <div className="border border-red-900 p-2 flex flex-col items-start">
-              <h2 className="text-3xl font-semibold">Toastie Customisation</h2>
-              <h3 className="text-2xl font-semibold">Bread</h3>
-              <table className="w-full border border-red-900 border-collapse">
-                <thead className="bg-red-900 text-white">
-                  <th className="p-2 font-semibold">Name</th>
-                  <th className="p-2 font-semibold">Price (£)</th>
-                  <th className="p-2 font-semibold">Available</th>
-                  <th className="p-2 font-semibold">Last Edited</th>
-                  <th className="p-2 font-semibold">Save Changes</th>
-                  <th className="p-2 font-semibold">Permanently Delete</th>
-                </thead>
-                <tbody>
-                  {
-                    breads.map(bread => 
-                      <ToastieBasicStockRow 
-                        key={bread.id}
-                        type="bread"
-                        id={bread.id}
-                        name={bread.name}
-                        pricePerUnit={bread.pricePerUnit}
-                        available={bread.available}
-                        updatedAt={bread.updatedAt}
-                      />
-                    )
-                  }
-                  <ToastieNewBasicStockRow 
-                    type="bread"
-                    onRowAdded={this.onNewBreadRow} 
-                  />
-                </tbody>
-              </table>
+              <h2 className="text-3xl font-semibold mb-2">Toastie Customisation</h2>
+              { this.renderBreadSection() }
+              { this.renderFillingSection() }
+              { this.renderMilkshakeSection() }
             </div>
           </div>
         </div>
