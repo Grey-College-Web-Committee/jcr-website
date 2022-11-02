@@ -133,6 +133,8 @@ import FacilitiesPage from './components/facilities/FacilitiesPage';
 
 import ToastieAdminLive from './components/toasties/admin/live/ToastieAdminLive.js';
 import ToastieOrderVerification from './components/toasties/verify/ToastieOrderVerification.js';
+import ToastieAdminPortal from './components/toasties/admin/ToastieAdminPortal.js';
+import ToastieAdminStock from './components/toasties/admin/stock/ToastieAdminStock.js';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -648,6 +650,12 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/sportsandsocs/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? ( <SportsAndSocsAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/sportsandsocs/admin") )
+                    )} />
+                    <Route exact path="/toasties/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminPortal /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin") )
+                    )} />
+                    <Route exact path="/toasties/admin/stock" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminStock /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin/stock") )
                     )} />
                     <Route exact path="/toasties/admin/live" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin/live") )

@@ -25,7 +25,7 @@ router.get("/stock", async (req, res) => {
       where: {
         deleted: false
       },
-      attributes: ["id", "name", "available", "pricePerUnit"]
+      attributes: ["id", "name", "available", "pricePerUnit", "updatedAt"]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to retrieve breads" });
@@ -39,7 +39,7 @@ router.get("/stock", async (req, res) => {
       where: {
         deleted: false
       },
-      attributes: ["id", "name", "available", "pricePerUnit"]
+      attributes: ["id", "name", "available", "pricePerUnit", "updatedAt"]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to retrieve fillings" });
@@ -53,7 +53,7 @@ router.get("/stock", async (req, res) => {
       where: {
         deleted: false
       },
-      attributes: ["id", "name", "available", "pricePerUnit"]
+      attributes: ["id", "name", "available", "pricePerUnit", "updatedAt"]
     });
   } catch (error) {
     return res.status(500).json({ error: "Unable to retrieve milkshakes" });
@@ -85,7 +85,7 @@ router.get("/stock", async (req, res) => {
             typeId: id,
             deleted: false
           },
-          attributes: ["id", "name", "available", "typeId", "pricePerUnit"],
+          attributes: ["id", "name", "available", "typeId", "pricePerUnit", "updatedAt"],
         })
       } catch (error) {
         return res.status(500).json({ error: `Unable to get additional stock items for type ID ${id}`});
@@ -816,6 +816,98 @@ router.post("/verify", async (req, res) => {
 
   return res.status(200).json({ success: true });
 })
+
+router.post("/bread/update", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, pricePerUnit, available } = req.body;
+
+  let breadRecord;
+
+  try {
+    breadRecord = await ToastieBarBread.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  if(breadRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  breadRecord.name = name;
+  breadRecord.pricePerUnit = pricePerUnit;
+  breadRecord.available = available;
+
+  try {
+    await breadRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/bread/delete", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.body;
+
+  let breadRecord;
+
+  try {
+    breadRecord = await ToastieBarBread.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  if(breadRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  breadRecord.deleted = true;
+
+  try {
+    await breadRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/bread/create", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { name, pricePerUnit, available } = req.body;
+
+  let breadRecord;
+
+  try {
+    breadRecord = await ToastieBarBread.create({ name, pricePerUnit, available });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  return res.status(200).json({ record: breadRecord });
+});
 
 // Generates the email to send about verifying an order
 const createVerificationEmail = (name, verificationId) => {
