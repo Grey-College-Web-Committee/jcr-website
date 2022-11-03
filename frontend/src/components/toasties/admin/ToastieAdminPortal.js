@@ -102,7 +102,7 @@ class ToastieAdminPortal extends React.Component {
                   </Link>
                 </div>
               </div>
-              <div className="border border-red-900 p-2 flex flex-row">
+              {/* {<div className="border border-red-900 p-2 flex flex-row">
                 <MdDataExploration />
                 <div className="ml-1 flex flex-row justify-between items-center w-full">
                   <div className="flex flex-col items-start justify-start h-full p-1">
@@ -116,7 +116,7 @@ class ToastieAdminPortal extends React.Component {
                     >Open Statistics</button>
                   </Link>
                 </div>
-              </div>
+              </div>} */}
             </div>
           </IconContext.Provider>
         </div>

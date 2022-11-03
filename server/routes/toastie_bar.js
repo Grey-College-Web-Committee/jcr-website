@@ -183,6 +183,32 @@ router.get("/stock/:admin?", async (req, res) => {
   })
 });
 
+router.get("/status", async (req, res) => {
+  try {
+    openRecord = await PersistentVariable.findOne({
+      where: {
+        key: "TOASTIE_BAR_OPEN"
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check open status" });
+  }
+
+  if(openRecord === null) {
+    return res.status(500).json({ error: "Unable to check open status - null" });
+  }
+
+  let waitTime;
+
+  try {
+    waitTime = await calculateEstimatedWaitTime();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to check wait time" });
+  }
+
+  return res.status(200).json({ waitTime, open: openRecord.booleanStorage });
+})
+
 // Place an order
 router.post("/order", async (req, res) => {
   // See ../examples/toastie_order.json for an example structure

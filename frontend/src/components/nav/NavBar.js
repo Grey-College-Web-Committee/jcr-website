@@ -188,7 +188,7 @@ class NavBar extends React.Component {
               displayName: "Execs and Awards",
               url: "/jcr/execs-and-awards",
               requiredPermission: null
-            },,
+            },
             {
               displayName: "Financial Support",
               url: "/jcr/financial-support",
@@ -399,7 +399,7 @@ class NavBar extends React.Component {
             {
               displayName: "Manage Toasties",
               url: "/toasties/admin",
-              requiredPermission: "toastie.stock.edit"
+              requiredPermission: "toasties.manage"
             },
             {
               displayName: "Manage Sports and Socs",
