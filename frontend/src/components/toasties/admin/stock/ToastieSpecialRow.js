@@ -25,7 +25,7 @@ export const ToastieSpecialRow = (props) => {
     setEdited(false);
 
     try {
-      // await api.post(`/toastie/${props.url}/update`, { id: props.id, name, pricePerUnit, available });
+      await api.post(`/toastie/special/update`, { id: props.id, name, description, startDate, endDate, priceWithoutBread });
     } catch (error) {
       alert("Unable to save changes");
       return;
@@ -46,7 +46,7 @@ export const ToastieSpecialRow = (props) => {
     }
 
     try {
-      await api.post(`/toastie/${props.url}/delete`, { id: props.id });
+      await api.post(`/toastie/special/delete`, { id: props.id });
     } catch (error) {
       alert("Unable to save changes");
       return;
@@ -106,7 +106,7 @@ export const ToastieSpecialRow = (props) => {
       </td>
       <td className="border border-red-900 p-1">
         <ul className="w-32 list-inside list-disc text-left ml-2">
-          {fillings.map(filling => <li>{filling}</li>)}
+          {fillings.map((filling, i) => <li key={i}>{filling}</li>)}
         </ul>
       </td>
       <td className="border border-red-900 p-1">
@@ -147,7 +147,7 @@ export const ToastieSpecialRow = (props) => {
       <td className="border border-red-900 p-1">
         <button
           className="w-full bg-grey-500 text-white px-2 py-1 rounded-sm disabled:opacity-25"
-          disabled={disabled || !edited}
+          disabled={disabled || !edited || name.length === 0 || description.length === 0 || startDate.length === 0 || endDate.length === 0 || Number(priceWithoutBread) <= 0}
           onClick={saveChanges}
         >Save</button>
       </td>

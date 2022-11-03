@@ -1658,6 +1658,10 @@ ToastieBarSpecial.init({
   priceWithoutBread: { // Could calculate the price but this gives flexibility
     type: DataTypes.DECIMAL(6, 2),
     allowNull: false
+  },
+  deleted: { // It is difficult to truly delete if they are part of orders so hide if deleted === true instead
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, { sequelize });
 

@@ -5,8 +5,8 @@ import api from '../../../../utils/axiosConfig';
 export const ToastieSpecialCreator = (props) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [priceWithoutBread, setPriceWithoutBread] = useState(0);
 
   const [selectedFilling, setSelectedFilling] = useState(-1);
@@ -47,9 +47,9 @@ export const ToastieSpecialCreator = (props) => {
     return (
       name.length > 0 &&
       description.length > 0 &&
-      startDate !== null &&
-      endDate !== null &&
-      endDate > startDate &&
+      startDate.length > 0 &&
+      endDate.length > 0 &&
+      new Date(endDate) >= new Date(startDate) &&
       priceWithoutBread > 0 &&
       addedFillingIDs.length > 0
     )

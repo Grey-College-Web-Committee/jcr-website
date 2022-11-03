@@ -119,7 +119,10 @@ router.get("/stock/:admin?", async (req, res) => {
   const now = new Date();
   let rawSpecials;
 
-  const specialWhere = adminMode ? {} : {
+  const specialWhere = adminMode ? {
+    deleted: false
+  } : {
+    deleted: false,
     startDate: {
       [Op.lte]: now
     },
@@ -152,8 +155,8 @@ router.get("/stock/:admin?", async (req, res) => {
   // Process the specials into a better format than the raw results
   // Also checks that their fillings are available
   for(const special of rawSpecials) {
-    const { id, name, description, startDate, endDate, priceWithoutBread } = special;
-    let processedSpecial = { id, name, description, startDate, endDate, priceWithoutBread };
+    const { id, name, description, startDate, endDate, priceWithoutBread, updatedAt } = special;
+    let processedSpecial = { id, name, description, startDate, endDate, priceWithoutBread, updatedAt };
     let fillings = [];
     let available = true;
 
@@ -1266,26 +1269,28 @@ router.post("/special/update", async (req, res) => {
     return res.status(403).json({ error: "You do not have permission to perform this action" });
   }
 
-  const { id, name, pricePerUnit, available } = req.body;
+  const { id, name, description, startDate, endDate, priceWithoutBread } = req.body;
 
-  let fillingRecord;
+  let specialRecord;
 
   try {
-    fillingRecord = await ToastieBarFilling.findOne({ where: { id } });
+    specialRecord = await ToastieBarSpecial.findOne({ where: { id } });
   } catch (error) {
     return res.status(500).json({ error: "Unable to fetch record" });
   }
 
-  if(fillingRecord === null) {
+  if(specialRecord === null) {
     return res.status(400).json({ error: "Invalid id" });
   }
 
-  fillingRecord.name = name;
-  fillingRecord.pricePerUnit = pricePerUnit;
-  fillingRecord.available = available;
+  specialRecord.name = name;
+  specialRecord.description = description
+  specialRecord.startDate = startDate
+  specialRecord.endDate = endDate
+  specialRecord.priceWithoutBread = priceWithoutBread
 
   try {
-    await fillingRecord.save();
+    await specialRecord.save();
   } catch (error) {
     return res.status(500).json({ error: "Unable to save record" });
   }
@@ -1304,22 +1309,22 @@ router.post("/special/delete", async (req, res) => {
 
   const { id } = req.body;
 
-  let fillingRecord;
+  let specialRecord;
 
   try {
-    fillingRecord = await ToastieBarFilling.findOne({ where: { id } });
+    specialRecord = await ToastieBarSpecial.findOne({ where: { id } });
   } catch (error) {
     return res.status(500).json({ error: "Unable to fetch record" });
   }
 
-  if(fillingRecord === null) {
+  if(specialRecord === null) {
     return res.status(400).json({ error: "Invalid id" });
   }
 
-  fillingRecord.deleted = true;
+  specialRecord.deleted = true;
 
   try {
-    await fillingRecord.save();
+    await specialRecord.save();
   } catch (error) {
     return res.status(500).json({ error: "Unable to delete record" });
   }
