@@ -58,6 +58,7 @@ export const ToastieNewAdditionalStockRow = (props) => {
           <option value={-1} disabled={true} hidden={true}>Select an option...</option>
           {props.allTypes.map(additionalType => 
             <option
+              key={additionalType.id}
               value={additionalType.id}
             >{additionalType.name}</option>
           )}

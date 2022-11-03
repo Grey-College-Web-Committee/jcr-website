@@ -16,7 +16,22 @@ const mailer = require("../utils/mailer");
 const dateFormat = require("dateformat");
 
 // Get all stock items that are not deleted including breads, fillings, milkshake, specials and additional items 
-router.get("/stock", async (req, res) => {
+router.get("/stock/:admin?", async (req, res) => {
+  let { admin } = req.params;
+  let adminMode = false;
+
+  if(admin === "admin") {
+    if(!req.session.user || !req.cookies.user_sid) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+  
+    if(!hasPermission(req.session, "toasties.manage")) {
+      return res.status(403).json({ error: "You do not have permission to perform this action" });
+    }
+
+    adminMode = true;
+  } 
+
   // Bread
   let breads;
 
@@ -104,26 +119,28 @@ router.get("/stock", async (req, res) => {
   const now = new Date();
   let rawSpecials;
 
+  const specialWhere = adminMode ? {} : {
+    startDate: {
+      [Op.lte]: now
+    },
+    endDate: {
+      [Op.gte]: now 
+    }
+  };
+
   try {
     rawSpecials = await ToastieBarSpecial.findAll({
-      where: {
-        startDate: {
-          [Op.lte]: now
-        },
-        endDate: {
-          [Op.gte]: now 
-        }
-      },
+      where: specialWhere,
       include: [
         {
           model: ToastieBarSpecialFilling,
           include: [{
             model: ToastieBarFilling,
-            attributes: ["id", "name", "available", "pricePerUnit"]
+            attributes: ["id", "name", "available"]
           }]
         }
       ],
-      attributes: ["id", "name", "description", "startDate", "endDate"]
+      attributes: ["id", "name", "description", "priceWithoutBread", "startDate", "endDate", "updatedAt"]
     });
   } catch (error) {
     console.log(error)
@@ -1238,6 +1255,128 @@ router.post("/additional/type/create", async (req, res) => {
   }
 
   return res.status(200).json({ record: additionalTypeRecord });
+});
+
+router.post("/special/update", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id, name, pricePerUnit, available } = req.body;
+
+  let fillingRecord;
+
+  try {
+    fillingRecord = await ToastieBarFilling.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  if(fillingRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  fillingRecord.name = name;
+  fillingRecord.pricePerUnit = pricePerUnit;
+  fillingRecord.available = available;
+
+  try {
+    await fillingRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/special/delete", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { id } = req.body;
+
+  let fillingRecord;
+
+  try {
+    fillingRecord = await ToastieBarFilling.findOne({ where: { id } });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to fetch record" });
+  }
+
+  if(fillingRecord === null) {
+    return res.status(400).json({ error: "Invalid id" });
+  }
+
+  fillingRecord.deleted = true;
+
+  try {
+    await fillingRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to delete record" });
+  }
+
+  return res.status(204).end();
+});
+
+router.post("/special/create", async (req, res) => {
+  if(!req.session.user || !req.cookies.user_sid) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  if(!hasPermission(req.session, "toasties.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { name, description, startDate, endDate, priceWithoutBread, addedFillingIDs } = req.body;
+
+  let specialRecord;
+
+  try {
+    specialRecord = await ToastieBarSpecial.create({ name, description, startDate, endDate, priceWithoutBread });
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to create record" });
+  }
+
+  let fillingNames = [];
+  let available = true;
+
+  for(const fillingId of addedFillingIDs) {
+    // Check the filling exists
+    let fillingRecord;
+
+    try {
+      fillingRecord = await ToastieBarFilling.findOne({ where: { id: fillingId } });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to check filling" });
+    }
+
+    if(fillingRecord === null) {
+      return res.status(400).json({ error: "Invalid filling" });
+    }
+
+    try {
+      await ToastieBarSpecialFilling.create({
+        specialId: specialRecord.id,
+        fillingId: fillingRecord.id
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to connect filling to special" });
+    }
+
+    fillingNames.push(fillingRecord.name)
+    available = available && fillingRecord.available;
+  }
+
+  return res.status(200).json({ record: specialRecord, fillings: fillingNames, available });
 });
 
 // Generates the email to send about verifying an order

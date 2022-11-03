@@ -1,11 +1,13 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
 import { ToastieNewBasicStockRow } from './ToastieNewBasicStockRow';
 import { ToastieBasicStockRow } from './ToastieBasicStockRow';
 import { ToastieAdditionalStockRow } from './ToastieAdditionalStockRow';
 import { ToastieNewAdditionalStockRow } from './ToastieNewAdditionalStockRow';
+import { ToastieSpecialRow } from './ToastieSpecialRow';
+import { ToastieSpecialCreator } from './ToastieSpecialCreator';
 
 class ToastieAdminStock extends React.Component {
   constructor(props) {
@@ -23,7 +25,9 @@ class ToastieAdminStock extends React.Component {
       specials: [],
 
       additionalTypes: [],
-      newTypeName: ""
+      newTypeName: "",
+
+      showSpecialCreator: false
     };
 
     // Change this to your permission
@@ -65,7 +69,7 @@ class ToastieAdminStock extends React.Component {
     let result;
 
     try {
-      result = await api.get("/toastie/stock");
+      result = await api.get("/toastie/stock/admin");
     } catch (error) {
       this.setState({ loaded: false, status: error.response.status });
       return;
@@ -98,12 +102,14 @@ class ToastieAdminStock extends React.Component {
         <h3 className="text-2xl font-semibold mb-2">Bread</h3>
         <table className="w-full border border-red-900 border-collapse">
           <thead className="bg-red-900 text-white">
-            <th className="p-2 font-semibold">Name</th>
-            <th className="p-2 font-semibold">Price (£)</th>
-            <th className="p-2 font-semibold">Available</th>
-            <th className="p-2 font-semibold">Last Edited</th>
-            <th className="p-2 font-semibold">Save Changes</th>
-            <th className="p-2 font-semibold">Permanently Delete</th>
+            <tr>
+              <th className="p-2 font-semibold">Name</th>
+              <th className="p-2 font-semibold">Price (£)</th>
+              <th className="p-2 font-semibold">Available</th>
+              <th className="p-2 font-semibold">Last Edited</th>
+              <th className="p-2 font-semibold">Save Changes</th>
+              <th className="p-2 font-semibold">Permanently Delete</th>
+            </tr>
           </thead>
           <tbody>
             {
@@ -141,12 +147,14 @@ class ToastieAdminStock extends React.Component {
         <h3 className="text-2xl font-semibold mb-2">Fillings</h3>
         <table className="w-full border border-red-900 border-collapse">
           <thead className="bg-red-900 text-white">
-            <th className="p-2 font-semibold">Name</th>
-            <th className="p-2 font-semibold">Price (£)</th>
-            <th className="p-2 font-semibold">Available</th>
-            <th className="p-2 font-semibold">Last Edited</th>
-            <th className="p-2 font-semibold">Save Changes</th>
-            <th className="p-2 font-semibold">Permanently Delete</th>
+            <tr>
+              <th className="p-2 font-semibold">Name</th>
+              <th className="p-2 font-semibold">Price (£)</th>
+              <th className="p-2 font-semibold">Available</th>
+              <th className="p-2 font-semibold">Last Edited</th>
+              <th className="p-2 font-semibold">Save Changes</th>
+              <th className="p-2 font-semibold">Permanently Delete</th>
+            </tr>
           </thead>
           <tbody>
             {
@@ -180,16 +188,18 @@ class ToastieAdminStock extends React.Component {
 
   renderMilkshakeSection = () => {
     return (
-      <div className="flex flex-col mt-4 w-full items-start">
+      <div className="flex flex-col w-full items-start">
         <h3 className="text-2xl font-semibold mb-2">Milkshakes</h3>
         <table className="w-full border border-red-900 border-collapse">
           <thead className="bg-red-900 text-white">
-            <th className="p-2 font-semibold">Name</th>
-            <th className="p-2 font-semibold">Price (£)</th>
-            <th className="p-2 font-semibold">Available</th>
-            <th className="p-2 font-semibold">Last Edited</th>
-            <th className="p-2 font-semibold">Save Changes</th>
-            <th className="p-2 font-semibold">Permanently Delete</th>
+            <tr>
+              <th className="p-2 font-semibold">Name</th>
+              <th className="p-2 font-semibold">Price (£)</th>
+              <th className="p-2 font-semibold">Available</th>
+              <th className="p-2 font-semibold">Last Edited</th>
+              <th className="p-2 font-semibold">Save Changes</th>
+              <th className="p-2 font-semibold">Permanently Delete</th>
+            </tr>
           </thead>
           <tbody>
             {
@@ -309,6 +319,65 @@ class ToastieAdminStock extends React.Component {
     )
   }
 
+  onNewSpecialCreated = (record, fillings, available) => {
+    const copiedSpecials = [...this.state.specials];
+    copiedSpecials.push({
+      ...record,
+      fillings,
+      available
+    });
+
+    this.setState({ specials: copiedSpecials }, () => console.log(this.state.specials))
+  }
+
+  renderSpecialSection = () => {
+    return (
+      <div className="flex flex-col w-full items-start mt-4">
+        <h3 className="text-2xl font-semibold mb-2">Specials</h3>
+        <button
+          className="bg-grey-500 text-white px-2 py-1 rounded-sm disabled:opacity-25 mb-2"
+          onClick={() => this.setState({ showSpecialCreator: true })}
+          disabled={this.state.showSpecialCreator}
+        >Open Special Creator</button>
+        <table className="w-full border border-red-900 border-collapse">
+          <thead className="bg-red-900 text-white">
+            <tr>
+              <th className="p-2 font-semibold">Name</th>
+              <th className="p-2 font-semibold">Description</th>
+              <th className="p-2 font-semibold">Fillings</th>
+              <th className="p-2 font-semibold">Start Date</th>
+              <th className="p-2 font-semibold">End Date</th>
+              <th className="p-2 font-semibold">Price (£)</th>
+              <th className="p-2 font-semibold">Available</th>
+              <th className="p-2 font-semibold">Last Edited</th>
+              <th className="p-2 font-semibold">Save Changes</th>
+              <th className="p-2 font-semibold">Permanently Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              this.state.specials.sort((a, b) => new Date(a.startDate) > new Date(b.startDate) ? 1: -1).map(special => 
+                <ToastieSpecialRow 
+                  key={special.id}
+                  url="special"
+                  id={special.id}
+                  name={special.name}
+                  description={special.description}
+                  fillings={special.fillings}
+                  available={special.available}
+                  startDate={special.startDate}
+                  endDate={special.endDate}
+                  priceWithoutBread={special.priceWithoutBread}
+                  updatedAt={special.updatedAt}
+                />
+              )
+            }
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -322,17 +391,28 @@ class ToastieAdminStock extends React.Component {
       );
     }
 
-    const { additionalStock, specials } = this.state;
-
     return (
       <div className="flex flex-col justify-start">
+        { 
+          this.state.showSpecialCreator ? 
+            <ToastieSpecialCreator 
+              fillingsList={this.state.fillings}
+              onNewSpecialCreated={this.onNewSpecialCreated}
+              hide={() => this.setState({ showSpecialCreator: false })}
+            /> 
+          : null 
+        }
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Manage Toastie Bar Stock</h1>
           <div className="flex flex-col">
-            <div className="border border-red-900 p-2 flex flex-col items-start">
-              <h2 className="text-3xl font-semibold mb-2">Toastie Customisation</h2>
+            <div className="border border-red-900 p-2 flex flex-col items-start mb-4">
+              <h2 className="text-3xl font-semibold mb-2">Toasties</h2>
               { this.renderBreadSection() }
               { this.renderFillingSection() }
+              { this.renderSpecialSection() }
+            </div>
+            <div className="border border-red-900 p-2 flex flex-col items-start">
+              <h2 className="text-3xl font-semibold mb-2">Other Items</h2>
               { this.renderMilkshakeSection() }
               { this.renderAdditionalSection() }
             </div>

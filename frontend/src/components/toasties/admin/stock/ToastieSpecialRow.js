@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import dateFormat from 'dateformat';
 import api from '../../../../utils/axiosConfig';
 
-export const ToastieAdditionalStockRow = (props) => {
+export const ToastieSpecialRow = (props) => {
   const [name, setName] = useState(props.name);
-  const [typeId, setTypeID] = useState(props.typeId);
-  const [pricePerUnit, setPricePerUnit] = useState(props.pricePerUnit);
+  const [description, setDescription] = useState(props.description);
   const [available, setAvailable] = useState(props.available);
+  const [startDate, setStartDate] = useState(props.startDate);
+  const [endDate, setEndDate] = useState(props.endDate);
+  const [priceWithoutBread, setPriceWithoutBread] = useState(props.priceWithoutBread);
+  
+  // Fillings also exist but cannot be edited
+  const [fillings, setFillings] = useState(props.fillings);
   const [updatedAt, setUpdatedAt] = useState(props.updatedAt); 
 
   const [disabled, setDisabled] = useState(false);
   const [edited, setEdited] = useState(false);
   const [deleted, setDeleted] = useState(false);
-
-  useEffect(() => {
-
-  }, [props.allTypes])
 
   // Called when they click the save button
   // Updates the server with the new information
@@ -24,7 +25,7 @@ export const ToastieAdditionalStockRow = (props) => {
     setEdited(false);
 
     try {
-      await api.post(`/toastie/additional/update`, { id: props.id, name, typeId, pricePerUnit, available });
+      // await api.post(`/toastie/${props.url}/update`, { id: props.id, name, pricePerUnit, available });
     } catch (error) {
       alert("Unable to save changes");
       return;
@@ -45,7 +46,7 @@ export const ToastieAdditionalStockRow = (props) => {
     }
 
     try {
-      await api.post(`/toastie/additional/delete`, { id: props.id });
+      await api.post(`/toastie/${props.url}/delete`, { id: props.id });
     } catch (error) {
       alert("Unable to save changes");
       return;
@@ -54,16 +55,37 @@ export const ToastieAdditionalStockRow = (props) => {
     setDeleted(true);
   }
 
+  const getAvailabilityMessage = () => {
+    const now = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if(start > now) {
+      return "Unreleased";
+    }
+
+    if(end < now) {
+      return "Expired";
+    }
+
+    if(!available) {
+      return "Fillings Unavailable";
+    }
+
+    return "Yes"
+  }
+
   if(deleted) {
     return null;
   }
+
 
   return (
     <tr>
       <td className="border border-red-900 p-1">
         <input
           type="text"
-          className="w-full py-1 px-2 border disabled:opacity-25"
+          className="w-48 py-1 px-2 border disabled:opacity-25"
           value={name} 
           maxLength={255}
           onChange={(e) => { setName(e.target.value); setEdited(true) }}
@@ -71,38 +93,53 @@ export const ToastieAdditionalStockRow = (props) => {
         />
       </td>
       <td className="border border-red-900 p-1">
-        <select
-          value={typeId}
+        <textarea
+          type="text"
+          className="align-middle py-1 px-2 border disabled:opacity-25"
+          rows={3}
+          cols={35}
+          value={description} 
+          maxLength={255}
+          onChange={(e) => { setDescription(e.target.value); setEdited(true) }}
+          disabled={disabled}
+        />
+      </td>
+      <td className="border border-red-900 p-1">
+        <ul className="w-32 list-inside list-disc text-left ml-2">
+          {fillings.map(filling => <li>{filling}</li>)}
+        </ul>
+      </td>
+      <td className="border border-red-900 p-1">
+        <input
+          type="date"
           className="w-full py-1 px-2 border disabled:opacity-25"
-          onChange={(e) => { setTypeID(e.target.value); setEdited(true) }}
-        >
-          {props.allTypes.map(additionalType => 
-            <option
-              key={additionalType.id}
-              value={additionalType.id}
-            >{additionalType.name}</option>
-          )}
-        </select>
+          value={startDate}
+          onChange={(e) => { setStartDate(e.target.value); setEdited(true) }}
+          disabled={disabled}
+        />
+      </td>
+      <td className="border border-red-900 p-1">
+        <input
+          type="date"
+          className="w-full py-1 px-2 border disabled:opacity-25"
+          value={endDate}
+          onChange={(e) => { setEndDate(e.target.value); setEdited(true) }}
+          disabled={disabled}
+        />
       </td>
       <td className="border border-red-900 p-1">
         <input
           type="number"
           className="w-full py-1 px-2 border disabled:opacity-25"
-          value={pricePerUnit}
+          value={priceWithoutBread}
           min="0"
           step="0.01"
-          onChange={(e) => { setPricePerUnit(e.target.value); setEdited(true) }}
+          onChange={(e) => { setPriceWithoutBread(e.target.value); setEdited(true) }}
           disabled={disabled}
         />
       </td>
       <td className="border border-red-900 p-1">
-        <input
-          type="checkbox"
-          className="my-auto align-middle w-6 h-6 disabled:opacity-25"
-          checked={available}
-          onChange={(e) => { setAvailable(e.target.checked); setEdited(true) }}
-          disabled={disabled}
-        />
+        <span>{ getAvailabilityMessage() }</span>
       </td>
       <td className="border border-red-900 p-1">
         <span>{dateFormat(updatedAt, "dd/mm/yyyy HH:MM:ss")}</span>
