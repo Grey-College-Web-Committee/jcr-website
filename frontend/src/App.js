@@ -112,6 +112,7 @@ import EditEventDetails from './components/events/admin/edit/EditEventDetails';
 import EventsAdminBookingPage from './components/events/admin/book/EventsAdminBookingPage';
 
 import MyProfile from './components/profile/MyProfile';
+import DetailChangeRequest from './components/profile/DetailChangeRequest';
 import ConfirmDetailsPage from './components/accounts/confirm/ConfirmDetailsPage';
 
 import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage';
@@ -643,6 +644,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/my/profile" render={() => (
                       this.isLoggedIn() ? ( <MyProfile /> ) : ( this.loginRef("/my/profile") )
+                    )} />
+                    <Route exact path="/my/profile/request" render={() => (
+                      this.isLoggedIn() ? ( <DetailChangeRequest /> ) : ( this.loginRef("/my/profile/request") )
                     )} />
                     <Route exact path="/accounts/confirm" render={(props) => (
                       this.isLoggedIn() ? ( <ConfirmDetailsPage {...props} /> ) : ( <Redirect to="/" /> )

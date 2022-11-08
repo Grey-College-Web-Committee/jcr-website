@@ -48,14 +48,14 @@ class ConfirmDetailsPage extends React.Component {
       return;
     }
 
-    const { firstNames, surname, year, confirmedDetails } = content.data.user;
+    const { firstNames, surname, year, confirmedDetails, username } = content.data.user;
 
     if(confirmedDetails) {
       this.setState({ loaded: true, status: 200, completed: true });
       return;
     }
 
-    this.setState({ loaded: true, status: 200, firstNames, surname, year });
+    this.setState({ loaded: true, status: 200, firstNames, surname, year, username });
   }
 
   makeDisplayName = (firstNames, surname) => {
@@ -158,7 +158,7 @@ class ConfirmDetailsPage extends React.Component {
           <div className="flex flex-col mt-2">
             <div className="pb-2 border-b-2">
               <label htmlFor="subject" className="flex flex-row justify-start text-xl font-semibold">First Names</label>
-              <span className="flex flex-row justify-start text-sm mb-2">Please email the Website Editor to change this</span>
+              <span className="flex flex-row justify-start text-sm mb-2">Please go to '{this.state.username}' -{">"} 'Data Requests' to change this.</span>
               <input
                 type="text"
                 name="firstNames"
@@ -170,7 +170,7 @@ class ConfirmDetailsPage extends React.Component {
             </div>
             <div className="py-2 border-b-2">
               <label htmlFor="subject" className="flex flex-row justify-start text-xl font-semibold">Surname</label>
-              <span className="flex flex-row justify-start text-sm mb-2">Please email the Website Editor to change this</span>
+              <span className="flex flex-row justify-start text-sm mb-2">Please go to '{this.state.username}' -{">"} 'Data Requests' to change this.</span>
               <input
                 type="text"
                 name="surname"
