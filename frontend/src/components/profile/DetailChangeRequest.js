@@ -138,11 +138,11 @@ class DetailChangeRequest extends React.Component {
         <div className="flex flex-col my-4 justify-center items-left md:w-3/5 md:mx-auto mx-2">
             <h1 className="font-semibold text-5xl pb-4 mx-auto">Data Request</h1>
             <div className="mb-2">
-                <p className="mb-1">Under UK Law you have the rights over your personal data, these include (but are not limited to):</p>
+                <p className="mb-1">Under UK law you have rights over your personal data, these include (but are not limited to):</p>
                 <ul className="ml-2 list-inside list-disc mb-1">
                     <li>Right to access - you have the right to request a copy of your personal data via a Subject Access Request</li>
                     <li>Right to rectification - you have the right to have inaccurate personal data rectified</li>
-                    <li>Right to erasure - you have the right to have your personal data erasured</li>
+                    <li>Right to erasure - you have the right to have your personal data erased</li>
                 </ul>
                 <p>
                     On this page you can submit a request for action to be taken. Please note that 'excessive' or 'manifestly unfounded' requests can be challenged, more information can 
