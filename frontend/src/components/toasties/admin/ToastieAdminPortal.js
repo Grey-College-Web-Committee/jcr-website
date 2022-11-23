@@ -3,7 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig';
 import LoadingHolder from '../../common/LoadingHolder';
 import { IconContext  } from 'react-icons';
-import { MdOutlineInventory2, MdDataExploration, MdComputer } from 'react-icons/md';
+import { MdOutlineInventory2, MdComputer } from 'react-icons/md';
 
 class ToastieAdminPortal extends React.Component {
   constructor(props) {

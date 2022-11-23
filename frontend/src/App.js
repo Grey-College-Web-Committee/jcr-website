@@ -135,7 +135,7 @@ import ToastieAdminLive from './components/toasties/admin/live/ToastieAdminLive.
 import ToastieOrderVerification from './components/toasties/verify/ToastieOrderVerification.js';
 import ToastieAdminPortal from './components/toasties/admin/ToastieAdminPortal.js';
 import ToastieAdminStock from './components/toasties/admin/stock/ToastieAdminStock.js';
-import ToastieOrder from './components/toasties/ToastieOrder.js';
+import ToastieOrderingPage from './components/toasties/order/ToastieOrderingPage.js';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -437,9 +437,6 @@ class App extends React.Component {
                     <Route exact path="/memberships/join" render={() => (
                       this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
                     )} />
-                    <Route exact path="/toasties" render={() => (
-                      <ToastieOrder />
-                    )} />
                     <Route exact path="/toasties/live" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/live") )
                     )} />
@@ -654,6 +651,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/sportsandsocs/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? ( <SportsAndSocsAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/sportsandsocs/admin") )
+                    )} />
+                    <Route exact path="/toasties" render={() => (
+                      <ToastieOrderingPage />
                     )} />
                     <Route exact path="/toasties/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminPortal /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin") )

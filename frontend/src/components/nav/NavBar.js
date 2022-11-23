@@ -42,7 +42,7 @@ class NavBar extends React.Component {
       }
     ];
 
-    if (user === undefined || user === null) {
+    if(user === undefined || user === null) {
       const loggedOutOptions = [
         {
           displayName: "JCR",
@@ -142,13 +142,13 @@ class NavBar extends React.Component {
       // use a bit of a trick to hide the JCR membership tab if they have a membership
       let permissions = [];
 
-      if (!user.hasOwnProperty("permissions")) {
+      if(!user.hasOwnProperty("permissions")) {
         permissions = [];
       } else {
         permissions = user.permissions;
       }
 
-      if (permissions === null) {
+      if(permissions === null) {
         permissions = [];
       }
 
@@ -493,7 +493,7 @@ class NavBar extends React.Component {
     this.setState({ activeDropdownKey: id });
   }
 
-  render() {
+  render () {
     const user = this.context;
     const location = this.props.location.pathname;
     const menuOptions = this.getMenuOptions(user);
@@ -503,7 +503,7 @@ class NavBar extends React.Component {
     return (
       <nav
         onMouseLeave={() => {
-          if (this.state.activeDropdownKey !== menuOptions.length) {
+          if(this.state.activeDropdownKey !== menuOptions.length) {
             this.setActiveDropdown(-1);
           }
         }}
