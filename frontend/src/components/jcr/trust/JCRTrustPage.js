@@ -55,6 +55,7 @@ class JCRTrustPage extends React.Component {
           <div className="text-left pb-2">
             <p className="py-1">Every common room in Durham (JCR/MCR) has two options of how to run themselves, as: a Durham Student Organisation or an Independent Charity. Durham Student Organisations (DSO) are direct subsidiaries of the University, with the University in control and responsible for the finances and policies of the JCR. Independent charities have the freedom and full control over what direction the common room takes for its legal and financial operations.</p>
             <p className="py-1">Grey College JCR is an independent charity trust governed by our own board of trustees. The trustees are similar to a board of governors at a school or the directors of a company. Each trustee takes the on the legal responsibility for the operations of the JCR. The trustee board acts in the best interests for the JCR, following its charitable aims & facilitating the members of the JCR.</p>
+            <p className="py-1">As a charity Grey College JCR is regulated by the Charities Commission who provide <a target="_blank" rel="noreferrer" className="font-semibold underline" href="https://www.gov.uk/government/publications/the-essential-trustee-what-you-need-to-know-cc3">a clear definition of the role of a trustee.</a> Grey College JCR's entry in the register <a target="_blank" rel="noreferrer" className="font-semibold underline" href="https://register-of-charities.charitycommission.gov.uk/charity-search/-/charity-details/5019056/trustees">can be found here.</a></p>
           </div>
           {/* <div className="text-left pb-2">
             <h2 className="text-2xl font-semibold">External Trustees</h2>
@@ -82,7 +83,8 @@ class JCRTrustPage extends React.Component {
             </div>
             <div className="py-1">
               <h3 className="text-xl font-semibold">Michael Cannon</h3>
-              <p className="py-1">Michael was a former member of Grey College</p>
+              <p className="py-1">Michael attended Grey from 1998 to 2002 as an undergraduate chemist and joined the MCR and SCR from 2002 to 2005 whilst completing a PhD in Polymer Chemistry.  During his time in Durham he started rowing and captained the Boat Club twice.</p>
+              <p className="py-1">Michael taught mathematics at secondary level for a year whilst writing up his PhD and has since worked in Research and Development for Procter & Gamble for 16 years focussing on Consumer Healthcare. He also handles job and internship applications and recruitment activities for P&G's Reading site.</p>
             </div>
             <div className="py-1">
               <h3 className="text-xl font-semibold">Steve Yarwood</h3>
@@ -94,7 +96,8 @@ class JCRTrustPage extends React.Component {
             </div>
             <div className="py-1">
               <h3 className="text-xl font-semibold">Linda Leaney</h3>
-              <p className="py-1">Linda was a former member of Grey College</p>
+              <p className="py-1">Linda joined the JCR Trust as an alumni trustee in 2022. She was educated at Chelmsford County High School for Girls, a State maintained grammar school, before attending Grey College from 1989-1992 as it evolved to being a mixed college. She read for a BA English Literature, dashing downhill to Riverside each day, and whilst at Grey Linda was involved in the Social Committee and the Rowing Club, with Vic Watts as her tutor. She lived in for all 3 years in Elvet West.</p>
+              <p className="py-1">Following graduation, Linda pursued a career in Investment Banking working for Tier 1 houses in London for 20 years, whilst raising a family. Since then, she has held senior roles within Fintech and Financial Regulation. Linda lives in West London, where she is involved with 3 other local charities which all focus on youth opportunities and levelling-up. She still drinks Earl Grey tea every day.</p>
             </div>
           </div>
           <div className="text-left pb-2">

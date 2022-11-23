@@ -341,6 +341,11 @@ class NavBar extends React.Component {
               requiredPermission: "jcr.member"
             },
             {
+              displayName: "Data Requests",
+              url: "/my/profile/request",
+              requiredPermission: null
+            },
+            {
               displayName: "Logout",
               url: "/accounts/logout",
               requiredPermission: null

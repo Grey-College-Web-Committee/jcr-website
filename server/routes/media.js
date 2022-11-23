@@ -128,7 +128,8 @@ router.get("/images/options", async (req, res) => {
   const options = {
     "Halloween Bop 2021": "halloween2021",
     "Winter Ball 2021": "winter2021",
-    "President's Guest Night 2022": "pgn2022"
+    "President's Guest Night 2022": "pgn2022",
+    "Halloween Bop 2022": "halloween2022"
   }
 
   return res.status(200).json({ options });

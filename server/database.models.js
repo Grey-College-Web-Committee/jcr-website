@@ -126,6 +126,8 @@ class ToastieBarComponentMilkshake extends Model {}
 // Any additional items from ToastieBarAdditionalStock for the order
 class ToastieBarComponentAdditionalItem extends Model {}
 
+class DataRequest extends Model {}
+
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
 // No need to store a users email it is simply username@durham.ac.uk
@@ -1805,6 +1807,26 @@ ToastieBarComponentSpecial.init({
   }
 }, { sequelize, timestamps: false });
 
+DataRequest.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  requestType: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  furtherInformation: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
+}, { sequelize })
+
+
 // Associations are necessary to allow joins between tables
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
@@ -2010,6 +2032,9 @@ ToastieBarComponentSpecial.belongsTo(ToastieBarSpecial, { foreignKey: 'specialId
 ToastieBarBread.hasMany(ToastieBarComponentSpecial, { foreignKey: 'breadId' });
 ToastieBarComponentSpecial.belongsTo(ToastieBarBread, { foreignKey: 'breadId' });
 
+User.hasMany(DataRequest, { foreignKey: 'userId' });
+DataRequest.belongsTo(User, { foreignKey: 'userId' });
+
 module.exports = {
   sequelize, 
   User, Address, PendingUserApplication, PendingAlumniApplication,
@@ -2024,5 +2049,6 @@ module.exports = {
   JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, SportAndSoc, 
   SwappingCredit, SwappingCreditLog, SwappingPair,
   ToastieBarBread, ToastieBarFilling, ToastieBarMilkshake, ToastieBarSpecial, ToastieBarSpecialFilling, ToastieBarAdditionalStockType, ToastieBarAdditionalStock, // TB Stock
-  ToastieBarOrder, ToastieBarComponentToastie, ToastieBarComponentToastieFilling, ToastieBarComponentSpecial, ToastieBarComponentMilkshake, ToastieBarComponentAdditionalItem // TB Order
+  ToastieBarOrder, ToastieBarComponentToastie, ToastieBarComponentToastieFilling, ToastieBarComponentSpecial, ToastieBarComponentMilkshake, ToastieBarComponentAdditionalItem, // TB Order
+  DataRequest
 }

@@ -11,7 +11,6 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-
 const { 
   sequelize, 
   User, Address, PendingUserApplication, PendingAlumniApplication,
@@ -26,7 +25,8 @@ const {
   JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, SportAndSoc, 
   SwappingCredit, SwappingCreditLog, SwappingPair,
   ToastieBarBread, ToastieBarFilling, ToastieBarMilkshake, ToastieBarSpecial, ToastieBarSpecialFilling, ToastieBarAdditionalStockType, ToastieBarAdditionalStock, // TB Stock
-  ToastieBarOrder, ToastieBarComponentToastie, ToastieBarComponentToastieFilling, ToastieBarComponentSpecial, ToastieBarComponentMilkshake, ToastieBarComponentAdditionalItem // TB Order
+  ToastieBarOrder, ToastieBarComponentToastie, ToastieBarComponentToastieFilling, ToastieBarComponentSpecial, ToastieBarComponentMilkshake, ToastieBarComponentAdditionalItem, // TB Order
+  DataRequest
 } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
@@ -375,6 +375,8 @@ const requiredCommittees = [
   await ToastieBarComponentSpecial.sync();
   await ToastieBarComponentMilkshake.sync();
   await ToastieBarComponentAdditionalItem.sync();
+  
+  await DataRequest.sync();
 
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
@@ -177,6 +177,7 @@ class MyProfile extends React.Component {
                 <p><span className="font-semibold">Membership Details:</span> { user.membershipExpiresAt === null ? "Not a member" : `Expires at ${dateFormat(user.membershipExpiresAt, "dd/mm/yyyy HH:MM")}`}</p>
                 <p><span className="font-semibold">Honorary Life Member:</span> { user.hlm ? "Yes" : "No" }</p>
                 <p><span className="font-semibold">Consented for events:</span> { user.eventConsent ? "Yes" : "No" }</p>
+                <p>Note: if you wish to <Link to="/my/profile/request" className="font-semibold underline">change these details please click here!</Link></p>
               </div>
               <div className="mt-2">
                 <h2 className="font-semibold text-2xl">My Roles</h2>
