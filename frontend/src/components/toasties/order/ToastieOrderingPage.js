@@ -288,7 +288,11 @@ class ToastieOrderingPage extends React.Component {
     try {
       await api.post("/toastie/order", { order });
     } catch (error) {
-      alert("Error");
+      if(error?.response?.data?.error) {
+        alert(error.response.data.error);
+      } else {
+        alert("There was an error processing your order.")
+      }
       return;
     }
 
@@ -580,7 +584,13 @@ class ToastieOrderingPage extends React.Component {
                       ready for collection!
                     </p>
                     <p className="py-1 font-semibold">The estimated wait time is {waitTime} minutes but may be longer.</p>
-                    <p className="py-1 font-semibold underline">For allegen information click here. Please speak to the Toastie Bar staff before ordering!</p>
+                    <p className="py-1 font-semibold underline">
+                      <a 
+                        href="https://www.greyjcr.co.uk/uploads/toasties/allergens"
+                        target="_blank"
+                        rel="noreferrer"
+                      >For allegen information click here. Please speak to the Toastie Bar staff before ordering!</a>
+                    </p>
                   </>
                 ) : (
                   <p>The Toastie Bar is currently closed! We open at X...</p>
@@ -656,15 +666,22 @@ class ToastieOrderingPage extends React.Component {
                       </div>
                     )
                   }
-                  <button
-                    className="bg-grey-500 text-white rounded-sm p-2 text-lg mt-1 disabled:opacity-25"
-                    disabled={
-                      disabled || 
-                      (basketAdditionals.length === 0 && basketMilkshakes.length === 0 && basketSpecials.length === 0 && basketToasties.length === 0) ||
-                      !this.validUserDetails()
-                    }
-                    onClick={this.placeOrder}
-                  >Place Order</button>
+                  {
+                    open ? (
+                      <button
+                        className="bg-grey-500 text-white rounded-sm p-2 text-lg mt-1 disabled:opacity-25"
+                        disabled={
+                          disabled || 
+                          (basketAdditionals.length === 0 && basketMilkshakes.length === 0 && basketSpecials.length === 0 && basketToasties.length === 0) ||
+                          !this.validUserDetails()
+                        }
+                        onClick={this.placeOrder}
+                      >Place Order</button>
+                    ) : (
+                      <p>The Toastie Bar is currently closed.</p>
+                    )
+                  }
+                  
                 </div>
                 {
                   this.state.showAddedInfo ? (

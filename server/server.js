@@ -605,8 +605,19 @@ app.get("/uploads/complaints/procedure", isLoggedIn, function(req, res) {
   });
 });
 
-app.get("/uploads/static/handbook_2022", isLoggedIn, function(req, res) {
+app.get("/uploads/static/handbook_2022", function(req, res) {
   fs.readFile(path.join(__dirname, "./uploads/static/handbook_2022.pdf"), (err, data) => {
+    if(err) {
+      res.status(404).end();
+    } else {
+      res.contentType("application/pdf");
+      res.send(data);
+    }
+  });
+});
+
+app.get("/uploads/toasties/allergens", function(req, res) {
+  fs.readFile(path.join(__dirname, "./uploads/toastie/toastie-bar-allergens.pdf"), (err, data) => {
     if(err) {
       res.status(404).end();
     } else {
