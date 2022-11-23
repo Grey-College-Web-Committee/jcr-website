@@ -11,8 +11,23 @@ const { hasPermission } = require("./utils/permissionUtils.js");
 const CronJob = require("cron").CronJob;
 
 // Routes and database models
-
-const { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication, SwappingCredit, SwappingCreditLog, SwappingPair, PendingAlumniApplication, DataRequest } = require("./database.models.js");
+const { 
+  sequelize, 
+  User, Address, PendingUserApplication, PendingAlumniApplication,
+  StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, StashOrderCustomisation, // redundant
+  Permission, PermissionLink, 
+  ShopOrder, ShopOrderContent, 
+  Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, 
+  WelfareThread, WelfareThreadMessage, 
+  GymMembership, Media, CareersPost, Feedback, Debt, Complaint, PersistentVariable,
+  Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, 
+  BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, BarBooking, BarBookingGuest, BarCordial, // redundant
+  JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, SportAndSoc, 
+  SwappingCredit, SwappingCreditLog, SwappingPair,
+  ToastieBarBread, ToastieBarFilling, ToastieBarMilkshake, ToastieBarSpecial, ToastieBarSpecialFilling, ToastieBarAdditionalStockType, ToastieBarAdditionalStock, // TB Stock
+  ToastieBarOrder, ToastieBarComponentToastie, ToastieBarComponentToastieFilling, ToastieBarComponentSpecial, ToastieBarComponentMilkshake, ToastieBarComponentAdditionalItem, // TB Order
+  DataRequest
+} = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
 const sharedSession = require("express-socket.io-session");
@@ -20,7 +35,6 @@ const sharedSession = require("express-socket.io-session");
 const authRoute = require("./routes/auth");
 const paymentsRoute = require("./routes/payments");
 const stashRoute = require("./routes/stash");
-const toastieBarRoute = require("./routes/toastie_bar");
 const permissionsRoute = require("./routes/permissions");
 const cartRoute = require("./routes/cart");
 const gymRoute = require("./routes/gym");
@@ -39,6 +53,7 @@ const profileRoute = require("./routes/profile");
 const sportsAndSocsRoute = require("./routes/sportsandsocs");
 const swappingRoute = require("./routes/swapping");
 const alumniRoute = require("./routes/alumni");
+const toastieBarRoute = require("./routes/toastie_bar");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -64,16 +79,19 @@ if(process.env.NODE_ENV === "production") {
   const subClient = pubClient.duplicate();
 
   io.adapter(redisAdapter({ pubClient, subClient }));
+} else {
+  // Pretty print the JSON
+  app.set('json spaces', 2);
 }
 
 const barSocket = require("./sockets/bar_socket");
-const toastieSocket = require("./sockets/toastie_socket");
 const swappingSocket = require("./sockets/swapping_socket");
+const toastieBarSocket = require("./sockets/toastie_socket");
 
 io.on("connection", socket => {
   barSocket.setupEvents(socket, io);
-  toastieSocket.setupEvents(socket, io);
   swappingSocket.setupEvents(socket, io);
+  toastieBarSocket.setupEvents(socket, io);
 });
 
 // Tells express to recognise incoming requests as JSON
@@ -137,11 +155,6 @@ const requiredPermissions = [
     name: "Edit Permissions",
     description: "Allows a user to assign permissions to other users",
     internal: "permissions.edit"
-  },
-  {
-    name: "Edit Toastie Stock",
-    description: "Enables editing of the Toastie Bar stock",
-    internal: "toastie.stock.edit"
   },
   {
     name: "Edit Stash Stock",
@@ -247,6 +260,11 @@ const requiredPermissions = [
     name: "Manage Swapping",
     description: "Allows a user to control formal swapping",
     internal: "events.swapping"
+  },
+  {
+    name: "Manage Toastie Bar",
+    description: "View orders and edit stock for the toastie bar",
+    internal: "toasties.manage"
   }
 ];
 
@@ -283,10 +301,6 @@ const requiredCommittees = [
 
   await StashOrder.sync();
   await StashOrderCustomisation.sync();
-
-  await ToastieStock.sync();
-  await ToastieOrderContent.sync();
-  await ToastieOrderTracker.sync();
 
   await GymMembership.sync();
 
@@ -345,6 +359,23 @@ const requiredCommittees = [
   await SwappingCreditLog.sync();
   await SwappingPair.sync();
 
+  // Initialise, create, and sync the toastie bar tables
+
+  await ToastieBarBread.sync();
+  await ToastieBarFilling.sync();
+  await ToastieBarMilkshake.sync();
+  await ToastieBarSpecial.sync();
+  await ToastieBarSpecialFilling.sync();
+  await ToastieBarAdditionalStockType.sync();
+  await ToastieBarAdditionalStock.sync();
+
+  await ToastieBarOrder.sync();
+  await ToastieBarComponentToastie.sync();
+  await ToastieBarComponentToastieFilling.sync();
+  await ToastieBarComponentSpecial.sync();
+  await ToastieBarComponentMilkshake.sync();
+  await ToastieBarComponentAdditionalItem.sync();
+  
   await DataRequest.sync();
 
   requiredPermissions.forEach(async (item, i) => {
@@ -404,20 +435,20 @@ const requiredCommittees = [
 
   await PersistentVariable.findOrCreate({
     where: {
-      key: "TOASTIE_OPEN"
+      key: "SWAPPING_OPEN"
     },
     defaults: {
-      key: "TOASTIE_OPEN",
+      key: "SWAPPING_OPEN",
       booleanStorage: false
     }
   });
 
   await PersistentVariable.findOrCreate({
     where: {
-      key: "SWAPPING_OPEN"
+      key: "TOASTIE_BAR_OPEN"
     },
     defaults: {
-      key: "SWAPPING_OPEN",
+      key: "TOASTIE_BAR_OPEN",
       booleanStorage: false
     }
   })
@@ -464,7 +495,6 @@ app.use("/api/auth", authRoute);
 app.use("/api/stripe", paymentsRoute);
 // Special route does not require login
 app.use("/api/stash", isLoggedIn, stashRoute);
-app.use("/api/toastie_bar", isLoggedIn, toastieBarRoute);
 app.use("/api/permissions", isLoggedIn, permissionsRoute);
 app.use("/api/cart", isLoggedIn, cartRoute);
 app.use("/api/gym", isLoggedIn, gymRoute);
@@ -483,6 +513,7 @@ app.use("/api/profile", isLoggedIn, profileRoute);
 app.use("/api/sportsandsocs", sportsAndSocsRoute);
 app.use("/api/swapping", isLoggedIn, swappingRoute);
 app.use("/api/alumni", alumniRoute);
+app.use("/api/toastie", toastieBarRoute); // No need to have been logged in
 
 /** !!! NEVER COMMENT THESE OUT ON MASTER BRANCH !!! **/
 
@@ -492,10 +523,9 @@ app.use("/api/alumni", alumniRoute);
 app.use(express.static(path.join(__dirname, "../frontend/build")));
 app.use(express.static(path.join(__dirname, "../domain_verification")));
 app.use(express.static(path.join(__dirname, "./uploads/images/stash")));
-app.use(express.static(path.join(__dirname, "./uploads/images/toastie_bar")));
+
 // Necessary since things like /gym do not actually exist they are routes
 // within the index.html file
-//
 app.get("/.well-known/apple-developer-merchantid-domain-association", function (req, res) {
   res.sendFile(path.join(__dirname, "../domain_verification", "apple-developer-merchantid-domain-association"));
 });
@@ -503,11 +533,6 @@ app.get("/.well-known/apple-developer-merchantid-domain-association", function (
 app.get("/uploads/images/stash/:id/:image", isLoggedIn, function(req, res) {
   const { id, image } = req.params;
   res.sendFile(path.join(__dirname, `./uploads/images/stash/${id}/${image}`));
-});
-
-app.get("/uploads/images/toastie_bar/:image", isLoggedIn, function(req, res) {
-  const image = req.params.image;
-  res.sendFile(path.join(__dirname, `./uploads/images/toastie_bar/${image}`));
 });
 
 // Make sure they have permission before they view the signature
@@ -582,7 +607,7 @@ app.get("/uploads/complaints/procedure", isLoggedIn, function(req, res) {
   });
 });
 
-app.get("/uploads/static/handbook_2022", isLoggedIn, function(req, res) {
+app.get("/uploads/static/handbook_2022", function(req, res) {
   fs.readFile(path.join(__dirname, "./uploads/static/handbook_2022.pdf"), (err, data) => {
     if(err) {
       res.status(404).end();
@@ -593,7 +618,7 @@ app.get("/uploads/static/handbook_2022", isLoggedIn, function(req, res) {
   });
 });
 
-app.get("/uploads/toasties/allergens", isLoggedIn, function(req, res) {
+app.get("/uploads/toasties/allergens", function(req, res) {
   fs.readFile(path.join(__dirname, "./uploads/toastie/toastie-bar-allergens.pdf"), (err, data) => {
     if(err) {
       res.status(404).end();

@@ -26,10 +26,6 @@ class StashStockImages extends Model {}
 class StashOrder extends Model {}
 class StashOrderCustomisation extends Model {}
 
-class ToastieStock extends Model {}
-class ToastieOrderContent extends Model {}
-class ToastieOrderTracker extends Model {}
-
 class Permission extends Model {}
 class PermissionLink extends Model {}
 
@@ -101,6 +97,34 @@ class PendingAlumniApplication extends Model {}
 class SwappingCredit extends Model {}
 class SwappingCreditLog extends Model {}
 class SwappingPair extends Model {}
+
+// Bread only
+class ToastieBarBread extends Model {}
+// Fillings only
+class ToastieBarFilling extends Model {}
+// Milkshake flavours only
+class ToastieBarMilkshake extends Model {}
+// Allows dynamic adding from an admin frontend if necessary e.g. soft drinks, confectionary...
+class ToastieBarSpecial extends Model {}
+// Represents the fillings that go in the toastie
+class ToastieBarSpecialFilling extends Model {}
+// Represents an order with all toasties, milkshakes, snacks etc
+class ToastieBarAdditionalStockType extends Model {}
+// Represent an item that can be purchased from the toastie bar
+class ToastieBarAdditionalStock extends Model {} 
+// Represents special toasties that are time limited
+
+class ToastieBarOrder extends Model {}
+// Build a toastie and link it to the order 
+class ToastieBarComponentToastie extends Model {}
+// The fillings for the individual toastie
+class ToastieBarComponentToastieFilling extends Model {}
+// Add specials to the order
+class ToastieBarComponentSpecial extends Model {}
+// Add milkshakes to the order
+class ToastieBarComponentMilkshake extends Model {}
+// Any additional items from ToastieBarAdditionalStock for the order
+class ToastieBarComponentAdditionalItem extends Model {}
 
 class DataRequest extends Model {}
 
@@ -410,79 +434,6 @@ ShopOrderContent.init({
     type: DataTypes.STRING,
     allowNull: true,
     defaultValue: null
-  }
-}, { sequelize });
-
-ToastieStock.init({
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  available: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true
-  },
-  type: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  price: {
-    type: DataTypes.DECIMAL(6, 2),
-    allowNull: false
-  },
-  imageName:{
-    type: DataTypes.STRING,
-    allowNull: true,
-    defaultValue: null
-  },
-  deleted: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  }
-}, { sequelize, freezeTableName: true });
-
-ToastieOrderContent.init({
-  orderId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: ShopOrderContent,
-      key: 'id'
-    }
-  },
-  stockId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: ToastieStock,
-      key: 'id'
-    }
-  },
-  quantity: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    defaultValue: 1
-  },
-  completed: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
-  }
-}, { sequelize, timestamps: false });
-
-ToastieOrderTracker.init({
-  orderId: {
-    type: DataTypes.INTEGER,
-    references: {
-      model: ShopOrder,
-      key: 'id'
-    }
-  },
-  completed: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false
-  },
-  tableNumber: {
-    type: DataTypes.INTEGER,
-    allowNull: false
   }
 }, { sequelize });
 
@@ -1596,6 +1547,266 @@ PendingAlumniApplication.init({
   }
 }, { sequelize });
 
+// *** TOASTIE BAR MODEL STRUCTURE ***
+
+ToastieBarBread.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
+  pricePerUnit: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  },
+  deleted: { // It is difficult to truly delete if they are part of orders so hide if deleted === true instead
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
+}, { sequelize });
+
+ToastieBarFilling.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
+  pricePerUnit: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  },
+  deleted: { // It is difficult to truly delete if they are part of orders so hide if deleted === true instead
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
+}, { sequelize });
+
+ToastieBarMilkshake.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
+  pricePerUnit: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  },
+  deleted: { // It is difficult to truly delete if they are part of orders so hide if deleted === true instead
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
+}, { sequelize });
+
+ToastieBarAdditionalStockType.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+}, { sequelize, timestamps: false });
+
+ToastieBarAdditionalStock.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  available: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
+  },
+  typeId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarAdditionalStockType,
+      key: "id"
+    }
+  },
+  pricePerUnit: {
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  },
+  deleted: { // It is difficult to truly delete if they are part of orders so hide if deleted === true instead
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
+}, { sequelize, freezeTableName: true });
+
+// No need for manual available override, just check the fillings are available
+ToastieBarSpecial.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  startDate: {
+    type: DataTypes.DATEONLY, // Dates only as they will appear for the whole shift
+    allowNull: false
+  },
+  endDate: {
+    type: DataTypes.DATEONLY,
+    allowNull: false
+  },
+  priceWithoutBread: { // Could calculate the price but this gives flexibility
+    type: DataTypes.DECIMAL(6, 2),
+    allowNull: false
+  },
+  deleted: { // It is difficult to truly delete if they are part of orders so hide if deleted === true instead
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
+}, { sequelize });
+
+ToastieBarSpecialFilling.init({
+  specialId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarSpecial,
+      key: "id"
+    }
+  },
+  fillingId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarFilling,
+      key: "id"
+    }
+  }
+}, { sequelize, timestamps: false });
+
+ToastieBarOrder.init({
+  userId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: User,
+      key: "id"
+    },
+    allowNull: true
+  },
+  externalCustomerName: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  externalCustomerUsername: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  verified: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
+  },
+  completedTime: {
+    type: DataTypes.DATE, // Can provide statistics if we store the time, no need for boolean completed as well
+    allowNull: true
+  },
+  verificationId: {
+    type: DataTypes.STRING, 
+    allowNull: true
+  }
+}, { sequelize });
+
+ToastieBarComponentToastie.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarOrder,
+      key: "id"
+    }
+  },
+  breadId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarBread,
+      key: "id"
+    }
+  }
+}, { sequelize, timestamps: false });
+
+ToastieBarComponentToastieFilling.init({
+  individualToastieId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarComponentToastie,
+      key: "id"
+    }
+  },
+  fillingId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarFilling,
+      key: "id"
+    }
+  }
+}, { sequelize, timestamps: false });
+
+ToastieBarComponentAdditionalItem.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarOrder,
+      key: "id"
+    }
+  },
+  stockId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarAdditionalStock,
+      key: "id"
+    }
+  }
+}, { sequelize, timestamps: false });
+
+ToastieBarComponentMilkshake.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarOrder,
+      key: "id"
+    }
+  },
+  milkshakeId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarMilkshake,
+      key: "id"
+    }
+  }
+}, { sequelize, timestamps: false });
+
+ToastieBarComponentSpecial.init({
+  orderId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarOrder,
+      key: "id"
+    }
+  },
+  specialId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarSpecial,
+      key: "id"
+    }
+  },
+  breadId: {
+    type: DataTypes.INTEGER,
+    references: {
+      model: ToastieBarBread,
+      key: "id"
+    }
+  }
+}, { sequelize, timestamps: false });
+
 DataRequest.init({
   userId: {
     type: DataTypes.INTEGER,
@@ -1614,6 +1825,7 @@ DataRequest.init({
     allowNull: true
   }
 }, { sequelize })
+
 
 // Associations are necessary to allow joins between tables
 
@@ -1640,12 +1852,6 @@ ShopOrder.belongsTo(Address, { foreignKey: 'deliveryAddressId' });
 
 ShopOrder.hasMany(ShopOrderContent, { foreignKey: 'orderId' });
 ShopOrderContent.belongsTo(ShopOrder, { foreignKey: 'orderId' });
-
-ShopOrderContent.hasMany(ToastieOrderContent, { foreignKey: 'orderId' });
-ToastieOrderContent.belongsTo(ShopOrderContent, { foreignKey: 'orderId' });
-
-ToastieStock.hasMany(ToastieOrderContent, { foreignKey: 'stockId' });
-ToastieOrderContent.belongsTo(ToastieStock, { foreignKey: 'stockId' });
 
 Permission.hasMany(PermissionLink, { foreignKey: 'permissionId' });
 PermissionLink.belongsTo(Permission, { foreignKey: 'permissionId' });
@@ -1773,16 +1979,76 @@ BarBooking.belongsTo(User, { foreignKey: 'userId' });
 BarBooking.hasMany(BarBookingGuest, { foreignKey: 'bookingId' });
 BarBookingGuest.belongsTo(BarBooking, { foreignKey: 'bookingId' });
 
-ShopOrder.hasMany(ToastieOrderTracker, { foreignKey: 'orderId' });
-ToastieOrderTracker.belongsTo(ShopOrder, { foreignKey: 'orderId' });
-
 User.hasMany(SwappingCredit, { foreignKey: 'userId' });
 SwappingCredit.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasMany(SwappingCreditLog, { foreignKey: 'userId' });
 SwappingCreditLog.belongsTo(User, { foreignKey: 'userId' });
 
+// *** TOASTIE BAR RELATIONSHIPS ***
+
+ToastieBarAdditionalStockType.hasMany(ToastieBarAdditionalStock, { foreignKey: 'typeId' });
+ToastieBarAdditionalStock.belongsTo(ToastieBarAdditionalStockType, { foreignKey: 'typeId' });
+
+ToastieBarSpecial.hasMany(ToastieBarSpecialFilling, { foreignKey: 'specialId' });
+ToastieBarSpecialFilling.belongsTo(ToastieBarSpecial, { foreignKey: 'specialId' });
+
+ToastieBarFilling.hasMany(ToastieBarSpecialFilling, { foreignKey: 'fillingId' });
+ToastieBarSpecialFilling.belongsTo(ToastieBarFilling, { foreignKey: 'fillingId' });
+
+User.hasMany(ToastieBarOrder, { foreignKey: 'userId' });
+ToastieBarOrder.belongsTo(User, { foreignKey: 'userId' });
+
+ToastieBarOrder.hasMany(ToastieBarComponentToastie, { foreignKey: 'orderId' });
+ToastieBarComponentToastie.belongsTo(ToastieBarOrder, { foreignKey: 'orderId' });
+
+ToastieBarBread.hasMany(ToastieBarComponentToastie, { foreignKey: 'breadId' });
+ToastieBarComponentToastie.belongsTo(ToastieBarBread, { foreignKey: 'breadId' });
+
+ToastieBarComponentToastie.hasMany(ToastieBarComponentToastieFilling, { foreignKey: 'individualToastieId' });
+ToastieBarComponentToastieFilling.belongsTo(ToastieBarComponentToastie, { foreignKey: 'individualToastieId' });
+
+ToastieBarFilling.hasMany(ToastieBarComponentToastieFilling, { foreignKey: 'fillingId' });
+ToastieBarComponentToastieFilling.belongsTo(ToastieBarFilling, { foreignKey: 'fillingId' });
+
+ToastieBarOrder.hasMany(ToastieBarComponentAdditionalItem, { foreignKey: 'orderId' });
+ToastieBarComponentAdditionalItem.belongsTo(ToastieBarOrder, { foreignKey: 'orderId' });
+
+ToastieBarAdditionalStock.hasMany(ToastieBarComponentAdditionalItem, { foreignKey: 'stockId' });
+ToastieBarComponentAdditionalItem.belongsTo(ToastieBarAdditionalStock, { foreignKey: 'stockId' });
+
+ToastieBarOrder.hasMany(ToastieBarComponentMilkshake, { foreignKey: 'orderId' });
+ToastieBarComponentMilkshake.belongsTo(ToastieBarOrder, { foreignKey: 'orderId' });
+
+ToastieBarMilkshake.hasMany(ToastieBarComponentMilkshake, { foreignKey: 'milkshakeId' });
+ToastieBarComponentMilkshake.belongsTo(ToastieBarMilkshake, { foreignKey: 'milkshakeId' });
+
+ToastieBarOrder.hasMany(ToastieBarComponentSpecial, { foreignKey: 'orderId' });
+ToastieBarComponentSpecial.belongsTo(ToastieBarOrder, { foreignKey: 'orderId' });
+
+ToastieBarSpecial.hasMany(ToastieBarComponentSpecial, { foreignKey: 'specialId' });
+ToastieBarComponentSpecial.belongsTo(ToastieBarSpecial, { foreignKey: 'specialId' });
+
+ToastieBarBread.hasMany(ToastieBarComponentSpecial, { foreignKey: 'breadId' });
+ToastieBarComponentSpecial.belongsTo(ToastieBarBread, { foreignKey: 'breadId' });
+
 User.hasMany(DataRequest, { foreignKey: 'userId' });
 DataRequest.belongsTo(User, { foreignKey: 'userId' });
 
-module.exports = { sequelize, User, Address, ToastieStock, ToastieOrderContent, StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, Permission, PermissionLink, ShopOrder, ShopOrderContent, StashOrderCustomisation, GymMembership, Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, Media, WelfareThread, WelfareThreadMessage, CareersPost, Feedback, Debt, Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, Complaint, BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, PersistentVariable, JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, BarBooking, BarBookingGuest, BarCordial, ToastieOrderTracker, SportAndSoc, PendingUserApplication, SwappingCredit, SwappingCreditLog, SwappingPair, PendingAlumniApplication, DataRequest };
+module.exports = {
+  sequelize, 
+  User, Address, PendingUserApplication, PendingAlumniApplication,
+  StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, StashOrderCustomisation, // redundant
+  Permission, PermissionLink, 
+  ShopOrder, ShopOrderContent, 
+  Election, ElectionCandidate, ElectionVote, ElectionVoteLink, ElectionEditLog, 
+  WelfareThread, WelfareThreadMessage, 
+  GymMembership, Media, CareersPost, Feedback, Debt, Complaint, PersistentVariable,
+  Event, EventImage, EventTicketType, EventGroupBooking, EventTicket, 
+  BarDrinkType, BarDrinkSize, BarBaseDrink, BarDrink, BarMixer, BarOrder, BarOrderContent, BarBooking, BarBookingGuest, BarCordial, // redundant
+  JCRRole, JCRRoleUserLink, JCRCommittee, JCRCommitteeRoleLink, JCRFolder, JCRFile, SportAndSoc, 
+  SwappingCredit, SwappingCreditLog, SwappingPair,
+  ToastieBarBread, ToastieBarFilling, ToastieBarMilkshake, ToastieBarSpecial, ToastieBarSpecialFilling, ToastieBarAdditionalStockType, ToastieBarAdditionalStock, // TB Stock
+  ToastieBarOrder, ToastieBarComponentToastie, ToastieBarComponentToastieFilling, ToastieBarComponentSpecial, ToastieBarComponentMilkshake, ToastieBarComponentAdditionalItem, // TB Order
+  DataRequest
+}

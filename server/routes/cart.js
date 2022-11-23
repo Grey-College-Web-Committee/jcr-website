@@ -45,264 +45,17 @@
 * Note on post processors: These aren't very important. The idea was that there would be a
 * discount on toasties if someone also purchased a drink or confectionary but this was low
 * priority and eventually broke and got ignored. They're left in in case they eventually
-* are needed again
+* are needed again. Toasties are even done via payment anymore...
 **/
 
 // Get express
 const express = require("express");
 const router = express.Router();
 // The database models
-const { ToastieStock, ToastieOrderContent, ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address, Debt, PersistentVariable, GreyDayGuest } = require("../database.models.js");
+const { ShopOrder, ShopOrderContent, StashOrderCustomisation, StashOrder, StashStock, StashCustomisations, GymMembership, User, Address, Debt, PersistentVariable } = require("../database.models.js");
 // Stripe if it is needed
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { Op } = require("sequelize");
-
-// Enables ordering of toasties
-const toastieProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
-  // A toastie will have no global submission info
-  const isToastie = Object.keys(globalSubmissionInfo).length === 0;
-  const hasComponents = componentSubmissionInfo.length !== 0;
-
-  let openRecord;
-
-  // Check if the toastie bar is open too
-  try {
-    openRecord = await PersistentVariable.findOne({
-      where: {
-        key: "TOASTIE_OPEN"
-      }
-    });
-  } catch (error) {
-    return {
-      errorOccurred: true,
-      status: 500,
-      error: "Unable to check open status"
-    };
-  }
-
-  if(openRecord === null) {
-    return {
-      errorOccurred: true,
-      status: 500,
-      error: "Unable to fetch open record"
-    };
-  }
-
-  if(!openRecord.booleanStorage) {
-    return {
-      errorOccurred: true,
-      status: 400,
-      error: "The Toastie Bar is currently closed."
-    };
-  }
-
-  let modifiedParameters = globalOrderParameters;
-
-  let totalPrice = 0;
-  let specialRates = {};
-
-  // Handles toasties separately to other items such as drinks
-  if(isToastie) {
-    // Must have something in it not just bread
-    if(!hasComponents) {
-      return {
-        errorOccurred: true,
-        status: 400,
-        error: "Toastie has no fillings"
-      };
-    }
-
-    let firstSubOrderId = -1;
-
-    for(let subOrderCount = 0; subOrderCount < quantity; subOrderCount++) {
-      // Create an suborder id
-      // This section does seem long but all it is doing is preparing the toastie
-      // and converting it to database entries so they can be accessed by the toastie bar
-      let subOrderIdInsert;
-
-      try {
-        subOrderIdInsert = await ShopOrderContent.create({
-          orderId,
-          shop: "toastie"
-        });
-      } catch (error) {
-        return {
-          errorOccurred: true,
-          status: 500,
-          error: "Unable to create sub order"
-        };
-      }
-
-      const subOrderId = subOrderIdInsert.id;
-
-      if(firstSubOrderId === -1) {
-        firstSubOrderId = subOrderId;
-      }
-
-      const fillingIds = componentSubmissionInfo.map(obj => obj.id);
-
-      let hasBread = false;
-      let hasFillings = false;
-
-      for(let i = 0; i < fillingIds.length; i++) {
-        id = fillingIds[i];
-        // Check if it is in stock
-        let fillingRecord;
-
-        try {
-          fillingRecord = await ToastieStock.findOne({
-            where: { id }
-          });
-        } catch (error) {
-          return {
-            errorOccurred: true,
-            status: 500,
-            error: "Unable to verify toastie contents"
-          };
-        }
-
-        const { name, available, type, price } = fillingRecord.dataValues;
-
-        if(!available) {
-          return {
-            errorOccurred: true,
-            status: 400,
-            error: `${name} is out of stock`
-          };
-        }
-
-        if(type === "filling") {
-          hasFillings = true;
-        }
-
-        if(type === "bread") {
-          hasBread = true;
-        }
-
-        // Now add it to the order
-        let orderFillingInsert;
-
-        try {
-          orderFillingInsert = await ToastieOrderContent.create({
-            orderId: subOrderId,
-            stockId: id,
-            quantity: 1
-          })
-        } catch (error) {
-          return {
-            errorOccurred: true,
-            status: 500,
-            error: "Unable to add filling to order"
-          };
-        }
-
-        totalPrice += Number(price);
-      }
-    }
-
-    // This is used for metadata later in the process endpoint
-    specialRates["name"] = `Toastie ${firstSubOrderId}`;
-    specialRates["gross"] = totalPrice;
-
-    // Stuff for the discount that seems to be broken
-    if(modifiedParameters.hasOwnProperty("toastie")) {
-      if(modifiedParameters.toastie.hasOwnProperty("nonDiscountedToastieCount") && modifiedParameters.toastie.nonDiscountedToastieCount !== undefined && modifiedParameters.toastie.nonDiscountedToastieCount !== null) {
-        modifiedParameters.toastie.nonDiscountedToastieCount += 1;
-      } else {
-        modifiedParameters.toastie.nonDiscountedToastieCount = 1;
-      }
-    }
-  } else {
-    // Drinks or confectionary
-    if(hasComponents) {
-      return {
-        errorOccurred: true,
-        status: 400,
-        error: "Additional item has customisation"
-      };
-    }
-
-    let subOrderIdInsert;
-
-    try {
-      subOrderIdInsert = await ShopOrderContent.create({
-        orderId,
-        shop: "toastie"
-      });
-    } catch (error) {
-      return {
-        errorOccurred: true,
-        status: 500,
-        error: "Unable to create sub order"
-      };
-    }
-
-    const subOrderId = subOrderIdInsert.id;
-    const extraId = globalSubmissionInfo.id;
-
-    // Just performs some checks to make sure everything is available
-    let extraRecord;
-
-    try {
-      extraRecord = await ToastieStock.findOne({
-        where: { id: extraId }
-      });
-    } catch (error) {
-      return {
-        errorOccurred: true,
-        status: 500,
-        error: "Unable to verify extra item content"
-      };
-    }
-
-    const { name, available, type, price } = extraRecord.dataValues;
-
-    if(!available) {
-      return {
-        errorOccurred: true,
-        status: 400,
-        error: `${name} is out of stock`
-      };
-    }
-
-    // Now add it to the order
-    let orderExtraInsert;
-
-    try {
-      orderExtraInsert = await ToastieOrderContent.create({
-        orderId: subOrderId,
-        stockId: extraId,
-        quantity
-      })
-    } catch (error) {
-      return {
-        errorOccurred: true,
-        status: 500,
-        error: "Unable to add extra to order"
-      };
-    }
-
-    totalPrice += Number(price) * quantity;
-
-    // Metadata
-    specialRates["name"] = name;
-    specialRates["gross"] = totalPrice;
-
-    if(modifiedParameters.hasOwnProperty("toastie")) {
-      if(modifiedParameters.toastie.hasOwnProperty("nonDiscountedConfectionary") && modifiedParameters.toastie.nonDiscountedConfectionary !== undefined && modifiedParameters.toastie.nonDiscountedConfectionary !== null) {
-        modifiedParameters.toastie.nonDiscountedConfectionary += 1;
-      } else {
-        modifiedParameters.toastie.nonDiscountedConfectionary = 1;
-      }
-    }
-  }
-
-  return {
-    price: Number(totalPrice),
-    globalOrderParameters: modifiedParameters,
-    specialRates
-  };
-};
 
 // Enables ordering of stash
 const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSubmissionInfo, componentSubmissionInfo, user) => {
@@ -520,24 +273,6 @@ const stashProcessor = async (globalOrderParameters, orderId, quantity, globalSu
     globalSubmissionInfo: globalSubmissionInfo,
     globalOrderParameters: globalOrderParameters
   };
-}
-
-// Attempts to apply a discount to toasties in certain circumstances
-// Doesn't seem to be working at the moment though
-const toastiePostProcessor = (globalOrderParameters) => {
-  const { toastie } = globalOrderParameters;
-
-  // apply the discount
-  // this is going to cause problems with multiple orders I think
-  if(toastie.hasOwnProperty("nonDiscountedConfectionary") && toastie.nonDiscountedConfectionary !== undefined && toastie.nonDiscountedConfectionary !== null) {
-    if(toastie.hasOwnProperty("nonDiscountedToastieCount") && toastie.nonDiscountedToastieCount !== undefined && toastie.nonDiscountedToastieCount !== null) {
-      if(toastie.nonDiscountedToastieCount > 0 && toastie.nonDiscountedConfectionary > 0) {
-        return -0.2;
-      }
-    }
-  }
-
-  return 0;
 }
 
 // Enables purchasing of gym memberships
@@ -895,7 +630,6 @@ const debtProcessor = async (globalOrderParameters, orderId, quantity, globalSub
 
 // Required - put the shop name and the processor function in here
 const shopProcessors = {
-  "toastie": toastieProcessor,
   "stash": stashProcessor,
   "gym": gymProcessor,
   "jcr_membership": jcrMembershipProcessor,
@@ -903,13 +637,10 @@ const shopProcessors = {
 };
 
 // Optional
-const shopPostProcessors = {
-  "toastie": toastiePostProcessor
-};
+const shopPostProcessors = {};
 
 // Self-explanatory, these shops require a JCR membership to use
 const requiresMembershipShops = [
-  "toastie",
   "stash"
 ];
 
@@ -1168,9 +899,6 @@ router.post("/process", async (req, res) => {
     orderId
   };
 
-  // Toasties need a slightly different breakdown and this handles this
-  let toastieGrosses = [];
-
   for(let i = 0; i < submittedCart.items.length; i++) {
     item = submittedCart.items[i];
     const { shop, quantity, globalSubmissionInfo, componentSubmissionInfo } = item;
@@ -1203,20 +931,12 @@ router.post("/process", async (req, res) => {
     /*
       {
         price: (Decimal number of all products just processed (quantity * price)),
-        globalOrderParameters: (An object storing metadata about the order (e.g. for applying the chocholate + toastie discount))
+        globalOrderParameters: (An object storing metadata about the order)
       }
     */
     globalOrderParameters = result.globalOrderParameters;
     totalSpentByShop[shop] += result.price;
     validatedPrices.push(result.price);
-
-    if(result.hasOwnProperty("specialRates")) {
-      const { name, gross } = result.specialRates;
-      const realGross = Math.round(gross * 100);
-      metadata[`TB_${name}`] = realGross;
-      // metadata[`TB_${name}_net`] = Math.round(realGross - ((0.014 * realGross) + (20 / shopCount)));
-      toastieGrosses.push({ name, realGross });
-    }
   }
 
   // This applies the post processor
@@ -1237,30 +957,13 @@ router.post("/process", async (req, res) => {
 
   const shopCount = Object.keys(totalSpentByShop).length;
 
-  // Special toastie information for the metadata
-  let toastieExcess = 0;
-  let toastieGross = 0;
-
   Object.keys(totalSpentByShop).forEach(shop => {
     const shopGross = Math.round(totalSpentByShop[shop] * 100);
     metadata[shop] = shopGross;
     const shopNet = Math.round(shopGross - ((0.014 * shopGross) + (20 / shopCount)));
 
-    if(shop === "toastie") {
-      toastieExcess = shopGross - shopNet;
-      toastieGross = shopGross;
-    }
-
     metadata[`${shop}_net`] = shopNet;
   });
-
-  if(toastieGrosses.length !== 0 && toastieExcess !== 0) {
-    toastieGrosses.forEach(item => {
-      const proportion = item.realGross / toastieGross;
-      const diff = Math.round(toastieExcess * proportion);
-      metadata[`TB_${item.name}_net`] = item.realGross - diff;
-    });
-  }
 
   // Create a Stripe payment intent so they can actually pay for the items
   const totalAmount = validatedPrices.reduce((sum, price) => sum + price, 0);
