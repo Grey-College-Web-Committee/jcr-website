@@ -327,7 +327,7 @@ class ToastieAdminStock extends React.Component {
       available
     });
 
-    this.setState({ specials: copiedSpecials }, () => console.log(this.state.specials))
+    this.setState({ specials: copiedSpecials })
   }
 
   renderSpecialSection = () => {

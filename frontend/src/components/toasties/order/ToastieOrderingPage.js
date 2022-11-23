@@ -241,13 +241,13 @@ class ToastieOrderingPage extends React.Component {
       <div>
         {
           Object.keys(additionalStock).map((groupName, i) => (
-            <div className={`${i === 0 ? "" : "mt-2"}`}>
+            <div key={i} className={`${i === 0 ? "" : "mt-2"}`}>
               <h2 className="font-semibold text-lg">{groupName}</h2>
               <ul>
                 {
-                  additionalStock[groupName].sort((a, b) => a.name > b.name ? 1: -1).map((additional, i) => 
-                    <div className="flex flex-col">
-                      <div key={i} className={`flex flex-row justify-between items-center border-b py-1 ${i === 0 ? "border-t" : ""}`}>
+                  additionalStock[groupName].sort((a, b) => a.name > b.name ? 1: -1).map((additional, j) => 
+                    <div key={j} className="flex flex-col">
+                      <div className={`flex flex-row justify-between items-center border-b py-1 ${i === 0 ? "border-t" : ""}`}>
                         <span>{additional.name} (£{additional.pricePerUnit})</span>
                         {
                           additional.available ? (
@@ -372,7 +372,7 @@ class ToastieOrderingPage extends React.Component {
               totalPrice += price;
 
               return (
-                <div className="flex flex-col">
+                <div key={i} className="flex flex-col">
                   <span>{quantity} x Toastie #{i + 1} (£{price.toFixed(2)})</span>
                   <ul className="list-inside list-disc ml-2">
                     <li>Bread: {breadLookup[toastie.breadId].name}</li>
@@ -412,8 +412,6 @@ class ToastieOrderingPage extends React.Component {
                 const quantity = basketSpecialsQuant[specialUniqueIdentifier];
                 const price = Number(special.priceWithoutBread) + Number(bread.pricePerUnit);
                 totalPrice += price * quantity;
-
-                console.log(specialsLookup[specialId])
 
                 return (
                   <li key={i}>{quantity} x {special.name} with {bread.name} (£{(price * quantity).toFixed(2)})</li>

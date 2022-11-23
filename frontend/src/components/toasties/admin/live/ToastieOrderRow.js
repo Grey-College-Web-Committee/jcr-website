@@ -37,7 +37,7 @@ export const ToastieOrderRow = (props) => {
       <h3 className="font-semibold mb-2">Milkshakes</h3>
       <ul className="ml-2 list-inside list-disc">
         {
-          milkshakes.map(milkshake => <li>{milkshake.quantity} x {milkshake.name}</li>)
+          milkshakes.map((milkshake, i) => <li key={i}>{milkshake.quantity} x {milkshake.name}</li>)
         }
       </ul>
     </div>
@@ -48,7 +48,7 @@ export const ToastieOrderRow = (props) => {
       <h3 className="font-semibold mb-2">Additional Items</h3>
       <ul className="ml-2 list-inside list-disc">
         {
-          additionalItems.map(item => <li>{item.quantity} x {item.name}</li>)
+          additionalItems.map((item, i) => <li key={i}>{item.quantity} x {item.name}</li>)
         }
       </ul>
     </div>

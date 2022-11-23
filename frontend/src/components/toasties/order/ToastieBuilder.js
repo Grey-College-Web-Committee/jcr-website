@@ -106,7 +106,7 @@ export const ToastieBuilder = (props) => {
         <ul className="ml-2 list-inside list-disc">
           {
             selectedFillings.map((filling, i) => (
-              <li>{props.fillingLookup[filling].name}</li>
+              <li key={i}>{props.fillingLookup[filling].name}</li>
             ))
           }
         </ul>
