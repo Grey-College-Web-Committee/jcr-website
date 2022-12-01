@@ -9,9 +9,15 @@ const { Op } = require("sequelize");
 const rawFs = require("fs");
 const fs = rawFs.promises;
 const path = require("path");
-const imageThumbnail = require("image-thumbnail");
+const sharp = require("sharp");
 
 const mediaPath = path.join(__dirname, "../uploads/images/media/");
+
+const generateThumbnail = async (imgPath) => {
+  const imageBuffer = await fs.readFile(imgPath);
+  const result = sharp(imageBuffer).rotate().resize(518, 346, { fit: "contain" }).toFormat("jpeg", { force: true, quality: 80 }).toBuffer()
+  return result;
+}
 
 // Get the media available
 router.get("/all", async (req, res) => {
@@ -174,33 +180,20 @@ router.get("/images/image/thumb/:eventName/:image", async (req, res) => {
     compressedExists = false;
   }
 
-  // console.log({ compressedExists, image })
-
   if(!compressedExists) {
-    const options = {
-      responseType: "base64",
-      jpegOptions: {
-        force: true,
-        quality: 80
-      },
-      withMetaData: false,
-      width: 518,
-      height: 346,
-      fit: "contain"
-    }
-
     let thumbnail;
 
     try {
-      thumbnail = await imageThumbnail(path.join(__dirname, `../uploads/images/media/${eventName}/${image}`), options);
+      thumbnail = await generateThumbnail(path.join(__dirname, `../uploads/images/media/${eventName}/${image}`));
     } catch (error) {
+      console.log({error})
       return res.status(500).end();
     }
 
-    const img = Buffer.from(thumbnail, "base64");
+    // const img = Buffer.from(thumbnail, "base64");
 
     try {
-      await fs.writeFile(path.join(__dirname, `../uploads/images/media/${eventName}/thumb_${image}`), img, "base64");
+      await fs.writeFile(path.join(__dirname, `../uploads/images/media/${eventName}/thumb_${image}`), thumbnail, "base64");
     } catch (error) {
       return res.status(500).end();
     }
