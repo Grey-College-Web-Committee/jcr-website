@@ -462,8 +462,8 @@ class App extends React.Component {
                     <Route exact path="/hardship" render={() => (
                       <FinancialSupportPage />
                     )} />
-                    <Route exact path="/media/images" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewImagesPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media/images") )
+                    <Route exact path="/media/images/:eventName?" render={(props) => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewImagesPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/media/images${props.match.params.eventName ? "/" + props.match.params.eventName : ""}`) )
                     )} />
                     <Route exact path="/media/admin" render={() => (
                       this.isLoggedIn() ? (this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/media/admin") )
