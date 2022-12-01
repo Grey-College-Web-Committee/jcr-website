@@ -318,7 +318,7 @@ class ToastieOrderingPage extends React.Component {
     return hash;
   }
 
-  renderBasketContent = () => {
+  renderOrderContent = () => {
     const { 
       basketAdditionals, additionalLookup,
       basketMilkshakes, milkshakeLookup,
@@ -491,16 +491,77 @@ class ToastieOrderingPage extends React.Component {
 
     if(totalPrice !== 0) {
       orderSections.push(
-        <div className="flex flex-row mb-1 items-center text-lg">
-          <span className="font-semibold mr-1">Total:</span>
-          <span>£{totalPrice.toFixed(2)}</span>
+        <div className="flex flex-col text-lg mb-1">
+          <div className="flex flex-row items-center">
+            <span className="font-semibold mr-1">Total:</span>
+            <span>£{totalPrice.toFixed(2)}</span>
+          </div>
+          {
+            totalPrice < 1 ? (
+              <span className="mt-1">The minimum order is £1</span>
+            ) : null
+          }
         </div>
       )
-    }
+    } 
 
     if(orderSections.length === 0) {
       return <span className="mt-1">Your order is empty!</span>;
     } else {
+      if(!this.context?.username) {
+        const { username, name } = this.state;
+
+        const usernameBorder = username.length === 0 ? "border-gray-400" : (username.length !== 6 ? "border-red-700" : "border-green-700");
+        const nameBorder = name.length === 0 ? "border-gray-400" : "border-green-700";
+
+        orderSections.push(
+          <div className="flex flex-col my-1">
+          <div className="flex flex-row items-center mb-1">
+            <span className="mr-1">Name:</span>
+            <input
+              type="text"
+              value={this.state.name}
+              name="name"
+              onChange={this.onInputChange}
+              className={`appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${nameBorder}`}
+              placeholder="Enter your name..."
+              maxLength={100}
+              disabled={this.state.disabled}
+            />
+          </div>
+          <div className="flex flex-row items-center">
+            <span className="mr-1">Username:</span>
+            <input
+              type="text"
+              value={this.state.username}
+              name="username"
+              onChange={this.onInputChange}
+              className={`appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${usernameBorder}`}
+              placeholder="Enter your username..."
+              maxLength={6}
+              disabled={this.state.disabled}
+            />
+          </div>
+        </div>
+        );
+      }
+
+      if(this.state.open) {
+        orderSections.push(
+          <button
+            className="bg-grey-500 text-white rounded-sm p-2 text-lg mt-1 disabled:opacity-25"
+            disabled={
+              this.state.disabled || 
+              (basketAdditionals.length === 0 && basketMilkshakes.length === 0 && basketSpecials.length === 0 && basketToasties.length === 0) ||
+              !this.validUserDetails() ||
+              totalPrice < 1
+            }
+            onClick={this.placeOrder}
+          >Place Order</button>
+        )
+        
+      }
+
       return orderSections;
     }
   }
@@ -530,10 +591,7 @@ class ToastieOrderingPage extends React.Component {
       );
     }
 
-    const { disabled, open, waitTime, basketMilkshakes, basketAdditionals, basketSpecials, basketToasties, name, username } = this.state;
-    
-    const usernameBorder = username.length === 0 ? "border-gray-400" : (username.length !== 6 ? "border-red-700" : "border-green-700");
-    const nameBorder = name.length === 0 ? "border-gray-400" : "border-green-700";
+    const { open, waitTime } = this.state;
 
     return (
       <>
@@ -631,54 +689,7 @@ class ToastieOrderingPage extends React.Component {
               <div className="lg:w-1/5 lg:ml-4 flex flex-col lg:mb-0 mb-2">
                 <div className="flex flex-col border-2 border-red-900 p-1">
                   <span className="font-bold text-2xl">Your Order</span>
-                  { this.renderBasketContent() }
-                  {
-                    this.context?.username ? null : (
-                      <div className="flex flex-col my-1">
-                        <div className="flex flex-row items-center mb-1">
-                          <span className="mr-1">Name:</span>
-                          <input
-                            type="text"
-                            value={this.state.name}
-                            name="name"
-                            onChange={this.onInputChange}
-                            className={`appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${nameBorder}`}
-                            placeholder="Enter your name..."
-                            maxLength={100}
-                            disabled={disabled}
-                          />
-                        </div>
-                        <div className="flex flex-row items-center">
-                          <span className="mr-1">Username:</span>
-                          <input
-                            type="text"
-                            value={this.state.username}
-                            name="username"
-                            onChange={this.onInputChange}
-                            className={`appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${usernameBorder}`}
-                            placeholder="Enter your username..."
-                            maxLength={6}
-                            disabled={disabled}
-                          />
-                        </div>
-                      </div>
-                    )
-                  }
-                  {
-                    open ? (
-                      <button
-                        className="bg-grey-500 text-white rounded-sm p-2 text-lg mt-1 disabled:opacity-25"
-                        disabled={
-                          disabled || 
-                          (basketAdditionals.length === 0 && basketMilkshakes.length === 0 && basketSpecials.length === 0 && basketToasties.length === 0) ||
-                          !this.validUserDetails()
-                        }
-                        onClick={this.placeOrder}
-                      >Place Order</button>
-                    ) : (
-                      <p>The Toastie Bar is currently closed.</p>
-                    )
-                  }
+                  { this.renderOrderContent() }
                   
                 </div>
                 {
