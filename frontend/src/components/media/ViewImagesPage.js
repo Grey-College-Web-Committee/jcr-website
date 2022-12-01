@@ -3,6 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
+import qs from 'qs';
 
 class ViewImagesPage extends React.Component {
   constructor(props) {
@@ -75,7 +76,23 @@ class ViewImagesPage extends React.Component {
       return;
     }
 
-    this.setState({ loaded: true, status: 200, options: content.data.options });
+    let eventName = "";
+    const queryParams = qs.parse(this.props.location.search, { ignoreQueryPrefix: true });
+    let callback = () => {};
+
+    if(queryParams.event !== undefined && queryParams.event !== null && typeof queryParams.event === "string") {
+      const paramEvent = queryParams.event.toLowerCase().replace(" ", "").replace("'", "");
+      const matchedEvents = Object.values(content.data.options).filter(eventName => eventName.toLowerCase().includes(paramEvent));
+
+      if(matchedEvents.length === 1) {
+        eventName = matchedEvents[0];
+        callback = this.loadImages;
+      }
+    }
+
+    console.log({eventName})
+
+    this.setState({ loaded: true, status: 200, options: content.data.options, eventName }, callback);
   }
 
   render () {
