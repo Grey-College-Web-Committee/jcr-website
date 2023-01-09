@@ -142,7 +142,7 @@ class GymInformationPage extends React.Component {
           <p className="py-1">Prior to purchasing a membership you must complete the online induction which involves watching the gym induction video, completing a short multiple choice quiz (about information provided in the video), and you completing a physical activity readiness questionnaire (PAR-Q). Please click the button below to begin the process. At the end of the induction to purchase a membership, the prices are:</p>
           <ul className="my-2 list-inside list-disc">
             <li>Individual Term £23 per term (£27 for non-JCR members)</li>
-            <li>Whole Year £58 (£75 for non-JCR members)</li>
+            <li>Remaining University Year £40 (£50 for non-JCR members)</li>
           </ul>
           <Link to="/gym/induction">
             <button

@@ -316,11 +316,11 @@ const gymProcessor = async (globalOrderParameters, orderId, quantity, globalSubm
   const currentMembershipOptions = {
     full_year: {
       expires: new Date("2023-07-01"),
-      price: 58,
-      nonMemberPrice: 75
+      price: 40,
+      nonMemberPrice: 50
     },
     single_term: {
-      expires: new Date("2022-12-10"),
+      expires: new Date("2023-03-17"),
       price: 23,
       nonMemberPrice: 27
     }

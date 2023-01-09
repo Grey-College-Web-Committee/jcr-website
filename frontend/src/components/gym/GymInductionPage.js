@@ -72,7 +72,7 @@ const parq = [
     options: ["No", "Yes"]
   },
   {
-    text: "Do you know of any other reason why you shouldn’t take part in physical activity?",
+    text: "Do you know of any other reason why you shouldn't take part in physical activity?",
     options: ["No", "Yes"]
   }
 ]
@@ -81,17 +81,17 @@ const membershipOptions = [
   {
     price: 23,
     nonMemberPrice: 27,
-    name: "Michaelmas Term Gym Membership",
+    name: "Epiphany Term Gym Membership",
     image: "/images/gym/dumbbell.png",
-    description: "(expires 10/12/2022)",
-    displayName: "Michaelmas Term Gym Membership",
+    description: "(expires 17/03/2023)",
+    displayName: "Epiphany Term Gym Membership",
     submissionInformation: {
       type: "single_term"
     }
   },
   {
-    price: 58,
-    nonMemberPrice: 75,
+    price: 40,
+    nonMemberPrice: 50,
     name: "Full Year Gym Membership",
     image: "/images/gym/dumbbell.png",
     description: "(expires 01/07/2023)",
