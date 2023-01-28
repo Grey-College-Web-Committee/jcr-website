@@ -120,6 +120,7 @@ class WelfareAdminOverviewPage extends React.Component {
             <div className="flex flex-col items-start border p-1 my-2">
               <h2 className="text-xl font-semibold">Delete Old Threads</h2>
               <p>You can delete old threads according to their activity. Set a date below and click the delete button to remove all threads that have not received a message since then.</p>
+              <p>The date field is exclusive e.g. if you put 28/01/2023 it will delete all threads that have not had activity since before and including 27/01/2023 but excludes 28/01/2023.</p>
               <p className="font-semibold">These actions are irreversible!</p>
               <div className="flex flex-row my-1 items-center">
                 <span>Inactive since:</span>
