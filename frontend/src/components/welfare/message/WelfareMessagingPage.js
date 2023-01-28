@@ -124,6 +124,7 @@ class WelfareMessagingPage extends React.Component {
           <div className="text-justify my-2 border-b-2 border-red-900 md:border-none">
             <p className="mb-1">You can start a new thread to contact the welfare team anonymously. You will be able to come back to your conversations. We <span className="underline font-semibold">will never</span> show any personal details to the Welfare team and your messages will only be viewable by the Senior Welfare Officers.</p>
             <p className="mb-1">The Senior Welfare Officers will be notified when you contact them. You can also opt in to receive an email notification (sent to your personal Durham email) when they respond but please be aware that to make this possible the website will associate your email with your message for the sole purpose of notifying you. <span className="font-semibold">The Senior Welfare Officers will not be able to see your email address or be informed that you have email notifications enabled. If you are uncomfortable with this you do not have to receive notifications.</span></p>
+            <p className="mb-1">Please note that the Senior Welfare Officers may periodically delete old, inactive conversations to ensure confidentially. Feel free to open a new conversation if you need!</p>
           </div>
           <div className="text-justify my-2 border-b-2 border-red-900 md:border-none pb-2">
             <h2 className="text-left font-semibold text-2xl">Start A Conversation</h2>
