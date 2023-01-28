@@ -7,6 +7,7 @@ const { User, Permission, PermissionLink, WelfareThread, WelfareThreadMessage } 
 const { hasPermission } = require("../utils/permissionUtils.js");
 const hash = require("object-hash");
 const mailer = require("../utils/mailer");
+const { Op } = require("sequelize")
 
 router.get("/threads", async (req, res) => {
   const { user } = req.session;
@@ -375,6 +376,60 @@ router.post("/message/admin", async (req, res) => {
   }
 
   return res.status(200).json({ message: result });
+});
+
+router.post("/threads/delete/date", async (req, res) => {
+  const { user } = req.session;
+
+  // Compares their permissions with your internal permission string
+  if(!hasPermission(req.session, "welfare.anonymous")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  console.log("In")
+  const { deleteDate } = req.body;
+
+  let candidateThreads;
+
+  try {
+    candidateThreads = await WelfareThread.findAll({
+      where: {
+        lastUpdate: {
+          [Op.lte]: deleteDate
+        }
+      }
+    })
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to retrieve candidate threads" });
+  }
+
+  let deletedCount = 0;
+
+  for(const thread of candidateThreads) {
+    try {
+      await WelfareThreadMessage.destroy({
+        where: {
+          threadId: thread.id
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to delete thread messages" });
+    }
+
+    try {
+      await WelfareThread.destroy({
+        where: {
+          id: thread.id
+        }
+      });
+    } catch (error) {
+      return res.status(500).json({ error: "Unable to delete thread" });
+    }
+
+    deletedCount++;
+  }
+
+  return res.status(200).json({ deletedCount });
 });
 
 // Set the module export to router so it can be used in server.js

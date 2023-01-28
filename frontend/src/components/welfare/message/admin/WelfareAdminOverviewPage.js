@@ -12,11 +12,17 @@ class WelfareAdminOverviewPage extends React.Component {
       loaded: false,
       status: 0,
       error: "",
-      threads: []
+      threads: [],
+
+      deleteDate: ""
     };
 
     // Change this to your permission
     this.requiredPermission = "welfare.anonymous";
+  }
+  
+  onInputChange = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) })
   }
 
   // Load the data once the element is ready
@@ -65,6 +71,34 @@ class WelfareAdminOverviewPage extends React.Component {
     this.setState({ loaded: true, status: 200, threads });
   }
 
+  deleteInactive = async () => {
+    const { deleteDate } = this.state;
+
+    if(!deleteDate || deleteDate.length === 0) {
+      return;
+    }
+
+    let confirmed = window.confirm(`By clicking OK you confirm you are certain that you want to irreversibly delete all threads that have been inactive since ${dateFormat(deleteDate, "dd/mm/yyyy")}`);
+
+    if(!confirmed) {
+      return;
+    }
+
+    let result;
+
+    try {
+      result = await api.post("/welfare/messages/threads/delete/date", {
+        deleteDate: this.state.deleteDate
+      });
+    } catch (error) {
+      alert("An error occurred when deleting the threads")
+      return;
+    }
+
+    window.alert(`Deleted ${result.data.deletedCount} threads. Click OK to reload the page.`);
+    window.location.reload();
+  }
+
   render () {
     if(!this.state.loaded) {
       if(this.state.status !== 200 && this.state.status !== 0) {
@@ -83,6 +117,26 @@ class WelfareAdminOverviewPage extends React.Component {
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Manage Anonymous Messages</h1>
           <div>
+            <div className="flex flex-col items-start border p-1 my-2">
+              <h2 className="text-xl font-semibold">Delete Old Threads</h2>
+              <p>You can delete old threads according to their activity. Set a date below and click the delete button to remove all threads that have not received a message since then.</p>
+              <p className="font-semibold">These actions are irreversible!</p>
+              <div className="flex flex-row my-1 items-center">
+                <span>Inactive since:</span>
+                <input
+                  type="date"
+                  value={this.state.deleteDate}
+                  className="p-1 border ml-2"
+                  name="deleteDate"
+                  onChange={this.onInputChange}
+                />
+                <button
+                  className="ml-2 p-1 bg-red-900 text-white disabled:opacity-25"
+                  onClick={this.deleteInactive}
+                  disabled={!this.state.deleteDate || this.state.deleteDate.length === 0}
+                >Delete</button>
+              </div>
+            </div>
             <table className="mx-auto border-2 text-left border-red-900 w-full my-2">
               <thead className="bg-red-900 text-white">
                 <tr>
@@ -93,7 +147,7 @@ class WelfareAdminOverviewPage extends React.Component {
               </thead>
               <tbody>
                 {this.state.threads.map((thread, i) => (
-                  <tr className="text-center border-b border-gray-400">
+                  <tr className="text-center border-b border-gray-400" key={i}>
                     <td className="p-2 border-r border-gray-400">{thread.title}</td>
                     <td className="p-2 border-r border-gray-400">{dateFormat(thread.lastUpdate, "dd/mm/yyyy HH:MM")}</td>
                     <td className="p-2 border-r border-gray-400">

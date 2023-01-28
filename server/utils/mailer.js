@@ -37,6 +37,8 @@ if(process.env.LOCAL_EMAIL === "true") {
 
 // Send an email using the transporter we have constructed
 const sendEmail = async (to, subject, html) => {
+  return null;
+
   let info;
 
   const sendingHtml = html + footer;
