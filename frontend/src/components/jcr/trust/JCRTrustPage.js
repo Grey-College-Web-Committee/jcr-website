@@ -88,7 +88,9 @@ class JCRTrustPage extends React.Component {
             </div>
             <div className="py-1">
               <h3 className="text-xl font-semibold">Steve Yarwood</h3>
-              <p className="py-1">Steve was a former member of Grey College</p>
+              <p className="py-1">Steve became a JCR Alumni Trustee in 2022. Born and raised in Yorkshire and educated at a state grammar school, he attended Grey College from 1979 - 1983, though with a year out in Aix-en-Provence, leading to a BA Honours degree in French.</p>
+              <p className="py-1">After graduating, Steve became a Chartered Accountant, qualifying in 1986 and immediately escaping into industry, where in due course he became Finance Director for a number of food and consumer goods manufacturers, roles which included being a Trustee of Pension Funds.</p>
+              <p className="py-1">Now living in Lancashire, Steve has hung up his calculator and has recently been studying for a postgraduate qualification in Genealogy at the University of Strathclyde.</p>
             </div>
             <div className="py-1">
               <h3 className="text-xl font-semibold">Chris Norman</h3>
