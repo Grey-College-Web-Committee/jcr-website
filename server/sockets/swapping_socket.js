@@ -91,12 +91,8 @@ const setupEvents = (socket, io) => {
     const pairPriceInPence = (pair) => {
       let price = 50 * 2 ** pair.count;
 
-      if(price > 2000) {
-        if(pair.count == 6) {
-          price = 2000
-        } else {
-          price = 2000 + (pair.count - 6) * 100
-        }
+      if(price > 800) {
+        price = 800;
       }
 
       return price;

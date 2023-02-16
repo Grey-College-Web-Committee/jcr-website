@@ -110,6 +110,7 @@ class SwappingPage extends React.Component {
 
   setupInitialPositions = (data) => {
     const { positions, open, users } = data;
+
     const pairs = positions.map(pos => {
       return {
         id: pos.id,
@@ -230,12 +231,8 @@ class SwappingPage extends React.Component {
   calculatePairPrice = (pairDetails) => {
     let price = 0.5 * 2 ** pairDetails.count;
 
-    if(price > 20) {
-      if(pairDetails.count == 6) {
-        price = 20;
-      } else {
-        price = 20 + (pairDetails.count - 6);
-      }
+    if(price > 8) {
+      price = 8;
     }
 
     return price;
