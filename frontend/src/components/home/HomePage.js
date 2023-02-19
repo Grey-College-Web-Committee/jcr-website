@@ -65,7 +65,7 @@ class HomePage extends React.Component {
                     role={entry.JCRRole}
                     user={link.User}
                     vacant={false}
-                    clickable={false}
+                    clickable={true}
                   />
                 ))}
                 {entry.JCRRole.JCRRoleUserLinks.length === 0 ? (
