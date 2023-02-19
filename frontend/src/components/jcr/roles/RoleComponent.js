@@ -127,7 +127,7 @@ class RoleComponent extends React.Component {
                             <p className="py-1">The byelaws are split into 3 parts, you can access them here: <a href="https://www.greyjcr.co.uk/uploads/jcr/d6ed082730040871aaab404084ccdb33/Part%201:%20Committees%20and%20Positions" target="_blank" rel="noopener noreferrer">Part 1: Committees and Positions</a>, <a href="https://www.greyjcr.co.uk/uploads/jcr/8ea638e416f9549dc7034ef8bef06bd0/Part%202:%20Meetings%20and%20Elections" target="_blank" rel="noopener noreferrer">Part 2: Meetings and Elections</a>, <a href="https://www.greyjcr.co.uk/uploads/jcr/e13272e8311ae0588158fb5b46c9ace3/Part%203:%20Finance,%20Complaints%20and%20Miscellaneous" target="_blank" rel="noopener noreferrer">Part 3: Finance, Complaints and Miscellaneous</a>.</p>
                             <p className="py-1">All other documents can be accessed on the <a href="https://www.greyjcr.co.uk/jcr/files" target="_blank" rel="noopener noreferrer">documents page</a>.</p>
                           </React.Fragment>
-                        )
+                        ) : null
                       }
                       {
                         role.description === null || role.description === "" ? (
