@@ -74,7 +74,7 @@ class HomePage extends React.Component {
                     role={entry.JCRRole}
                     user={null}
                     vacant={true}
-                    clickable={false}
+                    clickable={true}
                   />
                 ): null}
               </React.Fragment>
