@@ -137,6 +137,7 @@ import ToastieOrderVerification from './components/toasties/verify/ToastieOrderV
 import ToastieAdminPortal from './components/toasties/admin/ToastieAdminPortal.js';
 import ToastieAdminStock from './components/toasties/admin/stock/ToastieAdminStock.js';
 import ToastieOrderingPage from './components/toasties/order/ToastieOrderingPage.js';
+import ElectionGuidePage from './components/elections/guide/ElectionsGuidePage.js';
 
 const stripePromise = loadStripe(config.stripe.publicKey);
 
@@ -494,6 +495,9 @@ class App extends React.Component {
                     )} />
                     <Route exact path="/elections" render={() => (
                       this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/elections") )
+                    )} />
+                    <Route exact path="/elections/guide" render={() => (
+                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionGuidePage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/elections/guide") )
                     )} />
                     <Route exact path="/services/elections" render={() => (
                       <Redirect to="/elections" />

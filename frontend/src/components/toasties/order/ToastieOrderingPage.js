@@ -649,7 +649,7 @@ class ToastieOrderingPage extends React.Component {
                     </p>
                   </>
                 ) : (
-                  <p>The Toastie Bar is currently closed! We open at X...</p>
+                  <p>The Toastie Bar is currently closed! We're open 8:30-10pm every day except Fridays.</p>
                 )
               }
             </div>
