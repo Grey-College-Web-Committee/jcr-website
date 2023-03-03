@@ -120,6 +120,16 @@ class RoleComponent extends React.Component {
                         ) : null
                       }
                       {
+                        role.email === "grey.chair@durham.ac.uk" ? (
+                          <React.Fragment>
+                            <h3 className="text-left font-semibold text-lg hidden md:block">Constitution and Byelaws</h3>
+                            <p className="py-1">The chair is also responsible for making sure the constitution is up-to-date and easy to access. You can access the constitution by <a className="font-semibold" href="https://www.greyjcr.co.uk/uploads/jcr/2d63c47fee74d3bf7e56b0363f432225/Constitution" target="_blank" rel="noopener noreferrer">clicking here.</a></p>
+                            <p className="py-1">The byelaws are split into 3 parts, you can access them here: <a className="font-semibold" href="https://www.greyjcr.co.uk/uploads/jcr/d6ed082730040871aaab404084ccdb33/Part%201:%20Committees%20and%20Positions" target="_blank" rel="noopener noreferrer">Part 1: Committees and Positions</a>, <a className="font-semibold" href="https://www.greyjcr.co.uk/uploads/jcr/8ea638e416f9549dc7034ef8bef06bd0/Part%202:%20Meetings%20and%20Elections" target="_blank" rel="noopener noreferrer">Part 2: Meetings and Elections</a>, <a className="font-semibold" href="https://www.greyjcr.co.uk/uploads/jcr/e13272e8311ae0588158fb5b46c9ace3/Part%203:%20Finance,%20Complaints%20and%20Miscellaneous" target="_blank" rel="noopener noreferrer">Part 3: Finance, Complaints and Miscellaneous</a>.</p>
+                            <p className="py-1">All other documents can be accessed on the <a className="font-semibold" href="https://www.greyjcr.co.uk/jcr/files" target="_blank" rel="noopener noreferrer">documents page</a>.</p>
+                          </React.Fragment>
+                        ) : null
+                      }
+                      {
                         role.description === null || role.description === "" ? (
                           <React.Fragment>
                             <div className="flex-grow pb-1 text-left">
