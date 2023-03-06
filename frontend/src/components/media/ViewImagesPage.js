@@ -139,7 +139,7 @@ class ViewImagesPage extends React.Component {
             <div className="mx-auto grid gap-1 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 2xl:gap-4 auto-rows-fr auto-cols-fr w-full mt-2">
               {
                 this.state.imageNames.slice(0, this.state.loadAmount).map((imageFile, i) => (
-                  <div className="h-auto flex flex-col" key={i}>
+                  <div className="h-auto flex flex-col" key={`${this.state.eventName}-${i}`}>
                     <img
                       src={`/api/media/images/image/thumb/${this.state.eventName}/${imageFile}`}
                       alt={`${imageFile} from ${this.state.eventName}`}

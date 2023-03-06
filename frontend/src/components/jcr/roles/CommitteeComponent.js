@@ -24,7 +24,7 @@ class CommitteeComponent extends React.Component {
               <React.Fragment key={i}>
                 {entry.JCRRole.JCRRoleUserLinks.map((link, j) => (
                   <RoleComponent
-                    key={`${i}-${j}`}
+                    key={`${entry.JCRRole.name}-${j}`}
                     role={entry.JCRRole}
                     user={link.User}
                     vacant={false}
@@ -34,7 +34,7 @@ class CommitteeComponent extends React.Component {
                 ))}
                 {entry.JCRRole.JCRRoleUserLinks.length === 0 ? (
                   <RoleComponent
-                    key={`${i}-vacant`}
+                    key={`${entry.JCRRole.name}-vacant`}
                     role={entry.JCRRole}
                     user={null}
                     vacant={true}
