@@ -78,11 +78,11 @@ class JCRTrustPage extends React.Component {
               <p className="py-1">As well as his involvement with the Grey JCR Trust Geoff is a part time volunteer at a local Oxfam shop, a member of his local Singing for Fun choir and is an active member of an informal lunch group of Grey and Hatfield contemporaries.</p>
             </div>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">David Williams (Chair)</h3>
+              <h3 className="text-xl font-semibold">David Williams</h3>
               <p className="py-1">David joined the JCR trust in November 2018</p>
             </div>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">Michael Cannon</h3>
+              <h3 className="text-xl font-semibold">Michael Cannon (Chair)</h3>
               <p className="py-1">Michael attended Grey from 1998 to 2002 as an undergraduate chemist and joined the MCR and SCR from 2002 to 2005 whilst completing a PhD in Polymer Chemistry.  During his time in Durham he started rowing and captained the Boat Club twice.</p>
               <p className="py-1">Michael taught mathematics at secondary level for a year whilst writing up his PhD and has since worked in Research and Development for Procter & Gamble for 16 years focussing on Consumer Healthcare. He also handles job and internship applications and recruitment activities for P&G's Reading site.</p>
             </div>
@@ -129,7 +129,7 @@ class JCRTrustPage extends React.Component {
               </ul>
             </div>
             <div className="py-1">
-              <h3 className="text-xl font-semibold">Asa Schuman - Vice President</h3>
+              <h3 className="text-xl font-semibold">Jacob Cowley - Vice President</h3>
               <p className="py-1">The Vice President is the most senior student in the JCR, and their main role is to deputise the president. As well as sitting on the trustee board, the vice president also has joint responsibility for organising freshers’ week with the Senior Frep. The Vice President also has responsibility of organising the college formals which JCR members attend.</p>
             </div>
             <div className="py-1">
