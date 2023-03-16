@@ -1,4 +1,4 @@
-# Grey College JCR - New Website
+# Grey College JCR Website
 ## Setup
 This setup guide will go through and explain how to setup the website locally assuming that you have not installed any previous software etc. If you already have a database on your computer or Node installed then those steps can be skipped but changes may need to be made to the .env file.
 1. Download and install Node.js (includes npm) https://nodejs.org/en/download/
