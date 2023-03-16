@@ -135,6 +135,8 @@ router.post("/edit", async (req, res) => {
     return res.status(400).json({ error: "votingCloseTime is missing" });
   }
 
+  let election;
+
   try {
     election = await Election.findOne({
       where: { id }

@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import CreateTicketCustomRow from './CreateTicketCustomRow';
+import dateFormat from 'dateformat';
 
 class CreateTicketComponent extends React.Component {
   constructor(props) {
@@ -66,7 +67,7 @@ class CreateTicketComponent extends React.Component {
     this.setState({ customData }, () => {
       const { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData } = this.state;
 
-      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime, secondYearReleaseTime, thirdYearReleaseTime, fourthYearReleaseTime, olderYearsCanOverride, customData });
+      this.props.passUp(this.props.id, { name, description, maxOfType, minPeople, maxPeople, maxGuests, memberPrice, guestPrice, firstYearReleaseTime: new Date(firstYearReleaseTime), secondYearReleaseTime: new Date(secondYearReleaseTime), thirdYearReleaseTime: new Date(thirdYearReleaseTime), fourthYearReleaseTime: new Date(fourthYearReleaseTime), olderYearsCanOverride, customData });
     });
   }
 
@@ -203,7 +204,7 @@ class CreateTicketComponent extends React.Component {
             <input
               type="datetime-local"
               name="firstYearReleaseTime"
-              value={this.state.firstYearReleaseTime}
+              value={this.state.firstYearReleaseTime.length !== 0 ? `${dateFormat(this.state.firstYearReleaseTime, "yyyy-mm-dd")}T${dateFormat(this.state.firstYearReleaseTime, "HH:MM")}` : ""}
               className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               onChange={this.onInputChange}
               autoComplete=""
@@ -215,7 +216,7 @@ class CreateTicketComponent extends React.Component {
             <input
               type="datetime-local"
               name="secondYearReleaseTime"
-              value={this.state.secondYearReleaseTime}
+              value={this.state.secondYearReleaseTime.length !== 0 ? `${dateFormat(this.state.secondYearReleaseTime, "yyyy-mm-dd")}T${dateFormat(this.state.secondYearReleaseTime, "HH:MM")}` : ""}
               className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               onChange={this.onInputChange}
               autoComplete=""
@@ -227,7 +228,7 @@ class CreateTicketComponent extends React.Component {
             <input
               type="datetime-local"
               name="thirdYearReleaseTime"
-              value={this.state.thirdYearReleaseTime}
+              value={this.state.thirdYearReleaseTime.length !== 0 ? `${dateFormat(this.state.thirdYearReleaseTime, "yyyy-mm-dd")}T${dateFormat(this.state.thirdYearReleaseTime, "HH:MM")}` : ""}
               className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               onChange={this.onInputChange}
               autoComplete=""
@@ -239,7 +240,7 @@ class CreateTicketComponent extends React.Component {
             <input
               type="datetime-local"
               name="fourthYearReleaseTime"
-              value={this.state.fourthYearReleaseTime}
+              value={this.state.fourthYearReleaseTime.length !== 0 ? `${dateFormat(this.state.fourthYearReleaseTime, "yyyy-mm-dd")}T${dateFormat(this.state.fourthYearReleaseTime, "HH:MM")}` : ""}
               className="shadow w-full border rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
               onChange={this.onInputChange}
               autoComplete=""
