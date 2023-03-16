@@ -81,25 +81,25 @@ const membershipOptions = [
   {
     price: 23,
     nonMemberPrice: 27,
-    name: "Epiphany Term Gym Membership",
+    name: "Easter Term Gym Membership",
     image: "/images/gym/dumbbell.png",
-    description: "(expires 17/03/2023)",
+    description: "(expires 01/07/2023)",
     displayName: "Epiphany Term Gym Membership",
     submissionInformation: {
       type: "single_term"
     }
-  },
-  {
-    price: 40,
-    nonMemberPrice: 50,
-    name: "Full Year Gym Membership",
-    image: "/images/gym/dumbbell.png",
-    description: "(expires 01/07/2023)",
-    displayName: "Full Year Gym Membership",
-    submissionInformation: {
-      type: "full_year"
-    }
   }
+  // {
+  //   price: 40,
+  //   nonMemberPrice: 50,
+  //   name: "Full Year Gym Membership",
+  //   image: "/images/gym/dumbbell.png",
+  //   description: "(expires 01/07/2023)",
+  //   displayName: "Full Year Gym Membership",
+  //   submissionInformation: {
+  //     type: "full_year"
+  //   }
+  // }
 ];
 
 class GymInductionPage extends React.Component {
