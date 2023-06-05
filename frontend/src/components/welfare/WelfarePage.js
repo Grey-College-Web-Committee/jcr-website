@@ -6,16 +6,16 @@ import LoadingHolder from '../common/LoadingHolder';
 import PersonElement from './PersonElement';
 
 const bios = {
-  "COTTRILL": "Hi my name is Amy and I study English and History. You can normally find me attempting to play mixed lacrosse, hunting for some mandarin yogurts in the canteen or in the Billy B reading Austen! I’m so excited to be on the welfare team this year and getting more involved in life at Grey!",
-  "SPILLANE": "Hi, my name is Scarlett and I study Natural Sciences. You will find me in the library or TLC trying to do my summatives, or in Jimmy’s or Grey bar, avoiding them…. I’m so happy to be part of the welfare team again this year, as one of your senior welfare officers.",
-  "SAUNDERS": "Hi I’m Charlie, I’m a first year philosophy student and one of your welfare officers this year! Please feel free to say hello, you can usually find me in the greyhound annoying Nic or sending cute cow photos to my friends!",
   "CUNNINGHAM": "Hiii, my name is Paris and I study Psychology. If I’m not busy with my current hyper-fixation of the week, or mid giving my friends an overly detailed rundown of my current thoughts, then you’ll usually catch me reading, listening to music, or working down at the Queens Head. I’m overjoyed to be on the Welfare team as I’m always happy to lend an ear, or simply have a good ol’ chit chat!",
-  "KWAN": "Hi! I'm Olga and I do Philosophy and Psychology. You can usually find me hanging out around the theatres in Durham! You can come talk to me about anything but especially queer or international student-related things – I'm also fluent in Cantonese and Mandarin, for those who feel more comfortable speaking in their native language.",
-  "CLARK": "Hi I’m Phoebe and I’m a modern languages student studying German and Spanish. I’m so excited to be part of the welfare team this year, and when I’m back from my year abroad, you might find me attempting to play netball or cox, but more likely I’ll be tucking into a toastie in the JCR 🙂",
-  "DONALDSON": "Hey everyone! I’m Jess and I’m one of your welfare officers this year! I study history and aside from complaining about how much I hate my degree, you can usually find me on various committees around college or getting involved with college events. I’m always up for a chat so feel free to have a natter whenever you see me around! 🙂",
-  "BODDINGTON": "Hey guys I’m Tom and I study engineering! I’m so excited to be a welfare member this year and be more involved with people around college despite living out. Whilst I’m usually skipping a 9am lecture you can also find me doing some form of sport or bingeing random shows. I’m always up for a chat so feel to say hi.",
-  "GADIAN": "Hi, my name is Georgie and I’m a Londoner studying Classics here at Grey. You can always find me walking across Kingsgate bridge or on Level 1 of the Billy B - however, as I’m chatty but short, if I’m with friends you’ll probably hear me before you see me! I’m really looking forward to being on the Welfare team this year and I’m always up for a coffee and a chat!",
-  "SABBAGH": "Hello I’m Riannah and I’ll be one of your welfare officers this year 🙂 . I study psychology and you can usually find me in the Billy B drinking multiple iced lattes or in Grey bar eating toasties. I’m always up for a chat so if you see me around college don’t feel afraid to say Hi! I’m so excited to be a part of the welfare team this year!"
+  "SABBAGH": "Hello I’m Riannah and I’ll be one of your welfare officers this year 🙂 . I study psychology and you can usually find me in the Billy B drinking multiple iced lattes or in Grey bar eating toasties. I’m always up for a chat so if you see me around college don’t feel afraid to say Hi! I’m so excited to be a part of the welfare team this year!",
+  "GRIFFITHS": "Hey! I’m Cerys. I’m a second year English Literature student and I’m so, so excited to be on the Welfare Team this year. If I’m not avoiding my endless list of reading in the Billy B café, you’ll find me enjoying a pint at The Elm or attempting to play football with GCWFC. Please feel free to come and say hi- I love a good chat and will always be up for a cup of tea!",
+  "BODDINGTON": "Hi I'm Tom. I'm a third year engineering student and you can usually find me skipping a 9am or around grey. I'm excited to be on welfare to support anyone wether that be through drop ins, or stealing lolly's for people. I'm always down for a chat so just say hi.",
+  "MOULD": "Hii, My name is Izzy and I study Anthropology. If I’m not working in Victor Watts, you’ll probably find me floating about on the Wear attempting to row, blasting out music in headphones that don’t fit me or drinking endless cups of Yorkshire tea 🙂. I’m so happy to be a part of the welfare team and if you see me wandering around Durham, don’t hesitate to stop me for a chit chat or a coffee!",
+  "HYAMS": "Hey there, I’m Zach and I am studying Environmental Geosciences. I’m very excited to be on the welfare team this year and I look forward to engaging with fellow college members both living in and living out of college this year. I’m sure you will manage to find me in the Grey College bar most weeks with friends. I’m always happy for a chat so if you see me round Durham please do come over and say hello.",
+  "TAN": "Heya I’m Carmen! As a first-year law student, you’ll find me haunting the Palatine with a caramel latte in hand. I'm so excited to create a safe and inclusive space for everyone. Besides that, I'm an international student, disabled, and queer - so if you'd like to talk about those in particular, I've been through it too and I'm happy to offer support. Ignore my resting grumpy face and reach out if you want a chat!",
+  "REES": "Hi! I'm Amelia, and I'm really looking forward to being one of your welfare officers this year. I'm a first year studying Chemistry. Aside from my degree, you can usually find me at one of the many theatre productions, house of phoenix events or in the JCR having toasties. I'm always up for a chat, so don't be afraid to come say hi if you see me around Grey 🙂.",
+  "KELLY": "Hi I’m Georgia, I’m a first year geography student and one of your welfare officers. You can usually find me (unsuccessfully) defending my degree as more than colouring in or working on my terrifying pint time. Feel free to come say hello, I’m always up for a chat…or some chopping tips!",
+  "MITSIOS": "Heyhey! My name is Xandros and I am a 2nd year Psychology student. I would summarise my personality into films, travelling, cooking and procrastinating. You probably know me as the chattiest person in Grey so please do come to any drop-ins for a chat or supplies! Be Kind and Stay safe :)"
 }
 
 class WelfarePage extends React.Component {
@@ -97,6 +97,7 @@ class WelfarePage extends React.Component {
                     <img
                       src="./images/socials/Instagram_Glyph_Gradient_RGB.png"
                       className="h-8 w-8 mr-2"
+                      alt=""
                     />
                   <span className="font-semibold">@greywelfare (click to open Instagram)</span>
                   </div>
@@ -106,6 +107,7 @@ class WelfarePage extends React.Component {
                     <img
                       src="./images/socials/f_logo_RGB-Blue_100.png"
                       className="h-8 w-8 mr-2"
+                      alt=""
                     />
                   <span className="font-semibold">@greycollegewelfare (click to open Facebook)</span>
                   </div>

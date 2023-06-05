@@ -3,9 +3,7 @@ import { Redirect, Link } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
-import GenericCartableItem from '../cart/GenericCartableItem';
 import dateFormat from 'dateformat';
-import Cart from '../cart/Cart';
 
 class GymInformationPage extends React.Component {
   constructor(props) {
@@ -115,7 +113,7 @@ class GymInformationPage extends React.Component {
       );
     }
 
-    const { membership, householdNumber } = this.state;
+    const { membership } = this.state;
 
     const resolvedType = {
       "full_year": "Full Year",

@@ -24,8 +24,8 @@ import ErrorPage from './components/errors/ErrorPage';
 import HomePage from './components/home/HomePage';
 
 import CheckoutPage from './components/checkout/CheckoutPage';
-import OrderStashPage from './components/stash/OrderStashPage';
-import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
+// import OrderStashPage from './components/stash/OrderStashPage';
+// import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
 import DebtPage from './components/debt/DebtPage';
 import GymInformationPage from './components/gym/GymInformationPage';
 import GymTermsPage from './components/gym/GymTermsPage';
@@ -196,12 +196,6 @@ class App extends React.Component {
       localStorage.setItem("user", JSON.stringify(this.state.user));
     }
 
-    if(this.isLoggedIn() === 1) {
-      this.logoutUser();
-    }
-  }
-
-  componentDidMount = () => {
     if(this.isLoggedIn() === 1) {
       this.logoutUser();
     }

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
 import information from './execs-and-awards';
 
 class ExecsAndAwardsPage extends React.Component {
@@ -152,12 +151,12 @@ class ExecsAndAwardsPage extends React.Component {
           <img
             src="/images/execs_banner.jpg"
             className="w-full h-auto relative z-0 lg:block hidden lg:h-96 md:object-cover"
-            alt="Replace banner with your image"
+            alt=""
           ></img>
           <img
             src="/images/execs_banner.jpg"
             className="w-full h-auto relative z-0 block lg:hidden"
-            alt="Replace banner with your image"
+            alt=""
           ></img>
           <div className="absolute p-4 z-20 bottom-0 left-0 w-full h-full flex-col text-white bg-grey-500 bg-opacity-75 border-t-4 border-b-4 border-red-900 justify-center flex">
             <div className="flex flex-row align-middle items-center justify-center">

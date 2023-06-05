@@ -11,19 +11,10 @@ class ContributorsPage extends React.Component {
               <h2 className="font-semibold text-3xl pb-4 text-center">Website Design and Contributors</h2>
               <ul className="list-inside list-disc">
                 <li>Finlay Boyle</li>
+                <li>Jacob Wrenn</li>
                 <li>Ben Hacker</li>
                 <li>Will Morrice</li>
               </ul>
-              <a href="https://github.com/Grey-College-Web-Committee/grey-shop" target="_blank" rel="noopener noreferrer">
-                <div className="flex flex-row items-center justify-center lg:justify-start">
-                  <span className="mr-2 underline">Contribute on GitHub</span>
-                  <img
-                    src="/images/GitHub-Mark-120px-plus.png"
-                    className="h-4"
-                    alt="GitHub logo"
-                  />
-                </div>
-              </a>
             </div>
             <div className="flex-grow flex flex-col mx-2 p-2 lg:w-1/2 border-2">
               <h2 className="font-semibold text-3xl pb-4 text-center">Image Attributions</h2>

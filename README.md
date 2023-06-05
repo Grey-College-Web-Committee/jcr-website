@@ -1,4 +1,7 @@
 # Grey College JCR Website
+
+Welcome to the official JCR website repository. Please note that pull requests are not accepted directly to this repository - however, the Website Editor would love for you to contribute, please just email grey.website@durham.ac.uk.
+
 ## Setup
 This setup guide will go through and explain how to setup the website locally assuming that you have not installed any previous software etc. If you already have a database on your computer or Node installed then those steps can be skipped but changes may need to be made to the .env file.
 1. Download and install Node.js (includes npm) https://nodejs.org/en/download/
@@ -40,5 +43,3 @@ LOCAL_EMAIL=(true for production or Linux with postfix setup, false for web serv
 TOASTIE_BAR_EMAIL_TO=Where to send the orders
 EMAIL_BCC=(set to an email to send copies, e.g. to check it is working)
 ```
-
-Durham University email addresses are no longer supported due to the requirement for MFA for non-personal accounts.

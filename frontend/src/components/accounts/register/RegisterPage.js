@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import LoginForm from '../LoginForm';
 import dateFormat from 'dateformat';
@@ -10,7 +10,7 @@ class RegisterPage extends React.Component {
     super(props);
 
     this.state = {
-      stage: "verify",
+      stage: "awaiting_verification",
       username: "",
       password: "",
       firstName: "",
@@ -205,7 +205,7 @@ class RegisterPage extends React.Component {
       case "awaiting_verification":
         return (
           <div className="border-red-900 border flex flex-col w-full p-2">
-            <h2 className="text-2xl text-center md:text-left py-1 border-b border-grey-500">Step 3 / 3 - Await Approval</h2>
+            <h2 className="text-2xl text-center md:text-left py-1 border-b border-grey-500">Await Approval</h2>
             <p className="py-1 text-left">Thank you for registering for an account.</p>
             <p className="pt-1 text-left">We will now review your details to ensure that you are a member of Grey College. You will receive an email once it has been approved! This typically takes less than 48 hours during term time but may take longer during busy periods. Outside of term time applications will be approved periodically.</p>
           </div>

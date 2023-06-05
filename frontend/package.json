@@ -26,7 +26,7 @@
     "react-signature-canvas": "^1.0.3",
     "react-sortable-hoc": "^1.11.0",
     "smoothscroll-polyfill": "^0.4.4",
-    "socket.io-client": "^4.0.0",
+    "socket.io-client": "^4.6.1",
     "tailwindcss": "^2.0.1",
     "tailwindcss-border-styles": "^1.0.1"
   },
@@ -56,5 +56,7 @@
       "not op_mini all"
     ]
   },
-  "proxy": "http://localhost:9000"
+  "devDependencies": {
+    "http-proxy-middleware": "^2.0.6"
+  }
 }

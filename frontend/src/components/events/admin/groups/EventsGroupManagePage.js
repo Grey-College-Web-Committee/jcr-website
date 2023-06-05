@@ -71,7 +71,7 @@ class EventsGroupManagePage extends React.Component {
 
     for(const ticketTypeId of Object.keys(ticketTypesByID)) {
       const filteredGroups = groups.filter(t => `${t.ticketTypeId}` === `${ticketTypeId}`);
-      const groupCount = filteredGroups.length;
+      //const groupCount = filteredGroups.length;
       const yearBreakdown = filteredGroups.reduce((acc, group) => {
         let first = 0;
         let second = 0;
@@ -180,7 +180,7 @@ class EventsGroupManagePage extends React.Component {
           <div>
             <h2 className="text-left font-semibold text-2xl">Groups</h2>
             <p className="text-left py-1">To find a specific user press CTRL+F (or Command+F on Mac) and search for their username or their name</p>
-            <p className="text-left py-1">If you are overriding a payment but it says 'Requires Additional Information' this means that the person needs to fill in specific details requested for the event. To do this, ask them to check their email for the payment link (or alternatively send them the link of the following format https://services.greyjcr.com/events/bookings/payment/[ticketID] where [ticketID] is their specific ID from the tables below). If they click the link (which will only work for their specific user) the first screen will require them to fill in the form. Then, once they have done so and submit the form it will ask them for payment. At this point you can then refresh this admin page and it will allow you to override their payment.</p>
+            <p className="text-left py-1">If you are overriding a payment but it says 'Requires Additional Information' this means that the person needs to fill in specific details requested for the event. To do this, ask them to check their email for the payment link (or alternatively send them the link of the following format https://greyjcr.co.uk/events/bookings/payment/[ticketID] where [ticketID] is their specific ID from the tables below). If they click the link (which will only work for their specific user) the first screen will require them to fill in the form. Then, once they have done so and submit the form it will ask them for payment. At this point you can then refresh this admin page and it will allow you to override their payment.</p>
             <p className="text-left py-1">You can also create groups (such as for the Sportsperson Formal) by clicking the button below which will redirect you to the admin booking page.</p>
             <div className="flex flex-col py-1 text-left">
               <h2 className="font-semibold text-xl">Summary</h2>

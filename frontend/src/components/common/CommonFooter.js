@@ -15,16 +15,6 @@ class CommonFooter extends React.Component {
         <div className="sm:text-right flex flex-col sm:items-end">
           <Link to="/cookies"><p className="underline">Cookie Policy</p></Link>
           <Link to="/contributors"><p className="underline">Contributors and Image Attributions</p></Link>
-          <a href="https://github.com/Grey-College-Web-Committee/grey-shop" target="_blank" rel="noopener noreferrer">
-            <div className="flex flex-row items-center justify-center sm:justify-start">
-              <span className="mr-2 underline">Contribute on GitHub</span>
-              <img
-                src="/images/GitHub-Mark-Light-32px.png"
-                className="h-4"
-                alt="GitHub logo"
-              />
-            </div>
-          </a>
         </div>
       </footer>
     )

@@ -31,8 +31,8 @@ class EventsTermsPage extends React.Component {
     }
 
     // Ensure they are an admin
-    if(membershipCheck.data.user.permissions) {
-      if(!membershipCheck.data.user.permissions.includes("jcr.member")) {
+    if (membershipCheck.data.user.permissions) {
+      if (!membershipCheck.data.user.permissions.includes("jcr.member")) {
         this.setState({ status: 403, error: "You are not a JCR member", isMember: false });
         return;
       }
@@ -70,18 +70,18 @@ class EventsTermsPage extends React.Component {
     this.setState({ consent: true, disabled: false, changed: true });
   }
 
-  render () {
-    if(!this.state.loaded) {
-      if(this.state.status !== 200 && this.state.status !== 0) {
+  render() {
+    if (!this.state.loaded) {
+      if (this.state.status !== 200 && this.state.status !== 0) {
         return (
-         <Redirect to={`/errors/${this.state.status}`} />
+          <Redirect to={`/errors/${this.state.status}`} />
         );
       }
 
-      if(!this.state.isMember) {
-          return (
-            <Redirect to="/membership" />
-          )
+      if (!this.state.isMember) {
+        return (
+          <Redirect to="/membership" />
+        )
       }
 
       return (
@@ -89,7 +89,7 @@ class EventsTermsPage extends React.Component {
       );
     }
 
-    if(this.state.changed) {
+    if (this.state.changed) {
       return (
         <Redirect to="/events" />
       );
@@ -98,37 +98,91 @@ class EventsTermsPage extends React.Component {
     return (
       <div className="flex flex-col justify-start">
         <div className="container mx-auto text-center p-4">
-          <h1 className="font-semibold text-5xl pb-4">Event Terms and Conditions</h1>
+          <h1 className="font-semibold text-5xl pt-5 pb-10">JCR Event Terms and Conditions</h1>
           <div className="flex flex-col w-full md:w-3/5 mx-auto text-justify">
             <div>
-              <p className="pb-1">Last Updated: 12/02/2021</p>
-              <p className="py-1">To facilitate a group booking system ("the booking system"), Grey College Junior Common Room ("the JCR") needs to be able to share your personal details with the other members of your group. These personal details will include:</p>
-              <ul className="list-inside list-disc py-2">
-                <li>Your full name</li>
-                <li>Your Durham University Computing and Information Services username</li>
-                <li>Your Durham University Email Address</li>
-                <li>The status of your payment (this excludes any information about recipients of the JCR's Hardship Fund)</li>
-                <li>Your year of study</li>
-                <li>If you have outstanding debt owed to the JCR</li>
-                <li>Any additional information provided during use of the booking system including, but not limited to, dietary requirements</li>
-                <li>The name of any guests you have provided during use of the booking system</li>
-                <li>The Durham University Computing and Information Services username of any guests you have provided during use of the booking system</li>
-                <li>Any additional information requested about any guests you have provided during use of the booking system including, but not limited to, dietary requirements</li>
+              <p className="pb-1">Version 1</p>
+              <p className="pb-1">Last Updated: May 2023</p>
+              <p className="py-1">These are the terms and conditions (the "Terms and Conditions") that apply to each event (an
+                "Event") organised by or on behalf of the Grey College Junior College Room (the "JCR"), an
+                unincorporated association with charity number 1142887 with its registered address at Grey
+                College, South Road, Durham DH1 3LG. JCR members and their guests ("you" or “your") must
+                agree to the Terms and Conditions before participating in any Event.</p>
+              <p className="py-1">The JCR may update these Terms and Conditions from time to time without prior notice.</p>
+              <h2 className="pt-6 pb-2 font-semibold text-xl">1. BOOKING AND PAYMENT SYSTEM</h2>
+              <p className="py-1">1.1 The JCR operates an electronic booking and payment system for Events, accessible on its
+                website. Once you complete the online Event booking form, you will receive an automated
+                booking confirmation email which will provide a web-link prompting you to fulfill payment for the
+                ticket.</p>
+              <p className="py-1">1.2 Payment for tickets must be made within 24 hours of receipt of the booking confirmation
+                email, via the following methods:</p>
+              <ul className="list-inside list-disc pb-2 pl-10">
+                <li>Credit/Debit Card</li>
+                <li>Apple Pay</li>
+                <li>Google Pay</li>
+                <li>PayPal</li>
               </ul>
-              <p className="py-1">These details will also be shared confidentially with the relevant JCR committees (including, but not limited to, the JCR's Events Committee and members of the JCR's Executive Committee) and relevant event providers for the purpose of providing the event that your group has booked on to. They may also be shared with other Grey College Staff for the purposes of providing any catering included with your booking as well as any person providing security for the event.</p>
-              <p className="py-1">You also consent to the JCR providing search functionality within the booking system to allow other members of the JCR to form a group with you. The personal details that will be visible using this functionality will include:</p>
-              <ul className="list-inside list-disc py-2">
-                <li>Your full name</li>
-                <li>Your Durham University Computing and Information Services username</li>
-                <li>Your year of study</li>
-              </ul>
-              <p className="py-1">The JCR also reserves to the right to cancel any booking for any reason deemed suitable by the JCR's President or the JCR's Finance and Commercial Services Officer including, but not limited to, bookings that have not been paid in full by all members of your group within 24 hours of the booking being placed.</p>
-              <p className="py-1">This consent is required for any JCR member to attend events. However, you may withdraw your consent at any time but in doing so you acknowledge that you, and any member in your group(s) within the booking system, are not entitled to any refund for any amount previously paid and that you will not be able to attend any events you have already booked on to.</p>
+              <p className="py-1">1.3 Once payment has been made in full, you will receive an automated payment confirmation
+                email which constitutes proof of payment for an Event ticket. Physical Event wristbands (or other
+                ticket alternative, depending on the Event) will be available for collection prior to the Event. To
+                collect a wristband, you must provide proof of identification and have made payment in full for
+                the Event ticket.</p>
+              <p className="py-1">1.4 By purchasing a ticket for an Event, you consent to the JCR processing your data for the
+                purpose of the Event including contacting you via email for the purpose of the Event. All of your
+                data shall be held and utilised in accordance with the JCR's Data Protection Policy.</p>
+              <p className="py-1">1.5 To facilitate booking by a group of attendees for certain Events, by purchasing a ticket for
+                such an Event you consent to the JCR sharing some or all of the personal data you provide on
+                the online booking form with other members of your group and with the relevant JCR
+                committees.</p>
+              <p className="py-1">1.6 You also consent to the JCR providing search functionality within the booking system to
+                allow other members of the JCR to form a group with you. The personal details that will be visible using this functionality will include your full name, your Durham University Computing and
+                Information Services username and your year of study.</p>
+              <h2 className="pt-6 pb-2 font-semibold text-xl">2. CANCELLATION AND RESCHEDULING OF AN EVENT</h2>
+              <p className="py-1">2.1 The JCR reserves the right to cancel or reschedule an Event for any reason.</p>
+              <p className="py-1">2.2 You will be notified of the Event cancellation or the rescheduled date by email and the
+                respective Event details will be updated on the JCR's website.</p>
+              <h2 className="pt-6 pb-2 font-semibold text-xl">3. TRANSFERS AND REFUNDS</h2>
+              <p className="py-1">3.1 Event tickets must be purchased with the intention of being used by you only. However, if
+                you are unable to attend the Event, you may gift or otherwise sell your ticket to another person
+                (of the equivalent membership status) at not more than the advertised Event ticket price. If you
+                arrange transfer of your ticket to another JCR member, it is your responsibility to inform the
+                Event organising team and the Financial and Commercial Services Officer (the "FACSO") by
+                email as soon as possible of the name of the new attendee.</p>
+              <p className="py-1">3.2 All sales are final and Event tickets are non-refundable and cannot be exchanged for cash
+                or credit, or transferred to a different Event, except that:<br />3.2.1 you may request within 24 hours of receiving the booking confirmation email to cancel
+                your ticket and, if payment has been made to request for a full refund;<br />3.2.2 if the Event is canceled by the JCR, you will receive a full refund via the original payment
+                method; or<br />3.2.3 If the Event is rescheduled to another date, you may request, within 48 hours of the email
+                announcement of the rescheduled Event, to cancel your ticket and receive a full refund.</p>
+              <p className="py-1">3.3 Any requests regarding refunds shall be made by email to the FACSO at
+                grey.treasurer@durham.ac.uk.</p>
+              <p className="py-1">3.4 The circumstances in which an Event ticket purchase can be refunded shall remain within
+                the JCR's discretion and can be amended at any time.</p>
+              <h2 className="pt-6 pb-2 font-semibold text-xl">4. TERMS OF ADMISSION</h2>
+              <p className="py-1">4.1 You will be required to present the Event wristband (or other physical ticket as appropriate)
+                to gain admission to the Event.</p>
+              <p className="py-1">4.2 The JCR, acting by either the JCR President or the FACSO, and in consultation with the
+                JCR Trust Board and Grey College where necessary, reserves the right to refuse you admission
+                to any Event, or ask you to leave an Event, for any reason including but not limited to
+                unacceptable behaviour.</p>
+              <p className="py-1">4.3 If deemed appropriate to ensure the safety and security of attendees, the JCR may arrange
+                to staff private security personnel at the Event.</p>
+              <p className="py-1">4.4 For Events hosted at external third party venues, additional terms and conditions may apply.</p>
+              <p className="py-1">4.5 The JCR accepts no responsibility for any personal property at any Events.</p>
+              <h2 className="pt-6 pb-2 font-semibold text-xl">5. USE OF IMAGES</h2>
+              <p className="py-1">5.1 Events may be photographed, filmed and/or streamed via live webcast by or on behalf of the
+                JCR. By purchasing a ticket to an Event, you consent to the recording and transmission of
+                images (both still and moving) of you as an attendee at an Event.</p>
+              <p className="py-1">5.2 The JCR shall retain all rights to any images, which can be used for publicity purposes and
+                marketing materials in any medium.</p>
+              <p className="py-1">5.3 If you would prefer your image not to be used in materials, please contact the FACSO by
+                email and identify the specific image(s). If you have any objection to being photographed at an
+                Event, please contact a member of the Event organising team or notify the
+                photographer/videographer.</p>
             </div>
             {
               this.state.consent ? (
                 <div className="flex flex-col w-full">
-                  <p className="py-1">You have already consented. Please contact the FACSO <a href="mailto:grey.treasurer@durham.ac.uk?subject=Revoke Event Consent" target="_blank" rel="noopener noreferrer" className="font-semibold underline">by clicking here</a> to revoke your consent.</p>
+                  <p className="pt-10 pb-5 text-xl">You have already consented. Please contact the FACSO <a href="mailto:grey.treasurer@durham.ac.uk?subject=Revoke Event Consent" target="_blank" rel="noopener noreferrer" className="font-semibold underline">by clicking here</a> to revoke your consent.</p>
                 </div>
               ) : (
                 <div className="flex flex-col w-full font-semibold">

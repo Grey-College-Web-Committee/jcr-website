@@ -120,6 +120,12 @@ router.post("/verify", async (req, res) => {
     return res.status(500).json({ error: "Unable to save" });
   }
 
+  let editorEmail = []
+  editorEmail.push(`<p>A new application for an alumni account has been received on the Grey JCR website.</p>`);
+  editorEmail.push(`<p>Username: ${application.username}</p>`);
+  editorEmail.push(`<p>New email: ${application.email}</p>`);
+
+  mailer.sendEmail("grey.website@durham.ac.uk", `New Alumni Application`, editorEmail.join(""), "editor@greyjcr.co.uk");
   return res.status(204).end();
 })
 
@@ -225,7 +231,7 @@ const prepareDeniedEmail = () => {
   return [
     `<p>Hello,</p>`,
     "<p>Your application for an alumni account on the Grey JCR website has been denied.</p>",
-    "<p>For more information, please respond to this email.</p>",
+    "<p>For more information, please contact the website editor directly.</p>",
     "<p>Thank you.</p>"
   ].join("");
 }

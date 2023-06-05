@@ -13,6 +13,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USERNAME, pr
 
 class User extends Model {}
 class Address extends Model {}
+class PendingPassword extends Model {}
 
 class ShopOrder extends Model {}
 class ShopOrderContent extends Model {}
@@ -140,6 +141,9 @@ User.init({
   email: {
     type: DataTypes.STRING
   },
+  namedEmail: {
+    type: DataTypes.STRING
+  },
   surname: {
     type: DataTypes.STRING
   },
@@ -175,6 +179,25 @@ User.init({
     defaultValue: null
   },
   confirmedDetails: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
+}, { sequelize });
+
+PendingPassword.init({
+  username: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  password: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  verificationToken: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  verified: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   }
@@ -2037,7 +2060,7 @@ DataRequest.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = {
   sequelize, 
-  User, Address, PendingUserApplication, PendingAlumniApplication,
+  User, Address, PendingUserApplication, PendingAlumniApplication, PendingPassword,
   StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, StashOrderCustomisation, // redundant
   Permission, PermissionLink, 
   ShopOrder, ShopOrderContent, 

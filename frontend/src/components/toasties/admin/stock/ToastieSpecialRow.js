@@ -5,13 +5,13 @@ import api from '../../../../utils/axiosConfig';
 export const ToastieSpecialRow = (props) => {
   const [name, setName] = useState(props.name);
   const [description, setDescription] = useState(props.description);
-  const [available, setAvailable] = useState(props.available);
+  const [available] = useState(props.available);
   const [startDate, setStartDate] = useState(props.startDate);
   const [endDate, setEndDate] = useState(props.endDate);
   const [priceWithoutBread, setPriceWithoutBread] = useState(props.priceWithoutBread);
   
   // Fillings also exist but cannot be edited
-  const [fillings, setFillings] = useState(props.fillings);
+  const [fillings] = useState(props.fillings);
   const [updatedAt, setUpdatedAt] = useState(props.updatedAt); 
 
   const [disabled, setDisabled] = useState(false);

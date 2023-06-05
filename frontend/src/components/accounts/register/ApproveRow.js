@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import api from '../../../utils/axiosConfig';
 import dateFormat from 'dateformat';
 

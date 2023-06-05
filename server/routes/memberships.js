@@ -462,6 +462,51 @@ router.post("/hlm", async (req, res) => {
   return res.status(204).end();
 })
 
+router.post("/year", async (req, res) => {
+  // Admin only
+  const { user } = req.session;
+
+  if(!hasPermission(req.session, "jcr.manage")) {
+    return res.status(403).json({ error: "You do not have permission to perform this action" });
+  }
+
+  const { userId, year } = req.body;
+
+  if(userId === undefined || userId === null || !Number.isInteger(userId)) {
+    return res.status(400).json({ error: "Missing userId" });
+  }
+
+  if(year === undefined || year === null) {
+    return res.status(400).json({ error: "Missing year" });
+  }
+
+  let userRecord;
+
+  try {
+    userRecord = await User.findOne({
+      where: {
+        id: userId
+      }
+    });
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+
+  if(userRecord === null) {
+    return res.status(400).json({ error: "Invalid user ID" });
+  }
+
+  userRecord.year = year
+
+  try {
+    await userRecord.save();
+  } catch (error) {
+    return res.status(500).json({ error: "Unable to save the user changes" });
+  }
+
+  return res.status(204).end();
+})
+
 // Set the module export to router so it can be used in server.js
 // Allows it to be assigned as a route
 module.exports = router;

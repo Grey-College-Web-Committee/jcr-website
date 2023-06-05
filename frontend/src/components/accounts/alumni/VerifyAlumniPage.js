@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
@@ -20,10 +19,8 @@ class VerifyAlumniPage extends React.Component {
   }
 
   componentDidMount = async () => {
-    let result;
-
     try {
-      result = await api.post("/alumni/verify", { token: this.state.token });
+      await api.post("/alumni/verify", { token: this.state.token });
     } catch (error) {
       this.setState({ error: error.response.data.error });
       return;

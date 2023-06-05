@@ -237,7 +237,7 @@ router.post("/request", async (req, res) => {
 
   userEmail.push(`<p>The JCR Website Editor has been notified.</p>`);
 
-  await mailer.sendEmail("grey.website@durham.ac.uk", `New ${resolvedType[requestType]} Confirmation from ${req.session.user.username}`, editorEmail.join(""));
+  await mailer.sendEmail("grey.website@durham.ac.uk", `New ${resolvedType[requestType]} Confirmation from ${req.session.user.username}`, editorEmail.join(""), "editor@greyjcr.co.uk");
   await mailer.sendEmail(req.session.user.email, `${resolvedType[requestType]} Confirmation`, userEmail.join(""));
 
   return res.status(204).end();

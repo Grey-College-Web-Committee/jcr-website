@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig';
 import LoadingHolder from '../common/LoadingHolder';
 
@@ -110,8 +110,6 @@ class SwappingAdminPage extends React.Component {
   }
 
   uploadInitialPairs = async (arr) => {
-    let result;
-
     try {
       await api.post("/swapping/initial", { initialPairs: arr });
     } catch (error) {

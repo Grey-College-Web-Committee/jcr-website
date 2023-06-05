@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
@@ -84,7 +84,7 @@ const membershipOptions = [
     name: "Easter Term Gym Membership",
     image: "/images/gym/dumbbell.png",
     description: "(expires 01/07/2023)",
-    displayName: "Epiphany Term Gym Membership",
+    displayName: "Easter Term Gym Membership",
     submissionInformation: {
       type: "single_term"
     }

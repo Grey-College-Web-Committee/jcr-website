@@ -1,11 +1,9 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
-import LoadingHolder from '../../common/LoadingHolder';
 
 // https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
-const emailRegex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 class AlumniRegisterPage extends React.Component {
   constructor(props) {

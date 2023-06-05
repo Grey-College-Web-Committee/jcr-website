@@ -13,18 +13,38 @@ class LoginPage extends React.Component {
 
     let ref = "/";
 
-    if(queryParams.ref !== undefined && queryParams.ref !== null && typeof queryParams.ref === "string") {
-      if(queryParams.ref.startsWith("/")) {
+    if (queryParams.ref !== undefined && queryParams.ref !== null && typeof queryParams.ref === "string") {
+      if (queryParams.ref.startsWith("/")) {
         ref = queryParams.ref;
       }
     }
 
+    let success = false;
+
+    if (queryParams.success) {
+      if (queryParams.success === "true") {
+        success = true;
+      }
+    }
 
     this.state = {
       message: "",
-      disabled: false,
+      disabled: success,
+      success,
       ref
     };
+  }
+
+  componentDidMount = async () => {
+    if (this.state.success) {
+      try {
+        const user = (await api.get('/auth/fullverify')).data.user
+        this.setState({ message: "Logged in" });
+        this.props.loginUser(user, this.state.ref);
+      } catch {
+        this.setState({ disabled: false, success: false })
+      }
+    }
   }
 
   // Will be passed as a prop to LoginForm to allow it to change the message
@@ -44,12 +64,12 @@ class LoginPage extends React.Component {
       // axios will error if we do not get a 2XX code
       let message;
 
-      switch(error.response.status) {
+      switch (error.response.status) {
         case 400:
           message = "Please enter a username and password.";
           break;
         case 401:
-          if(error.response.data.requiresRegister) {
+          if (error.response.data.requiresRegister) {
             message = "You must register for an account first.";
             break;
           }
@@ -70,17 +90,25 @@ class LoginPage extends React.Component {
     this.props.loginUser(response.data.user, this.state.ref);
   }
 
-  render () {
+  render() {
     const showErrors = this.state.message.length === 0 ? "hidden" : "block";
 
     return (
       <div className="flex flex-col justify-center">
         <div className="container mx-auto text-center p-4">
           <h1 className="font-semibold text-5xl pb-4">Login</h1>
-          <p className="pb-2">You must be a member of Grey College to login.</p>
-          <Link to="/accounts/register">
+          {this.state.ref !== "/" && <div className="mx-auto md:w-max w-4/5 pb-4 pt-4">
+            <input
+              type="submit"
+              value={"Student Login"}
+              className="px-4 py-1 rounded bg-red-900 text-white md:w-80 w-full font-semibold focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50"
+              onClick={() => {window.location.replace('/api/auth/sso?ref='+this.state.ref)}}
+            />
+          </div>}
+          <p className="pb-2">You must be a Grey College alumnus to login below.</p>
+          {/* <Link to="/accounts/register">
             <p className="pb-2 font-semibold underline">Don't have an account? Click here to register!</p>
-          </Link>
+          </Link> */}
           <LoginForm
             disabled={this.state.disabled}
             updateMessage={this.updateMessage}

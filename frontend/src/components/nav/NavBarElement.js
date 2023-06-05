@@ -8,32 +8,32 @@ class NavBarElement extends React.Component {
     return "h-full p-3 font-medium hover:underline";
   }
 
-  render () {
-    const { displayName, url, requiredPermission, staticImage, dropdown, alwaysDisplayed, user } = this.props;
+  render() {
+    const { displayName, url, requiredPermission, staticImage, dropdown, alwaysDisplayed, user, realLink } = this.props;
     const screenSizeClasses = alwaysDisplayed ? "" : "hidden lg:block";
     let classes = `${this.getClasses()} ${screenSizeClasses}`;
 
-    if(requiredPermission !== null) {
-      if(user === undefined) {
+    if (requiredPermission !== null) {
+      if (user === undefined) {
         return null;
       }
 
-      if(!user.hasOwnProperty("permissions")) {
+      if (!user.hasOwnProperty("permissions")) {
         return null;
       }
 
-      if(user.permissions === null) {
+      if (user.permissions === null) {
         return null;
       }
 
-      if(!user.permissions.includes(requiredPermission)) {
+      if (!user.permissions.includes(requiredPermission)) {
         return null;
       }
     }
 
-    if(dropdown === null) {
-      if(url === null) {
-        if(staticImage === null) {
+    if (dropdown === null) {
+      if (url === null) {
+        if (staticImage === null) {
           return (
             <li
               className={classes}
@@ -56,17 +56,30 @@ class NavBarElement extends React.Component {
           )
         }
       } else {
-        if(staticImage === null) {
-          return (
-            <Link to={url}>
-              <li
-                className={classes}
-                onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
-              >
+        if (staticImage === null) {
+          if (realLink) {
+            return (
+              <a href={url} id="real">
+                <li
+                  className={classes}
+                  onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
+                >
                   {displayName}
-              </li>
-            </Link>
-          );
+                </li>
+              </a>
+            );
+          } else {
+            return (
+              <Link to={url}>
+                <li
+                  className={classes}
+                  onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
+                >
+                  {displayName}
+                </li>
+              </Link>
+            );
+          }
         } else {
           return (
             <Link to={url}>
@@ -74,10 +87,10 @@ class NavBarElement extends React.Component {
                 className={classes}
                 onMouseEnter={() => { this.props.changeActiveDropdownKey(this.props.id) }}
               >
-                  <img
-                    alt="Placeholder Alt Text"
-                    {...staticImage}
-                  />
+                <img
+                  alt="Placeholder Alt Text"
+                  {...staticImage}
+                />
               </li>
             </Link>
           )
@@ -89,22 +102,22 @@ class NavBarElement extends React.Component {
       const nullPermissions = internalPermissions.filter(permission => permission === null);
       classes += " cursor-default";
 
-      if(internalPermissions.length !== 0 && nullPermissions.length === 0) {
-        if(user === undefined) {
+      if (internalPermissions.length !== 0 && nullPermissions.length === 0) {
+        if (user === undefined) {
           return null;
         }
 
-        if(!user.hasOwnProperty("permissions")) {
+        if (!user.hasOwnProperty("permissions")) {
           return null;
         }
 
-        if(user.permissions === null) {
+        if (user.permissions === null) {
           return null;
         }
 
         const validPermissions = internalPermissions.filter(permission => user.permissions.includes(permission));
 
-        if(validPermissions.length === 0) {
+        if (validPermissions.length === 0) {
           return null;
         }
       }

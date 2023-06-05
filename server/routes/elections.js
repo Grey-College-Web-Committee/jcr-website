@@ -271,7 +271,7 @@ router.delete("/:id", async (req, res) => {
   const emailList = ["grey.chair@durham.ac.uk", "grey.president@durham.ac.uk", "grey.treasurer@durham.ac.uk", "grey.website@durham.ac.uk"];
 
   emailList.forEach((email) => {
-    mailer.sendEmail(email, `Election Deleted ${name}`, deletionEmail.join(""));
+    mailer.sendEmail(email, `Election Deleted ${name}`, deletionEmail.join(""), "editor@greyjcr.co.uk");
   });
 
   return res.status(204).end();

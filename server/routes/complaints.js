@@ -69,7 +69,7 @@ router.post("/", async (req, res) => {
   let chairEmail = [];
 
   chairEmail.push(`<p>A new complaint has been received from ${name} with the subject ${subject}</p>`);
-  chairEmail.push(`<p><a href="https://services.greyjcr.com/complaints/admin" rel="noopener noreferrer" target="_blank">Please click here to go to the complaints management page.</a></p>`);
+  chairEmail.push(`<p><a href="https://greyjcr.co.uk/complaints/admin" rel="noopener noreferrer" target="_blank">Please click here to go to the complaints management page.</a></p>`);
 
   mailer.sendEmail("grey.chair@durham.ac.uk", `New Complaint Received`, chairEmail.join(""));
 

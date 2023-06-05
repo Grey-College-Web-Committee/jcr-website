@@ -17,6 +17,10 @@ class FileRow extends React.Component {
     }
   }
 
+  view = async () => {
+    window.open(`${window.location.origin}/uploads/jcr/${this.state.realFileName}/view`)
+  }
+
   saveRow = async () => {
     this.setState({ disabled: true });
 
@@ -87,7 +91,7 @@ class FileRow extends React.Component {
           />
         </td>
         <td className="p-2 border-r border-gray-400">
-        View File
+        <button onClick={this.view}>View File</button>
         </td>
         <td className="p-2 border-r border-gray-400">
           <select

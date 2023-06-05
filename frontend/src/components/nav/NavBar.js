@@ -128,12 +128,21 @@ class NavBar extends React.Component {
           alwaysDisplayed: false
         },
         {
-          displayName: "Login",
+          displayName: "Alumni Login",
           url: "/accounts/login",
           requiredPermission: null,
           staticImage: null,
           dropdown: null,
           alwaysDisplayed: false
+        },
+        {
+          displayName: "Student Login",
+          url: "/api/auth/sso",
+          requiredPermission: null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false,
+          realLink: true
         }
       ];
 

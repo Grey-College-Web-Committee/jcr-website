@@ -36,14 +36,14 @@ if(process.env.LOCAL_EMAIL === "true") {
 }
 
 // Send an email using the transporter we have constructed
-const sendEmail = async (to, subject, html) => {
+const sendEmail = async (to, subject, html, from) => {
   let info;
 
   const sendingHtml = html + footer;
 
   try {
     info = await transporter.sendMail({
-      from: process.env.EMAIL_SENDER,
+      from: from ? from : process.env.EMAIL_SENDER,
       to,
       subject,
       html: sendingHtml,

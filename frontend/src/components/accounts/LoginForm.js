@@ -67,7 +67,7 @@ class LoginForm extends React.Component {
             />
           </div>
           <div className="mx-auto md:w-max w-4/5 pb-4 pt-2 border-b-2">
-            <label htmlFor="password" className="flex flex-row justify-start pb-2 text-lg font-semibold">Durham Password</label>
+            <label htmlFor="password" className="flex flex-row justify-start pb-2 text-lg font-semibold">Password</label>
             <input
               type="password"
               name="password"

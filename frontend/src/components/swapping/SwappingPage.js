@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
 import LoadingHolder from '../common/LoadingHolder';
@@ -317,7 +317,7 @@ class SwappingPage extends React.Component {
                             type="number"
                             name="donationAmount"
                             value={this.state.donationAmount}
-                            className="border w-full rounded py-1 px-2 opacity-50"
+                            //className="border w-full rounded py-1 px-2 opacity-50"
                             onChange={this.onInputChange}
                             className="border w-full rounded py-1 px-2 focus:outline-none focus:ring-2 disabled:opacity-50 focus:ring-gray-400"
                             step={0.01}

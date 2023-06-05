@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"
+  validUntil="2023-05-11T14:04:45Z"
+  cacheDuration="PT604800S"
+  entityID="https://greyjcr.co.uk">
+  <md:SPSSODescriptor AuthnRequestsSigned="false" WantAssertionsSigned="true"
+    protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+    <md:NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</md:NameIDFormat>
+    <md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
+      Location="https://greyjcr.co.uk/auth/acs"
+      index="1" />
+
+  </md:SPSSODescriptor>
+</md:EntityDescriptor>

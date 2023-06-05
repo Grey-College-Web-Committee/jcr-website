@@ -68,7 +68,7 @@ router.post("/", async (req, res) => {
   let vpEmail = [];
 
   vpEmail.push(`<p>Feedback has been received with the subject ${subject}</p>`);
-  vpEmail.push(`<p><a href="https://services.greyjcr.com/feedback/view/${feedbackRecord.id}" rel="noopener noreferrer" target="_blank">Please click here to view it.</a></p>`);
+  vpEmail.push(`<p><a href="https://greyjcr.co.uk/feedback/view/${feedbackRecord.id}" rel="noopener noreferrer" target="_blank">Please click here to view it.</a></p>`);
 
   mailer.sendEmail("grey.vicepresident@durham.ac.uk", `New Feedback Received`, vpEmail.join(""));
 

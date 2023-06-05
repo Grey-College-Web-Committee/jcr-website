@@ -238,7 +238,7 @@ router.post("/message", async (req, res) => {
       const emailResult = await mailer.sendEmail(person.grantedTo.email, "New Anonymous Message", emailNotification.join(""));
 
       if(!emailResult) {
-        mailer.sendEmail("grey.website@durham.ac.uk", "SWOS Email Send Failure", [`Failed to send to ${person.grantedTo.email}`]);
+        mailer.sendEmail("grey.website@durham.ac.uk", "SWOS Email Send Failure", [`Failed to send to ${person.grantedTo.email}`], "editor@greyjcr.co.uk");
         console.log("Email send failure");
       }
     }

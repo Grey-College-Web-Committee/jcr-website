@@ -13,7 +13,7 @@ const CronJob = require("cron").CronJob;
 // Routes and database models
 const { 
   sequelize, 
-  User, Address, PendingUserApplication, PendingAlumniApplication,
+  User, Address, PendingUserApplication, PendingAlumniApplication, PendingPassword,
   StashColours, StashSizeChart, StashItemColours, StashStockImages, StashCustomisations, StashStock, StashOrder, StashOrderCustomisation, // redundant
   Permission, PermissionLink, 
   ShopOrder, ShopOrderContent, 
@@ -96,7 +96,9 @@ io.on("connection", socket => {
 
 // Tells express to recognise incoming requests as JSON
 app.use((req, res, next) => {
-  if(req.originalUrl === "/api/stripe/webhook") {
+  if (req.originalUrl === "/auth/acs") {
+    express.urlencoded({ extended: true })(req, res, next);
+  } else if (req.originalUrl === "/api/stripe/webhook") {
     next();
   } else {
     express.json()(req, res, next);
@@ -285,6 +287,7 @@ const requiredCommittees = [
 
   await User.sync();
   await Address.sync();
+  await PendingPassword.sync();
 
   await Permission.sync();
   await PermissionLink.sync();
@@ -489,6 +492,11 @@ const isLoggedIn = (req, res, next) => {
   res.status(401).json({ message: "Not logged in" });
   return;
 };
+
+app.post('/auth/acs', (req, res, next) => {
+  req.url = '/api/auth/acs'
+  next()
+});
 
 // These are api routes that act as the backend
 app.use("/api/auth", authRoute);

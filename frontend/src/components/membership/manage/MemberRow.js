@@ -12,7 +12,8 @@ class MemberRow extends React.Component {
       expiry: "2023-08-01",
       disabled: false,
       hlm: this.props.record.hlm ? "yes" : "no",
-      record: this.props.record
+      record: this.props.record,
+      year: this.props.record.year
     };
   }
 
@@ -22,6 +23,10 @@ class MemberRow extends React.Component {
 
   onInputChangeHLM = e => {
     this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, this.updateHLMStatus);
+  }
+
+  onInputChangeYear = e => {
+    this.setState({ [e.target.name]: (e.target.type === "checkbox" ? e.target.checked : e.target.value) }, this.updateYearStatus);
   }
 
   updateSelf = async () => {
@@ -36,7 +41,7 @@ class MemberRow extends React.Component {
       return;
     }
 
-    this.setState({ loaded: true, record: userRecord.data.user, disabled: false, hlm: (userRecord.data.user.hlm ? "yes" : "no") });
+    this.setState({ loaded: true, record: userRecord.data.user, year: userRecord.data.user.year, disabled: false, hlm: (userRecord.data.user.hlm ? "yes" : "no") });
   }
 
   revokeMembership = async (e) => {
@@ -101,15 +106,45 @@ class MemberRow extends React.Component {
     await this.updateSelf();
   }
 
+  updateYearStatus = async () => {
+    this.setState({ disabled: true });
+    const year = this.state.year;
+    const { id } = this.state.record;
+
+    try {
+      await api.post("/memberships/year", { userId: id, year });
+    } catch (error) {
+      alert("An error occurred changing year");
+      return;
+    }
+
+    await this.updateSelf();
+  }
+
   render () {
-    const { username, firstNames, surname, year, createdAt, lastLogin, membershipExpiresAt } = this.state.record;
+    const { username, firstNames, surname, createdAt, lastLogin, membershipExpiresAt } = this.state.record;
 
     return (
       <tr className="text-center border-b border-gray-400">
         <td className="p-2 border-r border-gray-400">{username}</td>
         <td className="p-2 border-r border-gray-400 break-all hidden lg:table-cell">{firstNames}</td>
         <td className="p-2 border-r border-gray-400">{surname}</td>
-        <td className="p-2 border-r border-gray-400">{year}</td>
+        <td className="border-r border-gray-400 hidden lg:table-cell">
+          {
+            <select
+              name="year"
+              className="md:w-auto w-full h-8 border border-gray-400 disabled:opacity-50"
+              onChange={this.onInputChangeYear}
+              value={this.state.year}
+              disabled={this.state.disabled}
+            >
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          }
+        </td>
         <td className="p-2 border-r border-gray-400 hidden lg:table-cell">{dateFormat(createdAt, "dd/mm/yyyy HH:MM:ss")}</td>
         <td className="border-r border-gray-400 hidden lg:table-cell">{dateFormat(lastLogin, "dd/mm/yyyy HH:MM:ss")}</td>
         <td className="border-r border-gray-400 hidden lg:table-cell">

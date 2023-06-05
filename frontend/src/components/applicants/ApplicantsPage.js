@@ -1,8 +1,5 @@
 import React from 'react';
-import { Link, Redirect } from 'react-router-dom';
-import api from '../../utils/axiosConfig.js';
 import authContext from '../../utils/authContext.js';
-import LoadingHolder from '../common/LoadingHolder';
 import ReactPlayer from 'react-player';
 import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
 
