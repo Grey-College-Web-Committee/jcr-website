@@ -17,15 +17,19 @@ const { v4: uuidv4 } = require("uuid");
 const { idp, sp } = require("../utils/saml");
 
 router.get('/sso', (req, res) => {
-  let { context } = sp.createLoginRequest(idp, 'redirect');
-  const { ref, hint } = req.query
-  if (hint) {
-    context += "&login_hint=" + hint
+  if (idp) {
+    let { context } = sp.createLoginRequest(idp, 'redirect');
+    const { ref, hint } = req.query
+    if (hint) {
+      context += "&login_hint=" + hint
+    }
+    if (ref) {
+      context += "&RelayState=" + ref
+    }
+    return res.redirect(context);
+  } else {
+    return res.redirect("/accounts/login")
   }
-  if (ref) {
-    context += "&RelayState=" + ref
-  }
-  return res.redirect(context);
 })
 
 router.post('/acs', async (req, res) => {
