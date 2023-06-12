@@ -3,12 +3,12 @@ import { Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
 import LoadingHolder from '../../common/LoadingHolder';
-import { ToastieSpecial } from './ToastieSpecial.js';
-import { ToastieBuilder } from './ToastieBuilder.js';
+import { ToastieSpecial } from './ToastieSpecial.jsx';
+import { ToastieBuilder } from './ToastieBuilder.jsx';
 
 import { IconContext  } from 'react-icons';
 import { GiChocolateBar, GiBreadSlice, GiSandsOfTime, GiMilkCarton } from 'react-icons/gi';
-import { ToastieHowToOrder } from './ToastieHowToOrder.js';
+import { ToastieHowToOrder } from './ToastieHowToOrder.jsx';
 
 class ToastieOrderingPage extends React.Component {
   constructor(props) {

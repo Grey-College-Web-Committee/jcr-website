@@ -1,8 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./src/**/*.js', './index.html'],
+  content: ['./src/**/*.jsx', './index.html'],
   safelist: ["border-b-red-900", "w-12", "h-12", "border-4"],
-  darkMode: false, // or 'media' or 'class'
   theme: {
     borderStyles: {
       colors: true

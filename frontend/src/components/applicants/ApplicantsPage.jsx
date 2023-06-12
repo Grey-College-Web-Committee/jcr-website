@@ -1,7 +1,7 @@
 import React from 'react';
 import authContext from '../../utils/authContext.js';
 import ReactPlayer from 'react-player';
-import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
+import { Document, Page } from 'react-pdf';
 
 class ApplicantsPage extends React.Component {
   constructor(props) {

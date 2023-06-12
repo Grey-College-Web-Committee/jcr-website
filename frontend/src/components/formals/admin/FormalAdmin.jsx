@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import api from '../../../utils/axiosConfig.js';
 import authContext from '../../../utils/authContext.js';
-import LoadingHolder from '../../common/LoadingHolder.js';
+import LoadingHolder from '../../common/LoadingHolder.jsx';
 import dateFormat from 'dateformat';
 
 class FormalsPage extends React.Component {
