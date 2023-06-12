@@ -3,7 +3,7 @@ import { Link, Redirect } from 'react-router-dom';
 import api from '../../../../utils/axiosConfig';
 import LoadingHolder from '../../../common/LoadingHolder';
 import EventTicketRow from './EventTicketRow';
-const dateFormat = require("dateformat")
+import dateFormat from "dateformat"
 
 class EventsGroupManagePage extends React.Component {
   constructor(props) {

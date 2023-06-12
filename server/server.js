@@ -535,7 +535,7 @@ app.use("/api/toastie", toastieBarRoute); // No need to have been logged in
 // Uncomment /* */ when deploying
 // These are for serving production code
 // The directory may need to change
-app.use(express.static(path.join(__dirname, "../frontend/build")));
+app.use(express.static(path.join(__dirname, "../frontend/dist")));
 app.use(express.static(path.join(__dirname, "../domain_verification")));
 app.use(express.static(path.join(__dirname, "./uploads/images/stash")));
 
@@ -645,7 +645,7 @@ app.get("/uploads/toasties/allergens", function(req, res) {
 });
 
 app.get('/*', function (req, res) {
-  res.sendFile(path.join(__dirname, "../frontend/build", "index.html"));
+  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
 });
 
 // Listen for requests on the port specified in the .env file

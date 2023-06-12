@@ -1,7 +1,11 @@
 import React from 'react';
 import authContext from '../../utils/authContext.js';
 import ReactPlayer from 'react-player';
-import { Document, Page } from 'react-pdf/dist/esm/entry.webpack';
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.js?url';
+import {Document, Page} from 'react-pdf';
+import {pdfjs} from "react-pdf";
+
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
 
 class ApplicantsPage extends React.Component {
   constructor(props) {

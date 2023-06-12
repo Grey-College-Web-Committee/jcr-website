@@ -2,43 +2,31 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
     "@stripe/react-stripe-js": "^1.1.2",
     "@stripe/stripe-js": "^1.10.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
-    "autoprefixer": "^10.0.4",
     "axios": "^0.21.4",
-    "cross-env": "^7.0.3",
     "dateformat": "^3.0.3",
-    "postcss": "^8.2.15",
-    "postcss-cli": "^8.3.0",
     "qs": "^6.9.6",
     "react": "^16.14.0",
-    "react-dom": "^16.14.0",
+    "react-dom": "^16.3.0",
     "react-icons": "^4.3.1",
     "react-images-upload": "^1.2.8",
     "react-pdf": "^5.7.1",
     "react-player": "^2.9.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "5.0.1",
     "react-signature-canvas": "^1.0.3",
     "react-sortable-hoc": "^1.11.0",
     "smoothscroll-polyfill": "^0.4.4",
-    "socket.io-client": "^4.6.1",
-    "tailwindcss": "^2.0.1",
-    "tailwindcss-border-styles": "^1.0.1"
+    "socket.io-client": "^4.6.1"
   },
   "scripts": {
-    "build:style": "tailwind build -i src/styles/index.css -o src/styles/tailwind.css",
-    "start": "cross-env NODE_ENV=development npm run build:style && cross-env NODE_ENV=development react-scripts start",
-    "build": "cross-env NODE_ENV=production npm run build:style && cross-env NODE_ENV=production react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
+    "start": "cross-env NODE_ENV=development vite",
+    "build": "cross-env NODE_ENV=production vite build"
   },
   "browserslist": {
     "production": [
@@ -57,6 +45,18 @@
     ]
   },
   "devDependencies": {
-    "http-proxy-middleware": "^2.0.6"
+    "@types/react": "^18.0.37",
+    "@types/react-dom": "^18.0.11",
+    "tailwindcss": "^3.3.2",
+    "tailwindcss-border-styles": "^1.0.1",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24",
+    "eslint": "^8.38.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "vite": "^4.3.9",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "cross-env": "^7.0.3"
   }
 }

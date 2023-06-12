@@ -1,13 +1,7 @@
-const plugin = require('tailwindcss/plugin');
-
-module.exports = {
-  purge: {
-    content: ['./src/**/*.js', './public/index.html'],
-    options: {
-      safelist: ["border-b-red-900", "w-12", "h-12", "border-4"]
-    }
-  },
-  darkMode: false, // or 'media' or 'class'
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./src/**/*.jsx', './index.html'],
+  safelist: ["border-b-red-900", "w-12", "h-12", "border-4"],
   theme: {
     borderStyles: {
       colors: true
