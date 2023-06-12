@@ -4,59 +4,59 @@ import authContext from './utils/authContext.js';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import config from './config.json';
-import Cart from './components/cart/Cart'
+import Cart from './components/cart/Cart.js'
 
-import NavBar from './components/nav/NavBar';
-import CommonFooter from './components/common/CommonFooter';
-import CookieAccept from './components/legal/CookieAccept';
+import NavBar from './components/nav/NavBar.js';
+import CommonFooter from './components/common/CommonFooter.js';
+import CookieAccept from './components/legal/CookieAccept.js';
 
-import LoginPage from './components/accounts/LoginPage';
-import LogoutPage from './components/accounts/LogoutPage';
+import LoginPage from './components/accounts/LoginPage.js';
+import LogoutPage from './components/accounts/LogoutPage.js';
 
-import RegisterPage from './components/accounts/register/RegisterPage';
-import AdminApprovePage from './components/accounts/register/AdminApprovePage';
+import RegisterPage from './components/accounts/register/RegisterPage.js';
+import AdminApprovePage from './components/accounts/register/AdminApprovePage.js';
 
-import AlumniRegisterPage from './components/accounts/alumni/AlumniRegisterPage';
-import VerifyAlumniPage from './components/accounts/alumni/VerifyAlumniPage';
-import AdminApproveAlumniPage from './components/accounts/alumni/AdminApproveAlumniPage'
+import AlumniRegisterPage from './components/accounts/alumni/AlumniRegisterPage.js';
+import VerifyAlumniPage from './components/accounts/alumni/VerifyAlumniPage.js';
+import AdminApproveAlumniPage from './components/accounts/alumni/AdminApproveAlumniPage.js'
 
-import ErrorPage from './components/errors/ErrorPage';
-import HomePage from './components/home/HomePage';
+import ErrorPage from './components/errors/ErrorPage.js';
+import HomePage from './components/home/HomePage.js';
 
-import CheckoutPage from './components/checkout/CheckoutPage';
+import CheckoutPage from './components/checkout/CheckoutPage.js';
 // import OrderStashPage from './components/stash/OrderStashPage';
 // import ViewStashItemPage from './components/stash/view/ViewStashItemPage';
-import DebtPage from './components/debt/DebtPage';
-import GymInformationPage from './components/gym/GymInformationPage';
-import GymTermsPage from './components/gym/GymTermsPage';
-import GymInductionPage from './components/gym/GymInductionPage';
-import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage';
-import WelfarePage from './components/welfare/WelfarePage';
-import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage';
-import WelfareThreadPage from './components/welfare/message/thread/WelfareThreadPage';
-import ComplaintsPage from './components/complaints/ComplaintsPage';
+import DebtPage from './components/debt/DebtPage.js';
+import GymInformationPage from './components/gym/GymInformationPage.js';
+import GymTermsPage from './components/gym/GymTermsPage.js';
+import GymInductionPage from './components/gym/GymInductionPage.js';
+import PurchaseMembershipPage from './components/membership/PurchaseMembershipPage.js';
+import WelfarePage from './components/welfare/WelfarePage.js';
+import WelfareMessagingPage from './components/welfare/message/WelfareMessagingPage.js';
+import WelfareThreadPage from './components/welfare/message/thread/WelfareThreadPage.js';
+import ComplaintsPage from './components/complaints/ComplaintsPage.js';
 
-import CareersPage from './components/careers/CareersPage';
+import CareersPage from './components/careers/CareersPage.js';
 
-import ElectionOverviewPage from './components/elections/overview/ElectionOverviewPage';
-import ElectionVotingPage from './components/elections/vote/ElectionVotingPage';
+import ElectionOverviewPage from './components/elections/overview/ElectionOverviewPage.js';
+import ElectionVotingPage from './components/elections/vote/ElectionVotingPage.js';
 
-import ContributorsPage from './components/legal/ContributorsPage';
-import CookiesPage from './components/legal/CookiesPage';
+import ContributorsPage from './components/legal/ContributorsPage.js';
+import CookiesPage from './components/legal/CookiesPage.js';
 
-import EventsOverviewPage from './components/events/overview/EventsOverviewPage';
-import EventsInfoPage from './components/events/info/EventsInfoPage';
-import EventsTermsPage from './components/events/disclaimer/EventsTermsPage';
-import EventsGroupBookingPage from './components/events/book/EventsGroupBookingPage';
-import EventsPaymentPage from './components/events/payment/EventsPaymentPage';
-import EventsMyBookingsOverview from './components/events/my/EventsMyBookingsOverview';
-import EventsMyBookingPage from './components/events/my/EventsMyBookingPage';
-import EventsFreeReqPage from './components/events/free/EventsFreeReqPage';
-import SwappingPage from './components/swapping/SwappingPage';
-import SwappingAdminPage from './components/swapping/SwappingAdminPage';
+import EventsOverviewPage from './components/events/overview/EventsOverviewPage.js';
+import EventsInfoPage from './components/events/info/EventsInfoPage.js';
+import EventsTermsPage from './components/events/disclaimer/EventsTermsPage.js';
+import EventsGroupBookingPage from './components/events/book/EventsGroupBookingPage.js';
+import EventsPaymentPage from './components/events/payment/EventsPaymentPage.js';
+import EventsMyBookingsOverview from './components/events/my/EventsMyBookingsOverview.js';
+import EventsMyBookingPage from './components/events/my/EventsMyBookingPage.js';
+import EventsFreeReqPage from './components/events/free/EventsFreeReqPage.js';
+import SwappingPage from './components/swapping/SwappingPage.js';
+import SwappingAdminPage from './components/swapping/SwappingAdminPage.js';
 
-import FeedbackPage from './components/feedback/FeedbackPage';
-import ApplicantsPage from './components/applicants/ApplicantsPage';
+import FeedbackPage from './components/feedback/FeedbackPage.js';
+import ApplicantsPage from './components/applicants/ApplicantsPage.js';
 
 // import BarOrderingPage from './components/bar/BarOrderingPage';
 // import ViewBarItemPage from './components/bar/ViewBarItemPage';
@@ -78,59 +78,59 @@ import ApplicantsPage from './components/applicants/ApplicantsPage';
 // import ToastieAdminLive from './components/toastie_bar/admin/live/ToastieAdminLive';
 // import ToastieBarOverview from './components/toastie_bar/admin/ToastieBarOverview';
 
-import StashStockPage from './components/stash/admin/StashStockPage';
-import StashImagesPage from './components/stash/admin/ImagesPage';
-import EditPermissionsPage from './components/permissions/EditPermissionsPage';
-import StashExportPage from './components/stash/export/StashExportPage';
-import GymAdminPage from './components/gym/admin/GymAdminPage';
-import ExportMembershipsPage from './components/membership/export/ExportMembershipsPage';
-import ManageMembershipsPage from './components/membership/manage/ManageMembershipsPage';
-import ElectionAdminPortal from './components/elections/portal/ElectionAdminPortal';
-import CreateElectionPage from './components/elections/create/CreateElectionPage';
-import GenerateElectionResultsPage from './components/elections/results/GenerateElectionResultsPage';
-import ElectionEditPage from './components/elections/portal/ElectionEditPage';
-import WelfareAdminOverviewPage from './components/welfare/message/admin/WelfareAdminOverviewPage';
-import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage';
-import MediaPage from './components/media/MediaViewPage';
-import ViewImagesPage from './components/media/ViewImagesPage';
-import MediaAdminPage from './components/media/MediaAdminPage';
+import StashStockPage from './components/stash/admin/StashStockPage.js';
+import StashImagesPage from './components/stash/admin/ImagesPage.js';
+import EditPermissionsPage from './components/permissions/EditPermissionsPage.js';
+import StashExportPage from './components/stash/export/StashExportPage.js';
+import GymAdminPage from './components/gym/admin/GymAdminPage.js';
+import ExportMembershipsPage from './components/membership/export/ExportMembershipsPage.js';
+import ManageMembershipsPage from './components/membership/manage/ManageMembershipsPage.js';
+import ElectionAdminPortal from './components/elections/portal/ElectionAdminPortal.js';
+import CreateElectionPage from './components/elections/create/CreateElectionPage.js';
+import GenerateElectionResultsPage from './components/elections/results/GenerateElectionResultsPage.js';
+import ElectionEditPage from './components/elections/portal/ElectionEditPage.js';
+import WelfareAdminOverviewPage from './components/welfare/message/admin/WelfareAdminOverviewPage.js';
+import WelfareAdminThreadPage from './components/welfare/message/admin/WelfareAdminThreadPage.js';
+import MediaPage from './components/media/MediaViewPage.js';
+import ViewImagesPage from './components/media/ViewImagesPage.js';
+import MediaAdminPage from './components/media/MediaAdminPage.js';
 
-import ComplaintsAdminOverview from './components/complaints/ComplaintsAdminOverview';
-import ComplaintViewPage from './components/complaints/ComplaintViewPage';
+import ComplaintsAdminOverview from './components/complaints/ComplaintsAdminOverview.js';
+import ComplaintViewPage from './components/complaints/ComplaintViewPage.js';
 
-import CareersAdminPage from './components/careers/CareersAdminPage';
-import CareersEditPost from './components/careers/CareersEditPost';
-import FeedbackAdminOverview from './components/feedback/FeedbackAdminOverview';
-import FeedbackViewPage from './components/feedback/FeedbackViewPage';
+import CareersAdminPage from './components/careers/CareersAdminPage.js';
+import CareersEditPost from './components/careers/CareersEditPost.js';
+import FeedbackAdminOverview from './components/feedback/FeedbackAdminOverview.js';
+import FeedbackViewPage from './components/feedback/FeedbackViewPage.js';
 
-import ManageDebtPage from './components/debt/admin/ManageDebtPage';
-import CreateNewEventPage from './components/events/admin/create/CreateNewEventPage';
-import EventsGroupManagePage from './components/events/admin/groups/EventsGroupManagePage';
-import EventsExportPage from './components/events/admin/export/EventsExportPage';
-import EventsExportOverview from './components/events/admin/export/EventsExportOverview';
-import EventsManagePage from './components/events/admin/overview/EventsManagePage';
-import EditEventDetails from './components/events/admin/edit/EditEventDetails';
-import EventsAdminBookingPage from './components/events/admin/book/EventsAdminBookingPage';
+import ManageDebtPage from './components/debt/admin/ManageDebtPage.js';
+import CreateNewEventPage from './components/events/admin/create/CreateNewEventPage.js';
+import EventsGroupManagePage from './components/events/admin/groups/EventsGroupManagePage.js';
+import EventsExportPage from './components/events/admin/export/EventsExportPage.js';
+import EventsExportOverview from './components/events/admin/export/EventsExportOverview.js';
+import EventsManagePage from './components/events/admin/overview/EventsManagePage.js';
+import EditEventDetails from './components/events/admin/edit/EditEventDetails.js';
+import EventsAdminBookingPage from './components/events/admin/book/EventsAdminBookingPage.js';
 
-import MyProfile from './components/profile/MyProfile';
-import DetailChangeRequest from './components/profile/DetailChangeRequest';
-import ConfirmDetailsPage from './components/accounts/confirm/ConfirmDetailsPage';
+import MyProfile from './components/profile/MyProfile.js';
+import DetailChangeRequest from './components/profile/DetailChangeRequest.js';
+import ConfirmDetailsPage from './components/accounts/confirm/ConfirmDetailsPage.js';
 
-import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage';
-import JCRFileListingPage from './components/jcr/files/JCRFileListingPage';
-import JCRTrustPage from './components/jcr/trust/JCRTrustPage';
-import ExecsAndAwardsPage from './components/jcr/roles/ExecsAndAwardsPage';
-import FinancialSupportPage from './components/jcr/finance/FinancialSupportPage';
+import ViewCommitteesPage from './components/jcr/roles/ViewCommitteesPage.js';
+import JCRFileListingPage from './components/jcr/files/JCRFileListingPage.js';
+import JCRTrustPage from './components/jcr/trust/JCRTrustPage.js';
+import ExecsAndAwardsPage from './components/jcr/roles/ExecsAndAwardsPage.js';
+import FinancialSupportPage from './components/jcr/finance/FinancialSupportPage.js';
 
-import CreateNewCommitteePage from './components/jcr/roles/admin/CreateNewCommitteePage';
-import CreateNewRolePage from './components/jcr/roles/admin/CreateNewRolePage';
-import ManageJCRFilesPage from './components/jcr/files/admin/ManageJCRFilesPage';
+import CreateNewCommitteePage from './components/jcr/roles/admin/CreateNewCommitteePage.js';
+import CreateNewRolePage from './components/jcr/roles/admin/CreateNewRolePage.js';
+import ManageJCRFilesPage from './components/jcr/files/admin/ManageJCRFilesPage.js';
 
-import SportsAndSocsPage from './components/sportsandsocs/SportsAndSocsPage';
-import SportsAndSocsAdminPage from './components/sportsandsocs/admin/SportsAndSocsAdminPage';
+import SportsAndSocsPage from './components/sportsandsocs/SportsAndSocsPage.js';
+import SportsAndSocsAdminPage from './components/sportsandsocs/admin/SportsAndSocsAdminPage.js';
 
-import TechPage from './components/tech/TechPage';
-import FacilitiesPage from './components/facilities/FacilitiesPage';
+import TechPage from './components/tech/TechPage.js';
+import FacilitiesPage from './components/facilities/FacilitiesPage.js';
 
 import ToastieAdminLive from './components/toasties/admin/live/ToastieAdminLive.js';
 import ToastieOrderVerification from './components/toasties/verify/ToastieOrderVerification.js';
