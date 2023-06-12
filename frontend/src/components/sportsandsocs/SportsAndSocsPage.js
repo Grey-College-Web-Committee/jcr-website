@@ -93,9 +93,9 @@ class SportsAndSocsPage extends React.Component {
             <p>If you want your sport, society or committee added to this page or want to update the details about it please
               {
                 this.context?.username ? (
-                  <span> <a href="mailto:grey.website@durham.ac.uk" target="_blank" className="font-semibold underline" rel="noopener noreferrer">contact the Website Editor by clicking here.</a></span>
+                  <span> <a href="mailto:grey.sportssocieties@durham.ac.uk?subject=Update%20Sport%20or%20Society%20Website%20Information" target="_blank" className="font-semibold underline" rel="noopener noreferrer">update the Sports and Socs Officer by clicking here.</a></span>
                 ) : (
-                  <span> contact the Website Editor. To access the reimbursement forms, please login in to the website first.</span>
+                  <span> contact the Sports and Socs Officer. To access the reimbursement forms, please login in to the website first.</span>
                 )
               }
 
