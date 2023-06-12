@@ -26,7 +26,8 @@ const {
   SwappingCredit, SwappingCreditLog, SwappingPair,
   ToastieBarBread, ToastieBarFilling, ToastieBarMilkshake, ToastieBarSpecial, ToastieBarSpecialFilling, ToastieBarAdditionalStockType, ToastieBarAdditionalStock, // TB Stock
   ToastieBarOrder, ToastieBarComponentToastie, ToastieBarComponentToastieFilling, ToastieBarComponentSpecial, ToastieBarComponentMilkshake, ToastieBarComponentAdditionalItem, // TB Order
-  DataRequest
+  DataRequest,
+  Formal, FormalGroup, FormalAttendee
 } = require("./database.models.js");
 
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
@@ -54,6 +55,7 @@ const sportsAndSocsRoute = require("./routes/sportsandsocs");
 const swappingRoute = require("./routes/swapping");
 const alumniRoute = require("./routes/alumni");
 const toastieBarRoute = require("./routes/toastie_bar");
+const formalsRoute = require("./routes/formals");
 
 // Required to deploy the static React files for production
 const path = require("path");
@@ -381,6 +383,10 @@ const requiredCommittees = [
   
   await DataRequest.sync();
 
+  await Formal.sync();
+  await FormalGroup.sync();
+  await FormalAttendee.sync();
+
   requiredPermissions.forEach(async (item, i) => {
     await Permission.findOrCreate({
       where: {
@@ -520,6 +526,7 @@ app.use("/api/jcr", jcrRoute);
 app.use("/api/profile", isLoggedIn, profileRoute);
 app.use("/api/sportsandsocs", sportsAndSocsRoute);
 app.use("/api/swapping", isLoggedIn, swappingRoute);
+app.use("/api/formals", isLoggedIn, formalsRoute);
 app.use("/api/alumni", alumniRoute);
 app.use("/api/toastie", toastieBarRoute); // No need to have been logged in
 

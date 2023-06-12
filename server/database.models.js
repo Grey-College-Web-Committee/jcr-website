@@ -99,6 +99,10 @@ class SwappingCredit extends Model {}
 class SwappingCreditLog extends Model {}
 class SwappingPair extends Model {}
 
+class Formal extends Model {}
+class FormalGroup extends Model {}
+class FormalAttendee extends Model {}
+
 // Bread only
 class ToastieBarBread extends Model {}
 // Fillings only
@@ -131,8 +135,6 @@ class DataRequest extends Model {}
 
 // Sequelize will automatically add IDs, createdAt and updatedAt
 
-// No need to store a users email it is simply username@durham.ac.uk
-// Wouldn't be difficult to add if it is wanted in the future
 User.init({
   username: {
     type: DataTypes.STRING,
@@ -1849,8 +1851,95 @@ DataRequest.init({
   }
 }, { sequelize })
 
+Formal.init({
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  closeDate: {
+    type: DataTypes.DATE,
+    allowNull: false
+  }
+}, { sequelize });
+
+FormalGroup.init({
+  formalId:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Formal,
+      key: 'id'
+    }
+  },
+  groupHeadId:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  allowOthers: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  }
+}, { sequelize });
+
+FormalAttendee.init({
+  formalId:{
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: Formal,
+      key: 'id'
+    }
+  },
+  formalGroupId:{
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: FormalGroup,
+      key: 'id'
+    }
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  firstNames: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  surname: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  consented: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
+  },
+  verificationToken: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  }
+}, { sequelize });
+
 
 // Associations are necessary to allow joins between tables
+
+User.hasOne(FormalGroup, { foreignKey: 'groupHeadId' });
+FormalGroup.belongsTo(User, { foreignKey: 'groupHeadId' });
+
+Formal.hasMany(FormalAttendee, { foreignKey: 'formalId' });
+FormalAttendee.belongsTo(Formal, { foreignKey: 'formalId' });
+
+Formal.hasMany(FormalGroup, { foreignKey: 'formalId' });
+FormalGroup.belongsTo(Formal, { foreignKey: 'formalId' });
+
+FormalGroup.hasMany(FormalAttendee, { foreignKey: 'formalGroupId' });
+FormalAttendee.belongsTo(FormalGroup, { foreignKey: 'formalGroupId' });
 
 StashSizeChart.hasMany(StashStock, { foreignKey: 'sizeChartId' });
 StashStock.belongsTo(StashSizeChart, { foreignKey: 'sizeChartId' });
@@ -2073,5 +2162,6 @@ module.exports = {
   SwappingCredit, SwappingCreditLog, SwappingPair,
   ToastieBarBread, ToastieBarFilling, ToastieBarMilkshake, ToastieBarSpecial, ToastieBarSpecialFilling, ToastieBarAdditionalStockType, ToastieBarAdditionalStock, // TB Stock
   ToastieBarOrder, ToastieBarComponentToastie, ToastieBarComponentToastieFilling, ToastieBarComponentSpecial, ToastieBarComponentMilkshake, ToastieBarComponentAdditionalItem, // TB Order
-  DataRequest
+  DataRequest,
+  Formal, FormalAttendee, FormalGroup
 }

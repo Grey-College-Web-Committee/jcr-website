@@ -139,6 +139,14 @@ import ToastieAdminStock from './components/toasties/admin/stock/ToastieAdminSto
 import ToastieOrderingPage from './components/toasties/order/ToastieOrderingPage.js';
 import ElectionGuidePage from './components/elections/guide/ElectionsGuidePage.js';
 
+import FormalsPage from './components/formals/FormalsPage.js'
+import FormalDetails from './components/formals/FormalDetails.js'
+import FormalGroupCreate from './components/formals/group/FormalGroupCreate.js'
+import GroupConfirm from './components/formals/group/GroupConfirm.js'
+import FormalAdmin from './components/formals/admin/FormalAdmin.js'
+import NewFormal from './components/formals/admin/NewFormal.js'
+import EditDetails from './components/formals/admin/EditDetails.js'
+
 const stripePromise = loadStripe(config.stripe.publicKey);
 
 class App extends React.Component {
@@ -149,7 +157,7 @@ class App extends React.Component {
     const storedUserState = localStorage.getItem("user");
     let user = null;
 
-    if(storedUserState !== null) {
+    if (storedUserState !== null) {
       try {
         user = JSON.parse(storedUserState);
       } catch (error) {
@@ -157,7 +165,7 @@ class App extends React.Component {
       }
     }
 
-    if(!this.validateLocalSession(user)) {
+    if (!this.validateLocalSession(user)) {
       user = null;
     }
 
@@ -187,8 +195,8 @@ class App extends React.Component {
 
   componentDidUpdate = (oldProps, oldState) => {
     // Updates the local storage with the user info when it is changed
-    if(this.state.user !== oldState.user) {
-      if(this.state.user === null) {
+    if (this.state.user !== oldState.user) {
+      if (this.state.user === null) {
         localStorage.setItem("user", null);
         return;
       }
@@ -196,14 +204,14 @@ class App extends React.Component {
       localStorage.setItem("user", JSON.stringify(this.state.user));
     }
 
-    if(this.isLoggedIn() === 1) {
+    if (this.isLoggedIn() === 1) {
       this.logoutUser();
     }
   }
 
   hasLoginExpired = (user) => {
     // Check if the login session has expired
-    if(user === null) {
+    if (user === null) {
       return false;
     }
 
@@ -214,27 +222,27 @@ class App extends React.Component {
   }
 
   validateLocalSession = (user) => {
-    if(user === null) {
+    if (user === null) {
       return false;
     }
 
-    if(!user.hasOwnProperty("permissions")) {
+    if (!user.hasOwnProperty("permissions")) {
       return false;
     }
 
-    if(!user.hasOwnProperty("email")) {
+    if (!user.hasOwnProperty("email")) {
       return false;
     }
 
-    if(!user.hasOwnProperty("expires")) {
+    if (!user.hasOwnProperty("expires")) {
       return false;
     }
 
-    if(!user.hasOwnProperty("username")) {
+    if (!user.hasOwnProperty("username")) {
       return false;
     }
 
-    if(this.hasLoginExpired(user)) {
+    if (this.hasLoginExpired(user)) {
       return false;
     }
 
@@ -244,11 +252,11 @@ class App extends React.Component {
   isLoggedIn = () => {
     // Check if the user is logged in
     // Perform basic checks on the user if it is clearly modified
-    if(this.state.user === null) {
+    if (this.state.user === null) {
       return 0;
     }
 
-    if(!this.validateLocalSession(this.state.user)) {
+    if (!this.validateLocalSession(this.state.user)) {
       return 1;
     }
 
@@ -256,15 +264,15 @@ class App extends React.Component {
   }
 
   hasPermission = (permission) => {
-    if(!this.isLoggedIn()) {
+    if (!this.isLoggedIn()) {
       return false;
     }
 
-    if(!this.state.user.permissions) {
+    if (!this.state.user.permissions) {
       return false;
     }
 
-    if(this.state.user.permissions.length === 0) {
+    if (this.state.user.permissions.length === 0) {
       return false;
     }
 
@@ -272,14 +280,14 @@ class App extends React.Component {
   }
 
   closeDebtPopup = () => {
-    if(!this.state.user.permissions.includes("debt.has")) {
+    if (!this.state.user.permissions.includes("debt.has")) {
       return;
     }
 
     this.setState({ debtPopupActive: false });
 
     setTimeout(() => {
-      if(this.state.user === undefined || this.state.user === null) {
+      if (this.state.user === undefined || this.state.user === null) {
         return;
       }
 
@@ -287,14 +295,14 @@ class App extends React.Component {
       const ignoredLocs = ["/debt", "/checkout", "/elections", "/election", "/feedback", "/complaints", "/accounts/confirm"]
       let dontBlock = false;
 
-      for(const loc of ignoredLocs) {
-        if(location.startsWith(loc)) {
+      for (const loc of ignoredLocs) {
+        if (location.startsWith(loc)) {
           dontBlock = true;
           break;
         }
       }
 
-      if(dontBlock) {
+      if (dontBlock) {
         this.setState({ debtPopupActive: false });
 
         setTimeout(() => {
@@ -320,16 +328,16 @@ class App extends React.Component {
     let cookiesApproved = false;
     const lsCookies = localStorage.getItem("cookiesApproved");
 
-    if(lsCookies !== undefined && lsCookies !== null) {
+    if (lsCookies !== undefined && lsCookies !== null) {
       const boolLsCookies = JSON.parse(lsCookies);
-      if(boolLsCookies === true) {
+      if (boolLsCookies === true) {
         cookiesApproved = true;
       }
     }
 
     localStorage.clear();
 
-    if(cookiesApproved === true) {
+    if (cookiesApproved === true) {
       localStorage.setItem("cookiesApproved", cookiesApproved);
     }
 
@@ -337,7 +345,7 @@ class App extends React.Component {
   }
 
   componentDidMount = () => {
-    if(!this.isLoggedIn() && this.state.user !== null) {
+    if (!this.isLoggedIn() && this.state.user !== null) {
       this.logoutUser();
     }
   }
@@ -356,7 +364,7 @@ class App extends React.Component {
     );
   }
 
-  render () {
+  render() {
     const bodyHidden = this.state.hideBody ? "hidden" : "";
     const bodyScrollDisabled = this.state.disableScrollBody ? "overflow-hidden" : "";
 
@@ -409,47 +417,68 @@ class App extends React.Component {
                       <CookiesPage />
                     )} />
                     <Route exact path="/accounts/register" render={(props) => (
-                      this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <RegisterPage {...props} /> )
+                      this.isLoggedIn() ? (<Redirect to="/" />) : (<RegisterPage {...props} />)
                     )} />
                     <Route exact path="/alumni/register" render={(props) => (
-                      this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <AlumniRegisterPage {...props} /> )
+                      this.isLoggedIn() ? (<Redirect to="/" />) : (<AlumniRegisterPage {...props} />)
                     )} />
                     <Route exact path="/alumni/verify/:token" render={(props) => (
-                      this.isLoggedIn() ? ( <Redirect to="/" /> ) : ( <VerifyAlumniPage {...props} /> )
+                      this.isLoggedIn() ? (<Redirect to="/" />) : (<VerifyAlumniPage {...props} />)
                     )} />
                     <Route exact path="/alumni/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("users.manage") ? ( <AdminApproveAlumniPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/alumni/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("users.manage") ? (<AdminApproveAlumniPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/alumni/admin"))
+                    )} />
+                    <Route exact path="/formals" render={() => (
+                      this.isLoggedIn() ? (<FormalsPage />) : (this.loginRef("/formals"))
+                    )} />
+                    <Route exact path="/formals/:id/details" render={(props) => (
+                      this.isLoggedIn() ? (<FormalDetails {...props} />) : (this.loginRef("/formals/" + props.match.params.id))
+                    )} />
+                    <Route exact path="/formals/:id/groups/create" render={(props) => (
+                      this.isLoggedIn() ? (<FormalGroupCreate {...props} />) : (this.loginRef("/formals/" + props.match.params.id + "/groups/create"))
+                    )} />
+                    <Route exact path="/formals/verify/:token" render={(props) => (
+                      <GroupConfirm token={props.match.params.token} />
+                    )} />
+                    <Route exact path="/formals/admin" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("formals.manage") ? (<FormalAdmin />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/formals/admin"))
+                    )} />
+                    <Route exact path="/formals/admin/new" render={() => (
+                      this.isLoggedIn() ? (this.hasPermission("formals.manage") ? (<NewFormal />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/formals/admin/new"))
+                    )} />
+                    <Route exact path="/formals/admin/:id/details" render={(props) => (
+                      this.isLoggedIn() ? (this.hasPermission("formals.manage") ? (<EditDetails id={props.match.params.id} />) : (<Redirect to="/errors/403" />)) : (this.loginRef(`/formals/admin/${props.match.params.id}/details`))
                     )} />
                     <Route exact path="/accounts/login" render={(props) => (
-                      this.isLoggedIn() ? ( <Redirect to={this.state.confirmedDetails ? this.state.ref : `/accounts/confirm?ref=${this.state.ref}`} /> ) : ( <LoginPage {...props} loginUser={this.loginUser} /> )
+                      this.isLoggedIn() ? (<Redirect to={this.state.confirmedDetails ? this.state.ref : `/accounts/confirm?ref=${this.state.ref}`} />) : (<LoginPage {...props} loginUser={this.loginUser} />)
                     )} />
                     <Route exact path="/accounts/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("users.manage") ? ( <AdminApprovePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/accounts/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("users.manage") ? (<AdminApprovePage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/accounts/admin"))
                     )} />
-                    <Route exact path="/accounts/logout" render={() => ( <LogoutPage logoutUser={this.logoutUser} /> )} />
+                    <Route exact path="/accounts/logout" render={() => (<LogoutPage logoutUser={this.logoutUser} />)} />
                     <Route exact path="/membership" render={() => (
-                      this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
+                      this.isLoggedIn() ? (<PurchaseMembershipPage />) : (<Redirect to="/accounts/login?ref=/memberships/join" />)
                     )} />
                     <Route exact path="/memberships/join" render={() => (
-                      this.isLoggedIn() ? ( <PurchaseMembershipPage /> ) : ( <Redirect to="/accounts/login?ref=/memberships/join" /> )
+                      this.isLoggedIn() ? (<PurchaseMembershipPage />) : (<Redirect to="/accounts/login?ref=/memberships/join" />)
                     )} />
                     <Route exact path="/toasties/live" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/live") )
+                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? (<ToastieAdminLive />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/toasties/live"))
                     )} />
                     <Route exact path="/stash/stock" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("stash.stock.edit") ? ( <StashStockPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/stash/stock") )
+                      this.isLoggedIn() ? (this.hasPermission("stash.stock.edit") ? (<StashStockPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/stash/stock"))
                     )} />
                     <Route exact path="/stash/images" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("stash.stock.edit") ? ( <StashImagesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/stash/images") )
+                      this.isLoggedIn() ? (this.hasPermission("stash.stock.edit") ? (<StashImagesPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/stash/images"))
                     )} />
                     <Route exact path="/stash/export" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("stash.export") ? ( <StashExportPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/stash/export") )
+                      this.isLoggedIn() ? (this.hasPermission("stash.export") ? (<StashExportPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/stash/export"))
                     )} />
                     <Route exact path="/permissions" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("permissions.edit") ? ( <EditPermissionsPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/permissions") )
+                      this.isLoggedIn() ? (this.hasPermission("permissions.edit") ? (<EditPermissionsPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/permissions"))
                     )} />
                     <Route exact path="/media" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/media") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <MediaPage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/media"))
                     )} />
                     <Route exact path="/jcr/financial-support" render={() => (
                       <FinancialSupportPage />
@@ -458,58 +487,58 @@ class App extends React.Component {
                       <FinancialSupportPage />
                     )} />
                     <Route exact path="/media/images/:eventName?" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ViewImagesPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/media/images${props.match.params.eventName ? "/" + props.match.params.eventName : ""}`) )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <ViewImagesPage {...props} /> : <Redirect to="/memberships/join" />) : (this.loginRef(`/media/images${props.match.params.eventName ? "/" + props.match.params.eventName : ""}`))
                     )} />
                     <Route exact path="/media/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("media.manage") ? ( <MediaAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/media/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("media.manage") ? (<MediaAdminPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/media/admin"))
                     )} />
                     <Route exact path="/debt" render={(props) => (
-                      this.isLoggedIn() ? ( <DebtPage {...props} /> ) : ( this.loginRef("/debt") )
+                      this.isLoggedIn() ? (<DebtPage {...props} />) : (this.loginRef("/debt"))
                     )} />
                     <Route exact path="/debt/manage" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("debt.manage") ? ( <ManageDebtPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/debt/manage") )
+                      this.isLoggedIn() ? (this.hasPermission("debt.manage") ? (<ManageDebtPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/debt/manage"))
                     )} />
                     <Route exact path="/gym" render={() => (
-                      this.isLoggedIn() ? ( <GymInformationPage /> ) : ( this.loginRef("/gym") )
+                      this.isLoggedIn() ? (<GymInformationPage />) : (this.loginRef("/gym"))
                     )} />
                     <Route exact path="/gym/induction" render={() => (
-                      this.isLoggedIn() ? ( <GymInductionPage /> ) : ( this.loginRef("/gym/induction") )
+                      this.isLoggedIn() ? (<GymInductionPage />) : (this.loginRef("/gym/induction"))
                     )} />
                     <Route exact path="/gym/terms" render={() => (
-                      this.isLoggedIn() ? ( <GymTermsPage /> ) : ( this.loginRef("/gym/terms") )
+                      this.isLoggedIn() ? (<GymTermsPage />) : (this.loginRef("/gym/terms"))
                     )} />
                     <Route exact path="/gym/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("gym.export") ? ( <GymAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/gym/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("gym.export") ? (<GymAdminPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/gym/admin"))
                     )} />
                     <Route exact path="/memberships/export" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.export") ? ( <ExportMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/memberships/export") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.export") ? (<ExportMembershipsPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/memberships/export"))
                     )} />
                     <Route exact path="/memberships/manage" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <ManageMembershipsPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/memberships/manage") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? (<ManageMembershipsPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/memberships/manage"))
                     )} />
                     <Route exact path="/elections" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/elections") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <ElectionOverviewPage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/elections"))
                     )} />
                     <Route exact path="/elections/guide" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionGuidePage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/elections/guide") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <ElectionGuidePage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/elections/guide"))
                     )} />
                     <Route exact path="/services/elections" render={() => (
                       <Redirect to="/elections" />
                     )} />
                     <Route exact path="/elections/vote/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ElectionVotingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/elections") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <ElectionVotingPage {...props} /> : <Redirect to="/memberships/join" />) : (this.loginRef("/elections"))
                     )} />
                     <Route exact path="/elections/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? ( <ElectionAdminPortal /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/elections/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? (<ElectionAdminPortal />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/elections/admin"))
                     )} />
                     <Route exact path="/elections/create" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? ( <CreateElectionPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/elections/create") )
+                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? (<CreateElectionPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/elections/create"))
                     )} />
                     <Route exact path="/elections/results/:id" render={(props) => (
-                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? ( <GenerateElectionResultsPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/elections/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? (<GenerateElectionResultsPage {...props} />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/elections/admin"))
                     )} />
                     <Route exact path="/elections/edit/:id" render={(props) => (
-                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? ( <ElectionEditPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/elections/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("elections.manage") ? (<ElectionEditPage {...props} />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/elections/admin"))
                     )} />
                     <Route exact path="/welfare/" render={() => (
                       <WelfarePage />
@@ -518,110 +547,110 @@ class App extends React.Component {
                       <ApplicantsPage />
                     )} />
                     <Route exact path="/welfare/message" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareMessagingPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/welfare/message") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <WelfareMessagingPage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/welfare/message"))
                     )} />
                     <Route exact path="/welfare/message/thread/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <WelfareThreadPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/welfare") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <WelfareThreadPage {...props} /> : <Redirect to="/memberships/join" />) : (this.loginRef("/welfare"))
                     )} />
                     <Route exact path="/welfare/message/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("welfare.anonymous") ? ( <WelfareAdminOverviewPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/welfare/message/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("welfare.anonymous") ? (<WelfareAdminOverviewPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/welfare/message/admin"))
                     )} />
                     <Route exact path="/welfare/message/admin/thread/:id" render={(props) => (
-                      this.isLoggedIn() ? (this.hasPermission("welfare.anonymous") ? ( <WelfareAdminThreadPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/welfare/message/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("welfare.anonymous") ? (<WelfareAdminThreadPage {...props} />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/welfare/message/admin"))
                     )} />
                     <Route exact path="/stash" component={() => {
                       window.location.replace("https://www.redbirdsupplyuk.com/grey-college-durham");
                       return null;
                     }} />
                     <Route exact path="/careers/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <CareersPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <CareersPage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/careers"))
                     )} />
                     <Route exact path="/careers/admin" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("careers.manage") ? <CareersAdminPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("careers.manage") ? <CareersAdminPage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/careers/admin"))
                     )} />
                     <Route exact path="/careers/edit/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("careers.manage") ? <CareersEditPost {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/careers") )
+                      this.isLoggedIn() ? (this.hasPermission("careers.manage") ? <CareersEditPost {...props} /> : <Redirect to="/memberships/join" />) : (this.loginRef("/careers"))
                     )} />
                     <Route exact path="/complaints" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <ComplaintsPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/complaints") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <ComplaintsPage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/complaints"))
                     )} />
                     <Route exact path="/complaints/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("complaints.manage") ? ( <ComplaintsAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/complaints/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("complaints.manage") ? (<ComplaintsAdminOverview />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/complaints/admin"))
                     )} />
                     <Route exact path="/complaints/view/:id" render={(props) => (
-                      this.isLoggedIn() ? (this.hasPermission("complaints.manage") ? ( <ComplaintViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/complaints/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("complaints.manage") ? (<ComplaintViewPage {...props} />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/complaints/admin"))
                     )} />
                     <Route exact path="/events/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsManagePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? (<EventsManagePage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/events/admin"))
                     )} />
                     <Route exact path="/events/admin/create" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <CreateNewEventPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin/create") )
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? (<CreateNewEventPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/events/admin/create"))
                     )} />
                     <Route exact path="/events/admin/edit/:eventId" render={(props) => (
-                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EditEventDetails {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/events/admin/edit/${props.match.params.eventId}`) )
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? (<EditEventDetails {...props} />) : (<Redirect to="/errors/403" />)) : (this.loginRef(`/events/admin/edit/${props.match.params.eventId}`))
                     )} />
                     <Route exact path="/events/admin/groups/:eventId" render={(props) => (
-                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsGroupManagePage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/events/admin/groups/${props.match.params.eventId}`) )
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? (<EventsGroupManagePage {...props} />) : (<Redirect to="/errors/403" />)) : (this.loginRef(`/events/admin/groups/${props.match.params.eventId}`))
                     )} />
                     <Route exact path="/events/admin/export" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("events.export") ? ( <EventsExportOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/events/admin/export") )
+                      this.isLoggedIn() ? (this.hasPermission("events.export") ? (<EventsExportOverview />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/events/admin/export"))
                     )} />
                     <Route exact path="/events/admin/export/:eventId" render={(props) => (
-                      this.isLoggedIn() ? (this.hasPermission("events.export") ? ( <EventsExportPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/events/admin/export/${props.match.params.eventId}`) )
+                      this.isLoggedIn() ? (this.hasPermission("events.export") ? (<EventsExportPage {...props} />) : (<Redirect to="/errors/403" />)) : (this.loginRef(`/events/admin/export/${props.match.params.eventId}`))
                     )} />
                     <Route exact path="/events/admin/groups/:eventId/create/:ticketTypeId" render={(props) => (
-                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? ( <EventsAdminBookingPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/events/admin/groups/${props.match.params.eventId}/create/${props.match.params.ticketTypeId}`) )
+                      this.isLoggedIn() ? (this.hasPermission("events.manage") ? (<EventsAdminBookingPage {...props} />) : (<Redirect to="/errors/403" />)) : (this.loginRef(`/events/admin/groups/${props.match.params.eventId}/create/${props.match.params.ticketTypeId}`))
                     )} />
                     <Route exact path="/events/" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsOverviewPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <EventsOverviewPage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/events"))
                     )} />
                     <Route exact path="/my/bookings" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsMyBookingsOverview /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/my/bookings") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <EventsMyBookingsOverview /> : <Redirect to="/memberships/join" />) : (this.loginRef("/my/bookings"))
                     )} />
                     <Route exact path="/my/ticket/:ticketId" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsMyBookingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/my/ticket/${props.match.params.ticketId}`) )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <EventsMyBookingPage {...props} /> : <Redirect to="/memberships/join" />) : (this.loginRef(`/my/ticket/${props.match.params.ticketId}`))
                     )} />
                     <Route exact path="/events/swapping" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <SwappingPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/swapping") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <SwappingPage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/events/swapping"))
                     )} />
                     <Route exact path="/events/swapping/admin" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("events.swapping") ? <SwappingAdminPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/swapping/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("events.swapping") ? <SwappingAdminPage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/events/swapping/admin"))
                     )} />
                     <Route exact path="/events/terms" render={() => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsTermsPage /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef("/events/terms") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <EventsTermsPage /> : <Redirect to="/memberships/join" />) : (this.loginRef("/events/terms"))
                     )} />
                     <Route exact path="/events/event/:id/book/:type" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsGroupBookingPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/event/${props.match.params.id}`) )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <EventsGroupBookingPage {...props} /> : <Redirect to="/memberships/join" />) : (this.loginRef(`/events/event/${props.match.params.id}`))
                     )} />
                     <Route exact path="/events/event/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsInfoPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/event/${props.match.params.id}`) )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <EventsInfoPage {...props} /> : <Redirect to="/memberships/join" />) : (this.loginRef(`/events/event/${props.match.params.id}`))
                     )} />
                     <Route exact path="/events/bookings/payment/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsPaymentPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/bookings/payment/${props.match.params.id}`) )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <EventsPaymentPage {...props} /> : <Redirect to="/memberships/join" />) : (this.loginRef(`/events/bookings/payment/${props.match.params.id}`))
                     )} />
                     <Route exact path="/events/bookings/free/:id" render={(props) => (
-                      this.isLoggedIn() ? ( this.hasPermission("jcr.member") ? <EventsFreeReqPage {...props} /> : <Redirect to="/memberships/join" /> ) : ( this.loginRef(`/events/bookings/free/${props.match.params.id}`) )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.member") ? <EventsFreeReqPage {...props} /> : <Redirect to="/memberships/join" />) : (this.loginRef(`/events/bookings/free/${props.match.params.id}`))
                     )} />
                     <Route exact path="/checkout/" render={() => (
-                      this.isLoggedIn() ? ( <CheckoutPage /> ) : ( this.loginRef("/checkout") )
+                      this.isLoggedIn() ? (<CheckoutPage />) : (this.loginRef("/checkout"))
                     )} />
                     <Route exact path="/feedback" render={() => (
-                      this.isLoggedIn() ? ( <FeedbackPage /> ) : ( this.loginRef("/feedback") )
+                      this.isLoggedIn() ? (<FeedbackPage />) : (this.loginRef("/feedback"))
                     )} />
                     <Route exact path="/feedback/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackAdminOverview /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/feedback/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? (<FeedbackAdminOverview />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/feedback/admin"))
                     )} />
                     <Route exact path="/feedback/view/:id" render={(props) => (
-                      this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? ( <FeedbackViewPage {...props} /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef(`/feedback/view/${props.id}`) )
+                      this.isLoggedIn() ? (this.hasPermission("feedback.manage") ? (<FeedbackViewPage {...props} />) : (<Redirect to="/errors/403" />)) : (this.loginRef(`/feedback/view/${props.id}`))
                     )} />
                     <Route exact path="/jcr/committees" render={(props) => (
                       <ViewCommitteesPage {...props} disableBodyScroll={this.disableBodyScroll} />
                     )} />
                     <Route exact path="/jcr/committees/manage" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewCommitteePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/committees/manage") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? (<CreateNewCommitteePage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/jcr/committees/manage"))
                     )} />
                     <Route exact path="/jcr/roles/manage" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? ( <CreateNewRolePage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/roles/manage") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.manage") ? (<CreateNewRolePage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/jcr/roles/manage"))
                     )} />
                     <Route exact path="/jcr/files" render={() => (
                       <JCRFileListingPage />
@@ -630,19 +659,19 @@ class App extends React.Component {
                       <ExecsAndAwardsPage />
                     )} />
                     <Route exact path="/jcr/files/manage" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("jcr.files") ? ( <ManageJCRFilesPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/jcr/files/manage") )
+                      this.isLoggedIn() ? (this.hasPermission("jcr.files") ? (<ManageJCRFilesPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/jcr/files/manage"))
                     )} />
                     <Route exact path="/jcr/trust" render={() => (
                       <JCRTrustPage />
                     )} />
                     <Route exact path="/my/profile" render={() => (
-                      this.isLoggedIn() ? ( <MyProfile /> ) : ( this.loginRef("/my/profile") )
+                      this.isLoggedIn() ? (<MyProfile />) : (this.loginRef("/my/profile"))
                     )} />
                     <Route exact path="/my/profile/request" render={() => (
-                      this.isLoggedIn() ? ( <DetailChangeRequest /> ) : ( this.loginRef("/my/profile/request") )
+                      this.isLoggedIn() ? (<DetailChangeRequest />) : (this.loginRef("/my/profile/request"))
                     )} />
                     <Route exact path="/accounts/confirm" render={(props) => (
-                      this.isLoggedIn() ? ( <ConfirmDetailsPage {...props} /> ) : ( <Redirect to="/" /> )
+                      this.isLoggedIn() ? (<ConfirmDetailsPage {...props} />) : (<Redirect to="/" />)
                     )} />
                     <Route exact path="/bookings" component={() => {
                       window.location.replace("https://outlook.office365.com/owa/calendar/GreyCollegeRoomBookings@durhamuniversity.onmicrosoft.com/bookings/");
@@ -652,19 +681,19 @@ class App extends React.Component {
                       <SportsAndSocsPage />
                     )} />
                     <Route exact path="/sportsandsocs/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? ( <SportsAndSocsAdminPage /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/sportsandsocs/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("sportsandsocs.manage") ? (<SportsAndSocsAdminPage />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/sportsandsocs/admin"))
                     )} />
                     <Route exact path="/toasties" render={() => (
                       <ToastieOrderingPage />
                     )} />
                     <Route exact path="/toasties/admin" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminPortal /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin") )
+                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? (<ToastieAdminPortal />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/toasties/admin"))
                     )} />
                     <Route exact path="/toasties/admin/stock" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminStock /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin/stock") )
+                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? (<ToastieAdminStock />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/toasties/admin/stock"))
                     )} />
                     <Route exact path="/toasties/admin/live" render={() => (
-                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? ( <ToastieAdminLive /> ) : ( <Redirect to="/errors/403" /> )) : ( this.loginRef("/toasties/admin/live") )
+                      this.isLoggedIn() ? (this.hasPermission("toasties.manage") ? (<ToastieAdminLive />) : (<Redirect to="/errors/403" />)) : (this.loginRef("/toasties/admin/live"))
                     )} />
                     <Route exact path="/toasties/verify/:verificationCode" render={(props) => (
                       <ToastieOrderVerification {...props} />

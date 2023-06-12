@@ -42,7 +42,7 @@ class NavBar extends React.Component {
       }
     ];
 
-    if(user === undefined || user === null) {
+    if (user === undefined || user === null) {
       const loggedOutOptions = [
         {
           displayName: "JCR",
@@ -151,13 +151,13 @@ class NavBar extends React.Component {
       // use a bit of a trick to hide the JCR membership tab if they have a membership
       let permissions = [];
 
-      if(!user.hasOwnProperty("permissions")) {
+      if (!user.hasOwnProperty("permissions")) {
         permissions = [];
       } else {
         permissions = user.permissions;
       }
 
-      if(permissions === null) {
+      if (permissions === null) {
         permissions = [];
       }
 
@@ -165,6 +165,14 @@ class NavBar extends React.Component {
         {
           displayName: "JCR Membership",
           url: "/memberships/join",
+          requiredPermission: permissions.includes("jcr.member") ? "no-one-has-this-perm" : null,
+          staticImage: null,
+          dropdown: null,
+          alwaysDisplayed: false
+        },
+        {
+          displayName: "Formals",
+          url: "/formals",
           requiredPermission: permissions.includes("jcr.member") ? "no-one-has-this-perm" : null,
           staticImage: null,
           dropdown: null,
@@ -305,6 +313,11 @@ class NavBar extends React.Component {
               requiredPermission: "jcr.member"
             },
             {
+              displayName: "Formals",
+              url: "/formals",
+              requiredPermission: null
+            },
+            {
               displayName: "Photos",
               url: "/media/images",
               requiredPermission: "jcr.member"
@@ -429,6 +442,11 @@ class NavBar extends React.Component {
               requiredPermission: "sportsandsocs.manage"
             },
             {
+              displayName: "Manage Formals",
+              url: "/formals/admin",
+              requiredPermission: "formals.manage"
+            },
+            {
               displayName: "Manage Applications",
               url: "/accounts/admin",
               requiredPermission: "users.manage"
@@ -507,7 +525,7 @@ class NavBar extends React.Component {
     this.setState({ activeDropdownKey: id });
   }
 
-  render () {
+  render() {
     const user = this.context;
     const location = this.props.location.pathname;
     const menuOptions = this.getMenuOptions(user);
@@ -517,7 +535,7 @@ class NavBar extends React.Component {
     return (
       <nav
         onMouseLeave={() => {
-          if(this.state.activeDropdownKey !== menuOptions.length) {
+          if (this.state.activeDropdownKey !== menuOptions.length) {
             this.setActiveDropdown(-1);
           }
         }}

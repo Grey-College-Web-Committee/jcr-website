@@ -15,6 +15,7 @@ class CommonFooter extends React.Component {
         <div className="sm:text-right flex flex-col sm:items-end">
           <Link to="/cookies"><p className="underline">Cookie Policy</p></Link>
           <Link to="/contributors"><p className="underline">Contributors and Image Attributions</p></Link>
+          <a href="mailto:grey.website@durham.ac.uk" target="_blank" className="underline" rel="noopener noreferrer">Contact the editor to contribute</a>
         </div>
       </footer>
     )
