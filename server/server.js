@@ -599,7 +599,6 @@ app.get("/uploads/jcr/:filename/:truename", async function(req, res) {
 });
 
 app.get("/elections/manifesto/:filename", isLoggedIn, function(req, res) {
-  return res.send("test")
   const filename = req.params.filename;
 
   fs.readFile(path.join(__dirname, `./manifestos/${filename}`), (err, data) => {
