@@ -141,6 +141,7 @@ router.get("/images/options", async (req, res) => {
     "President's Guest Night 2023": "pgn2023",
     "Grey Unplugged 2023": "unplugged2023",
     "GCCFS 2023": "gccfs2023",
+    "Phoenix Ball 2023": "phoenix-23",
     "Grey Day 2023": "grey-day-23"
   }
 
